@@ -12,14 +12,11 @@ import com.emarsys.mobileengage.service.NotificationData
 import com.emarsys.mobileengage.service.NotificationOperation
 import com.emarsys.testUtil.FileTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import org.json.JSONObject
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -63,11 +60,8 @@ class PreloadedInappHandlerCommandTest {
     private lateinit var mockLifecycleActionRegistry: ActivityLifecycleActionRegistry
     private lateinit var fileUrl: String
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         fileUrl =
             InstrumentationRegistry.getTargetContext().applicationContext.cacheDir.absolutePath + "/test.file"
@@ -89,7 +83,7 @@ class PreloadedInappHandlerCommandTest {
 
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         concurrentHandlerHolder.coreLooper.quitSafely()
         tearDownMobileEngageComponent()

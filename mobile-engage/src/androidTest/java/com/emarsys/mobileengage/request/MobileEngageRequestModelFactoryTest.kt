@@ -14,12 +14,11 @@ import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository
 import com.emarsys.mobileengage.util.RequestPayloadUtils
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -59,11 +58,8 @@ class MobileEngageRequestModelFactoryTest {
     lateinit var mockClientServiceProvider: ServiceEndpointProvider
     lateinit var mockButtonClickedRepository: ButtonClickedRepository
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockEventServiceProvider = mock {
             on { provideEndpointHost() } doReturn EVENT_HOST

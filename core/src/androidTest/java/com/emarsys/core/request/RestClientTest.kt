@@ -16,13 +16,12 @@ import com.emarsys.core.testUtil.RequestModelTestUtils
 import com.emarsys.testUtil.ConnectionTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TestUrls
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -42,12 +41,9 @@ class RestClientTest {
     private lateinit var requestModelMappers: List<Mapper<RequestModel, RequestModel>>
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Suppress("UNCHECKED_CAST")
-    @Before
+    @BeforeEach
     fun setup() {
         ConnectionTestUtils.checkConnection(InstrumentationRegistry.getTargetContext())
 

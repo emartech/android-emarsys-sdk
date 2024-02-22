@@ -5,12 +5,9 @@ import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.testUtil.IntegrationTestUtils
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
@@ -18,8 +15,8 @@ class EventServiceTest {
     companion object {
         private const val EVENT_NAME = "testEventName"
         private val EVENT_ATTRIBUTES = mapOf(
-                "key1" to "value1",
-                "key2" to "value2"
+            "key1" to "value1",
+            "key2" to "value2"
         )
     }
 
@@ -27,11 +24,8 @@ class EventServiceTest {
     private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var eventServiceApi: EventServiceApi
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockCompletionListener = mock()
         mockEventServiceInternal = mock()
@@ -40,7 +34,7 @@ class EventServiceTest {
         setupEmarsysComponent(FakeDependencyContainer(eventServiceInternal = mockEventServiceInternal))
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys()
     }

@@ -1,28 +1,23 @@
 package com.emarsys.core.concurrency
 
 import com.emarsys.core.handler.ConcurrentHandlerHolder
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+
 
 class ConcurrentHandlerHolderFactoryTest {
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         concurrentHandlerHolder.coreLooper.quit()
     }

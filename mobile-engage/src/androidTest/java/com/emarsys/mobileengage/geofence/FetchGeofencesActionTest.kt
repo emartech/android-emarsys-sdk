@@ -5,26 +5,21 @@ import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.util.waitForTask
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
 class FetchGeofencesActionTest {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+
 
     private lateinit var mockGeofenceInternal: GeofenceInternal
     private lateinit var mockActivity: Activity
     private lateinit var fetchGeofencesAction: FetchGeofencesAction
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockGeofenceInternal = mock()
         mockActivity = mock()
@@ -34,7 +29,7 @@ class FetchGeofencesActionTest {
         fetchGeofencesAction = FetchGeofencesAction(mockGeofenceInternal)
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         tearDownMobileEngageComponent()
     }

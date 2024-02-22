@@ -1,18 +1,14 @@
 package com.emarsys.mobileengage.notification.command
 
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+
+import org.junit.jupiter.api.Test
+
 import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
 class CompositeCommandTest {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Test
     fun testRun_shouldInvokeAllCommands() {

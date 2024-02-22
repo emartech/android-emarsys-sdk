@@ -5,10 +5,9 @@ import android.content.Context
 import android.content.Intent
 import com.emarsys.mobileengage.service.NotificationData
 import com.emarsys.mobileengage.service.NotificationOperation
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+
+import org.junit.jupiter.api.Test
+
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
@@ -43,9 +42,6 @@ class DismissNotificationCommandTest {
         )
     }
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Test
     fun testDismissNotification_callsNotificationManager() {

@@ -8,8 +8,8 @@ import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
-import io.kotlintest.shouldBe
-import org.junit.Test
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 
 class JSCommandFactoryProviderTest {

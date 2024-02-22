@@ -1,13 +1,12 @@
 package com.emarsys.core.notification
 
 import com.emarsys.core.api.notification.ChannelSettings
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 import org.mockito.Mockito.mock
 
 class NotificationManagerHelperTest {
@@ -21,11 +20,8 @@ class NotificationManagerHelperTest {
     private lateinit var mockNotificationManagerProxy: NotificationManagerProxy
     private lateinit var notificationManagerHelper: NotificationManagerHelper
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockNotificationManagerProxy = mock(NotificationManagerProxy::class.java)
         notificationManagerHelper = NotificationManagerHelper(mockNotificationManagerProxy)

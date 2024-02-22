@@ -8,9 +8,9 @@ import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.mobileengage.inbox.MessageInboxInternal
 import com.emarsys.testUtil.IntegrationTestUtils
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
@@ -25,7 +25,7 @@ class MessageInboxTest {
     private lateinit var inbox: MessageInboxApi
     private lateinit var mockInboxInternal: MessageInboxInternal
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockInboxInternal = mock()
         val dependencyContainer = FakeDependencyContainer(messageInboxInternal = mockInboxInternal)
@@ -34,7 +34,7 @@ class MessageInboxTest {
         inbox = MessageInbox()
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys()
     }

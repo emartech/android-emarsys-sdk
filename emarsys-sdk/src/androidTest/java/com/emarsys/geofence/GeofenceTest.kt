@@ -6,12 +6,9 @@ import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.geofence.GeofenceInternal
 import com.emarsys.testUtil.IntegrationTestUtils
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
@@ -21,11 +18,8 @@ class GeofenceTest {
     private lateinit var geofenceProxy: GeofenceApi
     private lateinit var mockGeofenceInternal: GeofenceInternal
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockGeofenceInternal = mock()
         val dependencyContainer = FakeDependencyContainer(geofenceInternal = mockGeofenceInternal)
@@ -35,7 +29,7 @@ class GeofenceTest {
         geofenceProxy = Geofence()
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys()
     }

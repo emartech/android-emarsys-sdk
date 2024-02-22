@@ -1,49 +1,57 @@
 package com.emarsys.core.util.batch
 
 import com.emarsys.core.shard.ShardModel
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 import org.mockito.Mockito.mock
 
 class ListChunkerTest {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var chunker: ListChunker<Any>
 
-    @Before
+    @BeforeEach
     fun init() {
         chunker = ListChunker(1)
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun constructor_chunkSize_mustBeGreaterThanZero() {
-        ListChunker<Any>(0)
+        shouldThrow<IllegalArgumentException> {
+            ListChunker<Any>(0)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testMap_shards_mustNotBeNull() {
-        chunker.map(null)
+        shouldThrow<IllegalArgumentException> {
+            chunker.map(null)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testMap_shards_mustNotBeEmpty() {
-        chunker.map(listOf<Any>())
+        shouldThrow<IllegalArgumentException> {
+            chunker.map(listOf<Any>())
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testMap_shards_mustNotContainNullElements() {
-        chunker.map(listOf(
-                mock(ShardModel::class.java),
-                null,
-                mock(ShardModel::class.java)
-        ))
+        shouldThrow<IllegalArgumentException> {
+            chunker.map(
+                listOf(
+                    mock(ShardModel::class.java),
+                    null,
+                    mock(ShardModel::class.java)
+                )
+            )
+        }
     }
 
     @Test
@@ -54,7 +62,7 @@ class ListChunkerTest {
         val expected = listOf(listOf(shard))
         val result = chunker.map(input)
 
-        assertEquals(expected, result)
+        result shouldBe expected
     }
 
     @Test
@@ -64,7 +72,7 @@ class ListChunkerTest {
         val expected = input.map { listOf(it) }
         val result = chunker.map(input)
 
-        assertEquals(expected, result)
+        result shouldBe expected
     }
 
     @Test
@@ -76,7 +84,7 @@ class ListChunkerTest {
         val expected = listOf(input)
         val result = chunker.map(input)
 
-        assertEquals(expected, result)
+        result shouldBe expected
     }
 
     @Test
@@ -88,11 +96,11 @@ class ListChunkerTest {
         val expected = input.chunked(3)
         val result = chunker.map(input)
 
-        assertEquals(expected, result)
+        result shouldBe expected
     }
 
     private fun createShardModels(size: Int): List<Any> =
-            (0 until size).map { mock(Any::class.java) }
+        (0 until size).map { mock(Any::class.java) }
 
 
 }

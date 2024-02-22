@@ -1,11 +1,10 @@
 pluginManagement {
     repositories {
         google()
-        mavenCentral()
         gradlePluginPortal()
-        maven(url = "https://androidx.dev/storage/compose-compiler/repository/")
-        maven(url = "https://developer.huawei.com/repo/")
-        maven(url = "https://ajoberstar.org/bintray-backup/")
+        mavenCentral()
+        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        maven("https://developer.huawei.com/repo/")
     }
     resolutionStrategy {
         eachPlugin {
@@ -17,31 +16,31 @@ pluginManagement {
         }
     }
 }
+
 dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven(url = "https://maven.google.com")
-        maven(url = "https://developer.huawei.com/repo/")
-        maven(url = "https://ajoberstar.org/bintray-backup/")
-        maven(url = "https://androidx.dev/storage/compose-compiler/repository/")
+        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        maven("https://developer.huawei.com/repo/")
     }
 }
+
 rootProject.name = "Android Emarsys SDK"
 
 include(
     ":common",
-    "core",
+    ":core",
     ":core-api",
-    "emarsys",
+    ":emarsys",
     ":emarsys-e2e-test",
-    "emarsys-firebase",
+    ":emarsys-firebase",
     ":emarsys-huawei",
-    "emarsys-sdk",
+    ":emarsys-sdk",
     ":mobile-engage",
-    "mobile-engage-api",
+    ":mobile-engage-api",
     ":predict",
-    "predict-api",
+    ":predict-api",
     ":sample",
-    "testUtils"
+    ":testUtils"
 )

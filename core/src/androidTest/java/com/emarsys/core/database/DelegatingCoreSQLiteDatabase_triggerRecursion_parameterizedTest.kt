@@ -6,37 +6,25 @@ import com.emarsys.core.database.trigger.TriggerEvent
 import com.emarsys.core.database.trigger.TriggerType
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 
-@RunWith(Parameterized::class)
 class DelegatingCoreSQLiteDatabase_triggerRecursion_parameterizedTest {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+    private lateinit var mockRunnable: Runnable
+    private lateinit var db: DelegatingCoreSQLiteDatabase
 
-    @Parameterized.Parameter
-    lateinit var triggerType: TriggerType
-
-    @Parameterized.Parameter(1)
-    lateinit var triggerEvent: TriggerEvent
-
-    @Parameterized.Parameter(2)
-    lateinit var triggerAction: Runnable
-
-    @Before
+    @BeforeEach
     fun init() {
         DatabaseTestUtils.deleteCoreDatabase()
 
-        val coreDbHelper = CoreDbHelper(InstrumentationRegistry.getTargetContext().applicationContext, mutableMapOf())
+        val coreDbHelper = CoreDbHelper(
+            InstrumentationRegistry.getTargetContext().applicationContext,
+            mutableMapOf()
+        )
         db = DelegatingCoreSQLiteDatabase(coreDbHelper.writableDatabase, mutableMapOf())
 
         db.backingDatabase.execSQL(CREATE)
@@ -44,8 +32,13 @@ class DelegatingCoreSQLiteDatabase_triggerRecursion_parameterizedTest {
         mockRunnable = mock(Runnable::class.java)
     }
 
-    @Test
-    fun testRegisterTrigger_doesNotRunInto_recursiveTriggerLoop() {
+    @ParameterizedTest
+    @MethodSource("data")
+    fun testRegisterTrigger_doesNotRunInto_recursiveTriggerLoop(
+        triggerType: TriggerType,
+        triggerEvent: TriggerEvent,
+        triggerAction: Runnable
+    ) {
         val trigger = Runnable {
             triggerAction.run()
             mockRunnable.run()
@@ -64,55 +57,50 @@ class DelegatingCoreSQLiteDatabase_triggerRecursion_parameterizedTest {
         private const val COLUMN_2 = "column2"
         const val CREATE = "CREATE TABLE $TABLE_NAME ($COLUMN_1 TEXT, $COLUMN_2 INTEGER);"
 
-        private lateinit var mockRunnable: Runnable
-        private lateinit var db: DelegatingCoreSQLiteDatabase
-
         private val contentValues = ContentValues().apply {
             put(COLUMN_1, "value")
             put(COLUMN_2, 1234)
         }
+    }
 
-        @JvmStatic
-        @Parameterized.Parameters
-        fun data(): Collection<Array<Any>> {
-            return listOf(
-                    arrayOf(
-                            TriggerType.BEFORE,
-                            TriggerEvent.INSERT,
-                            Runnable {
-                                db.insert(TABLE_NAME, null, contentValues)
-                            }),
-                    arrayOf(
-                            TriggerType.AFTER,
-                            TriggerEvent.INSERT,
-                            Runnable {
-                                db.insert(TABLE_NAME, null, contentValues)
-                            }),
-                    arrayOf(
-                            TriggerType.BEFORE,
-                            TriggerEvent.DELETE,
-                            Runnable {
-                                db.delete(TABLE_NAME, null, null)
-                            }),
-                    arrayOf(
-                            TriggerType.AFTER,
-                            TriggerEvent.DELETE,
-                            Runnable {
-                                db.delete(TABLE_NAME, null, null)
-                            }),
-                    arrayOf(
-                            TriggerType.BEFORE,
-                            TriggerEvent.UPDATE,
-                            Runnable {
-                                db.update(TABLE_NAME, contentValues,null, null)
-                            }),
-                    arrayOf(
-                            TriggerType.AFTER,
-                            TriggerEvent.UPDATE,
-                            Runnable {
-                                db.update(TABLE_NAME, contentValues,null, null)
-                            })
-            )
-        }
+    fun data(): Collection<Array<Any>> {
+        return listOf(
+            arrayOf(
+                TriggerType.BEFORE,
+                TriggerEvent.INSERT,
+                Runnable {
+                    db.insert(TABLE_NAME, null, contentValues)
+                }),
+            arrayOf(
+                TriggerType.AFTER,
+                TriggerEvent.INSERT,
+                Runnable {
+                    db.insert(TABLE_NAME, null, contentValues)
+                }),
+            arrayOf(
+                TriggerType.BEFORE,
+                TriggerEvent.DELETE,
+                Runnable {
+                    db.delete(TABLE_NAME, null, null)
+                }),
+            arrayOf(
+                TriggerType.AFTER,
+                TriggerEvent.DELETE,
+                Runnable {
+                    db.delete(TABLE_NAME, null, null)
+                }),
+            arrayOf(
+                TriggerType.BEFORE,
+                TriggerEvent.UPDATE,
+                Runnable {
+                    db.update(TABLE_NAME, contentValues, null, null)
+                }),
+            arrayOf(
+                TriggerType.AFTER,
+                TriggerEvent.UPDATE,
+                Runnable {
+                    db.update(TABLE_NAME, contentValues, null, null)
+                })
+        )
     }
 }

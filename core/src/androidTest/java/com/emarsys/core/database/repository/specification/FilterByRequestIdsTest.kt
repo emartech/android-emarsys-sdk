@@ -9,20 +9,14 @@ import com.emarsys.core.request.model.RequestModelRepository
 import com.emarsys.core.request.model.specification.FilterByRequestIds
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import java.util.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class FilterByRequestIdsTest {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+
 
     private lateinit var repository: RequestModelRepository
     private lateinit var requestModel1: RequestModel
@@ -30,7 +24,7 @@ class FilterByRequestIdsTest {
     private lateinit var requestModel3: RequestModel
     private lateinit var requestModel4: RequestModel
 
-    @Before
+    @BeforeEach
     fun init() {
         DatabaseTestUtils.deleteCoreDatabase()
         val timestampProvider = TimestampProvider()

@@ -1,30 +1,23 @@
-package com.emarsys.core.util;
+package com.emarsys.core.util
 
-import com.emarsys.testUtil.TimeoutUtils;
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.Test
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
+class HeaderUtilsInstrumentationTest {
+    private val username = "user"
 
-import static org.junit.Assert.assertEquals;
-
-public class HeaderUtilsInstrumentationTest {
-
-    private final String username = "user";
-
-    @Rule
-    public TestRule timeout = TimeoutUtils.getTimeoutRule();
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testCreateBasicAuth_usernameShouldNotBeNull(){
-        HeaderUtils.createBasicAuth(null);
+    @Test
+    fun testCreateBasicAuth_usernameShouldNotBeNull() {
+        shouldThrow<IllegalArgumentException> {
+            HeaderUtils.createBasicAuth(null)
+        }
     }
 
     @Test
-    public void testCreateBasicAuth_shouldCreateCorrectBasicAuthString() throws Exception {
-        String expected = "Basic dXNlcjo=";
-        String result = HeaderUtils.createBasicAuth(username);
-        assertEquals(expected, result);
+    fun testCreateBasicAuth_shouldCreateCorrectBasicAuthString() {
+        val expected = "Basic dXNlcjo="
+        val result = HeaderUtils.createBasicAuth(username)
+        result shouldBe expected
     }
-
 }

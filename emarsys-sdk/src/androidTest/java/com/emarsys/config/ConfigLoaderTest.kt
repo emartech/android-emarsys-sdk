@@ -1,16 +1,15 @@
 package com.emarsys.config
 
-import android.app.Activity
 import android.app.Application
 import android.content.SharedPreferences
-import com.emarsys.Emarsys
-import io.kotlintest.matchers.types.shouldBeSameInstanceAs
-import io.kotlintest.shouldBe
-import org.junit.Assert.*
-import org.junit.Before
-
-import org.junit.Test
-import org.mockito.kotlin.*
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 class ConfigLoaderTest {
     companion object {
@@ -25,7 +24,7 @@ class ConfigLoaderTest {
     private lateinit var mockSharedPreferences: SharedPreferences
     private lateinit var mockApplication : Application
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockSharedPreferences = mock()
         mockApplication = mock {

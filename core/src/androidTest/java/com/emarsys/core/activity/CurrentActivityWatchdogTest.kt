@@ -5,12 +5,9 @@ import android.os.Bundle
 import com.emarsys.core.provider.Property
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.activity.FallbackActivityProvider
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
@@ -22,11 +19,8 @@ class CurrentActivityWatchdogTest {
     private lateinit var nextActivity: Activity
     private lateinit var activityProvider: Property<Activity?>
 
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         activityProvider = mock()
         watchdog = CurrentActivityWatchdog(activityProvider)

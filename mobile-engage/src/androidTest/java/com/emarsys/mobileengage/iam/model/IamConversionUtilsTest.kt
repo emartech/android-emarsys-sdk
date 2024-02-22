@@ -1,118 +1,95 @@
-package com.emarsys.mobileengage.iam.model;
+package com.emarsys.mobileengage.iam.model
 
-import static org.junit.Assert.assertEquals;
+import com.emarsys.core.util.TimestampUtils
+import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
+import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import java.util.Arrays
 
-import com.emarsys.core.util.TimestampUtils;
-import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
-import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
-import com.emarsys.testUtil.TimeoutUtils;
+class IamConversionUtilsTest {
+    private var buttonClicked1: ButtonClicked? = null
+    private var buttonClicked2: ButtonClicked? = null
+    private var buttonClicked3: ButtonClicked? = null
+    private var displayedIam1: DisplayedIam? = null
+    private var displayedIam2: DisplayedIam? = null
+    private var displayedIam3: DisplayedIam? = null
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-public class IamConversionUtilsTest {
-
-    private ButtonClicked buttonClicked1;
-    private ButtonClicked buttonClicked2;
-    private ButtonClicked buttonClicked3;
-
-    private DisplayedIam displayedIam1;
-    private DisplayedIam displayedIam2;
-    private DisplayedIam displayedIam3;
-
-    @Rule
-    public TestRule timeout = TimeoutUtils.getTimeoutRule();
-
-    @Before
-    public void init() {
-        buttonClicked1 = new ButtonClicked("campaign1", "button1", 200);
-        buttonClicked2 = new ButtonClicked("campaign1", "button2", 400);
-        buttonClicked3 = new ButtonClicked("campaign2", "button1", 2000);
-
-        displayedIam1 = new DisplayedIam("campaign10", 500);
-        displayedIam2 = new DisplayedIam("campaign20", 1000);
-        displayedIam3 = new DisplayedIam("campaign30", 1500);
+    @BeforeEach
+    fun init() {
+        buttonClicked1 = ButtonClicked("campaign1", "button1", 200)
+        buttonClicked2 = ButtonClicked("campaign1", "button2", 400)
+        buttonClicked3 = ButtonClicked("campaign2", "button1", 2000)
+        displayedIam1 = DisplayedIam("campaign10", 500)
+        displayedIam2 = DisplayedIam("campaign20", 1000)
+        displayedIam3 = DisplayedIam("campaign30", 1500)
     }
 
     @Test
-    public void testConvert_buttonClick() {
-        Map<String, Object> json = IamConversionUtils.buttonClickToJson(buttonClicked1);
-
-        Map<String, Object> expected = new HashMap<>();
-        expected.put("campaignId", buttonClicked1.getCampaignId());
-        expected.put("buttonId", buttonClicked1.getButtonId());
-        expected.put("timestamp", TimestampUtils.formatTimestampWithUTC(buttonClicked1.getTimestamp()));
-
-        assertEquals(expected, json);
+    fun testConvert_buttonClick() {
+        val json = IamConversionUtils.buttonClickToJson(buttonClicked1)
+        val expected: MutableMap<String, Any> = HashMap()
+        expected["campaignId"] = buttonClicked1!!.campaignId
+        expected["buttonId"] = buttonClicked1!!.buttonId
+        expected["timestamp"] = TimestampUtils.formatTimestampWithUTC(buttonClicked1!!.timestamp)
+        json shouldBe expected
     }
 
     @Test
-    public void testConvert_buttonClickList() {
-        List<Map<String, Object>> result = IamConversionUtils.buttonClicksToArray(Arrays.asList(
+    fun testConvert_buttonClickList() {
+        val result = IamConversionUtils.buttonClicksToArray(
+            Arrays.asList(
                 buttonClicked1,
                 buttonClicked2,
                 buttonClicked3
-        ));
-
-        Map<String, Object> click1 = new HashMap<>();
-        click1.put("campaignId", buttonClicked1.getCampaignId());
-        click1.put("buttonId", buttonClicked1.getButtonId());
-        click1.put("timestamp", TimestampUtils.formatTimestampWithUTC(buttonClicked1.getTimestamp()));
-
-        Map<String, Object> click2 = new HashMap<>();
-        click2.put("campaignId", buttonClicked2.getCampaignId());
-        click2.put("buttonId", buttonClicked2.getButtonId());
-        click2.put("timestamp", TimestampUtils.formatTimestampWithUTC(buttonClicked2.getTimestamp()));
-
-        Map<String, Object> click3 = new HashMap<>();
-        click3.put("campaignId", buttonClicked3.getCampaignId());
-        click3.put("buttonId", buttonClicked3.getButtonId());
-        click3.put("timestamp", TimestampUtils.formatTimestampWithUTC(buttonClicked3.getTimestamp()));
-
-        List<Map<String, Object>> expected = Arrays.asList(click1, click2, click3);
-        assertEquals(expected, result);
+            )
+        )
+        val click1: MutableMap<String, Any> = HashMap()
+        click1["campaignId"] = buttonClicked1!!.campaignId
+        click1["buttonId"] = buttonClicked1!!.buttonId
+        click1["timestamp"] = TimestampUtils.formatTimestampWithUTC(buttonClicked1!!.timestamp)
+        val click2: MutableMap<String, Any> = HashMap()
+        click2["campaignId"] = buttonClicked2!!.campaignId
+        click2["buttonId"] = buttonClicked2!!.buttonId
+        click2["timestamp"] = TimestampUtils.formatTimestampWithUTC(buttonClicked2!!.timestamp)
+        val click3: MutableMap<String, Any> = HashMap()
+        click3["campaignId"] = buttonClicked3!!.campaignId
+        click3["buttonId"] = buttonClicked3!!.buttonId
+        click3["timestamp"] = TimestampUtils.formatTimestampWithUTC(buttonClicked3!!.timestamp)
+        val expected = Arrays.asList<Map<String, Any>>(click1, click2, click3)
+        result shouldBe expected
     }
 
     @Test
-    public void testConvert_displayedIam() {
-        Map<String, Object> json = IamConversionUtils.displayedIamToJson(displayedIam1);
-
-        Map<String, Object> expected = new HashMap<>();
-        expected.put("campaignId", displayedIam1.getCampaignId());
-        expected.put("timestamp", TimestampUtils.formatTimestampWithUTC(displayedIam1.getTimestamp()));
-
-        assertEquals(expected, json);
+    fun testConvert_displayedIam() {
+        val json = IamConversionUtils.displayedIamToJson(displayedIam1)
+        val expected: MutableMap<String, Any> = HashMap()
+        expected["campaignId"] = displayedIam1!!.campaignId
+        expected["timestamp"] = TimestampUtils.formatTimestampWithUTC(displayedIam1!!.timestamp)
+        json shouldBe expected
     }
 
     @Test
-    public void testConvert_displayedIamList() {
-        List<Map<String, Object>> result = IamConversionUtils.displayedIamsToArray(Arrays.asList(
+    fun testConvert_displayedIamList() {
+        val result = IamConversionUtils.displayedIamsToArray(
+            Arrays.asList(
                 displayedIam1,
                 displayedIam2,
                 displayedIam3
-        ));
+            )
+        )
+        val iam1: MutableMap<String, Any> = HashMap()
+        iam1["campaignId"] = displayedIam1!!.campaignId
+        iam1["timestamp"] = TimestampUtils.formatTimestampWithUTC(displayedIam1!!.timestamp)
+        val iam2: MutableMap<String, Any> = HashMap()
+        iam2["campaignId"] = displayedIam2!!.campaignId
+        iam2["timestamp"] = TimestampUtils.formatTimestampWithUTC(displayedIam2!!.timestamp)
+        val iam3: MutableMap<String, Any> = HashMap()
+        iam3["campaignId"] = displayedIam3!!.campaignId
+        iam3["timestamp"] = TimestampUtils.formatTimestampWithUTC(displayedIam3!!.timestamp)
+        val expected = Arrays.asList<Map<String, Any>>(iam1, iam2, iam3)
 
-        Map<String, Object> iam1 = new HashMap<>();
-        iam1.put("campaignId", displayedIam1.getCampaignId());
-        iam1.put("timestamp", TimestampUtils.formatTimestampWithUTC(displayedIam1.getTimestamp()));
-
-        Map<String, Object> iam2 = new HashMap<>();
-        iam2.put("campaignId", displayedIam2.getCampaignId());
-        iam2.put("timestamp", TimestampUtils.formatTimestampWithUTC(displayedIam2.getTimestamp()));
-
-        Map<String, Object> iam3 = new HashMap<>();
-        iam3.put("campaignId", displayedIam3.getCampaignId());
-        iam3.put("timestamp", TimestampUtils.formatTimestampWithUTC(displayedIam3.getTimestamp()));
-
-        List<Map<String, Object>> expected = Arrays.asList(iam1, iam2, iam3);
-
-        assertEquals(expected, result);
+        result shouldBe expected
     }
 }

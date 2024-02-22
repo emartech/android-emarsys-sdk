@@ -1,15 +1,13 @@
 package com.emarsys.core.connection
 
 import com.emarsys.core.request.model.RequestModel
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.matchers.beTheSameInstanceAs
-import io.kotlintest.should
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.mockito.Mockito.`when`
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.should
+import io.kotest.matchers.types.beTheSameInstanceAs
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 import java.net.URL
 
 class ConnectionProviderTest {
@@ -20,11 +18,8 @@ class ConnectionProviderTest {
 
     private lateinit var provider: ConnectionProvider
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         provider = ConnectionProvider()
     }
@@ -41,13 +36,14 @@ class ConnectionProviderTest {
         connection.url should beTheSameInstanceAs(url)
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testProvideConnection_shouldNotAcceptHttpRequestModel() {
         val url = URL(HTTP_PATH)
+        shouldThrow<IllegalArgumentException> {
+            val requestModel = mock<RequestModel>(RequestModel::class.java)
+            `when`<URL>(requestModel.url).thenReturn(url)
 
-        val requestModel = mock<RequestModel>(RequestModel::class.java)
-        `when`<URL>(requestModel.url).thenReturn(url)
-
-        provider.provideConnection(requestModel)
+            provider.provideConnection(requestModel)
+        }
     }
 }

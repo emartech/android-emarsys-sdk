@@ -16,18 +16,15 @@ import com.emarsys.core.util.AndroidVersionUtils
 import com.emarsys.testUtil.ApplicationTestUtils.applicationDebug
 import com.emarsys.testUtil.ApplicationTestUtils.applicationRelease
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.matchers.boolean.shouldBeFalse
-import io.kotlintest.matchers.boolean.shouldBeTrue
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.json.JSONObject
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
@@ -51,11 +48,8 @@ class DeviceInfoTest {
     private lateinit var mockVersionProvider: VersionProvider
     private lateinit var mockNotificationManagerHelper: NotificationSettings
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun setup() {
         tz = TimeZone.getTimeZone("Asia/Tokyo")
         TimeZone.setDefault(tz)
@@ -78,7 +72,7 @@ class DeviceInfoTest {
         )
     }
 
-    @After
+    @AfterEach
     fun teardown() {
         TimeZone.setDefault(null)
     }

@@ -1,21 +1,29 @@
 package com.emarsys.mobileengage.iam.jsbridge
 
-import androidx.test.rule.ActivityTestRule
+import androidx.test.core.app.ActivityScenario
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.iam.model.InAppMetaData
 import com.emarsys.mobileengage.iam.webview.IamWebView
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import com.emarsys.testUtil.fake.FakeActivity
-import io.kotlintest.shouldBe
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import org.json.JSONObject
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
-import org.mockito.kotlin.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.capture
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.isNull
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.timeout
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.verifyNoMoreInteractions
 
 
 class IamJsBridgeTest {
@@ -41,46 +49,46 @@ class IamJsBridgeTest {
     private lateinit var mockCopyToClipboardListener: JSCommand
     private lateinit var mockOnMEEventListener: JSCommand
     private lateinit var captor: ArgumentCaptor<JSONObject>
+    private lateinit var scenario: ActivityScenario<FakeActivity>
 
-
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
-
-    @Rule
-    @JvmField
-    var activityRule = ActivityTestRule(FakeActivity::class.java)
-
-    @Before
+    @BeforeEach
     fun setUp() {
-        inAppMetaData = InAppMetaData("campaignId", "sid", "url")
-        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
-        mockIamWebView = mock()
-        mockOnCloseListener = mock()
-        mockOnAppEventListener = mock()
-        mockOnButtonClickedListener = mock()
-        mockOnOpenExternalUrlListener = mock()
-        mockOnMEEventListener = mock()
-        mockCopyToClipboardListener = mock()
-        mockJsCommandFactory = mock {
-            on { create(JSCommandFactory.CommandType.ON_CLOSE) } doReturn (mockOnCloseListener)
-            on { create(JSCommandFactory.CommandType.ON_ME_EVENT) } doReturn (mockOnMEEventListener)
-            on { create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL) } doReturn (mockOnOpenExternalUrlListener)
-            on { create(JSCommandFactory.CommandType.ON_APP_EVENT) } doReturn (mockOnAppEventListener)
-            on {
-                create(
-                    JSCommandFactory.CommandType.ON_BUTTON_CLICKED
-                )
-            } doReturn (mockOnButtonClickedListener)
-            on {create(JSCommandFactory.CommandType.ON_COPY_TO_CLIPBOARD)} doReturn mockCopyToClipboardListener
+        scenario = ActivityScenario.launch(FakeActivity::class.java)
+        scenario.onActivity { activity ->
+            inAppMetaData = InAppMetaData("campaignId", "sid", "url")
+            concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
+            mockIamWebView = mock()
+            mockOnCloseListener = mock()
+            mockOnAppEventListener = mock()
+            mockOnButtonClickedListener = mock()
+            mockOnOpenExternalUrlListener = mock()
+            mockOnMEEventListener = mock()
+            mockCopyToClipboardListener = mock()
+            mockJsCommandFactory = mock {
+                on { create(JSCommandFactory.CommandType.ON_CLOSE) } doReturn (mockOnCloseListener)
+                on { create(JSCommandFactory.CommandType.ON_ME_EVENT) } doReturn (mockOnMEEventListener)
+                on { create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL) } doReturn (mockOnOpenExternalUrlListener)
+                on { create(JSCommandFactory.CommandType.ON_APP_EVENT) } doReturn (mockOnAppEventListener)
+                on {
+                    create(
+                        JSCommandFactory.CommandType.ON_BUTTON_CLICKED
+                    )
+                } doReturn (mockOnButtonClickedListener)
+                on { create(JSCommandFactory.CommandType.ON_COPY_TO_CLIPBOARD) } doReturn mockCopyToClipboardListener
+            }
+            mockEventHandler = mock()
+            jsBridge = IamJsBridge(
+                concurrentHandlerHolder,
+                mockJsCommandFactory
+            )
+            jsBridge.iamWebView = mockIamWebView
+            captor = ArgumentCaptor.forClass(JSONObject::class.java)
         }
-        mockEventHandler = mock()
-        jsBridge = IamJsBridge(
-            concurrentHandlerHolder,
-            mockJsCommandFactory
-        )
-        jsBridge.iamWebView = mockIamWebView
-        captor = ArgumentCaptor.forClass(JSONObject::class.java)
+    }
+
+    @AfterEach
+    fun tearDown() {
+        scenario.close()
     }
 
     @Test
@@ -333,9 +341,11 @@ class IamJsBridgeTest {
         captor.value["success"] shouldBe false
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testSendResult_whenPayloadDoesNotContainId() {
-        jsBridge.sendResult(JSONObject())
+        shouldThrow<IllegalArgumentException> {
+            jsBridge.sendResult(JSONObject())
+        }
     }
 
     @Test

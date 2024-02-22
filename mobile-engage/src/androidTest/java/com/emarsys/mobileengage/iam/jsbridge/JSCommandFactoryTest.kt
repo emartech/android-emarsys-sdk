@@ -2,7 +2,7 @@ package com.emarsys.mobileengage.iam.jsbridge
 
 import android.app.Activity
 import android.content.ClipboardManager
-import androidx.test.rule.ActivityTestRule
+import androidx.test.core.app.ActivityScenario
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
@@ -14,14 +14,24 @@ import com.emarsys.mobileengage.iam.model.InAppMetaData
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.ThreadSpy
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.mockito.kotlin.*
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.isNull
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
 class JSCommandFactoryTest {
@@ -43,38 +53,47 @@ class JSCommandFactoryTest {
     private lateinit var mockOnCloseListener: OnCloseListener
     private lateinit var mockOnAppEventListener: OnAppEventListener
     private lateinit var mockTimestampProvider: TimestampProvider
-    private lateinit var mockActivity: Activity
+    private lateinit var fakeActivity: Activity
     private lateinit var mockClipboardManager: ClipboardManager
+    private lateinit var scenario: ActivityScenario<FakeActivity>
 
-    @Rule
-    @JvmField
-    var activityRule = ActivityTestRule(FakeActivity::class.java)
-
-    @Before
+    @BeforeEach
     fun setUp() {
-        mockActivity = mock()
-        mockCurrentActivityProvider = mock {
-            on { get() } doReturn mockActivity
+        scenario = ActivityScenario.launch(FakeActivity::class.java)
+        val countDownLatch = CountDownLatch(1)
+        scenario.onActivity { activity ->
+            fakeActivity = activity
+            mockCurrentActivityProvider = mock()
+            whenever(mockCurrentActivityProvider.get()).thenReturn(fakeActivity)
+
+            mockClipboardManager = mock()
+            concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
+            mockInAppInternal = mock()
+            mockButtonClickedRepository = mock()
+            mockOnCloseListener = mock()
+            mockOnAppEventListener = mock()
+            mockTimestampProvider = mock()
+
+            whenever(mockTimestampProvider.provideTimestamp()).thenReturn(TIMESTAMP)
+
+            jsCommandFactory = JSCommandFactory(
+                mockCurrentActivityProvider,
+                concurrentHandlerHolder,
+                mockInAppInternal,
+                mockButtonClickedRepository,
+                mockOnCloseListener,
+                mockOnAppEventListener,
+                mockTimestampProvider,
+                mockClipboardManager
+            )
+            countDownLatch.countDown()
         }
-        mockClipboardManager = mock()
-        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
-        mockInAppInternal = mock()
-        mockButtonClickedRepository = mock()
-        mockOnCloseListener = mock()
-        mockOnAppEventListener = mock()
-        mockTimestampProvider = mock {
-            on { provideTimestamp() } doReturn TIMESTAMP
-        }
-        jsCommandFactory = JSCommandFactory(
-            mockCurrentActivityProvider,
-            concurrentHandlerHolder,
-            mockInAppInternal,
-            mockButtonClickedRepository,
-            mockOnCloseListener,
-            mockOnAppEventListener,
-            mockTimestampProvider,
-            mockClipboardManager
-        )
+        countDownLatch.await()
+    }
+
+    @AfterEach
+    fun tearDown() {
+        scenario.close()
     }
 
     @Test
@@ -167,14 +186,17 @@ class JSCommandFactoryTest {
     fun testCreate_OpenExternalUrl_shouldTriggerStartActivityOnMainThread_whenActivityIsNotNullAndActivityCanBeResolved() {
         val property = TEST_URL
         val threadSpy = ThreadSpy<Any>()
-
-        whenever(mockActivity.startActivity(any())).doAnswer(threadSpy)
+        val mockActivity: Activity = mock()
+        whenever(mockCurrentActivityProvider.get()).thenReturn(mockActivity)
+        whenever(mockActivity.startActivity(any())).doAnswer {
+            threadSpy.call()
+            Unit
+        }
 
         jsCommandFactory.create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL)
             .invoke(property, JSONObject())
 
         verify(mockCurrentActivityProvider).get()
-
         verify(mockActivity).startActivity(any())
         threadSpy.verifyCalledOnMainThread()
     }
@@ -182,6 +204,8 @@ class JSCommandFactoryTest {
     @Test
     fun testCreate_OpenExternalUrl_shouldThrowException_whenActivityIsNotNullAndActivityCanNotBeResolved() {
         val property = TEST_URL
+        val mockActivity: Activity = mock()
+        whenever(mockCurrentActivityProvider.get()).thenReturn(mockActivity)
 
         whenever(mockActivity.startActivity(any())).thenAnswer {
             throw Exception()
@@ -218,9 +242,10 @@ class JSCommandFactoryTest {
         concurrentHandlerHolder.coreHandler.post { latch1.await() }
         val meEventListener = jsCommandFactory.create(JSCommandFactory.CommandType.ON_ME_EVENT)
         val property = "testProperty"
+        val payload = mapOf("payloadKey" to "payloadValue")
         meEventListener.invoke(
             property,
-            JSONObject(mapOf("key" to "value", "payload" to mapOf("payloadKey" to "payloadValue")))
+            JSONObject(mapOf("key" to "value", "payload" to payload))
         )
 
         verifyNoInteractions(mockInAppInternal)
@@ -229,9 +254,9 @@ class JSCommandFactoryTest {
         latch2.await()
 
         verify(mockInAppInternal).trackCustomEventAsync(
-            property,
-            mapOf("payloadKey" to "payloadValue"),
-            null
+            eq(property),
+            eq(payload),
+            isNull()
         )
     }
 

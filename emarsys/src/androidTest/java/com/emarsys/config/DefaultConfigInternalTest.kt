@@ -35,15 +35,25 @@ import com.emarsys.predict.PredictInternal
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.testUtil.ExtensionTestUtils.tryCast
 import com.emarsys.testUtil.FeatureTestUtils
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
-import io.kotlintest.shouldBe
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.mockito.kotlin.*
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.inOrder
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.spy
+import org.mockito.kotlin.timeout
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.verifyNoMoreInteractions
+import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
 class DefaultConfigInternalTest {
@@ -87,11 +97,8 @@ class DefaultConfigInternalTest {
     private lateinit var mockCompletionListener: CompletionListener
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
         FeatureTestUtils.resetFeatures()
@@ -180,7 +187,7 @@ class DefaultConfigInternalTest {
         )
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         FeatureTestUtils.resetFeatures()
     }

@@ -4,9 +4,9 @@ import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.testUtil.IntegrationTestUtils
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
@@ -21,7 +21,7 @@ class MobileEngageTest {
     private lateinit var mobileEngageApi: MobileEngage
 
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockMobileEngageInternal = mock()
         mockCompletionListener = mock()
@@ -30,7 +30,7 @@ class MobileEngageTest {
         setupEmarsysComponent(FakeDependencyContainer(mobileEngageInternal = mockMobileEngageInternal))
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys()
     }

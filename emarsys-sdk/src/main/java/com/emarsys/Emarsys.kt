@@ -81,12 +81,12 @@ object Emarsys {
         emarsys().concurrentHandlerHolder.postOnMain {
             try {
                 registerLifecycleObservers()
+                registerWatchDogs(emarsysConfig)
             } catch (e: Throwable) {
                 Logger.error(CrashLog(e))
             }
         }
 
-        registerWatchDogs(emarsysConfig)
 
         emarsys().concurrentHandlerHolder.coreHandler.post {
             registerDatabaseTriggers()

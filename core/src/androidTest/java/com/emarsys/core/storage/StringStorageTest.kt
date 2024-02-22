@@ -1,13 +1,14 @@
 package com.emarsys.core.storage
 
 import android.content.SharedPreferences
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.mockito.Mockito.*
+import io.kotest.assertions.throwables.shouldThrow
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.Mockito.anyString
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.verifyNoMoreInteractions
 
 class StringStorageTest {
 
@@ -21,12 +22,8 @@ class StringStorageTest {
     private lateinit var storage: StringStorage
     private lateinit var storageKey: StorageKey
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-
-    @Before
+    @BeforeEach
     fun setUp() {
         storageKey = mock(StorageKey::class.java).apply {
             whenever(key).thenReturn(KEY)
@@ -44,19 +41,25 @@ class StringStorageTest {
         storage = StringStorage(storageKey, sharedPreferences)
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testConstructor_key_mustNotBeNull() {
-        StringStorage(null, sharedPreferences)
+        shouldThrow<IllegalArgumentException> {
+            StringStorage(null, sharedPreferences)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testConstructor_valueReturnedByKey_mustNotBeNull() {
-        StringStorage(mock(StorageKey::class.java), sharedPreferences)
+        shouldThrow<IllegalArgumentException> {
+            StringStorage(mock(StorageKey::class.java), sharedPreferences)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testConstructor_sharedPreference_mustNotBeNull() {
-        StringStorage(storageKey, null)
+        shouldThrow<IllegalArgumentException> {
+            StringStorage(storageKey, null)
+        }
     }
 
     @Test

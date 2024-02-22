@@ -6,12 +6,31 @@ plugins {
 }
 dependencies {
     implementation(project(":core-api"))
+
     androidTestImplementation(project(":testUtils"))
+
+    coreLibraryDesugaring(libs.android.tools.desugar)
 }
 android {
     namespace = "com.emarsys.common"
     defaultConfig {
         compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
+
+        multiDexEnabled = true
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArgument(
+            "runnerBuilder",
+            "de.mannodermaus.junit5.AndroidJUnit5Builder"
+        )
+    }
+    compileOptions {
+        isCoreLibraryDesugaringEnabled = true
+    }
+    packaging {
+        resources {
+            excludes += arrayOf("META-INF/LICENSE.md", "META-INF/LICENSE-notice.md")
+        }
     }
 }
 

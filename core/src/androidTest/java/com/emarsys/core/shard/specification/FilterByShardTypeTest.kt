@@ -8,19 +8,16 @@ import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 
 class FilterByShardTypeTest {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     companion object {
         const val TYPE = "type1"
@@ -31,7 +28,7 @@ class FilterByShardTypeTest {
     private lateinit var repository: ShardModelRepository
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
-    @Before
+    @BeforeEach
     fun setUp() {
         DatabaseTestUtils.deleteCoreDatabase()
         specification = FilterByShardType(TYPE)
@@ -53,9 +50,11 @@ class FilterByShardTypeTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testConstructor_mustNotBeNull() {
-        FilterByShardType(null)
+        shouldThrow<IllegalArgumentException> {
+            FilterByShardType(null)
+        }
     }
 
     @Test

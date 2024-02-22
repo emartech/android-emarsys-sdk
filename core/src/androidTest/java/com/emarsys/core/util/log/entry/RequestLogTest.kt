@@ -2,12 +2,11 @@ package com.emarsys.core.util.log.entry
 
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
@@ -23,11 +22,8 @@ class RequestLogTest {
     private lateinit var mockRequestModel: RequestModel
     private lateinit var requestLog: RequestLog
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockRequestModel = mock {
             on { url }.doReturn(URL("https://emarsys.com"))

@@ -8,13 +8,10 @@ import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.util.waitForTask
 import com.emarsys.testUtil.SharedPrefsUtils
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
@@ -26,11 +23,8 @@ class DeviceInfoStartActionTest {
     private lateinit var startAction: DeviceInfoStartAction
     private lateinit var mockDeviceInfo: DeviceInfo
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
         deviceInfoPayloadStorage = mock()
@@ -39,11 +33,15 @@ class DeviceInfoStartActionTest {
 
         setupMobileEngageComponent(FakeMobileEngageDependencyContainer())
 
-        startAction = DeviceInfoStartAction(mockClientServiceInternal, deviceInfoPayloadStorage, mockDeviceInfo)
+        startAction = DeviceInfoStartAction(
+            mockClientServiceInternal,
+            deviceInfoPayloadStorage,
+            mockDeviceInfo
+        )
 
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         SharedPrefsUtils.clearSharedPrefs("emarsys_secure_shared_preferences")
         tearDownMobileEngageComponent()

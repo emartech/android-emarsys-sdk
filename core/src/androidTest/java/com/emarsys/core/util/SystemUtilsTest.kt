@@ -1,17 +1,12 @@
 package com.emarsys.core.util
 
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+
+import org.junit.jupiter.api.Test
 
 
 class SystemUtilsTest {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Test
     fun testIsClassFound_java() {

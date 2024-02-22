@@ -1,36 +1,32 @@
 package com.emarsys.mobileengage.iam
 
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 
 class InAppEventHandlerInternalTest {
 
     private lateinit var inAppEventHandlerInternal: InAppEventHandlerInternal
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         inAppEventHandlerInternal = InAppEventHandlerInternal()
     }
 
     @Test
     fun testIsPaused_returnsFalse_byDefault() {
-        assertFalse(inAppEventHandlerInternal.isPaused)
+        inAppEventHandlerInternal.isPaused shouldBe false
     }
 
     @Test
     fun testPause_setsIsPaused_toTrue() {
         inAppEventHandlerInternal.pause()
 
-        assertTrue(inAppEventHandlerInternal.isPaused)
+        inAppEventHandlerInternal.isPaused shouldBe true
     }
 
     @Test
@@ -38,6 +34,6 @@ class InAppEventHandlerInternalTest {
         inAppEventHandlerInternal.pause()
         inAppEventHandlerInternal.resume()
 
-        assertFalse(inAppEventHandlerInternal.isPaused)
+        inAppEventHandlerInternal.isPaused shouldBe false
     }
 }

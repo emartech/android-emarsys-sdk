@@ -10,18 +10,13 @@ import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperV2
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.RetryUtils
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.json.JSONArray
 import org.json.JSONObject
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.mockito.kotlin.eq
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
@@ -45,15 +40,8 @@ class RemoteMessageMapperV2Test {
     private lateinit var mockMetaDataReader: MetaDataReader
     private lateinit var remoteMessageMapperV2: RemoteMessageMapperV2
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Rule
-    @JvmField
-    var retry: TestRule = RetryUtils.retryRule
-
-    @Before
+    @BeforeEach
     fun init() {
         context = InstrumentationRegistry.getTargetContext()
 
@@ -72,7 +60,7 @@ class RemoteMessageMapperV2Test {
         )
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         mobileEngage().concurrentHandlerHolder.coreLooper.quitSafely()
         tearDownMobileEngageComponent()
@@ -128,7 +116,7 @@ class RemoteMessageMapperV2Test {
 
         val notificationData = remoteMessageMapperV2.map(input)
 
-        notificationData shouldNotBe eq(null)
+        notificationData shouldNotBe null
     }
 
     @Test

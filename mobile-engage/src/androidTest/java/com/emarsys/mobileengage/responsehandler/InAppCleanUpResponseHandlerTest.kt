@@ -10,14 +10,13 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.model.specification.FilterByCampaignId
 import com.emarsys.mobileengage.util.RequestModelHelper
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -36,11 +35,8 @@ class InAppCleanUpResponseHandlerTest {
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockRequestModelHelper: RequestModelHelper
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockRequestModel = mock {
             on { url } doReturn URL(EVENT_BASE)

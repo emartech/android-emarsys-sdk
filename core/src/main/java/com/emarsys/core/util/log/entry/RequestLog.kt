@@ -3,6 +3,7 @@ package com.emarsys.core.util.log.entry
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 
+
 class RequestLog(responseModel: ResponseModel, inDatabaseTimeEnd: Long, updatedRequestModel: RequestModel? = null) : LogEntry {
     override val topic: String
         get() = "log_request"

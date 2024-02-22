@@ -11,28 +11,24 @@ import com.emarsys.core.worker.DefaultWorker
 import com.emarsys.testUtil.ConnectionTestUtils.getContextMockWithAppContextWithConnectivityManager
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.ReflectionTestUtils
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+
 
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
 class ConnectionWatchDogTest {
     private lateinit var context: Context
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
 
-    @Before
+    @BeforeEach
     fun setup() {
         context = getTargetContext().applicationContext
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
@@ -43,7 +39,7 @@ class ConnectionWatchDogTest {
         val watchDog = ConnectionWatchDog(context, concurrentHandlerHolder)
         val manager: ConnectivityManager =
             ReflectionTestUtils.getInstanceField(watchDog, "connectivityManager")!!
-        Assert.assertNotNull(manager)
+        manager shouldNotBe null
     }
 
     @Test
@@ -95,13 +91,14 @@ class ConnectionWatchDogTest {
             NetworkCapabilities.TRANSPORT_WIFI
         )
         val watchDog = ConnectionWatchDog(contextMock, concurrentHandlerHolder)
-        Assert.assertTrue(watchDog.isConnected)
+
+        watchDog.isConnected shouldBe true
     }
 
     @Test
     fun testIsConnected_Offline() {
         val contextMock = getContextMockWithAppContextWithConnectivityManager(false, -1)
         val watchDog = ConnectionWatchDog(contextMock, concurrentHandlerHolder)
-        Assert.assertFalse(watchDog.isConnected)
+        watchDog.isConnected shouldBe false
     }
 }

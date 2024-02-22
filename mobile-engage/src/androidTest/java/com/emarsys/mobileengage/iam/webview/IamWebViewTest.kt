@@ -1,7 +1,7 @@
 package com.emarsys.mobileengage.iam.webview
 
 import android.app.Activity
-import androidx.test.rule.ActivityTestRule
+import androidx.test.core.app.ActivityScenario
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
@@ -13,12 +13,12 @@ import com.emarsys.mobileengage.iam.jsbridge.OnCloseListener
 import com.emarsys.mobileengage.iam.model.InAppMetaData
 import com.emarsys.testUtil.ExtensionTestUtils.runOnMain
 import com.emarsys.testUtil.fake.FakeActivity
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.mockito.kotlin.doReturn
+import com.emarsys.testUtil.mockito.whenever
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
@@ -31,34 +31,41 @@ class IamWebViewTest {
     private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
     private lateinit var mockJsBridge: IamJsBridge
     private lateinit var mockActivity: Activity
+    private lateinit var scenario: ActivityScenario<FakeActivity>
 
-    @Rule
-    @JvmField
-    var activityRule = ActivityTestRule(FakeActivity::class.java)
-
-    @Before
+    @BeforeEach
     fun setUp() {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockActivity = mock()
         mockJsBridge = mock()
+        val inAppMetaData = InAppMetaData("campaignId", "sid", "url")
+
         mockCommandFactory = mock {
-            on { inAppMetaData } doReturn mock()
+            whenever(it.inAppMetaData).thenReturn(inAppMetaData)
         }
         mockJSBridgeFactory = mock {
-            on { createJsBridge(mockCommandFactory) } doReturn mockJsBridge
+            whenever(it.createJsBridge(mockCommandFactory)).thenReturn(mockJsBridge)
         }
 
-        mockCurrentActivityProvider = mock {
-            on { get() } doReturn activityRule.activity
+        scenario = ActivityScenario.launch(FakeActivity::class.java)
+        scenario.onActivity { activity ->
+            mockCurrentActivityProvider = mock {
+                whenever(it.get()).thenReturn(activity)
+            }
+            iamWebView = runOnMain {
+                IamWebView(
+                    concurrentHandlerHolder,
+                    mockJSBridgeFactory,
+                    mockCommandFactory,
+                    mockCurrentActivityProvider.get()
+                )
+            }
         }
-        iamWebView = runOnMain {
-            IamWebView(
-                concurrentHandlerHolder,
-                mockJSBridgeFactory,
-                mockCommandFactory,
-                mockCurrentActivityProvider.get()
-            )
-        }
+    }
+
+    @AfterEach
+    fun tearDown() {
+        scenario.close()
     }
 
     @Test

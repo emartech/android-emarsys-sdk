@@ -19,7 +19,11 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.KeyValueStore
 import com.emarsys.core.worker.DelegatorCompletionHandlerProvider
-import com.emarsys.predict.api.model.*
+import com.emarsys.predict.api.model.CartItem
+import com.emarsys.predict.api.model.Logic
+import com.emarsys.predict.api.model.PredictCartItem
+import com.emarsys.predict.api.model.Product
+import com.emarsys.predict.api.model.RecommendationFilter
 import com.emarsys.predict.fake.FakeRestClient
 import com.emarsys.predict.fake.FakeResultListener
 import com.emarsys.predict.model.LastTrackedItemContainer
@@ -27,18 +31,22 @@ import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.request.PredictRequestModelBuilder
 import com.emarsys.testUtil.ReflectionTestUtils
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
 import com.emarsys.testUtil.mockito.anyNotNull
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.mockito.kotlin.*
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doReturnConsecutively
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import java.util.concurrent.CountDownLatch
 
 class DefaultPredictInternalTest {
@@ -56,9 +64,6 @@ class DefaultPredictInternalTest {
         const val CONTACT_FIELD_ID = 999
     }
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var mockKeyValueStore: KeyValueStore
     private lateinit var predictInternal: PredictInternal
@@ -79,7 +84,7 @@ class DefaultPredictInternalTest {
     private lateinit var mockResultListener: ResultListener<Try<List<Product>>>
     private lateinit var mockLastTrackedItemContainer: LastTrackedItemContainer
 
-    @Before
+    @BeforeEach
     @Suppress("UNCHECKED_CAST")
     fun init() {
         latch = CountDownLatch(1)
@@ -171,7 +176,7 @@ class DefaultPredictInternalTest {
 
     @Test
     fun testTrackCart_returnsShardId() {
-        Assert.assertEquals(ID1, predictInternal.trackCart(listOf()))
+        predictInternal.trackCart(listOf()) shouldBe ID1
     }
 
     @Test
@@ -200,7 +205,7 @@ class DefaultPredictInternalTest {
 
     @Test
     fun testTrackPurchase_returnsShardId() {
-        Assert.assertEquals(ID1, predictInternal.trackPurchase("orderId", listOf(mock())))
+        predictInternal.trackPurchase("orderId", listOf(mock())) shouldBe ID1
     }
 
     @Test
@@ -240,7 +245,7 @@ class DefaultPredictInternalTest {
 
     @Test
     fun testTrackItemView_returnsShardId() {
-        Assert.assertEquals(ID1, predictInternal.trackItemView("itemId"))
+        predictInternal.trackItemView("itemId") shouldBe ID1
     }
 
     @Test
@@ -262,7 +267,7 @@ class DefaultPredictInternalTest {
 
     @Test
     fun testTrackCategoryView_returnsShardId() {
-        Assert.assertEquals(ID1, predictInternal.trackCategoryView("categoryPath"))
+        predictInternal.trackCategoryView("categoryPath") shouldBe ID1
     }
 
     @Test
@@ -284,7 +289,7 @@ class DefaultPredictInternalTest {
 
     @Test
     fun testTrackSearchTerm_returnsShardId() {
-        Assert.assertEquals(ID1, predictInternal.trackSearchTerm("searchTerm"))
+        predictInternal.trackSearchTerm("searchTerm") shouldBe ID1
     }
 
     @Test
@@ -615,7 +620,7 @@ class DefaultPredictInternalTest {
 
     @Test
     fun testTrackRecommendationClick_returnsShardId() {
-        Assert.assertEquals(ID1, predictInternal.trackRecommendationClick(PRODUCT))
+        predictInternal.trackRecommendationClick(PRODUCT) shouldBe ID1
     }
 
     @Test

@@ -9,9 +9,11 @@ import org.json.JSONException
 import org.json.JSONObject
 
 @Mockable
-class MobileEngageTokenResponseHandler(private val tokenKey: String,
-                                       private val tokenStorage: Storage<String?>,
-                                       private val requestModelHelper: RequestModelHelper) : AbstractResponseHandler() {
+class MobileEngageTokenResponseHandler(
+    private val tokenKey: String,
+    private val tokenStorage: Storage<String?>,
+    private val requestModelHelper: RequestModelHelper
+) : AbstractResponseHandler() {
 
     override fun shouldHandleResponse(responseModel: ResponseModel): Boolean {
         val body = responseModel.parsedBody

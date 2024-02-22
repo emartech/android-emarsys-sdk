@@ -26,16 +26,18 @@ import com.emarsys.testUtil.ConnectionTestUtils.checkConnection
 import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.ReflectionTestUtils
-import com.emarsys.testUtil.RetryUtils.retryRule
 import com.emarsys.testUtil.TestUrls.DENNA_ECHO
 import com.emarsys.testUtil.TestUrls.customResponse
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import com.emarsys.testUtil.mockito.ThreadSpy
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import org.junit.*
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+
+import org.junitpioneer.jupiter.RetryingTest
 import org.mockito.kotlin.*
 import java.net.UnknownHostException
 import java.util.concurrent.CountDownLatch
@@ -64,15 +66,8 @@ class RequestManagerTest {
     private lateinit var callbackRegistryThreadSpy: ThreadSpy<Registry<RequestModel, CompletionListener?>>
     private lateinit var shardRepositoryThreadSpy: ThreadSpy<Repository<ShardModel, SqlSpecification>>
 
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
 
-    @Rule
-    @JvmField
-    var retry: TestRule = retryRule
-
-    @Before
+    @BeforeEach
     fun setUp() {
         deleteCoreDatabase()
         val requestModelMappers: MutableList<Mapper<RequestModel, RequestModel>> = mutableListOf()
@@ -160,12 +155,13 @@ class RequestManagerTest {
         )
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         concurrentHandlerHolder.coreLooper.quit()
     }
 
     @Test
+    @RetryingTest(3)
     fun testSubmit_shouldAddRequestModelToQueue() {
         manager.submit(
             requestModel,
@@ -177,6 +173,7 @@ class RequestManagerTest {
     }
 
     @Test
+    @RetryingTest(3)
     fun testSubmit_withRequestModel_shouldInvokeRunOnTheWorker() {
         val worker = mock<Worker>()
         ReflectionTestUtils.setInstanceField(manager, "worker", worker)
@@ -188,6 +185,7 @@ class RequestManagerTest {
     }
 
     @Test
+    @RetryingTest(3)
     fun testSubmit_withRequestModel_executesRunnableOn_CoreSDKHandlerThread() {
         runBlocking {
             withContext(Dispatchers.IO) {
@@ -199,6 +197,7 @@ class RequestManagerTest {
     }
 
     @Test
+    @RetryingTest(3)
     fun testSubmit_withRequestModel_Success() {
         whenever(mockConnectionWatchDog.isConnected).thenReturn(true, false)
         whenever(mockRequestRepository.isEmpty()).thenReturn(false, false, true)
@@ -207,12 +206,14 @@ class RequestManagerTest {
         ).thenReturn(listOf(requestModel), emptyList())
         manager.submit(requestModel, null)
         completionHandlerLatch.await()
-        Assert.assertEquals(requestModel.id, fakeCompletionHandler.successId)
-        Assert.assertEquals(1, fakeCompletionHandler.onSuccessCount.toLong())
-        Assert.assertEquals(0, fakeCompletionHandler.onErrorCount.toLong())
+
+        fakeCompletionHandler.successId shouldBe requestModel.id
+        fakeCompletionHandler.onSuccessCount.toLong() shouldBe 1
+        fakeCompletionHandler.onErrorCount shouldBe 0
     }
 
     @Test
+    @RetryingTest(3)
     fun testSubmit_withRequestModel_shouldRegisterCallbackToRegistry() {
         val completionListener = mock<CompletionListener>()
 
@@ -222,6 +223,7 @@ class RequestManagerTest {
     }
 
     @Test
+    @RetryingTest(3)
     fun testSubmit_withRequestModel_shouldRegister_null_ToRegistryAsWell() {
         manager.submit(requestModel, null)
 
@@ -230,6 +232,7 @@ class RequestManagerTest {
 
 
     @Test
+    @RetryingTest(3)
     fun testSubmitNow_withoutCompletionHandler_shouldCallProxyProviderForCompletionHandler() {
         whenever(mockDelegatorCompletionHandlerProvider.provide(any(), any())).doReturn(
             mockDefaultHandler
@@ -245,6 +248,7 @@ class RequestManagerTest {
     }
 
     @Test
+    @RetryingTest(3)
     fun testSubmitNow_shouldCallProxyProviderForCompletionHandler() {
         manager.submitNow(requestModel, fakeCompletionHandler)
         verify(mockDelegatorCompletionHandlerProvider).provide(
@@ -256,6 +260,7 @@ class RequestManagerTest {
     }
 
     @Test
+    @RetryingTest(3)
     fun testSubmitNow_shouldCallProxyProviderForCompletionHandler_withScope() {
         val mockOtherHandler: Handler = mock()
         manager.submitNow(requestModel, fakeCompletionHandler, mockOtherHandler)
@@ -268,12 +273,14 @@ class RequestManagerTest {
     }
 
     @Test
+    @RetryingTest(3)
     fun testSubmitNow_shouldCallRestClientsExecuteWithGivenParameters() {
         manager.submitNow(requestModel, fakeCompletionHandler)
         verify(mockRestClient).execute(requestModel, mockDefaultHandler)
     }
 
     @Test
+    @RetryingTest(3)
     fun testSubmitNow_shouldCallRestClient_withDefaultHandler() {
         manager.submitNow(requestModel)
 
@@ -281,6 +288,7 @@ class RequestManagerTest {
     }
 
     @Test
+    @RetryingTest(3)
     fun testError_callbackWithResponseContainsRequestModel() {
         requestModel =
             RequestModel.Builder(timestampProvider, uuidProvider).url(customResponse(405))
@@ -292,13 +300,15 @@ class RequestManagerTest {
         ).thenReturn(listOf(requestModel), emptyList())
         manager.submit(requestModel, null)
         completionHandlerLatch.await()
-        Assert.assertEquals(requestModel.id, fakeCompletionHandler.errorId)
-        Assert.assertEquals(0, fakeCompletionHandler.onSuccessCount.toLong())
-        Assert.assertEquals(1, fakeCompletionHandler.onErrorCount.toLong())
-        Assert.assertEquals(405, fakeCompletionHandler.failureResponseModel.statusCode.toLong())
+
+        fakeCompletionHandler.errorId shouldBe requestModel.id
+        fakeCompletionHandler.onSuccessCount.toLong() shouldBe 0
+        fakeCompletionHandler.onErrorCount shouldBe 1
+        fakeCompletionHandler.failureResponseModel.statusCode.toLong() shouldBe 405
     }
 
     @Test
+    @RetryingTest(3)
     fun testError_withRequestModel_callbackWithException() {
         requestModel = RequestModel.Builder(timestampProvider, uuidProvider)
             .url("https://www.nosuchwebsite.emarsys.com").method(RequestMethod.GET).build()
@@ -307,16 +317,16 @@ class RequestManagerTest {
         whenever(mockRequestRepository.query(any())).thenReturn(listOf(requestModel), emptyList())
         manager.submit(requestModel, null)
         completionHandlerLatch.await()
-        Assert.assertEquals(requestModel.id, fakeCompletionHandler.errorId)
-        Assert.assertEquals(0, fakeCompletionHandler.onSuccessCount.toLong())
-        Assert.assertEquals(1, fakeCompletionHandler.onErrorCount.toLong())
-        Assert.assertEquals(
-            (UnknownHostException() as Exception).javaClass,
-            fakeCompletionHandler.exception.javaClass
-        )
+
+        fakeCompletionHandler.errorId shouldBe requestModel.id
+        fakeCompletionHandler.onSuccessCount.toLong() shouldBe 0
+        fakeCompletionHandler.onErrorCount shouldBe 1
+        fakeCompletionHandler.exception.javaClass shouldBe UnknownHostException().javaClass
+
     }
 
     @Test
+    @RetryingTest(3)
     fun testSubmit_shouldAddShardModelToDatabase() {
         manager.submit(shardModel)
         runBlocking {
@@ -325,6 +335,7 @@ class RequestManagerTest {
     }
 
     @Test
+    @RetryingTest(3)
     fun testSubmit_withShardModel_executesRunnableOn_CoreSDKHandlerThread() {
         runBlocking {
             withContext(Dispatchers.IO) {

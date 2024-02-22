@@ -11,15 +11,18 @@ import com.emarsys.core.shard.specification.FilterByShardIds
 import com.emarsys.core.util.batch.BatchingShardTrigger.RequestStrategy.PERSISTENT
 import com.emarsys.core.util.batch.BatchingShardTrigger.RequestStrategy.TRANSIENT
 import com.emarsys.core.util.predicate.Predicate
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import kotlinx.coroutines.runBlocking
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.Mockito
-import org.mockito.kotlin.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.inOrder
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.verifyNoMoreInteractions
 
 class BatchingShardTriggerTest {
 
@@ -31,11 +34,8 @@ class BatchingShardTriggerTest {
     private lateinit var mockRequestManager: RequestManager
     private lateinit var mockConnectionWatchDog: ConnectionWatchDog
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockRepository = mock()
         mockPredicate = mock {

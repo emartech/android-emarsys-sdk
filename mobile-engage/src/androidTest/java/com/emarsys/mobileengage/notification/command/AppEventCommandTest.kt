@@ -5,28 +5,23 @@ import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.event.CacheableEventHandler
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import com.emarsys.testUtil.mockito.ThreadSpy
 import org.json.JSONException
 import org.json.JSONObject
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.fail
 import org.mockito.kotlin.*
 import java.util.concurrent.CountDownLatch
 
 class AppEventCommandTest {
-    @Rule
-    @JvmField
-    val timeout: TestRule = timeoutRule
+
 
     private lateinit var applicationContext: Context
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var mockEventHandler: CacheableEventHandler
 
-    @Before
+    @BeforeEach
     fun setUp() {
         applicationContext = getTargetContext().applicationContext
         mockEventHandler = mock()
@@ -95,7 +90,7 @@ class AppEventCommandTest {
                 null
             ).run()
         } catch (e: Exception) {
-            Assert.fail(e.message)
+            fail(e.message)
         }
     }
 }

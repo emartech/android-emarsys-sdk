@@ -24,17 +24,13 @@ import com.emarsys.core.worker.DefaultWorker
 import com.emarsys.core.worker.Worker
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.be
-import io.kotlintest.matchers.beEmpty
-import io.kotlintest.should
-import io.kotlintest.shouldBe
+import io.kotest.matchers.collections.beEmpty
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import java.io.IOException
 import java.util.concurrent.CountDownLatch
@@ -44,9 +40,7 @@ class RequestManagerOfflineTest {
         const val URL = "https://www.emarsys.com/"
     }
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+
 
     private lateinit var connectionStates: Array<Boolean>
     private lateinit var requestResults: Array<Any>
@@ -66,7 +60,7 @@ class RequestManagerOfflineTest {
     private lateinit var coreCompletionHandlerMiddlewareProvider: CoreCompletionHandlerMiddlewareProvider
     private lateinit var mockProxyProvider: CompletionHandlerProxyProvider
 
-    @Before
+    @BeforeEach
     fun setup() {
         watchDogCountDown = 0
         completionHandlerCountDown = 0
@@ -76,7 +70,7 @@ class RequestManagerOfflineTest {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         concurrentHandlerHolder.coreLooper.quit()
         concurrentHandlerHolder.networkLooper.quit()
@@ -227,7 +221,7 @@ class RequestManagerOfflineTest {
             requestRepository.remove(FilterByRequestIds(arrayOf(lastNormal.id)))
         }
 
-        requestRepository.query(Everything()).size should be(1)
+        requestRepository.query(Everything()).size shouldBe 1
     }
 
     @Suppress("UNCHECKED_CAST")

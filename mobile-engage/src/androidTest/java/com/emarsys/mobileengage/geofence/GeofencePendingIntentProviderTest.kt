@@ -2,9 +2,9 @@ package com.emarsys.mobileengage.geofence
 
 import android.app.PendingIntent
 import androidx.test.platform.app.InstrumentationRegistry
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import org.junit.Test
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import org.junit.jupiter.api.Test
 
 class GeofencePendingIntentProviderTest {
     @Test

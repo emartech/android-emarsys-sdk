@@ -3,31 +3,29 @@ package com.emarsys.core.util
 import com.emarsys.core.request.model.CompositeRequestModel
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+
+import org.junit.jupiter.api.Test
+
 
 class RequestModelUtilsTest {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Test
     fun testExtractIdsFromCompositeRequestModel() {
         val ids = arrayOf("id1", "id2", "id3")
 
         val requestModel = CompositeRequestModel(
-                "0",
-                "https://emarsys.com",
-                RequestMethod.POST,
-                null,
-                emptyMap(),
-                100,
-                900000,
-                ids)
+            "0",
+            "https://emarsys.com",
+            RequestMethod.POST,
+            null,
+            emptyMap(),
+            100,
+            900000,
+            ids
+        )
 
         val result = RequestModelUtils.extractIdsFromCompositeRequestModel(requestModel)
 
@@ -43,15 +41,18 @@ class RequestModelUtilsTest {
         result shouldBe listOf("requestModelId")
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testExtractQueryParameters_requestModelMustNotBeNull() {
-        RequestModelUtils.extractQueryParameters(null)
+        shouldThrow<IllegalArgumentException> {
+            RequestModelUtils.extractQueryParameters(null)
+        }
     }
 
     @Test
     fun testExtractQueryParameters_returnsEmptyMap_whenNoQueryParametersFound() {
         val requestModel = createTestRequestModel(
-                "https://recommender.scarabresearch.com/merchants/", RequestMethod.GET)
+            "https://recommender.scarabresearch.com/merchants/", RequestMethod.GET
+        )
 
         val result = RequestModelUtils.extractQueryParameters(requestModel)
         val expected = emptyMap<String, String>()
@@ -62,8 +63,9 @@ class RequestModelUtilsTest {
     @Test
     fun testExtractExtractQueryParameters_resultMapContainsParameterFromQuery() {
         val requestModel = createTestRequestModel(
-                "https://recommender.scarabresearch.com/merchants/merchantId?cp=1",
-                RequestMethod.GET)
+            "https://recommender.scarabresearch.com/merchants/merchantId?cp=1",
+            RequestMethod.GET
+        )
 
         val result = RequestModelUtils.extractQueryParameters(requestModel)
         val expected = mapOf("cp" to "1")
@@ -74,26 +76,28 @@ class RequestModelUtilsTest {
     @Test
     fun testExtractExtractQueryParameters_withMultipleQueryParameters() {
         val requestModel = createTestRequestModel(
-                "https://recommender.scarabresearch.com/merchants/merchantId?cp=1&vi=888999888&ci=12345&q3=c",
-                RequestMethod.GET)
+            "https://recommender.scarabresearch.com/merchants/merchantId?cp=1&vi=888999888&ci=12345&q3=c",
+            RequestMethod.GET
+        )
 
         val result = RequestModelUtils.extractQueryParameters(requestModel)
         val expected = mapOf(
-                "cp" to "1",
-                "vi" to "888999888",
-                "ci" to "12345",
-                "q3" to "c")
+            "cp" to "1",
+            "vi" to "888999888",
+            "ci" to "12345",
+            "q3" to "c"
+        )
 
         result shouldBe expected
     }
 
     private fun createTestRequestModel(url: String, method: RequestMethod) = RequestModel(
-            url,
-            method,
-            null,
-            emptyMap(),
-            100,
-            90000,
-            "requestModelId"
+        url,
+        method,
+        null,
+        emptyMap(),
+        100,
+        90000,
+        "requestModelId"
     )
 }

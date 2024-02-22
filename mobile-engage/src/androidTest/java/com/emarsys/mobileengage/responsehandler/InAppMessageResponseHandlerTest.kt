@@ -1,7 +1,7 @@
 package com.emarsys.mobileengage.responsehandler
 
 import android.content.ClipboardManager
-import androidx.test.rule.ActivityTestRule
+import androidx.test.core.app.ActivityScenario
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
@@ -14,14 +14,17 @@ import com.emarsys.mobileengage.iam.dialog.IamDialog
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import com.emarsys.testUtil.fake.FakeActivity
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.mockito.kotlin.*
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.spy
+import org.mockito.kotlin.verify
 
 class InAppMessageResponseHandlerTest {
 
@@ -33,71 +36,72 @@ class InAppMessageResponseHandlerTest {
     private lateinit var mockClipboardManager: ClipboardManager
     private lateinit var mockJsBridge: IamJsBridge
     private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
+    private lateinit var scenario: ActivityScenario<FakeActivity>
 
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
-
-    @Rule
-    @JvmField
-    var activityRule = ActivityTestRule(FakeActivity::class.java)
-
-    @Before
+    @BeforeEach
     fun init() {
-        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
-        mockCurrentActivityProvider = mock {
-            on { get() } doReturn activityRule.activity
-        }
-        mockJsBridge = mock()
-        mockClipboardManager = mock()
-        mockJsBridgeFactory = mock {
-            on { createJsBridge(any()) } doReturn mockJsBridge
-        }
-        mockDialog = mock()
-        val dialogProvider = mock<IamDialogProvider> {
-            on {
-                provideDialog(
-                    any(),
-                    anyOrNull(),
-                    anyOrNull(),
-                    any()
-                )
-            } doReturn mockDialog
-        }
+        scenario = ActivityScenario.launch(FakeActivity::class.java)
+        scenario.onActivity { activity ->
+            concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
+            mockCurrentActivityProvider = mock {
+                on { get() } doReturn activity
+            }
+            mockJsBridge = mock()
+            mockClipboardManager = mock()
+            mockJsBridgeFactory = mock {
+                on { createJsBridge(any()) } doReturn mockJsBridge
+            }
+            mockDialog = mock()
+            val dialogProvider = mock<IamDialogProvider> {
+                on {
+                    provideDialog(
+                        any(),
+                        anyOrNull(),
+                        anyOrNull(),
+                        any()
+                    )
+                } doReturn mockDialog
+            }
 
-        presenter = spy(
-            OverlayInAppPresenter(
-                concurrentHandlerHolder,
-                dialogProvider,
-                mock(),
-                mockCurrentActivityProvider,
+            presenter = spy(
+                OverlayInAppPresenter(
+                    concurrentHandlerHolder,
+                    dialogProvider,
+                    mock(),
+                    mockCurrentActivityProvider,
+                )
             )
-        )
-        handler = InAppMessageResponseHandler(presenter)
+            handler = InAppMessageResponseHandler(presenter)
+        }
+    }
+
+    @AfterEach
+    fun tearDown() {
+        scenario.close()
     }
 
     @Test
     fun testShouldHandleResponse_shouldReturnTrueWhenTheResponseHasHtmlAttribute() {
         val response = buildResponseModel("{'message': {'html':'some html'}}")
-        Assert.assertTrue(handler.shouldHandleResponse(response))
+        handler.shouldHandleResponse(response) shouldBe true
     }
 
     @Test
     fun testShouldHandleResponse_shouldReturnFalseWhenTheResponseHasANonJsonBody() {
         val response = buildResponseModel("Created")
-        Assert.assertFalse(handler.shouldHandleResponse(response))
+        handler.shouldHandleResponse(response) shouldBe false
     }
 
     @Test
     fun testShouldHandleResponse_shouldReturnFalseWhenTheResponseHasNoMessageAttribute() {
         val response = buildResponseModel("{'not_a_message': {'html':'some html'}}")
-        Assert.assertFalse(handler.shouldHandleResponse(response))
+        handler.shouldHandleResponse(response) shouldBe false
     }
 
     @Test
     fun testShouldHandleResponse_shouldReturnFalseWhenTheResponseHasNoHtmlAttribute() {
         val response = buildResponseModel("{'message': {'not_html':'some html'}}")
-        Assert.assertFalse(handler.shouldHandleResponse(response))
+        handler.shouldHandleResponse(response) shouldBe false
     }
 
     @Test
@@ -106,7 +110,15 @@ class InAppMessageResponseHandlerTest {
         val responseBody = String.format("{'message': {'html':'%s', 'campaignId': '123'} }", html)
         val response = buildResponseModel(responseBody)
         handler.handleResponse(response)
-        verify(presenter).present("123", null, null, response.requestModel.id, response.timestamp, html, null)
+        verify(presenter).present(
+            "123",
+            null,
+            null,
+            response.requestModel.id,
+            response.timestamp,
+            html,
+            null
+        )
     }
 
     private fun buildResponseModel(responseBody: String): ResponseModel {

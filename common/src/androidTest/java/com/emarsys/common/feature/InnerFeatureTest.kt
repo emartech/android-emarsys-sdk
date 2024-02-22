@@ -1,18 +1,13 @@
 package com.emarsys.common.feature
 
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.data.forall
-import io.kotlintest.shouldBe
-import io.kotlintest.tables.row
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.data.forAll
+import io.kotest.data.row
+import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Test
+
 
 class InnerFeatureTest {
-
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Test
     fun testValues_shouldReturnCorrectValues() {
@@ -22,17 +17,15 @@ class InnerFeatureTest {
     }
 
     @Test
-    fun testGetName_shouldReturnCorrectValue() {
+    fun testGetName_shouldReturnCorrectValue() = runBlocking {
         InnerFeature.values().map {
             "inner_feature_${it.name.lowercase()}"
         }.zip(InnerFeature.values()) { stringValue, enum ->
             row(enum, stringValue)
         }.let {
-            forall(*it.toTypedArray()) { input, expected ->
+            forAll(*it.toTypedArray()) { input, expected ->
                 input.featureName shouldBe expected
             }
         }
     }
-
-
 }

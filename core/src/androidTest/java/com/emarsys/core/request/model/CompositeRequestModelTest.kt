@@ -2,15 +2,11 @@ package com.emarsys.core.request.model
 
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.net.URL
-import java.util.*
 
 class CompositeRequestModelTest {
 
@@ -23,16 +19,14 @@ class CompositeRequestModelTest {
         val ORIGINAL_IDS = arrayOf("uuid")
     }
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+
 
     private lateinit var timestampProvider: TimestampProvider
     private lateinit var uuidProvider: UUIDProvider
     private lateinit var payload: Map<String, Any>
     private lateinit var headers: Map<String, String>
 
-    @Before
+    @BeforeEach
     fun setUp() {
         payload = createPayload()
         headers = createHeaders()

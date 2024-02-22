@@ -2,13 +2,12 @@ package com.emarsys.mobileengage.util
 
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.request.model.RequestModel
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 import org.mockito.Mockito.mock
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -35,7 +34,7 @@ class RequestModelHelperTest {
     private lateinit var mockRequestModel: RequestModel
     private lateinit var requestModelHelper: RequestModelHelper
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockRequestModel = mock()
 
@@ -52,9 +51,6 @@ class RequestModelHelperTest {
         requestModelHelper = RequestModelHelper(mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
     }
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Test
     fun testIsMobileEngageRequest_true_whenItIsMobileEngageClient() {

@@ -10,20 +10,17 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.request.model.RequestModelRepository
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.matchers.collections.shouldContainAll
-import io.kotlintest.shouldBe
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 
 class FilterByUrlPatternTest {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var specification: FilterByUrlPattern
     private lateinit var pattern: String
@@ -31,7 +28,7 @@ class FilterByUrlPatternTest {
     private lateinit var timestampProvider: TimestampProvider
     private lateinit var uuidProvider: UUIDProvider
 
-    @Before
+    @BeforeEach
     fun init() {
         DatabaseTestUtils.deleteCoreDatabase()
         pattern = "root/___/_%/event"
@@ -60,9 +57,11 @@ class FilterByUrlPatternTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testConstructor_patternMustNotBeNull() {
-        FilterByUrlPattern(null)
+        shouldThrow<IllegalArgumentException> {
+            FilterByUrlPattern(null)
+        }
     }
 
     @Test

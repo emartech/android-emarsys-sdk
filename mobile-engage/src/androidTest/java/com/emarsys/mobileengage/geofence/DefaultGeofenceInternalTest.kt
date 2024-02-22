@@ -27,20 +27,22 @@ import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.ReflectionTestUtils
-import com.emarsys.testUtil.TimeoutUtils
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
-import io.kotlintest.shouldBe
-import io.mockk.*
+import io.kotest.matchers.shouldBe
+import io.mockk.Called
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.spyk
+import io.mockk.verify
 import org.json.JSONObject
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
 import com.emarsys.mobileengage.api.geofence.Geofence as MEGeofence
 
@@ -77,9 +79,7 @@ class DefaultGeofenceInternalTest {
         )
     }
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+
 
     private lateinit var mockResponseModel: ResponseModel
     private lateinit var mockGeofenceRequestModel: RequestModel
@@ -104,7 +104,7 @@ class DefaultGeofenceInternalTest {
     private lateinit var pendingIntent: PendingIntent
     private lateinit var mockTask: Task<Void>
 
-    @Before
+    @BeforeEach
     fun setUp() {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockInitialEnterTriggerEnabledStorage = mockk(relaxed = true) {

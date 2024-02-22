@@ -2,30 +2,27 @@ package com.emarsys.core.device
 
 import android.os.Build.VERSION_CODES.P
 import androidx.test.filters.SdkSuppress
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import java.util.*
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import java.util.Locale
 
 class LanguageProviderTest {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var languageProvider: LanguageProvider
 
-    @Before
+    @BeforeEach
     fun setUp() {
         languageProvider = LanguageProvider()
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testProvideLanguage_localeMustNotBeNull() {
-        languageProvider.provideLanguage(null)
+        shouldThrow<IllegalArgumentException> {
+            languageProvider.provideLanguage(null)
+        }
     }
 
     @Test
@@ -45,7 +42,9 @@ class LanguageProviderTest {
     @Test
     @SdkSuppress(minSdkVersion = P)
     fun testProvideLanguage_shouldReturnCorrectLanguageCode_whenLocaleBuilderUsed() {
-        val result = languageProvider.provideLanguage(Locale.Builder().setLanguage("zh").setScript("Hans").setRegion("CN").build())
+        val result = languageProvider.provideLanguage(
+            Locale.Builder().setLanguage("zh").setScript("Hans").setRegion("CN").build()
+        )
 
         result shouldBe "zh-Hans-CN"
     }

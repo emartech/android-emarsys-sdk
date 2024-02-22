@@ -15,16 +15,22 @@ import com.emarsys.mobileengage.event.CacheableEventHandler
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.fake.FakeCompletionListener
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.matchers.types.shouldBeTypeOf
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.mockito.kotlin.*
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.verifyNoMoreInteractions
 import java.util.concurrent.CountDownLatch
 
 class DefaultPushInternalTest {
@@ -62,11 +68,8 @@ class DefaultPushInternalTest {
 
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
 

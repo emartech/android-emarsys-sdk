@@ -9,13 +9,13 @@ import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 
 class FilterByShardIdsTest {
 
@@ -24,11 +24,8 @@ class FilterByShardIdsTest {
     private lateinit var shardModelRepository: ShardModelRepository
     private lateinit var concurrentHadlerHolder: ConcurrentHandlerHolder
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun init() {
         DatabaseTestUtils.deleteCoreDatabase()
         context = InstrumentationRegistry.getTargetContext().applicationContext
@@ -46,10 +43,12 @@ class FilterByShardIdsTest {
         shardModelRepository = ShardModelRepository(coreDbHelper, concurrentHadlerHolder)
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testDeleteRow_withInvalidArgument() {
-        runBlocking {
-            shardModelRepository.remove(FilterByShardIds(null))
+        shouldThrow<IllegalArgumentException> {
+            runBlocking {
+                shardModelRepository.remove(FilterByShardIds(null))
+            }
         }
     }
 

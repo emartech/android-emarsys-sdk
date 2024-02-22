@@ -2,13 +2,13 @@ package com.emarsys.core.storage
 
 import android.content.SharedPreferences
 import com.emarsys.testUtil.ReflectionTestUtils
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 import org.mockito.Mockito.CALLS_REAL_METHODS
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
@@ -22,26 +22,26 @@ class AbstractStorageTest {
     private lateinit var mockSharedPreferences: SharedPreferences
     private lateinit var mockStorage: AbstractStorage<String, SharedPreferences>
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
         mockSharedPreferences = mock()
-        mockStorage = (mock(defaultAnswer = CALLS_REAL_METHODS) as AbstractStorage<String, SharedPreferences>)
+        mockStorage =
+            (mock(defaultAnswer = CALLS_REAL_METHODS) as AbstractStorage<String, SharedPreferences>)
         ReflectionTestUtils.setInstanceField(mockStorage, "store", mockSharedPreferences)
     }
 
-    @Test(expected = java.lang.IllegalArgumentException::class)
+    @Test
     fun testConstructor_storeMustNotBeNull() {
-        object : AbstractStorage<String, SharedPreferences>(null) {
-            override fun persistValue(store: SharedPreferences?, value: String?) = TODO()
+        shouldThrow<IllegalArgumentException> {
+            object : AbstractStorage<String, SharedPreferences>(null) {
+                override fun persistValue(store: SharedPreferences?, value: String?) = TODO()
 
-            override fun readPersistedValue(store: SharedPreferences?) = TODO()
+                override fun readPersistedValue(store: SharedPreferences?) = TODO()
 
-            override fun removePersistedValue(store: SharedPreferences?) = TODO()
+                override fun removePersistedValue(store: SharedPreferences?) = TODO()
+            }
         }
     }
 

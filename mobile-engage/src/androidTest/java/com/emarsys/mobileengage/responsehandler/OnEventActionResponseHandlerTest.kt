@@ -13,18 +13,21 @@ import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.notification.command.AppEventCommand
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.anyNotNull
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.mockito.kotlin.*
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.timeout
+import org.mockito.kotlin.verify
 
 class OnEventActionResponseHandlerTest {
 
@@ -36,11 +39,8 @@ class OnEventActionResponseHandlerTest {
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockAppEventCommand = mock()
         mockActionCommandFactory = mock()
@@ -59,7 +59,7 @@ class OnEventActionResponseHandlerTest {
         )
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         try {
             val looper: Looper? = concurrentHandlerHolder.coreLooper

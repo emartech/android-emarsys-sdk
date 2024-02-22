@@ -1,6 +1,5 @@
 package com.emarsys
 
-import android.content.Intent
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
@@ -9,12 +8,9 @@ import com.emarsys.mobileengage.api.push.NotificationInformationListener
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.push.Push
 import com.emarsys.testUtil.IntegrationTestUtils
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.mockito.kotlin.mock
 
@@ -25,11 +21,8 @@ class PushTest {
     private lateinit var mockNotificationInformationListener: NotificationInformationListener
     private lateinit var push: Push
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockPushInternal = mock()
         mockCompletionListener = mock()
@@ -42,7 +35,7 @@ class PushTest {
         push = Push()
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys()
     }

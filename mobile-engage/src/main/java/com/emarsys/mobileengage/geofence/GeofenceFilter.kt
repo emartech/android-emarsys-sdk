@@ -2,11 +2,10 @@ package com.emarsys.mobileengage.geofence
 
 import android.location.Location
 import android.location.LocationManager
-import com.emarsys.core.Mockable
 import com.emarsys.mobileengage.api.geofence.Geofence
 import com.emarsys.mobileengage.geofence.model.GeofenceResponse
 
-@Mockable
+
 class GeofenceFilter(private val limit: Int) {
     fun findNearestGeofences(currentLocation: Location, geofenceResponse: GeofenceResponse): List<Geofence> {
         val geofences = geofenceResponse.geofenceGroups

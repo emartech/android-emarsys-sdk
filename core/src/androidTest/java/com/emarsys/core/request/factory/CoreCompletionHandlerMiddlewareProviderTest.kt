@@ -9,14 +9,11 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.worker.CoreCompletionHandlerMiddleware
 import com.emarsys.core.worker.Worker
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.matchers.beInstanceOf
-import io.kotlintest.should
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.should
+import io.kotest.matchers.types.beInstanceOf
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
@@ -25,9 +22,7 @@ import java.util.concurrent.CountDownLatch
 
 class CoreCompletionHandlerMiddlewareProviderTest {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+
 
     private lateinit var mockRequestRepository: Repository<RequestModel, SqlSpecification>
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
@@ -39,7 +34,7 @@ class CoreCompletionHandlerMiddlewareProviderTest {
     private lateinit var latch: CountDownLatch
     private lateinit var runnableFactory: RunnableFactory
 
-    @Before
+    @BeforeEach
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
         latch = CountDownLatch(1)

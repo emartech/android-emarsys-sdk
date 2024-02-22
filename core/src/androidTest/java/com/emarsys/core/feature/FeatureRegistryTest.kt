@@ -1,14 +1,14 @@
 package com.emarsys.core.feature
 
 import com.emarsys.core.api.experimental.FlipperFeature
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
-import com.emarsys.core.feature.FeatureRegistry.reset
-import com.emarsys.core.feature.FeatureRegistry.isFeatureEnabled
-import com.emarsys.core.feature.FeatureRegistry.enableFeature
 import com.emarsys.core.feature.FeatureRegistry.disableFeature
-import io.kotlintest.shouldBe
-import org.junit.*
-import org.junit.rules.TestRule
+import com.emarsys.core.feature.FeatureRegistry.enableFeature
+import com.emarsys.core.feature.FeatureRegistry.isFeatureEnabled
+import com.emarsys.core.feature.FeatureRegistry.reset
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
@@ -18,11 +18,8 @@ class FeatureRegistryTest {
     private lateinit var feature3: FlipperFeature
     private lateinit var features: List<FlipperFeature>
 
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         reset()
         feature1 = mock()
@@ -34,7 +31,7 @@ class FeatureRegistryTest {
         features = listOf(feature1, feature2, feature3)
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         reset()
     }

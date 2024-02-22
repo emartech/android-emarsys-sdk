@@ -6,13 +6,10 @@ import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.event.CacheableEventHandler
 import com.emarsys.testUtil.IntegrationTestUtils
-import com.emarsys.testUtil.TimeoutUtils
 import org.json.JSONObject
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
@@ -23,21 +20,20 @@ class OnEventActionTest {
     private lateinit var onEventAction: OnEventAction
     private lateinit var mockOnEventActionCacheableEventHandler: CacheableEventHandler
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockEventHandler = mock()
         mockOnEventActionCacheableEventHandler = mock()
-        setupEmarsysComponent(FakeDependencyContainer(
-                onEventActionCacheableEventHandler = mockOnEventActionCacheableEventHandler)
+        setupEmarsysComponent(
+            FakeDependencyContainer(
+                onEventActionCacheableEventHandler = mockOnEventActionCacheableEventHandler
+            )
         )
         onEventAction = OnEventAction()
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys()
     }

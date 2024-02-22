@@ -5,23 +5,17 @@ import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.fake.FakeMessageLoadedListener
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
 
 class IamWebViewClientTest {
     private lateinit var latch: CountDownLatch
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         latch = CountDownLatch(1)
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
@@ -39,7 +33,8 @@ class IamWebViewClientTest {
             )
         }
         latch.await()
-        Assert.assertEquals(1, listener.invocationCount.toLong())
+
+        listener.invocationCount.toLong() shouldBe 1
     }
 
     @Test
@@ -52,6 +47,6 @@ class IamWebViewClientTest {
             Thread { client.onPageFinished(webView, "") }.start()
         }
         latch.await()
-        Assert.assertEquals(1, listener.invocationCount.toLong())
+        listener.invocationCount.toLong() shouldBe 1
     }
 }

@@ -1,59 +1,53 @@
-package com.emarsys.mobileengage.notification.command;
+package com.emarsys.mobileengage.notification.command
 
-import com.emarsys.mobileengage.event.EventServiceInternal;
-import com.emarsys.testUtil.TimeoutUtils;
+import com.emarsys.mobileengage.event.EventServiceInternal
+import io.kotest.assertions.throwables.shouldThrow
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.Mockito
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
+class CustomEventCommandTest {
+    private lateinit var mockEventServiceInternal: EventServiceInternal
 
-import java.util.HashMap;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
-public class CustomEventCommandTest {
-
-    private static final String EVENT_NAME = "eventName";
-
-    private EventServiceInternal mockEventServiceInternal;
-
-    @Rule
-    public TestRule timeout = TimeoutUtils.getTimeoutRule();
-
-    @Before
-    public void setUp() {
-        mockEventServiceInternal = mock(EventServiceInternal.class);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_mockEventServiceInternal_mustNotBeNull() {
-        new CustomEventCommand(null, "", new HashMap<String, String>());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_eventName_mustNotBeNull() {
-        new CustomEventCommand(mockEventServiceInternal, null, new HashMap<String, String>());
+    @BeforeEach
+    fun setUp() {
+        mockEventServiceInternal = Mockito.mock(EventServiceInternal::class.java)
     }
 
     @Test
-    public void testRun_withEventAttributes() {
-        HashMap<String, String> eventAttributes = new HashMap<>();
-        eventAttributes.put("key", "value");
-
-        Runnable customEventCommand = new CustomEventCommand(mockEventServiceInternal, EVENT_NAME, eventAttributes);
-        customEventCommand.run();
-
-        verify(mockEventServiceInternal).trackCustomEventAsync(EVENT_NAME, eventAttributes, null);
+    fun testConstructor_mockEventServiceInternal_mustNotBeNull() {
+        shouldThrow<IllegalArgumentException> {
+            CustomEventCommand(null, "", HashMap())
+        }
     }
 
     @Test
-    public void testRun_withoutEventAttributes() {
-        Runnable customEventCommand = new CustomEventCommand(mockEventServiceInternal, EVENT_NAME, null);
-        customEventCommand.run();
-
-        verify(mockEventServiceInternal).trackCustomEventAsync(EVENT_NAME, null, null);
+    fun testConstructor_eventName_mustNotBeNull() {
+        shouldThrow<IllegalArgumentException> {
+            CustomEventCommand(mockEventServiceInternal, null, HashMap())
+        }
     }
 
+    @Test
+    fun testRun_withEventAttributes() {
+        val eventAttributes = HashMap<String, String>()
+        eventAttributes["key"] = "value"
+        val customEventCommand: Runnable =
+            CustomEventCommand(mockEventServiceInternal, EVENT_NAME, eventAttributes)
+        customEventCommand.run()
+        Mockito.verify(mockEventServiceInternal)
+            .trackCustomEventAsync(EVENT_NAME, eventAttributes, null)
+    }
+
+    @Test
+    fun testRun_withoutEventAttributes() {
+        val customEventCommand: Runnable =
+            CustomEventCommand(mockEventServiceInternal, EVENT_NAME, null)
+        customEventCommand.run()
+        Mockito.verify(mockEventServiceInternal).trackCustomEventAsync(EVENT_NAME, null, null)
+    }
+
+    companion object {
+        private const val EVENT_NAME = "eventName"
+    }
 }

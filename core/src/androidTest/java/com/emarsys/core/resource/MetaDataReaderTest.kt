@@ -1,103 +1,116 @@
-package com.emarsys.core.resource;
+package com.emarsys.core.resource
 
-import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
+import android.content.Context
+import android.content.pm.ApplicationInfo
+import android.os.Bundle
+import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito
 
-import com.emarsys.testUtil.InstrumentationRegistry;
-import com.emarsys.testUtil.TimeoutUtils;
+class MetaDataReaderTest {
+    private var reader: MetaDataReader? = null
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.mockito.Mockito;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.nullable;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-public class MetaDataReaderTest {
-
-    private MetaDataReader reader;
-
-    @Rule
-    public TestRule timeout = TimeoutUtils.getTimeoutRule();
-
-    @Before
-    public void setUp() throws Exception {
-        reader = new MetaDataReader();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testGetIntOrNull_context_mustNotBeNull() throws Exception {
-        reader.getInt(null, "key");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testGetIntOrNull_key_mustNotBeNull() throws Exception {
-        reader.getInt(InstrumentationRegistry.getTargetContext(), null);
+    @BeforeEach
+    @Throws(Exception::class)
+    fun setUp() {
+        reader = MetaDataReader()
     }
 
     @Test
-    public void testGetIntOrNull_returnsValue_ifExists() throws PackageManager.NameNotFoundException {
-        ApplicationInfo applicationInfo = new ApplicationInfo();
-        Bundle bundle = new Bundle();
-        bundle.putInt("something", 42);
-        applicationInfo.metaData = bundle;
-
-        Context context = mock(Context.class, Mockito.RETURNS_DEEP_STUBS);
-        when(context.getPackageManager().getApplicationInfo(nullable(String.class), anyInt())).thenReturn(applicationInfo);
-
-        assertEquals(42, reader.getInt(context, "something"));
+    fun testGetIntOrNull_context_mustNotBeNull() {
+        shouldThrow<IllegalArgumentException> {
+            reader!!.getInt(null, "key")
+        }
     }
 
     @Test
-    public void getIntOrNull_shouldReturnNull_ifThereIsNoValue() throws PackageManager.NameNotFoundException {
-        ApplicationInfo applicationInfo = new ApplicationInfo();
-        applicationInfo.metaData = new Bundle();
-
-        Context context = mock(Context.class, Mockito.RETURNS_DEEP_STUBS);
-        when(context.getPackageManager().getApplicationInfo(nullable(String.class), anyInt())).thenReturn(applicationInfo);
-
-        assertEquals(0, reader.getInt(context, "something"));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testGetInt_context_mustNotBeNull() throws Exception {
-        reader.getInt(null, "key", 0);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testGetInt_key_mustNotBeNull() throws Exception {
-        reader.getInt(InstrumentationRegistry.getTargetContext(), null, 0);
+    fun testGetIntOrNull_key_mustNotBeNull() {
+        shouldThrow<IllegalArgumentException> {
+            reader!!.getInt(getTargetContext(), null)
+        }
     }
 
     @Test
-    public void testGetInt_returnsValue_ifExists() throws PackageManager.NameNotFoundException {
-        ApplicationInfo applicationInfo = new ApplicationInfo();
-        Bundle bundle = new Bundle();
-        bundle.putInt("something", 43);
-        applicationInfo.metaData = bundle;
-
-        Context context = mock(Context.class, Mockito.RETURNS_DEEP_STUBS);
-        when(context.getPackageManager().getApplicationInfo(nullable(String.class), anyInt())).thenReturn(applicationInfo);
-
-        assertEquals(43, reader.getInt(context, "something", -1));
+    fun testGetIntOrNull_returnsValue_ifExists() {
+        val applicationInfo = ApplicationInfo()
+        val bundle = Bundle()
+        bundle.putInt("something", 42)
+        applicationInfo.metaData = bundle
+        val context = Mockito.mock(Context::class.java, Mockito.RETURNS_DEEP_STUBS)
+        Mockito.`when`(
+            context.packageManager.getApplicationInfo(
+                ArgumentMatchers.nullable(
+                    String::class.java
+                ), ArgumentMatchers.anyInt()
+            )
+        ).thenReturn(applicationInfo)
+        reader!!.getInt(context, "something").toLong() shouldBe 42
     }
 
     @Test
-    public void getInt_shouldReturnDefaultValue_ifThereIsNoValue() throws PackageManager.NameNotFoundException {
-        ApplicationInfo applicationInfo = new ApplicationInfo();
-        applicationInfo.metaData = new Bundle();
+    fun intOrNull_shouldReturnNull_ifThereIsNoValue() {
 
-        Context context = mock(Context.class, Mockito.RETURNS_DEEP_STUBS);
-        when(context.getPackageManager().getApplicationInfo(nullable(String.class), anyInt())).thenReturn(applicationInfo);
+        val applicationInfo = ApplicationInfo()
+        applicationInfo.metaData = Bundle()
+        val context = Mockito.mock(Context::class.java, Mockito.RETURNS_DEEP_STUBS)
+        Mockito.`when`(
+            context.packageManager.getApplicationInfo(
+                ArgumentMatchers.nullable(
+                    String::class.java
+                ), ArgumentMatchers.anyInt()
+            )
+        ).thenReturn(applicationInfo)
+        reader!!.getInt(context, "something").toLong() shouldBe 0
+    }
 
-        assertEquals(0, reader.getInt(context, "something"));
-        assertEquals(200, reader.getInt(context, "something", 200));
+    @Test
+    fun testGetInt_context_mustNotBeNull() {
+        shouldThrow<IllegalArgumentException> {
+            reader!!.getInt(null, "key", 0)
+        }
+    }
+
+    @Test
+    fun testGetInt_key_mustNotBeNull() {
+        shouldThrow<IllegalArgumentException> {
+            reader!!.getInt(getTargetContext(), null, 0)
+        }
+    }
+
+    @Test
+    fun testGetInt_returnsValue_ifExists() {
+        val applicationInfo = ApplicationInfo()
+        val bundle = Bundle()
+        bundle.putInt("something", 43)
+        applicationInfo.metaData = bundle
+        val context = Mockito.mock(Context::class.java, Mockito.RETURNS_DEEP_STUBS)
+        Mockito.`when`(
+            context.packageManager.getApplicationInfo(
+                ArgumentMatchers.nullable(
+                    String::class.java
+                ), ArgumentMatchers.anyInt()
+            )
+        ).thenReturn(applicationInfo)
+        reader!!.getInt(context, "something", -1).toLong() shouldBe 43
+    }
+
+    @Test
+    fun int_shouldReturnDefaultValue_ifThereIsNoValue() {
+        val applicationInfo = ApplicationInfo()
+        applicationInfo.metaData = Bundle()
+        val context = Mockito.mock(Context::class.java, Mockito.RETURNS_DEEP_STUBS)
+        Mockito.`when`(
+            context.packageManager.getApplicationInfo(
+                ArgumentMatchers.nullable(
+                    String::class.java
+                ), ArgumentMatchers.anyInt()
+            )
+        ).thenReturn(applicationInfo)
+        reader!!.getInt(context, "something").toLong() shouldBe 0
+        reader!!.getInt(context, "something", 200).toLong() shouldBe 200
     }
 }

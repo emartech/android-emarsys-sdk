@@ -1,7 +1,7 @@
 package com.emarsys.mobileengage.notification
 
-import io.kotlintest.shouldBe
-import org.junit.Test
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
 
 class LaunchActivityCommandLifecycleCallbacksFactoryTest {

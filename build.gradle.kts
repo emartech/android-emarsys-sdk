@@ -10,10 +10,11 @@ plugins {
     alias(libs.plugins.google.services) apply false
 //    alias(libs.plugins.huawei.agconnect) apply false
     alias(libs.plugins.kotlin.allopen) apply false
+    alias(libs.plugins.kotlin.parcelize) apply false
     alias(libs.plugins.grgit)
     alias(libs.plugins.dotenv)
-    alias(libs.plugins.kotlin.parcelize) apply false
-    id("com.github.ben-manes.versions") version "0.46.0"
+    alias(libs.plugins.ben.manes.versions)
+    alias(libs.plugins.android.junit5) apply false
 }
 
 versionData()
@@ -22,26 +23,31 @@ fun versionData() {
     val git = Grgit.open(
         mapOf("currentDir" to project.rootDir)
     )
-    try {
+    val v = try {
         git.fetch()
-    } catch (ignored: Exception) {
-    }
-    if (git.describe() == null) {
-        throw RuntimeException("Couldn't get Version Name")
-    }
-    val v = GitVersion(
-        versionName =
-        if (System.getenv("RELEASE_VERSION") == null) git.describe() else System.getenv(
-            "RELEASE_VERSION"
-        ),
-        versionCode = ((System.currentTimeMillis() - 1602845230) / 10000).toInt(),
-        versionCodeTime = git.head().time
-    )
+        if (git.describe() == null) {
+            throw RuntimeException("Couldn't get Version Name")
+        }
+        GitVersion(
+            versionName =
+            if (System.getenv("RELEASE_VERSION") == null) git.describe() else System.getenv(
+                "RELEASE_VERSION"
+            ),
+            versionCode = ((System.currentTimeMillis() - 1602845230) / 10000).toInt(),
+            versionCodeTime = git.head().dateTime.toEpochSecond()
+        )
 
+    } catch (ignored: Exception) {
+        GitVersion(
+            versionName = "0.0.0",
+            versionCode = 0,
+            versionCodeTime = 0
+        )
+    }
     val version by extra(v)
 
-    println("versionName: ${v.versionName}")
-    println("versionCode: ${v.versionCode}")
+    println("versionName: ${version.versionName}")
+    println("versionCode: ${version.versionCode}")
 }
 
 tasks {

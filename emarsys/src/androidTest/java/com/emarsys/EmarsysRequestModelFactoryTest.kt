@@ -6,12 +6,11 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.MobileEngageRequestContext
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
@@ -30,11 +29,8 @@ class EmarsysRequestModelFactoryTest {
     private lateinit var requestFactory: EmarsysRequestModelFactory
     private lateinit var mockMobileEngageRequestContext: MobileEngageRequestContext
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockTimeStampProvider = mock {
             on { provideTimestamp() } doReturn TIMESTAMP

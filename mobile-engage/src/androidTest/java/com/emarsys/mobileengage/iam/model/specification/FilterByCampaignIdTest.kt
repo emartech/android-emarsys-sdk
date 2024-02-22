@@ -10,26 +10,20 @@ import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import java.util.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class FilterByCampaignIdTest {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+
 
     private lateinit var displayedIamRepository: DisplayedIamRepository
     private lateinit var buttonClickedRepository: ButtonClickedRepository
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
-    @Before
+    @BeforeEach
     fun init() {
         DatabaseTestUtils.deleteCoreDatabase()
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()

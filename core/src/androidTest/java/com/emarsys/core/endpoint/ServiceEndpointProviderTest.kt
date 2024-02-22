@@ -1,13 +1,12 @@
 package com.emarsys.core.endpoint
 
 import com.emarsys.core.storage.StringStorage
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 import org.mockito.Mockito
 
 class ServiceEndpointProviderTest {
@@ -16,14 +15,12 @@ class ServiceEndpointProviderTest {
         const val DEFAULT_ENDPOINT = "https://default.emarsys.com"
     }
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+
 
     private lateinit var serviceEndpointProvider: ServiceEndpointProvider
     private lateinit var mockServiceUrlStorage: StringStorage
 
-    @Before
+    @BeforeEach
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
         mockServiceUrlStorage = Mockito.mock(StringStorage::class.java)

@@ -1,18 +1,15 @@
 package com.emarsys.mobileengage
 
-import com.emarsys.core.storage.StringStorage
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Test
-import org.mockito.kotlin.doReturn
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
 
 class MobileEngageRequestContextTest {
 
     private lateinit var requestContext: MobileEngageRequestContext
 
-    @Before
+    @BeforeEach
     fun setUp() {
 
         requestContext = MobileEngageRequestContext(

@@ -4,14 +4,14 @@ import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.predict.request.PredictHeaderFactory
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.request.PredictRequestModelBuilder
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 import org.mockito.Mockito.mock
 
 class PredictRequestModelBuilderProviderTest {
@@ -20,11 +20,8 @@ class PredictRequestModelBuilderProviderTest {
     private lateinit var mockHeaderFactory: PredictHeaderFactory
     private lateinit var mockServiceProvider: ServiceEndpointProvider
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockRequestContext = mock(PredictRequestContext::class.java)
         mockHeaderFactory = mock(PredictHeaderFactory::class.java)
@@ -33,26 +30,37 @@ class PredictRequestModelBuilderProviderTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testConstructor_predictRequestContext_shouldNotBeNull() {
-        PredictRequestModelBuilderProvider(null, mockHeaderFactory, mockServiceProvider)
+        shouldThrow<IllegalArgumentException> {
+            PredictRequestModelBuilderProvider(null, mockHeaderFactory, mockServiceProvider)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testConstructor_headerFactory_shouldNotBeNull() {
-        PredictRequestModelBuilderProvider(mockRequestContext, null, mockServiceProvider)
+        shouldThrow<IllegalArgumentException> {
+            PredictRequestModelBuilderProvider(mockRequestContext, null, mockServiceProvider)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testConstructor_predictServiceProvider_shouldNotBeNull() {
-        PredictRequestModelBuilderProvider(mockRequestContext, mockHeaderFactory, null)
+        shouldThrow<IllegalArgumentException> {
+            PredictRequestModelBuilderProvider(mockRequestContext, mockHeaderFactory, null)
+        }
     }
 
     @Test
     fun testProvidePredictRequestModelBuilder_shouldProvideNewRequestModelBuilder() {
-        val expected = PredictRequestModelBuilder(mockRequestContext, mockHeaderFactory, mockServiceProvider)
+        val expected =
+            PredictRequestModelBuilder(mockRequestContext, mockHeaderFactory, mockServiceProvider)
 
-        val provider = PredictRequestModelBuilderProvider(mockRequestContext, mockHeaderFactory, mockServiceProvider)
+        val provider = PredictRequestModelBuilderProvider(
+            mockRequestContext,
+            mockHeaderFactory,
+            mockServiceProvider
+        )
 
         val result = provider.providePredictRequestModelBuilder()
 
@@ -61,7 +69,11 @@ class PredictRequestModelBuilderProviderTest {
 
     @Test
     fun testProvidePredictRequestModelBuilder_shouldProvideDifferentRequestModelBuilder() {
-        val provider = PredictRequestModelBuilderProvider(mockRequestContext, mockHeaderFactory, mockServiceProvider)
+        val provider = PredictRequestModelBuilderProvider(
+            mockRequestContext,
+            mockHeaderFactory,
+            mockServiceProvider
+        )
         val result1 = provider.providePredictRequestModelBuilder()
         val result2 = provider.providePredictRequestModelBuilder()
 

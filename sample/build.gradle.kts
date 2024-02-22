@@ -16,6 +16,8 @@ android {
         applicationId = "com.emarsys.sample"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
+        multiDexEnabled = true
+
         lint {
             targetSdk = libs.versions.android.targetSdk.get().toInt()
         }
@@ -34,11 +36,15 @@ android {
     }
 
     buildFeatures {
+        buildConfig = true
         compose = true
+    }
+    compileOptions {
+        isCoreLibraryDesugaringEnabled = true
     }
 
     allOpen {
-        annotation("com.emarsys.core.Mockable")
+        annotation("kotlin.AnyClass")
     }
 
     kotlin {
@@ -73,7 +79,7 @@ android {
             multiDexEnabled = true
         }
     }
-    packagingOptions {
+    packaging {
         resources {
             excludes += arrayOf("META-INF/LICENSE.md", "META-INF/LICENSE-notice.md")
         }
@@ -93,30 +99,32 @@ dependencies {
     // Getting a "Could not find firebase-core" error? Make sure you have
     // the latest Google Repository in the Android SDK manager
 
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.21")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.21")
-    implementation("com.google.android.material:material:1.11.0")
-    implementation("com.android.support:cardview-v7:28.0.0")
-    implementation("com.google.android.gms:play-services-auth:20.7.0")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("io.coil-kt:coil:2.5.0")
+    implementation(libs.kotlin.reflect)
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.androidx.material)
+    // implementation("androidx.cardview:cardview:1.0.0")
+    implementation(libs.play.services.auth)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.io.coil)
 
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("com.google.android.material:material:1.11.0")
-    implementation("androidx.compose.ui:ui:1.6.0")
-    implementation("androidx.compose.material:material:1.6.0")
-    implementation("androidx.compose.ui:ui-tooling-preview:1.6.0")
-    implementation("androidx.navigation:navigation-compose:2.7.6")
-    implementation("androidx.compose.material:material-icons-extended:1.6.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
-    implementation("androidx.activity:activity-compose:1.8.2")
-    implementation("io.coil-kt:coil-compose:2.5.0")
-    implementation("androidx.datastore:datastore-preferences:1.0.0")
-    implementation("com.chibatching.kotpref:kotpref:2.13.2")
-    implementation("com.google.firebase:firebase-common-ktx:20.4.2")
-    implementation("com.google.firebase:firebase-messaging-ktx:23.4.0")
-    implementation("com.google.android.gms:play-services-auth:20.7.0")
-    implementation("com.google.accompanist:accompanist-swiperefresh:0.34.0")
-    implementation("com.google.code.gson:gson:2.10.1")
-    debugImplementation("androidx.compose.ui:ui-tooling:1.6.0")
+    implementation(libs.androidx.core.ktx)
+    // implementation("com.google.android.material:material:1.11.0")
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.material)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.compose.material.icons)
+    implementation(libs.androidx.lifecycle.runtime)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.io.coil.compose)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.kotpref)
+    implementation(libs.google.firebase.common)
+    implementation(libs.google.firebase.messaging)
+    implementation(libs.play.services.auth)
+    implementation(libs.google.accompanist.swipetorefresh)
+    implementation(libs.google.gson)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+
+    coreLibraryDesugaring(libs.android.tools.desugar)
 }

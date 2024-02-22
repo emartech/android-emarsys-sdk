@@ -4,13 +4,13 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.After
-import org.junit.Assert.*
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+
 
 class DefaultKeyValueStoreTest {
     companion object {
@@ -24,131 +24,159 @@ class DefaultKeyValueStoreTest {
         private const val KEY6 = "key6"
     }
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var store: DefaultKeyValueStore
     private lateinit var prefs: SharedPreferences
 
-    @Before
+    @BeforeEach
     @SuppressLint("ApplySharedPref")
     fun init() {
         prefs = InstrumentationRegistry.getTargetContext()
-                .applicationContext
-                .getSharedPreferences("DefaultKeysStoreTest", Context.MODE_PRIVATE)
+            .applicationContext
+            .getSharedPreferences("DefaultKeysStoreTest", Context.MODE_PRIVATE)
         prefs.edit().clear().commit()
         store = DefaultKeyValueStore(prefs)
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         prefs.edit().clear().commit()
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testConstructor_shouldNotAcceptNullContext() {
-        DefaultKeyValueStore(null)
+        shouldThrow<IllegalArgumentException> {
+            DefaultKeyValueStore(null)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testPutString_shouldNotAcceptNullKey() {
-        store.putString(null, "value")
+        shouldThrow<IllegalArgumentException> {
+            store.putString(null, "value")
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testPutString_shouldNotAcceptNullValue() {
-        store.putString("key", null)
+        shouldThrow<IllegalArgumentException> {
+            store.putString("key", null)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testPutInt_shouldNotAcceptNullKey() {
-        store.putInt(null, 0)
+        shouldThrow<IllegalArgumentException> {
+            store.putInt(null, 0)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testPutLong_shouldNotAcceptNullKey() {
-        store.putLong(null, 0)
+        shouldThrow<IllegalArgumentException> {
+            store.putLong(null, 0)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testPutFloat_shouldNotAcceptNullKey() {
-        store.putFloat(null, 0f)
+        shouldThrow<IllegalArgumentException> {
+            store.putFloat(null, 0f)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testPutDouble_shouldNotAcceptNullKey() {
-        store.putDouble(null, 0.0)
+        shouldThrow<IllegalArgumentException> {
+            store.putDouble(null, 0.0)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testPutBoolean_shouldNotAcceptNullKey() {
-        store.putBoolean(null, false)
+        shouldThrow<IllegalArgumentException> {
+            store.putBoolean(null, false)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testGetString_shouldNotAcceptNullKey() {
-        store.getString(null)
+        shouldThrow<IllegalArgumentException> {
+            store.getString(null)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testGetInt_shouldNotAcceptNullKey() {
-        store.getInt(null)
+        shouldThrow<IllegalArgumentException> {
+            store.getInt(null)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testGetLong_shouldNotAcceptNullKey() {
-        store.getLong(null)
+        shouldThrow<IllegalArgumentException> {
+            store.getLong(null)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testGetFloat_shouldNotAcceptNullKey() {
-        store.getFloat(null)
+        shouldThrow<IllegalArgumentException> {
+            store.getFloat(null)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testGetDouble_shouldNotAcceptNullKey() {
-        store.getDouble(null)
+        shouldThrow<IllegalArgumentException> {
+            store.getDouble(null)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testGetBoolean_shouldNotAcceptNullKey() {
-        store.getBoolean(null)
+        shouldThrow<IllegalArgumentException> {
+            store.getBoolean(null)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testRemove_shouldNotAcceptNullKey() {
-        store.remove(null)
+        shouldThrow<IllegalArgumentException> {
+            store.remove(null)
+        }
     }
 
     @Test
     fun test_put_get_string_shouldStoreValue() {
         store.putString(KEY, "value")
-        assertEquals("value", store.getString(KEY))
+        store.getString(KEY) shouldBe "value"
     }
 
     @Test
     fun test_put_get_int_shouldStoreValue() {
         store.putInt(KEY, 342)
-        assertEquals(342, store.getInt(KEY))
+        store.getInt(KEY) shouldBe 342
     }
 
     @Test
     fun test_put_get_long_shouldStoreValue() {
         store.putLong(KEY, 33L)
-        assertEquals(33L, store.getLong(KEY))
+        store.getLong(KEY) shouldBe 33L
     }
 
     @Test
     fun test_put_get_float_shouldStoreValue() {
         store.putFloat(KEY, 2.4f)
-        assertEquals(2.4f, store.getFloat(KEY), DELTA.toFloat())
+        store
+        Assertions.assertEquals(2.4f, store.getFloat(KEY), DELTA.toFloat())
     }
 
     @Test
     fun test_put_get_double_shouldStoreValue() {
         store.putDouble(KEY, 0.2)
-        assertEquals(0.2, store.getDouble(KEY), DELTA)
+        Assertions.assertEquals(0.2, store.getDouble(KEY), DELTA)
     }
 
     @Test
@@ -159,65 +187,65 @@ class DefaultKeyValueStoreTest {
         store.putDouble(KEY4, java.lang.Double.POSITIVE_INFINITY)
         store.putDouble(KEY5, java.lang.Double.NEGATIVE_INFINITY)
 
-        assertEquals(java.lang.Double.MAX_VALUE, store.getDouble(KEY1), DELTA)
-        assertEquals(java.lang.Double.MIN_VALUE, store.getDouble(KEY2), DELTA)
-        assertEquals(java.lang.Double.NaN, store.getDouble(KEY3), DELTA)
-        assertEquals(java.lang.Double.POSITIVE_INFINITY, store.getDouble(KEY4), DELTA)
-        assertEquals(java.lang.Double.NEGATIVE_INFINITY, store.getDouble(KEY5), DELTA)
+        Assertions.assertEquals(java.lang.Double.MAX_VALUE, store.getDouble(KEY1), DELTA)
+        Assertions.assertEquals(java.lang.Double.MIN_VALUE, store.getDouble(KEY2), DELTA)
+        Assertions.assertEquals(java.lang.Double.NaN, store.getDouble(KEY3), DELTA)
+        Assertions.assertEquals(java.lang.Double.POSITIVE_INFINITY, store.getDouble(KEY4), DELTA)
+        Assertions.assertEquals(java.lang.Double.NEGATIVE_INFINITY, store.getDouble(KEY5), DELTA)
     }
 
     @Test
     fun test_put_get_boolean_shouldStoreValue() {
         store.putBoolean(KEY, true)
-        assertEquals(true, store.getBoolean(KEY))
+        store.getBoolean(KEY) shouldBe true
     }
 
     @Test
     fun testPut_shouldOverridePreviousValues_withTheSameKey() {
         store.putString(KEY, "value")
-        assertEquals("value", store.getString(KEY))
+        store.getString(KEY) shouldBe "value"
 
         store.putInt(KEY, 23)
-        assertEquals(23, store.getInt(KEY))
+        store.getInt(KEY) shouldBe 23
 
         store.putLong(KEY, 88111)
-        assertEquals(88111, store.getLong(KEY))
+        store.getLong(KEY) shouldBe 88111
 
         store.putFloat(KEY, 765.23f)
-        assertEquals(765.23f, store.getFloat(KEY), DELTA.toFloat())
+        Assertions.assertEquals(765.23f, store.getFloat(KEY), DELTA.toFloat())
 
         store.putDouble(KEY, 0.03013)
-        assertEquals(0.03013, store.getDouble(KEY), DELTA)
+        Assertions.assertEquals(0.03013, store.getDouble(KEY), DELTA)
 
         store.putBoolean(KEY, true)
-        assertEquals(true, store.getBoolean(KEY))
+        store.getBoolean(KEY) shouldBe true
     }
 
     @Test
     fun testRemove() {
         store.putString(KEY1, "value")
         store.remove(KEY1)
-        assertNull(store.getString(KEY1))
+        store.getString(KEY1) shouldBe null
 
         store.putInt(KEY2, 567)
         store.remove(KEY2)
-        assertEquals(0, store.getInt(KEY2))
+        store.getInt(KEY2) shouldBe 0
 
         store.putLong(KEY3, 888)
         store.remove(KEY3)
-        assertEquals(0, store.getLong(KEY3))
+        store.getLong(KEY3) shouldBe 0
 
         store.putFloat(KEY4, 44.2f)
         store.remove(KEY4)
-        assertEquals(0.0f, store.getFloat(KEY4), DELTA.toFloat())
+        Assertions.assertEquals(0.0f, store.getFloat(KEY4), DELTA.toFloat())
 
         store.putDouble(KEY5, 120120.0301)
         store.remove(KEY5)
-        assertEquals(0.0, store.getDouble(KEY5), DELTA)
+        Assertions.assertEquals(0.0, store.getDouble(KEY5), DELTA)
 
         store.putBoolean(KEY6, true)
         store.remove(KEY6)
-        assertEquals(false, store.getBoolean(KEY6))
+        store.getBoolean(KEY6) shouldBe false
     }
 
     @Test
@@ -227,9 +255,9 @@ class DefaultKeyValueStoreTest {
 
         store.remove(KEY)
 
-        assertEquals(2, store.size)
-        assertEquals(70, store.getInt(KEY1))
-        assertEquals("value", store.getString(KEY2))
+        store.size shouldBe 2
+        store.getInt(KEY1) shouldBe 70
+        store.getString(KEY2) shouldBe "value"
     }
 
     @Test
@@ -237,7 +265,7 @@ class DefaultKeyValueStoreTest {
         store.putBoolean(KEY, true)
         store.clear()
 
-        assertEquals(0, store.size)
+        store.size shouldBe 0
     }
 
     @Test
@@ -246,11 +274,11 @@ class DefaultKeyValueStoreTest {
         store.putLong(KEY2, 18)
         store.putBoolean(KEY3, true)
 
-        assertEquals(3, store.size)
+        store.size shouldBe 3
 
         store.remove(KEY2)
 
-        assertEquals(2, store.size)
+        store.size shouldBe 2
     }
 
     @Test
@@ -258,7 +286,7 @@ class DefaultKeyValueStoreTest {
         store.putBoolean(KEY, true)
         store.clear()
 
-        assertTrue(store.isEmpty)
+        store.isEmpty shouldBe true
     }
 
     @Test
@@ -266,6 +294,6 @@ class DefaultKeyValueStoreTest {
         store.putInt("key2", 18)
         store.putInt("key3", 10)
 
-        assertFalse(store.isEmpty)
+        store.isEmpty shouldBe false
     }
 }

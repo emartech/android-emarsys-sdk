@@ -10,14 +10,13 @@ import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.mobileengage.util.RequestPayloadUtils
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -42,11 +41,7 @@ class ContactTokenHeaderMapperTest {
     private lateinit var mockRequestModelHelper: RequestModelHelper
 
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
-
-    @Before
+    @BeforeEach
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
         mockContactTokenStorage = mock {

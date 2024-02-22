@@ -10,16 +10,12 @@ import com.emarsys.core.database.helper.DbHelper
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
-import io.kotlintest.shouldBe
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
-import java.util.*
+import java.util.Date
 
 class DisplayedIamRepositoryTest {
 
@@ -27,11 +23,8 @@ class DisplayedIamRepositoryTest {
     private lateinit var displayedIam1: DisplayedIam
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         deleteCoreDatabase()
         val context = getTargetContext()
@@ -63,6 +56,6 @@ class DisplayedIamRepositoryTest {
         whenever(mockCursor.getLong(1)).thenReturn(displayedIam1.timestamp)
         val result = iamRepository.itemFromCursor(mockCursor)
         val expected = displayedIam1
-        Assert.assertEquals(expected, result)
+        result shouldBe expected
     }
 }

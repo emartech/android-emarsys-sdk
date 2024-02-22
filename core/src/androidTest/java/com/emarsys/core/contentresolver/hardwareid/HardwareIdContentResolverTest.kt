@@ -1,106 +1,125 @@
 package com.emarsys.core.contentresolver.hardwareid
 
+import android.content.Context
 import android.database.Cursor
 import android.net.Uri
-import android.test.ProviderTestCase2
-import android.test.mock.MockContentProvider
 import com.emarsys.core.crypto.HardwareIdentificationCrypto
 import com.emarsys.core.database.DatabaseContract
+import com.emarsys.core.device.HardwareIdentification
 import com.emarsys.core.provider.hardwareid.HardwareIdProviderTest
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoInteractions
+import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 
-class HardwareIdContentResolverTest : ProviderTestCase2<FakeContentProvider>(FakeContentProvider::class.java, "com.emarsys.test") {
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+
+class HardwareIdContentResolverTest {
 
     companion object {
-        private val SHARED_PACKAGE_NAMES = listOf("emarsys.test", "com.emarsys.test", "com.android.test")
+        private val SHARED_PACKAGE_NAMES =
+            listOf("emarsys.test", "com.emarsys.test", "com.android.test")
         private const val ENCRYPTED_HARDWARE_ID = "encrypted_shared_hardware_id"
         private const val SALT = "testSalt"
         private const val IV = "testIv"
 
     }
 
+    private var mockContext: Context = mockk()
     private lateinit var contentResolver: HardwareIdContentResolver
     private lateinit var mockHardwareIdentificationCrypto: HardwareIdentificationCrypto
+    private lateinit var mockCursor: Cursor
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+    @BeforeEach
+    fun setUp() {
+        mockCursor = mockk(relaxed = true) {
+            every { moveToFirst() } returns true
+            every { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_ENCRYPTED_HARDWARE_ID) } returns 0
+            every { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_SALT) } returns 1
+            every { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_IV) } returns 2
+            every { getString(0) } returns HardwareIdProviderTest.ENCRYPTED_HARDWARE_ID
+            every { getString(1) } returns HardwareIdProviderTest.SALT
+            every { getString(2) } returns HardwareIdProviderTest.IV
+        }
+        every {
+            mockContext.contentResolver.query(
+                any<Uri>(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns mockCursor
 
-    @Before
-    override fun setUp() {
-        super.setUp()
-        mockHardwareIdentificationCrypto = mock()
-        contentResolver = HardwareIdContentResolver(mockContext, mockHardwareIdentificationCrypto, SHARED_PACKAGE_NAMES)
+        mockHardwareIdentificationCrypto = mockk()
+        every {
+            mockHardwareIdentificationCrypto.decrypt(
+                any(),
+                any(),
+                any()
+            )
+        } returns "HARDWARE_ID"
+        every { mockHardwareIdentificationCrypto.encrypt(any()) } returns HardwareIdentification(
+            ENCRYPTED_HARDWARE_ID,
+            SALT,
+            IV
+        )
+        contentResolver = HardwareIdContentResolver(
+            mockContext,
+            mockHardwareIdentificationCrypto,
+            SHARED_PACKAGE_NAMES
+        )
     }
 
     @Test
     fun testProvideHardwareId_shouldGetHardwareId_fromContentResolver() {
-        FakeContentProvider.numberOfInvocation = 0
-
         contentResolver.resolveHardwareId()
 
-        verify(mockHardwareIdentificationCrypto).decrypt(ENCRYPTED_HARDWARE_ID, SALT, IV)
-        FakeContentProvider.numberOfInvocation shouldBe 1
+        verify { mockHardwareIdentificationCrypto.decrypt(ENCRYPTED_HARDWARE_ID, SALT, IV) }
     }
 
     @Test
     fun testProvideHardwareId_shouldNotGetHardwareId_fromContentResolver() {
-        FakeContentProvider.numberOfInvocation = 0
-        FakeContentProvider.mockCursor = mock {
-            on { moveToFirst() } doReturn false
-            on { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_ENCRYPTED_HARDWARE_ID) } doReturn 0
-            on { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_SALT) } doReturn 1
-            on { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_IV) } doReturn 2
-            on { getString(0) } doReturn HardwareIdProviderTest.ENCRYPTED_HARDWARE_ID
-            on { getString(1) } doReturn HardwareIdProviderTest.SALT
-            on { getString(2) } doReturn HardwareIdProviderTest.IV
+        val mockCursor: Cursor = mockk {
+            every { moveToFirst() } returns false
+            every { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_ENCRYPTED_HARDWARE_ID) } returns 0
+            every { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_SALT) } returns 1
+            every { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_IV) } returns 2
+            every { getString(0) } returns HardwareIdProviderTest.ENCRYPTED_HARDWARE_ID
+            every { getString(1) } returns HardwareIdProviderTest.SALT
+            every { getString(2) } returns HardwareIdProviderTest.IV
         }
-
+        val mockContext: Context = mockk()
+        every {
+            mockContext.contentResolver.query(
+                any<Uri>(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns mockCursor
+        val contentResolver = HardwareIdContentResolver(
+            mockContext,
+            mockHardwareIdentificationCrypto,
+            SHARED_PACKAGE_NAMES
+        )
         contentResolver.resolveHardwareId()
 
-        verifyNoInteractions(mockHardwareIdentificationCrypto)
-        FakeContentProvider.numberOfInvocation shouldBe 1
+        verify(exactly = 0) { mockHardwareIdentificationCrypto.decrypt(any(), any(), any()) }
+        verify(exactly = 0) { mockHardwareIdentificationCrypto.encrypt(any()) }
     }
 
     @Test
     fun testProvideHardwareId_shouldReturnFalse_whenSharedPackageNamesIsMissing() {
-        FakeContentProvider.numberOfInvocation = 0
-        val contentResolver = HardwareIdContentResolver(mockContext, mockHardwareIdentificationCrypto, null)
+        val contentResolver =
+            HardwareIdContentResolver(mockContext, mockHardwareIdentificationCrypto, null)
 
         val result = contentResolver.resolveHardwareId()
 
-        FakeContentProvider.numberOfInvocation = 0
-        verifyNoInteractions(mockHardwareIdentificationCrypto)
+        verify(exactly = 0) { mockHardwareIdentificationCrypto.decrypt(any(), any(), any()) }
+        verify(exactly = 0) { mockHardwareIdentificationCrypto.encrypt(any()) }
         result shouldBe null
-    }
-}
-
-open class FakeContentProvider : MockContentProvider() {
-    companion object {
-        var numberOfInvocation = 0
-
-        var mockCursor: Cursor = mock {
-            on { moveToFirst() } doReturn true
-            on { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_ENCRYPTED_HARDWARE_ID) } doReturn 0
-            on { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_SALT) } doReturn 1
-            on { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_IV) } doReturn 2
-            on { getString(0) } doReturn HardwareIdProviderTest.ENCRYPTED_HARDWARE_ID
-            on { getString(1) } doReturn HardwareIdProviderTest.SALT
-            on { getString(2) } doReturn HardwareIdProviderTest.IV
-        }
-    }
-
-    override fun query(uri: Uri, p1: Array<out String>?, p2: String?, p3: Array<out String>?, p4: String?): Cursor? {
-        numberOfInvocation++
-        return mockCursor
     }
 }

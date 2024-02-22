@@ -6,19 +6,18 @@ import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.testUtil.IntegrationTestUtils
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import com.emarsys.testUtil.rules.DuplicatedThreadRule
-import io.kotlintest.shouldBe
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import com.emarsys.testUtil.rules.DuplicatedThreadExtension
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.doReturn
 
+@ExtendWith(DuplicatedThreadExtension::class)
 
 class ConfigTest {
 
@@ -28,18 +27,10 @@ class ConfigTest {
         private const val INBOX_HOST = "https://me-inbox.eservice.emarsys.net/v3"
     }
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
-
-    @Rule
-    @JvmField
-    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
-
     lateinit var config: Config
     lateinit var mockConfigInternal: ConfigInternal
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockConfigInternal = mock(ConfigInternal::class.java)
         val mockClientServiceProvider: ServiceEndpointProvider = org.mockito.kotlin.mock {
@@ -52,10 +43,10 @@ class ConfigTest {
             on { provideEndpointHost() } doReturn INBOX_HOST
         }
         val dependencyContainer = FakeDependencyContainer(
-                configInternal = mockConfigInternal,
-                clientServiceEndpointProvider = mockClientServiceProvider,
-                eventServiceEndpointProvider = mockEventServiceProvider,
-                messageInboxServiceProvider = mockMessageInboxServiceProvider
+            configInternal = mockConfigInternal,
+            clientServiceEndpointProvider = mockClientServiceProvider,
+            eventServiceEndpointProvider = mockEventServiceProvider,
+            messageInboxServiceProvider = mockMessageInboxServiceProvider
         )
 
         setupEmarsysComponent(dependencyContainer)
@@ -63,7 +54,7 @@ class ConfigTest {
     }
 
 
-    @After
+    @AfterEach
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys()
     }

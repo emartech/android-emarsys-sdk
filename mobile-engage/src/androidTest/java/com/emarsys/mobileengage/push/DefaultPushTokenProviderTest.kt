@@ -2,12 +2,11 @@ package com.emarsys.mobileengage.push
 
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.storage.StringStorage
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.shouldBe
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+
+import org.junit.jupiter.api.Test
+
 import org.mockito.Mockito.mock
 
 class DefaultPushTokenProviderTest {
@@ -15,9 +14,6 @@ class DefaultPushTokenProviderTest {
         const val PUSH_TOKEN = "pushToken"
     }
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Test
     fun testProvidePushToken() {

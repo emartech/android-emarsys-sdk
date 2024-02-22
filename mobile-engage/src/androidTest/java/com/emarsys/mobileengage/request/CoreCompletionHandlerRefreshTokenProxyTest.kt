@@ -8,12 +8,11 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.util.RequestModelHelper
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.eq
@@ -24,9 +23,7 @@ import java.net.URL
 
 class CoreCompletionHandlerRefreshTokenProxyTest {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+
 
     companion object {
         const val REQUEST_ID = "testRequestId"
@@ -44,7 +41,7 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
     private lateinit var mockRequestModelHelper: RequestModelHelper
     private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockRequestModel = mock {
             on { url } doReturn URL(CLIENT_HOST)

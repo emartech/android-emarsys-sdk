@@ -8,12 +8,11 @@ import androidx.lifecycle.LifecycleRegistry
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.session.Session
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
@@ -26,11 +25,8 @@ class AppLifecycleObserverTest {
     private lateinit var mockLifecycleOwner: LifecycleOwner
     private lateinit var uiHandler: Handler
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         uiHandler = Handler(Looper.getMainLooper())
         mockSession = mock()

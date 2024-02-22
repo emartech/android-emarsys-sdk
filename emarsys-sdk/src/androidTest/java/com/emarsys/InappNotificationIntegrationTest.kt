@@ -3,7 +3,6 @@ package com.emarsys
 import android.app.Application
 import android.content.Context
 import android.content.Intent
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
@@ -20,14 +19,9 @@ import com.emarsys.testUtil.ConnectionTestUtils
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.IntegrationTestUtils
-import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.fake.FakeActivity
-import com.emarsys.testUtil.rules.DuplicatedThreadRule
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
@@ -49,20 +43,8 @@ class InappNotificationIntegrationTest {
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Rule
-    @JvmField
-    var activityScenarioRule: ActivityScenarioRule<FakeActivity> =
-        ActivityScenarioRule(FakeActivity::class.java)
-
-    @Rule
-    @JvmField
-    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
-
-    @Before
+    @BeforeEach
     fun setup() {
         completionListenerLatch = CountDownLatch(1)
 
@@ -114,7 +96,7 @@ class InappNotificationIntegrationTest {
         IntegrationTestUtils.doLogin()
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys(application)
     }

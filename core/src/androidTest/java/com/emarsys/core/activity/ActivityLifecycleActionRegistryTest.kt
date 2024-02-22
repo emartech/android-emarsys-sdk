@@ -6,10 +6,17 @@ import com.emarsys.core.activity.ActivityLifecycleAction.ActivityLifecycle.RESUM
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Test
-import org.mockito.kotlin.*
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.inOrder
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
 class ActivityLifecycleActionRegistryTest {
@@ -23,7 +30,7 @@ class ActivityLifecycleActionRegistryTest {
     private lateinit var mockActions: MutableList<ActivityLifecycleAction>
     private lateinit var mockActivity: Activity
 
-    @Before
+    @BeforeEach
     fun setup() {
         mockActivity = mock()
         mockAction1 = mock {
@@ -232,6 +239,7 @@ class ActivityLifecycleActionRegistryTest {
     fun testAddTriggerOnActivity_shouldBeDelegatedToTheCoreThread() {
         whenever(mockAction1.execute(any())).doAnswer {
             Thread.currentThread().name.startsWith("CoreSDKHandlerThread") shouldBe true
+            Unit
         }
 
         activityLifecycleActionRegistry.addTriggerOnActivityAction(mockAction1)
@@ -241,6 +249,7 @@ class ActivityLifecycleActionRegistryTest {
     fun testActivityLifecycleActionRegistryExecute_shouldBeDelegatedToTheCoreThread() {
         whenever(mockAction1.execute(any())).doAnswer {
             Thread.currentThread().name.startsWith("CoreSDKHandlerThread") shouldBe true
+            Unit
         }
 
         activityLifecycleActionRegistry.execute(mockActivity, listOf(RESUME))

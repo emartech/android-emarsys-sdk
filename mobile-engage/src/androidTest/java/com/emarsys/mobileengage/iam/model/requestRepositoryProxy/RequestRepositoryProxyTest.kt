@@ -29,11 +29,11 @@ import com.emarsys.mobileengage.util.RequestPayloadUtils.createCompositeRequestM
 import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.RandomTestUtils.randomString
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.*
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
 
 class RequestRepositoryProxyTest {
@@ -52,11 +52,8 @@ class RequestRepositoryProxyTest {
     private lateinit var mockRequestModelHelper: RequestModelHelper
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         deleteCoreDatabase()
         val context = getTargetContext()
@@ -94,7 +91,7 @@ class RequestRepositoryProxyTest {
         )
     }
 
-    @After
+    @AfterEach
     @Throws(Exception::class)
     fun tearDown() {
         FeatureRegistry.disableFeature(InnerFeature.EVENT_SERVICE_V4)
@@ -130,14 +127,14 @@ class RequestRepositoryProxyTest {
     @Test
     fun testIsEmpty_whenEmpty_shouldDelegate_toRequestModelRepository() {
         whenever(mockRequestModelRepository.isEmpty()).thenReturn(true)
-        Assert.assertTrue(compositeRepository.isEmpty())
+        compositeRepository.isEmpty() shouldBe true
         verify(mockRequestModelRepository).isEmpty()
     }
 
     @Test
     fun testIsEmpty_whenNotEmpty_shouldDelegate_toRequestModelRepository() {
         whenever(mockRequestModelRepository.isEmpty()).thenReturn(false)
-        Assert.assertFalse(compositeRepository.isEmpty())
+        compositeRepository.isEmpty() shouldBe false
         verify(mockRequestModelRepository).isEmpty()
     }
 
@@ -152,7 +149,7 @@ class RequestRepositoryProxyTest {
             requestModelRepository.add(requestModel())
         }
         val expected = listOf(firstRequestModel)
-        Assert.assertEquals(expected, compositeRepository.query(QueryLatestRequestModel()))
+        compositeRepository.query(QueryLatestRequestModel()) shouldBe expected
     }
 
     @Test
@@ -160,13 +157,20 @@ class RequestRepositoryProxyTest {
         val customEvent = customEvent(123, "testEventName")
         val requestModel = requestModel()
 
-        whenever(mockRequestModelRepository.query(any())).doReturnConsecutively(listOf(listOf(customEvent, requestModel), listOf()))
+        whenever(mockRequestModelRepository.query(any())).doReturnConsecutively(
+            listOf(
+                listOf(
+                    customEvent,
+                    requestModel
+                ), listOf()
+            )
+        )
 
         val expected = listOf(customEvent, requestModel)
 
         val result = compositeRepository.query(Everything())
 
-        Assert.assertEquals(expected, result)
+        result shouldBe expected
     }
 
     @Test
@@ -232,7 +236,7 @@ class RequestRepositoryProxyTest {
                 expectedComposite,
                 request3
             )
-            Assert.assertEquals(expected, compositeRepository.query(Everything()))
+            compositeRepository.query(Everything()) shouldBe expected
         }
     }
 
@@ -288,7 +292,7 @@ class RequestRepositoryProxyTest {
                 TIMESTAMP, Long.MAX_VALUE, arrayOf(customEvent1.id)
             )
             val expected = listOf(expectedComposite)
-            Assert.assertEquals(expected, compositeRepository.query(Everything()))
+            compositeRepository.query(Everything()) shouldBe expected
         }
     }
 
@@ -377,7 +381,7 @@ class RequestRepositoryProxyTest {
                 expectedComposite,
                 request3
             )
-            Assert.assertEquals(expected, compositeRepository.query(Everything()))
+            compositeRepository.query(Everything()) shouldBe expected
         }
     }
 

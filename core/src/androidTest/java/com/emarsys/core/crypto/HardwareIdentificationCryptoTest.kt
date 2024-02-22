@@ -1,9 +1,9 @@
 package com.emarsys.core.crypto
 
 import com.emarsys.core.device.HardwareIdentification
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Test
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
@@ -23,7 +23,7 @@ class HardwareIdentificationCryptoTest {
     private lateinit var hardwareIdentificationCryptoWithoutSecret: HardwareIdentificationCrypto
     private lateinit var mockCrypto: Crypto
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockCrypto = mock()
 

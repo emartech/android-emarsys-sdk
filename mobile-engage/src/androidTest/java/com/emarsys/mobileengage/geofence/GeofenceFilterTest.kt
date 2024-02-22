@@ -7,13 +7,12 @@ import com.emarsys.mobileengage.api.geofence.Trigger
 import com.emarsys.mobileengage.api.geofence.TriggerType
 import com.emarsys.mobileengage.geofence.model.GeofenceGroup
 import com.emarsys.mobileengage.geofence.model.GeofenceResponse
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import org.json.JSONObject
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 
 class GeofenceFilterTest {
 
@@ -32,13 +31,11 @@ class GeofenceFilterTest {
         )
     }
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+
 
     private lateinit var geofenceFilter: GeofenceFilter
 
-    @Before
+    @BeforeEach
     fun setUp() {
         geofenceFilter = GeofenceFilter(allGeofences.size)
     }

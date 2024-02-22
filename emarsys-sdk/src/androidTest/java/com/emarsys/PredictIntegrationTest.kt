@@ -26,24 +26,24 @@ import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.IntegrationTestUtils
-import com.emarsys.testUtil.RetryUtils
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import com.emarsys.testUtil.rules.DuplicatedThreadRule
-import com.emarsys.testUtil.rules.RetryRule
-import io.kotlintest.matchers.numerics.shouldBeGreaterThan
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import com.emarsys.testUtil.rules.DuplicatedThreadExtension
+import io.kotest.matchers.comparables.shouldBeGreaterThan
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.mock
 import java.net.URLDecoder
 import java.util.concurrent.CountDownLatch
 import kotlin.reflect.KMutableProperty0
+
+@ExtendWith(DuplicatedThreadExtension::class)
 
 class PredictIntegrationTest {
 
@@ -70,31 +70,20 @@ class PredictIntegrationTest {
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Rule
-    @JvmField
-    val retryRule: RetryRule = RetryUtils.retryRule
-
-    @Rule
-    @JvmField
-    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
-
-    @Before
+    @BeforeEach
     fun setup() {
         DatabaseTestUtils.deleteCoreDatabase()
 
         application.getSharedPreferences("emarsys_secure_shared_preferences", Context.MODE_PRIVATE)
-                .edit()
-                .clear()
-                .commit()
+            .edit()
+            .clear()
+            .commit()
 
         baseConfig = EmarsysConfig.Builder()
-                .application(application)
-                .merchantId(MERCHANT_ID)
-                .build()
+            .application(application)
+            .merchantId(MERCHANT_ID)
+            .build()
 
         latch = CountDownLatch(1)
         errorCause = null
@@ -128,19 +117,19 @@ class PredictIntegrationTest {
 
 
         val deviceInfo = DeviceInfo(
-                application,
-                mock(HardwareIdProvider::class.java).apply {
-                    whenever(provideHardwareId()).thenReturn("mobileengage_integration_hwid")
-                },
-                mock(VersionProvider::class.java).apply {
-                    whenever(provideSdkVersion()).thenReturn("0.0.0-mobileengage_integration_version")
-                },
-                mock(LanguageProvider::class.java).apply {
-                    whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
-                },
-                mock(NotificationManagerHelper::class.java),
-                isAutomaticPushSendingEnabled = true,
-                isGooglePlayAvailable = true
+            application,
+            mock(HardwareIdProvider::class.java).apply {
+                whenever(provideHardwareId()).thenReturn("mobileengage_integration_hwid")
+            },
+            mock(VersionProvider::class.java).apply {
+                whenever(provideSdkVersion()).thenReturn("0.0.0-mobileengage_integration_version")
+            },
+            mock(LanguageProvider::class.java).apply {
+                whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
+            },
+            mock(NotificationManagerHelper::class.java),
+            isAutomaticPushSendingEnabled = true,
+            isGooglePlayAvailable = true
         )
 
         DefaultEmarsysDependencies(baseConfig, object : DefaultEmarsysComponent(baseConfig) {
@@ -168,7 +157,7 @@ class PredictIntegrationTest {
         }
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys(application)
     }
@@ -299,7 +288,7 @@ class PredictIntegrationTest {
         latch = CountDownLatch(1)
 
         Emarsys.predict.recommendProducts(RecommendationLogic.search(),
-                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
+            eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
     }
@@ -312,7 +301,7 @@ class PredictIntegrationTest {
             PredictCartItem(ITEM3, 3.3, 30.0)
         )
         Emarsys.predict.recommendProducts(RecommendationLogic.cart(cartItems),
-                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
+            eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
     }
@@ -323,7 +312,7 @@ class PredictIntegrationTest {
         latch = CountDownLatch(1)
 
         Emarsys.predict.recommendProducts(RecommendationLogic.cart(),
-                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
+            eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
     }
@@ -344,7 +333,7 @@ class PredictIntegrationTest {
         latch = CountDownLatch(1)
 
         Emarsys.predict.recommendProducts(RecommendationLogic.related(),
-                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
+            eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
     }
@@ -352,7 +341,7 @@ class PredictIntegrationTest {
     @Test
     fun testRecommendProducts_withoutRelated() {
         Emarsys.predict.recommendProducts(RecommendationLogic.related(),
-                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+            eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
             triedRecommendedProducts.errorCause shouldBe null
             triedRecommendedProducts.result shouldNotBe null
             triedRecommendedProducts.result!!.size shouldBe 0
@@ -375,7 +364,7 @@ class PredictIntegrationTest {
         latch = CountDownLatch(1)
 
         Emarsys.predict.recommendProducts(RecommendationLogic.category(),
-                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
+            eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
     }
@@ -396,7 +385,7 @@ class PredictIntegrationTest {
         latch = CountDownLatch(1)
 
         Emarsys.predict.recommendProducts(RecommendationLogic.alsoBought(),
-                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
+            eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
     }
@@ -407,7 +396,7 @@ class PredictIntegrationTest {
         latch = CountDownLatch(1)
 
         Emarsys.predict.recommendProducts(RecommendationLogic.popular(),
-                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
+            eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
     }
@@ -418,7 +407,7 @@ class PredictIntegrationTest {
         latch = CountDownLatch(1)
 
         Emarsys.predict.recommendProducts(RecommendationLogic.personal(),
-                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
+            eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
     }
@@ -429,7 +418,7 @@ class PredictIntegrationTest {
         latch = CountDownLatch(1)
 
         Emarsys.predict.recommendProducts(RecommendationLogic.personal(listOf("1", "2", "3")),
-                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
+            eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
     }
@@ -440,7 +429,7 @@ class PredictIntegrationTest {
         latch = CountDownLatch(1)
 
         Emarsys.predict.recommendProducts(RecommendationLogic.home(),
-                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
+            eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
     }
@@ -451,7 +440,7 @@ class PredictIntegrationTest {
         latch = CountDownLatch(1)
 
         Emarsys.predict.recommendProducts(RecommendationLogic.home(listOf("1", "2", "3")),
-                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
+            eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
     }
@@ -462,7 +451,7 @@ class PredictIntegrationTest {
         latch = CountDownLatch(1)
 
         Emarsys.predict.recommendProducts(RecommendationLogic.home(listOf("1", "2", "3")), "hu",
-                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
+            eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
     }

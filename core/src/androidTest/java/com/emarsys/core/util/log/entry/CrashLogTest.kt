@@ -1,22 +1,18 @@
 package com.emarsys.core.util.log.entry
 
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 
 class CrashLogTest {
 
     private lateinit var crashLog: CrashLog
     private lateinit var exception: Exception
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun init() {
         exception = ConcurrentModificationException("cause of the exception")
         crashLog = CrashLog(exception, "testInfo")

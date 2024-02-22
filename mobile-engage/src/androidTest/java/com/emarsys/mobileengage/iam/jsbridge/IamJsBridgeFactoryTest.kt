@@ -1,8 +1,8 @@
 package com.emarsys.mobileengage.iam.jsbridge
 
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
-import io.kotlintest.shouldBe
-import org.junit.Test
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 
 class IamJsBridgeFactoryTest {
@@ -14,6 +14,6 @@ class IamJsBridgeFactoryTest {
 
         val result = jsBridgeFactory.createJsBridge(jsCommandFactory)
 
-        result::class shouldBe IamJsBridge::class
+        (result is IamJsBridge) shouldBe true
     }
 }

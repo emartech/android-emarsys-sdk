@@ -18,13 +18,13 @@ import java.util.Locale
 
 @Mockable
 data class DeviceInfo(
-        private val context: Context,
-        private val hardwareIdProvider: HardwareIdProvider,
-        private val versionProvider: VersionProvider,
-        private val languageProvider: LanguageProvider,
-        val notificationSettings: NotificationSettings,
-        val isAutomaticPushSendingEnabled: Boolean,
-        val isGooglePlayAvailable: Boolean
+    private val context: Context,
+    private val hardwareIdProvider: HardwareIdProvider,
+    private val versionProvider: VersionProvider,
+    private val languageProvider: LanguageProvider,
+    val notificationSettings: NotificationSettings,
+    val isAutomaticPushSendingEnabled: Boolean,
+    val isGooglePlayAvailable: Boolean
 ) {
 
     companion object {
@@ -42,7 +42,8 @@ data class DeviceInfo(
     val model: String = Build.MODEL
     val osVersion: String = Build.VERSION.RELEASE
     val displayMetrics: DisplayMetrics = Resources.getSystem().displayMetrics
-    val isDebugMode: Boolean = 0 != context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE
+    val isDebugMode: Boolean =
+        0 != context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE
     var sdkVersion: String = versionProvider.provideSdkVersion()
     val applicationVersion: String?
         get() {
@@ -59,23 +60,23 @@ data class DeviceInfo(
 
     val deviceInfoPayload: String
         get() = JSONObject(
-                mapOf(
-                        "notificationSettings" to mapOf(
-                                parseChannelSettings(),
-                                "importance" to notificationSettings.importance,
-                                "areNotificationsEnabled" to notificationSettings.areNotificationsEnabled
-                        ),
-                        "hwid" to hardwareId,
-                        "platform" to platform,
-                        "language" to language,
-                        "timezone" to timezone,
-                        "manufacturer" to manufacturer,
-                        "model" to model,
-                        "osVersion" to osVersion,
-                        "displayMetrics" to "${displayMetrics.widthPixels}x${displayMetrics.heightPixels}",
-                        "sdkVersion" to sdkVersion,
-                        "appVersion" to applicationVersion
-                )
+            mapOf(
+                "notificationSettings" to mapOf(
+                    parseChannelSettings(),
+                    "importance" to notificationSettings.importance,
+                    "areNotificationsEnabled" to notificationSettings.areNotificationsEnabled
+                ),
+                "hwid" to hardwareId,
+                "platform" to platform,
+                "language" to language,
+                "timezone" to timezone,
+                "manufacturer" to manufacturer,
+                "model" to model,
+                "osVersion" to osVersion,
+                "displayMetrics" to "${displayMetrics.widthPixels}x${displayMetrics.heightPixels}",
+                "sdkVersion" to sdkVersion,
+                "appVersion" to applicationVersion
+            )
         ).toString()
 
     private fun parseChannelSettings(): Pair<String, Any> {

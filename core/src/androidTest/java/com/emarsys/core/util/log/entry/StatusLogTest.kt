@@ -1,17 +1,16 @@
 package com.emarsys.core.util.log.entry
 
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
 
-class StatusLogTest{
+import org.junit.jupiter.api.Test
+
+
+class StatusLogTest {
     private companion object {
         const val testCallerMethodName = "testCallerMethodName"
         val testParameters = mapOf(
-                "parameter1" to "value1",
-                "parameter2" to "value2"
+            "parameter1" to "value1",
+            "parameter2" to "value2"
         )
         val testStatus = mapOf(
                 "key1" to "value1",
@@ -22,9 +21,6 @@ class StatusLogTest{
         )
     }
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Test
     fun testTopic() {

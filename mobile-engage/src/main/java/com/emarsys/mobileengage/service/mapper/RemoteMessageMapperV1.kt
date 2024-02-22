@@ -33,7 +33,8 @@ class RemoteMessageMapperV1(
         val campaignId = ems.optString("multichannelId")
         val body = messageDataCopy.remove("body")
         val channelId = messageDataCopy.remove("channel_id")
-        val sid = messageDataCopy.remove("u")?.let { JSONObject(it).getNullableString("sid") } ?: "Missing sid"
+        val sid = messageDataCopy.remove("u")?.let { JSONObject(it).getNullableString("sid") }
+            ?: "Missing sid"
         val notificationMethod: NotificationMethod = if (ems.has("notificationMethod")) {
             parseNotificationMethod(ems.optJSONObject("notificationMethod"))
         } else {

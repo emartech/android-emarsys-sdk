@@ -5,12 +5,9 @@ import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.emarsys
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.di.tearDownEmarsysComponent
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.mockito.kotlin.mock
 
@@ -22,11 +19,8 @@ class PredictRestrictedTest {
     private lateinit var mockPredictInternal: PredictInternal
     private lateinit var predictRestricted: PredictRestricted
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockPredictInternal = mock()
 
@@ -36,7 +30,7 @@ class PredictRestrictedTest {
         predictRestricted = PredictRestricted()
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         try {
             emarsys().concurrentHandlerHolder.coreLooper.quit()

@@ -6,7 +6,6 @@ import com.emarsys.core.request.model.RequestModel
 import org.json.JSONException
 import org.json.JSONObject
 import java.net.HttpCookie
-import java.util.*
 
 @Mockable
 data class ResponseModel(
@@ -31,7 +30,7 @@ data class ResponseModel(
             var result : JSONObject? = null
             if (body != null) {
                 try {
-                    result = JSONObject(body!!)
+                    result = JSONObject(body)
                 } catch (ignored: JSONException) {
                 }
             }

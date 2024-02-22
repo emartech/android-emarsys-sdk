@@ -1,11 +1,10 @@
 package com.emarsys.core.activity
 
 import android.app.Activity
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
@@ -14,11 +13,8 @@ class ActivityLifecycleWatchdogTest {
     private lateinit var mockRegistry: ActivityLifecycleActionRegistry
     private lateinit var mockActivity: Activity
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockRegistry = mock()
         mockActivity = mock()

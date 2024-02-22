@@ -1,24 +1,12 @@
-package com.emarsys.core.provider.uuid;
+package com.emarsys.core.provider.uuid
 
-import static org.junit.Assert.assertNotNull;
+import io.kotest.matchers.shouldNotBe
+import org.junit.jupiter.api.Test
 
-import com.emarsys.testUtil.TimeoutUtils;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-
-
-public class UUIDProviderTest {
-
-    @Rule
-    public TestRule timeout = TimeoutUtils.getTimeoutRule();
-
-
+class UUIDProviderTest {
     @Test
-    public void testProvideId_returnsNotNullId() {
-        UUIDProvider provider = new UUIDProvider();
-        assertNotNull(provider.provideId());
+    fun testProvideId_returnsNotNullId() {
+        val provider = UUIDProvider()
+        provider.provideId() shouldNotBe null
     }
-
 }

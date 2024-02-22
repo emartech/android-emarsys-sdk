@@ -32,7 +32,10 @@ class NotificationCommandFactory(private val context: Context) {
 
     fun createNotificationCommand(intent: Intent): Runnable {
         val actionId = intent.action
-        val notificationData = if (AndroidVersionUtils.isBelowUpsideDownCake) intent.getParcelableExtra("payload") else extractPayload(intent)
+        val notificationData =
+            if (AndroidVersionUtils.isBelowUpsideDownCake) intent.getParcelableExtra("payload") else extractPayload(
+                intent
+            )
         val action = getAction(notificationData, actionId)
 
         val commands = createMandatoryCommands(notificationData)

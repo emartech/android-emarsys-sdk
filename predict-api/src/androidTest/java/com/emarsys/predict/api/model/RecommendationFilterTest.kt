@@ -1,14 +1,11 @@
 package com.emarsys.predict.api.model
 
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import com.emarsys.predict.api.model.RecommendationFilter.Companion.exclude
 import com.emarsys.predict.api.model.RecommendationFilter.Companion.include
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import java.util.*
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import java.util.Arrays
 
 class RecommendationFilterTest {
 
@@ -23,11 +20,8 @@ class RecommendationFilterTest {
     lateinit var exclude: RecommendationFilter.Exclude
     lateinit var include: RecommendationFilter.Include
 
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         exclude = exclude(FIELD)
         include = include(FIELD)

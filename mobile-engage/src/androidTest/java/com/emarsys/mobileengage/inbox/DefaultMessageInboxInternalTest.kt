@@ -18,14 +18,19 @@ import com.emarsys.mobileengage.api.inbox.Message
 import com.emarsys.mobileengage.fake.FakeRestClient
 import com.emarsys.mobileengage.fake.FakeResultListener
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.CoroutineScope
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.mockito.kotlin.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.isNull
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
 class DefaultMessageInboxInternalTest {
@@ -48,11 +53,8 @@ class DefaultMessageInboxInternalTest {
     private lateinit var messages: List<Message>
     private lateinit var message: Message
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         message = Message(
             "testMessageId",

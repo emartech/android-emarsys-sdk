@@ -28,19 +28,17 @@ import com.emarsys.mobileengage.service.NotificationData
 import com.emarsys.mobileengage.service.NotificationMethod
 import com.emarsys.mobileengage.service.NotificationOperation
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.data.forall
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import io.kotlintest.tables.row
+import io.kotest.data.forAll
+import io.kotest.data.row
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import org.json.JSONObject
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 import org.mockito.kotlin.mock
 
@@ -81,9 +79,7 @@ class NotificationCommandFactoryTest {
         )
     }
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+
 
     private lateinit var factory: NotificationCommandFactory
     private lateinit var context: Context
@@ -96,7 +92,7 @@ class NotificationCommandFactoryTest {
     private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
     private lateinit var mockActivity: Activity
 
-    @Before
+    @BeforeEach
     fun setUp() {
         context = InstrumentationRegistry.getTargetContext().applicationContext
         mockConcurrentHandlerHolder = mock()
@@ -130,7 +126,7 @@ class NotificationCommandFactoryTest {
         factory = NotificationCommandFactory(context)
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         tearDownMobileEngageComponent()
     }
@@ -372,8 +368,8 @@ class NotificationCommandFactoryTest {
     }
 
     @Test
-    fun testCreateNotificationCommand_trackActionCommand_withSids() {
-        forall(
+    fun testCreateNotificationCommand_trackActionCommand_withSids() = runBlocking {
+        forAll(
             row(
                 SID,
                 extractCommandFromComposite<TrackActionClickCommand>(createAppEventIntent()).sid

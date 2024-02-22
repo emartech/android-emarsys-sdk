@@ -10,14 +10,11 @@ import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.IntegrationTestUtils
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.fail
-import io.kotlintest.shouldBe
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.assertions.fail
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
@@ -38,11 +35,8 @@ class EmarsysConfigTest {
     private lateinit var features: Array<FlipperFeature>
     private var automaticPushTokenSending = false
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         FeatureTestUtils.resetFeatures()
         val mockClientServiceProvider: ServiceEndpointProvider = mock {
@@ -73,7 +67,7 @@ class EmarsysConfigTest {
         )
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys(application)
     }

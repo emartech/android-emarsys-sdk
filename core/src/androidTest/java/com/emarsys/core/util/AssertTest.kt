@@ -1,22 +1,19 @@
 package com.emarsys.core.util
 
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.Assert.assertEquals
-import org.junit.Assert.fail
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import java.util.*
+
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.fail
 
 class AssertTest {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testNotNull_shouldThrowException_whenArgumentIsNull() {
-        Assert.notNull(null, "")
+        shouldThrow<IllegalArgumentException> {
+            Assert.notNull(null, "")
+        }
     }
 
     @Test
@@ -35,18 +32,22 @@ class AssertTest {
             Assert.notNull(null, message)
             fail("Should throw exception")
         } catch (e: Exception) {
-            assertEquals(message, e.message)
+            e.message shouldBe message
         }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testElementsNotNull_array_shouldThrowException_whenArgumentIsNull() {
-        Assert.elementsNotNull(null as Array<Any>?, "")
+        shouldThrow<IllegalArgumentException> {
+            Assert.elementsNotNull(null as Array<Any>?, "")
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testElementsNotNull_array_shouldThrowException_whenContainsNullElement() {
-        Assert.elementsNotNull(arrayOf(Any(), Any(), null, Any()), "")
+        shouldThrow<IllegalArgumentException> {
+            Assert.elementsNotNull(arrayOf(Any(), Any(), null, Any()), "")
+        }
     }
 
     @Test
@@ -56,7 +57,7 @@ class AssertTest {
             Assert.elementsNotNull(arrayOf(Any(), Any(), null, Any()), message)
             fail("Should throw exception")
         } catch (iae: IllegalArgumentException) {
-            assertEquals(message, iae.message)
+            iae.message shouldBe message
         }
     }
 
@@ -78,14 +79,18 @@ class AssertTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testElementsNotNull_list_shouldThrowException_whenArgumentIsNull() {
-        Assert.elementsNotNull(null as List<*>?, "")
+        shouldThrow<IllegalArgumentException> {
+            Assert.elementsNotNull(null as List<*>?, "")
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testElementsNotNull_list_shouldThrowException_whenContainsNullElement() {
-        Assert.elementsNotNull(listOf(Any(), Any(), null, Any()), "")
+        shouldThrow<IllegalArgumentException> {
+            Assert.elementsNotNull(listOf(Any(), Any(), null, Any()), "")
+        }
     }
 
     @Test
@@ -95,7 +100,7 @@ class AssertTest {
             Assert.elementsNotNull(listOf(Any(), Any(), null, Any()), message)
             fail("Should throw exception")
         } catch (iae: IllegalArgumentException) {
-            assertEquals(message, iae.message)
+            iae.message shouldBe message
         }
     }
 
@@ -117,14 +122,18 @@ class AssertTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testNotEmpty_array_shouldNotAcceptNull() {
-        Assert.notEmpty(null as Array<Any>?, "message")
+        shouldThrow<IllegalArgumentException> {
+            Assert.notEmpty(null as Array<Any>?, "message")
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testNotEmpty_array_shouldThrowException_whenArrayIsEmpty() {
-        Assert.notEmpty(arrayOf(), "")
+        shouldThrow<IllegalArgumentException> {
+            Assert.notEmpty(arrayOf(), "")
+        }
     }
 
     @Test
@@ -134,7 +143,7 @@ class AssertTest {
             Assert.notEmpty(arrayOf(), message)
             fail("Should throw exception")
         } catch (iae: IllegalArgumentException) {
-            assertEquals(message, iae.message)
+            iae.message shouldBe message
         }
     }
 
@@ -144,7 +153,7 @@ class AssertTest {
             Assert.notEmpty(arrayOf(), null)
             fail("Should throw exception")
         } catch (iae: IllegalArgumentException) {
-            assertEquals("Argument must not be empty!", iae.message)
+            iae.message shouldBe "Argument must not be empty!"
         }
     }
 
@@ -157,15 +166,19 @@ class AssertTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testNotEmpty_list_shouldNotAcceptNull() {
-        Assert.notEmpty(null as List<*>?, "message")
+        shouldThrow<IllegalArgumentException> {
+            Assert.notEmpty(null as List<*>?, "message")
+        }
     }
 
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testNotEmpty_list_shouldThrowException_whenArrayIsEmpty() {
-        Assert.notEmpty(listOf<Any>(), "")
+        shouldThrow<IllegalArgumentException> {
+            Assert.notEmpty(listOf<Any>(), "")
+        }
     }
 
     @Test
@@ -175,7 +188,7 @@ class AssertTest {
             Assert.notEmpty(listOf<Any>(), message)
             fail("Should throw exception")
         } catch (iae: IllegalArgumentException) {
-            assertEquals(message, iae.message)
+            iae.message shouldBe message
         }
     }
 
@@ -185,7 +198,7 @@ class AssertTest {
             Assert.notEmpty(listOf<Any>(), null)
             fail("Should throw exception")
         } catch (iae: IllegalArgumentException) {
-            assertEquals("Argument must not be empty!", iae.message)
+            iae.message shouldBe "Argument must not be empty!"
         }
     }
 
@@ -204,7 +217,7 @@ class AssertTest {
             Assert.positiveInt(0, null)
             fail("Should throw exception")
         } catch (iae: IllegalArgumentException) {
-            assertEquals("Argument must be greater than zero!", iae.message)
+            iae.message shouldBe "Argument must be greater than zero!"
         }
     }
 
@@ -214,7 +227,7 @@ class AssertTest {
             Assert.positiveInt(null, null)
             fail("Should throw exception")
         } catch (iae: java.lang.IllegalArgumentException) {
-            assertEquals("Argument must not be null!", iae.message)
+            iae.message shouldBe "Argument must not be null!"
         }
     }
 
@@ -224,7 +237,7 @@ class AssertTest {
             Assert.positiveInt(-10, null)
             fail("Should throw exception")
         } catch (iae: java.lang.IllegalArgumentException) {
-            assertEquals("Argument must be greater than zero!", iae.message)
+            iae.message shouldBe "Argument must be greater than zero!"
         }
     }
 

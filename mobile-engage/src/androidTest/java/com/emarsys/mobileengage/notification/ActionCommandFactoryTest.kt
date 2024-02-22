@@ -8,22 +8,19 @@ import com.emarsys.mobileengage.notification.command.AppEventCommand
 import com.emarsys.mobileengage.notification.command.CustomEventCommand
 import com.emarsys.mobileengage.notification.command.OpenExternalUrlCommand
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.json.JSONArray
 import org.json.JSONObject
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 import org.mockito.kotlin.mock
 
 class ActionCommandFactoryTest {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+
 
     private lateinit var factory: ActionCommandFactory
     private lateinit var context: Context
@@ -31,7 +28,7 @@ class ActionCommandFactoryTest {
     private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var mockNotificationCacheableEventHandler: CacheableEventHandler
 
-    @Before
+    @BeforeEach
     fun setUp() {
         context = InstrumentationRegistry.getTargetContext().applicationContext
 

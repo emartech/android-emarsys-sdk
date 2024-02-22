@@ -12,13 +12,10 @@ import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -29,11 +26,8 @@ class InAppTest {
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockInAppInternal = mock()
         val dependencyContainer = FakeDependencyContainer(inAppInternal = mockInAppInternal)
@@ -42,7 +36,7 @@ class InAppTest {
         inApp = InApp()
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         application.unregisterActivityLifecycleCallbacks(
                 mobileEngage().activityLifecycleWatchdog)

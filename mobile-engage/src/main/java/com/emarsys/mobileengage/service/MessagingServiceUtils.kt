@@ -8,7 +8,6 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import com.emarsys.core.Mockable
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.util.AndroidVersionUtils
@@ -24,7 +23,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
-@Mockable
+
 object MessagingServiceUtils {
     const val MESSAGE_FILTER = "ems_msg"
     const val V2_MESSAGE_FILTER = "ems.version"

@@ -7,7 +7,8 @@ import com.emarsys.core.Mockable
 import com.emarsys.core.provider.Property
 
 @Mockable
-class CurrentActivityWatchdog(private val currentActivityProvider: Property<Activity?>) : ActivityLifecycleCallbacks {
+class CurrentActivityWatchdog(private val currentActivityProvider: Property<Activity?>) :
+    ActivityLifecycleCallbacks {
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
     override fun onActivityStarted(activity: Activity) {}
     override fun onActivityResumed(activity: Activity) {

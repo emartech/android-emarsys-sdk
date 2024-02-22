@@ -1,25 +1,15 @@
-package com.emarsys.core.provider.timestamp;
+package com.emarsys.core.provider.timestamp
 
-import com.emarsys.testUtil.TimeoutUtils;
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.Test
 
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-
-public class TimestampProviderTest {
-
-    @Rule
-    public TestRule timeout = TimeoutUtils.getTimeoutRule();
-
+class TimestampProviderTest {
     @Test
-    public void testProvideTimestamp_returnsTheCurrentTimestamp() {
-        long before = System.currentTimeMillis();
-        long actual = new TimestampProvider().provideTimestamp();
-        long after = System.currentTimeMillis();
-
-        Assert.assertTrue(before <= actual);
-        Assert.assertTrue(actual <= after);
+    fun testProvideTimestamp_returnsTheCurrentTimestamp() {
+        val before = System.currentTimeMillis()
+        val actual = TimestampProvider().provideTimestamp()
+        val after = System.currentTimeMillis()
+        (before <= actual) shouldBe true
+        (actual <= after) shouldBe true
     }
-
 }

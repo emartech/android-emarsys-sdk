@@ -7,14 +7,11 @@ import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.mobileengage.iam.dialog.action.SaveDisplayedIamAction
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import com.emarsys.testUtil.mockito.ThreadSpy
 import kotlinx.coroutines.runBlocking
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.timeout
@@ -35,11 +32,8 @@ class SaveDisplayedIamActionTest {
     private lateinit var handler: ConcurrentHandlerHolder
     private lateinit var timestampProvider: TimestampProvider
 
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
 
-    @Before
+    @BeforeEach
     fun init() {
         runBlocking {
             threadSpy = ThreadSpy<Any?>()
@@ -55,7 +49,7 @@ class SaveDisplayedIamActionTest {
         }
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         handler.coreLooper.quit()
     }

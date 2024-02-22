@@ -1,11 +1,11 @@
 package com.emarsys.core.concurrency
 
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import android.os.HandlerThread
-import io.kotlintest.shouldBe
-import org.junit.*
-import org.junit.rules.TestRule
-import java.lang.RuntimeException
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
 
 class CoreHandlerTest {
@@ -13,11 +13,7 @@ class CoreHandlerTest {
     private lateinit var handlerThread: HandlerThread
     private lateinit var failingRunnable: Runnable
 
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
-
-    @Before
+    @BeforeEach
     fun setUp() {
         val threadName = "test"
         handlerThread = HandlerThread(threadName)
@@ -26,15 +22,15 @@ class CoreHandlerTest {
         failingRunnable = Runnable { throw RuntimeException("error") }
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         handlerThread.quit()
     }
 
     @Test
     fun testConstructor_innerLooper_isInitialized() {
-        Assert.assertNotNull(handler.looper)
-        Assert.assertEquals(handlerThread.name, handler.looper.thread.name)
+        handler.looper shouldNotBe null
+        handlerThread.name shouldBe handler.looper.thread.name
     }
 
     @Test

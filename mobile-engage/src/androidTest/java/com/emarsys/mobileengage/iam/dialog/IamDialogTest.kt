@@ -7,7 +7,7 @@ import android.widget.LinearLayout
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragment
 import androidx.lifecycle.Lifecycle
-import androidx.test.rule.ActivityTestRule
+import androidx.test.core.app.ActivityScenario
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
@@ -29,15 +29,12 @@ import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 import com.emarsys.testUtil.ExtensionTestUtils.runOnMain
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.ReflectionTestUtils
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import com.emarsys.testUtil.fake.FakeActivity
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -66,59 +63,59 @@ class IamDialogTest {
     private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
 
     private lateinit var iamDialog: IamDialog
+    private lateinit var scenario: ActivityScenario<FakeActivity>
 
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
-
-    @Rule
-    @JvmField
-    var activityTestRule = ActivityTestRule(FakeActivity::class.java)
-
-    @Before
+    @BeforeEach
     fun setUp() {
-        mockTimestampProvider = mock()
-        val mockUuidProvider: UUIDProvider = mock {
-            on { provideId() } doReturn "uuid"
-        }
+        scenario = ActivityScenario.launch(FakeActivity::class.java)
+        val countDownLatch = CountDownLatch(1)
+        scenario.onActivity { activity ->
+            mockTimestampProvider = mock()
+            val mockUuidProvider: UUIDProvider = mock {
+                on { provideId() } doReturn "uuid"
+            }
 
-        mockJsBridge = mock()
-        mockJsBridgeFactory = mock {
-            on { createJsBridge(any()) } doReturn mockJsBridge
-        }
+            mockJsBridge = mock()
+            mockJsBridgeFactory = mock {
+                on { createJsBridge(any()) } doReturn mockJsBridge
+            }
 
-        mockJSCommandFactory = mock()
-        mockJSCommandFactoryProvider = mock {
-            on { provide() } doReturn mockJSCommandFactory
-        }
+            mockJSCommandFactory = mock()
+            mockJSCommandFactoryProvider = mock {
+                on { provide() } doReturn mockJSCommandFactory
+            }
 
-        mockConcurrentHandlerHolder = mock()
-        mockCurrentActivityProvider = mock {
-            on { get() } doReturn activityTestRule.activity
-        }
+            mockConcurrentHandlerHolder = mock()
+            mockCurrentActivityProvider = mock {
+                on { get() } doReturn activity
+            }
 
-        val iamWebView = createWebView()
-        mockWebViewFactory = mock {
-            on { create(null) } doReturn iamWebView
-        }
+            val iamWebView = createWebView()
+            mockWebViewFactory = mock {
+                on { create(null) } doReturn iamWebView
+            }
 
-        setupMobileEngageComponent(
-            FakeMobileEngageDependencyContainer(
-                timestampProvider = mockTimestampProvider,
-                uuidProvider = mockUuidProvider,
-                webViewFactory = mockWebViewFactory,
-                jsCommandFactoryProvider = mockJSCommandFactoryProvider,
-                iamJsBridgeFactory = mockJsBridgeFactory,
-                concurrentHandlerHolder = mockConcurrentHandlerHolder,
-                currentActivityProvider = mockCurrentActivityProvider
+            setupMobileEngageComponent(
+                FakeMobileEngageDependencyContainer(
+                    timestampProvider = mockTimestampProvider,
+                    uuidProvider = mockUuidProvider,
+                    webViewFactory = mockWebViewFactory,
+                    jsCommandFactoryProvider = mockJSCommandFactoryProvider,
+                    iamJsBridgeFactory = mockJsBridgeFactory,
+                    concurrentHandlerHolder = mockConcurrentHandlerHolder,
+                    currentActivityProvider = mockCurrentActivityProvider
+                )
             )
-        )
-        iamDialog = IamDialog(mockTimestampProvider, mockWebViewFactory)
+            iamDialog = IamDialog(mockTimestampProvider, mockWebViewFactory)
+            countDownLatch.countDown()
+        }
+        countDownLatch.await()
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         tearDownMobileEngageComponent()
+        scenario.close()
     }
 
     @Test

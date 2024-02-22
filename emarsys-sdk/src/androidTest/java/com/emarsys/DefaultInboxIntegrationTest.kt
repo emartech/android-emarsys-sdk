@@ -2,7 +2,6 @@ package com.emarsys
 
 import android.app.Application
 import com.emarsys.config.EmarsysConfig
-import com.emarsys.core.api.result.Try
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.notification.NotificationManagerHelper
@@ -10,28 +9,25 @@ import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.di.DefaultEmarsysComponent
 import com.emarsys.di.DefaultEmarsysDependencies
-import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.IntegrationTestUtils
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import com.emarsys.testUtil.rules.ConnectionRule
-import com.emarsys.testUtil.rules.DuplicatedThreadRule
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import com.emarsys.testUtil.rules.ConnectionExtension
+import com.emarsys.testUtil.rules.DuplicatedThreadExtension
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.extension.RegisterExtension
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.mock
 import java.util.concurrent.CountDownLatch
-import kotlin.reflect.KMutableProperty0
-import kotlin.reflect.jvm.isAccessible
 
 
+@ExtendWith(DuplicatedThreadExtension::class)
 class DefaultInboxIntegrationTest {
 
     companion object {
@@ -49,43 +45,35 @@ class DefaultInboxIntegrationTest {
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
 
-    @Rule
     @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+    @RegisterExtension
+    var connectionExtension: ConnectionExtension = ConnectionExtension(application)
 
-    @Rule
-    @JvmField
-    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
-
-    @Rule
-    @JvmField
-    val connectionRule = ConnectionRule(application)
-
-    @Before
+    @BeforeEach
     fun setup() {
         DatabaseTestUtils.deleteCoreDatabase()
 
         baseConfig = EmarsysConfig.Builder()
-                .application(application)
-                .applicationCode(APP_ID)
-                .build()
+            .application(application)
+            .applicationCode(APP_ID)
+            .build()
 
         errorCause = null
         latch = CountDownLatch(1)
         val deviceInfo = DeviceInfo(
-                application,
-                mock(HardwareIdProvider::class.java).apply {
-                    whenever(provideHardwareId()).thenReturn("inboxv1_integration_hwid")
-                },
-                mock(VersionProvider::class.java).apply {
-                    whenever(provideSdkVersion()).thenReturn(SDK_VERSION)
-                },
-                mock(LanguageProvider::class.java).apply {
-                    whenever(provideLanguage(any())).thenReturn(LANGUAGE)
-                },
-                mock(NotificationManagerHelper::class.java),
-                isAutomaticPushSendingEnabled = true,
-                isGooglePlayAvailable = true
+            application,
+            mock(HardwareIdProvider::class.java).apply {
+                whenever(provideHardwareId()).thenReturn("inboxv1_integration_hwid")
+            },
+            mock(VersionProvider::class.java).apply {
+                whenever(provideSdkVersion()).thenReturn(SDK_VERSION)
+            },
+            mock(LanguageProvider::class.java).apply {
+                whenever(provideLanguage(any())).thenReturn(LANGUAGE)
+            },
+            mock(NotificationManagerHelper::class.java),
+            isAutomaticPushSendingEnabled = true,
+            isGooglePlayAvailable = true
         )
 
         DefaultEmarsysDependencies(baseConfig, object : DefaultEmarsysComponent(baseConfig) {
@@ -98,7 +86,7 @@ class DefaultInboxIntegrationTest {
         IntegrationTestUtils.doLogin(2575)
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys(application)
     }
@@ -106,7 +94,7 @@ class DefaultInboxIntegrationTest {
     @Test
     fun testFetchInboxMessages() {
         val latch = CountDownLatch(1)
-        Emarsys.messageInbox.fetchMessages  {
+        Emarsys.messageInbox.fetchMessages {
             it.errorCause shouldBe null
             it.result shouldNotBe null
             latch.countDown()

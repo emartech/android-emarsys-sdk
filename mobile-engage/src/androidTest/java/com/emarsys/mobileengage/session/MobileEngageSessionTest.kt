@@ -5,8 +5,8 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.event.EventServiceInternal
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.eq
@@ -30,7 +30,7 @@ class MobileEngageSessionTest {
     private lateinit var mockContactTokenStorage: Storage<String?>
     private lateinit var mockMobileEngageRequestContext: MobileEngageRequestContext
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockMobileEngageRequestContext = mock {
             on { applicationCode } doReturn "testApplicationCode"

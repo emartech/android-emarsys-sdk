@@ -5,24 +5,22 @@ import com.emarsys.core.database.trigger.TriggerEvent
 import com.emarsys.core.database.trigger.TriggerKey
 import com.emarsys.core.database.trigger.TriggerType
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 import org.mockito.Mockito.mock
 
 class DelegatingCoreSQLiteDatabaseTest {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+
 
     private lateinit var db: DelegatingCoreSQLiteDatabase
     private lateinit var triggerMap: MutableMap<TriggerKey, MutableList<Runnable>>
 
-    @Before
+    @BeforeEach
     fun init() {
         val coreDbHelper = CoreDbHelper(InstrumentationRegistry.getTargetContext().applicationContext, mutableMapOf())
 
@@ -40,6 +38,6 @@ class DelegatingCoreSQLiteDatabaseTest {
             db.registerTrigger(triggerKey.tableName, triggerKey.triggerType, triggerKey.triggerEvent, mock(Runnable::class.java))
         }
 
-        Assert.assertEquals(count, triggerMap[triggerKey]?.size)
+        triggerMap[triggerKey]?.size shouldBe count
     }
 }

@@ -1,10 +1,9 @@
 package com.emarsys.core.request.model
 
-import com.emarsys.core.Mockable
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 
-@Mockable
+
 class CompositeRequestModel(
         id: String,
         url: String,

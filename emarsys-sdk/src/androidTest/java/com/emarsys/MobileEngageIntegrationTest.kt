@@ -20,20 +20,22 @@ import com.emarsys.di.emarsys
 import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.mockito.whenever
-import com.emarsys.testUtil.rules.DuplicatedThreadRule
-import com.emarsys.testUtil.rules.RetryRule
-import io.kotlintest.matchers.shouldBeInRange
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import com.emarsys.testUtil.rules.DuplicatedThreadExtension
+import io.kotest.matchers.ints.shouldBeInRange
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junitpioneer.jupiter.RetryingTest
+
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.mock
 import java.util.concurrent.CountDownLatch
 
+@ExtendWith(DuplicatedThreadExtension::class)
 class MobileEngageIntegrationTest {
 
     private companion object {
@@ -54,31 +56,19 @@ class MobileEngageIntegrationTest {
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
-
-    @Rule
-    @JvmField
-    val retryRule: RetryRule = RetryUtils.retryRule
-
-    @Rule
-    @JvmField
-    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
-
-    @Before
+    @BeforeEach
     fun setup() {
         DatabaseTestUtils.deleteCoreDatabase()
 
         application.getSharedPreferences("emarsys_secure_shared_preferences", Context.MODE_PRIVATE)
-                .edit()
-                .clear()
-                .commit()
+            .edit()
+            .clear()
+            .commit()
 
         baseConfig = EmarsysConfig.Builder()
-                .application(application)
-                .applicationCode(APP_ID)
-                .build()
+            .application(application)
+            .applicationCode(APP_ID)
+            .build()
 
         completionHandler = createDefaultCoreCompletionHandler()
 
@@ -87,19 +77,19 @@ class MobileEngageIntegrationTest {
             whenever(providePushToken()).thenReturn("integration_test_push_token")
         }
         val deviceInfo = DeviceInfo(
-                application,
-                mock(HardwareIdProvider::class.java).apply {
-                    whenever(provideHardwareId()).thenReturn("mobileengage_integration_hwid")
-                },
-                mock(VersionProvider::class.java).apply {
-                    whenever(provideSdkVersion()).thenReturn("0.0.0-mobileengage_integration_version")
-                },
-                mock(LanguageProvider::class.java).apply {
-                    whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
-                },
-                mock(NotificationManagerHelper::class.java),
-                isAutomaticPushSendingEnabled = true,
-                isGooglePlayAvailable = true
+            application,
+            mock(HardwareIdProvider::class.java).apply {
+                whenever(provideHardwareId()).thenReturn("mobileengage_integration_hwid")
+            },
+            mock(VersionProvider::class.java).apply {
+                whenever(provideSdkVersion()).thenReturn("0.0.0-mobileengage_integration_version")
+            },
+            mock(LanguageProvider::class.java).apply {
+                whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
+            },
+            mock(NotificationManagerHelper::class.java),
+            isAutomaticPushSendingEnabled = true,
+            isGooglePlayAvailable = true
         )
 
         DefaultEmarsysDependencies(baseConfig, object : DefaultEmarsysComponent(baseConfig) {
@@ -115,7 +105,10 @@ class MobileEngageIntegrationTest {
 
         ConnectionTestUtils.checkConnection(application)
 
-        sharedPreferences = application.getSharedPreferences("emarsys_secure_shared_preferences", Context.MODE_PRIVATE)
+        sharedPreferences = application.getSharedPreferences(
+            "emarsys_secure_shared_preferences",
+            Context.MODE_PRIVATE
+        )
 
         Emarsys.setup(baseConfig)
 
@@ -125,7 +118,7 @@ class MobileEngageIntegrationTest {
         completionHandlerLatch = CountDownLatch(1)
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         try {
             IntegrationTestUtils.tearDownEmarsys(application)
@@ -136,6 +129,7 @@ class MobileEngageIntegrationTest {
     }
 
     @Test
+    @RetryingTest(3)
     fun testSetContact() {
         Emarsys.setContact(
             CONTACT_FIELD_ID,
@@ -145,102 +139,116 @@ class MobileEngageIntegrationTest {
     }
 
     @Test
+    @RetryingTest(3)
     fun testClearContact() {
         Emarsys.clearContact(
-                this::eventuallyStoreResult
+            this::eventuallyStoreResult
         ).apply { eventuallyAssertSuccess() }
     }
 
     @Test
+    @RetryingTest(3)
     fun testTrackCustomEvent_V3_noAttributes() {
         Emarsys.trackCustomEvent(
-                "integrationTestCustomEvent",
-                null,
-                this::eventuallyStoreResult
+            "integrationTestCustomEvent",
+            null,
+            this::eventuallyStoreResult
         ).apply { eventuallyAssertSuccess() }
     }
 
     @Test
+    @RetryingTest(3)
     fun testTrackCustomEvent_V3_withAttributes() {
         Emarsys.trackCustomEvent(
-                "integrationTestCustomEvent",
-                mapOf("key1" to "value1", "key2" to "value2"),
-                this::eventuallyStoreResult
+            "integrationTestCustomEvent",
+            mapOf("key1" to "value1", "key2" to "value2"),
+            this::eventuallyStoreResult
         ).apply { eventuallyAssertSuccess() }
     }
 
     @Test
+    @RetryingTest(3)
     fun testTrackInternalCustomEvent_V3_noAttributes() {
         val eventServiceInternal = emarsys().eventServiceInternal
 
         eventServiceInternal.trackInternalCustomEvent(
-                "integrationTestInternalCustomEvent",
-                null,
-                this::eventuallyStoreResult
+            "integrationTestInternalCustomEvent",
+            null,
+            this::eventuallyStoreResult
         ).apply { eventuallyAssertSuccess() }
     }
 
     @Test
+    @RetryingTest(3)
     fun testTrackInternalCustomEvent_V3_withAttributes() {
         val eventServiceInternal = emarsys().eventServiceInternal
 
         eventServiceInternal.trackInternalCustomEvent(
-                "integrationTestInternalCustomEvent",
-                mapOf("key1" to "value1", "key2" to "value2"),
-                this::eventuallyStoreResult
+            "integrationTestInternalCustomEvent",
+            mapOf("key1" to "value1", "key2" to "value2"),
+            this::eventuallyStoreResult
         ).apply { eventuallyAssertSuccess() }
     }
 
     @Test
+    @RetryingTest(3)
     fun testSetPushToken() {
-        Emarsys.push.setPushToken("integration_test_push_token",
-                this::eventuallyStoreResult
+        Emarsys.push.setPushToken(
+            "integration_test_push_token",
+            this::eventuallyStoreResult
         ).apply { eventuallyAssertSuccess() }
     }
 
     @Test
+    @RetryingTest(3)
     fun testRemovePushToken() {
         Emarsys.push.clearPushToken(
-                this::eventuallyStoreResult
+            this::eventuallyStoreResult
         ).apply { eventuallyAssertSuccess() }
     }
 
     @Test
+    @RetryingTest(3)
     fun testDeepLinkOpen() {
         Thread.sleep(1000)
         val activity = mock(Activity::class.java)
         whenever(activity.intent).thenReturn(Intent())
 
         val intent = Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse("https://github.com/emartech/android-emarsys-sdk/wiki?ems_dl=210268110_ZVwwYrYUFR_1_100302293_1_2000000"))
+            Intent.ACTION_VIEW,
+            Uri.parse("https://github.com/emartech/android-emarsys-sdk/wiki?ems_dl=210268110_ZVwwYrYUFR_1_100302293_1_2000000")
+        )
 
         Emarsys.trackDeepLink(
-                activity,
-                intent,
-                this::eventuallyStoreResult
+            activity,
+            intent,
+            this::eventuallyStoreResult
         ).apply { eventuallyAssertSuccess() }
 
         Thread.sleep(1000)
     }
 
     @Test
+    @RetryingTest(3)
     fun testTrackDeviceInfo() {
         val clientServiceInternal = emarsys().clientServiceInternal
 
         clientServiceInternal.trackDeviceInfo(this::eventuallyStoreResult)
-                .apply{ eventuallyAssertCompletionHandlerSuccess() }
+            .apply { eventuallyAssertCompletionHandlerSuccess() }
     }
 
     @Test
+    @RetryingTest(3)
     fun testConfig_changeApplicationCode() {
         val originalApplicationCode = Emarsys.config.applicationCode
-        Emarsys.config.changeApplicationCode(OTHER_APP_ID, this::eventuallyStoreResult).apply { eventuallyAssertSuccess() }
+        Emarsys.config.changeApplicationCode(OTHER_APP_ID, this::eventuallyStoreResult)
+            .apply { eventuallyAssertSuccess() }
         originalApplicationCode shouldNotBe Emarsys.config.applicationCode
         Emarsys.config.applicationCode shouldBe OTHER_APP_ID
     }
 
     @Test
+    @RetryingTest(3)
     fun testConfig_changeApplicationCode_nilToSomething() {
         val setupLatch = CountDownLatch(1)
         emarsys().concurrentHandlerHolder.coreHandler.post {
@@ -251,8 +259,8 @@ class MobileEngageIntegrationTest {
         IntegrationTestUtils.tearDownEmarsys(application)
 
         val config = EmarsysConfig.Builder()
-                .application(application)
-                .build()
+            .application(application)
+            .build()
         Emarsys.setup(config)
 
         var returnedThrowable: Throwable? = Throwable("testErrorCause")

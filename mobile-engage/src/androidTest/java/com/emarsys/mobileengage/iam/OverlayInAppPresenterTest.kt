@@ -3,9 +3,8 @@ package com.emarsys.mobileengage.iam
 import android.app.Activity
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
-import androidx.test.rule.ActivityTestRule
+import androidx.test.core.app.ActivityScenario
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
@@ -13,14 +12,12 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.mobileengage.iam.dialog.IamDialog
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.anyNotNull
 import com.emarsys.testUtil.mockito.whenever
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -34,14 +31,6 @@ class OverlayInAppPresenterTest {
         private var URL = "https://www.emarsys.com"
     }
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
-
-    @Rule
-    @JvmField
-    var activityRule = ActivityTestRule(FakeActivity::class.java)
-
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var mockIamDialogProvider: IamDialogProvider
     private lateinit var mockTimestampProvider: TimestampProvider
@@ -50,7 +39,7 @@ class OverlayInAppPresenterTest {
 
     private lateinit var inAppPresenter: OverlayInAppPresenter
 
-    @Before
+    @BeforeEach
     fun setUp() {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockIamDialog = mock()
@@ -73,94 +62,111 @@ class OverlayInAppPresenterTest {
     }
 
     @Test
-    fun testPresent_shouldShowDialog_whenFragmentActivity_isUsed() {
-        whenever(mockCurrentActivityProvider.get()).thenReturn(activityRule.activity as FragmentActivity)
-
+    fun testPresent_shouldCallCallback_whenDialogIsShown() {
+        val scenario = ActivityScenario.launch(FakeActivity::class.java)
         val countDownLatch = CountDownLatch(1)
+        var callbackCalled = false
+        Thread {
+            scenario.onActivity { activity ->
+                whenever(mockCurrentActivityProvider.get()).thenReturn(activity)
 
-        inAppPresenter.present(
-            "1",
-            SID,
-            URL,
-            "requestId",
-            0L,
-            "<html><body><p>Hello</p></body></html>"
-        ) {
-            countDownLatch.countDown()
-        }
+                inAppPresenter.present(
+                    "1",
+                    SID,
+                    URL,
+                    "requestId",
+                    0L,
+                    "<html><body><p>Hello</p></body></html>"
+                ) {
+                    callbackCalled = true
+                    countDownLatch.countDown()
+                }
+            }
 
+        }.start()
         countDownLatch.await()
-
-        verify(mockIamDialog).show(any<FragmentManager>(), any())
+        scenario.close()
+        callbackCalled shouldBe true
     }
 
     @Test
     fun testPresent_shouldShowDialog_whenAppCompatActivity_isUsed() {
-        whenever(mockCurrentActivityProvider.get()).thenReturn(activityRule.activity)
-
+        val scenario = ActivityScenario.launch(FakeActivity::class.java)
         val countDownLatch = CountDownLatch(1)
+        var callbackCalled = false
+        Thread {
+            scenario.onActivity { activity ->
+                whenever(mockCurrentActivityProvider.get()).thenReturn(activity)
 
-        inAppPresenter.present(
-            "1",
-            SID,
-            URL,
-            "requestId",
-            0L,
-            "<html><body><p>Hello</p></body></html>",
-            MessageLoadedListener {
-                countDownLatch.countDown()
+                inAppPresenter.present(
+                    "1",
+                    SID,
+                    URL,
+                    "requestId",
+                    0L,
+                    "<html><body><p>Hello</p></body></html>"
+                ) {
+                    callbackCalled = true
+                    countDownLatch.countDown()
+                }
             }
-        )
-
+        }.start()
         countDownLatch.await()
-
+        scenario.close()
         verify(mockIamDialog).show(any<FragmentManager>(), any())
+        callbackCalled shouldBe true
     }
 
     @Test
     fun testPresent_shouldNotShowDialog_whenActivity_isUsed() {
         val activity: Activity = mock()
-
-        whenever(mockCurrentActivityProvider.get()).thenReturn(activity)
-
         val countDownLatch = CountDownLatch(1)
+        var callbackCalled = false
+        Thread {
+            whenever(mockCurrentActivityProvider.get()).thenReturn(activity)
 
-        inAppPresenter.present(
-            "1",
-            SID,
-            URL,
-            "requestId",
-            0L,
-            "<html><body><p>Hello</p></body></html>"
-        ) {
-            countDownLatch.countDown()
-        }
-
+            inAppPresenter.present(
+                "1",
+                SID,
+                URL,
+                "requestId",
+                0L,
+                "<html><body><p>Hello</p></body></html>"
+            ) {
+                callbackCalled = true
+                countDownLatch.countDown()
+            }
+        }.start()
         countDownLatch.await()
 
         verify(mockIamDialog, times(0)).show(any<FragmentManager>(), any())
+        callbackCalled shouldBe true
+
     }
 
     @Test
     fun testPresent_shouldNotShowDialog_whenActivity_isNull() {
-        whenever(mockCurrentActivityProvider.get()).thenReturn(null)
-
         val countDownLatch = CountDownLatch(1)
+        var callbackCalled = false
+        Thread {
+            whenever(mockCurrentActivityProvider.get()).thenReturn(null)
 
-        inAppPresenter.present(
-            "1",
-            SID,
-            URL,
-            "requestId",
-            0L,
-            "<html><body><p>Hello</p></body></html>"
-        ) {
-            countDownLatch.countDown()
-        }
-
+            inAppPresenter.present(
+                "1",
+                SID,
+                URL,
+                "requestId",
+                0L,
+                "<html><body><p>Hello</p></body></html>"
+            ) {
+                callbackCalled = true
+                countDownLatch.countDown()
+            }
+        }.start()
         countDownLatch.await()
 
         verify(mockIamDialog, times(0)).show(any<FragmentManager>(), any())
+        callbackCalled shouldBe true
     }
 
     @Test
@@ -168,63 +174,84 @@ class OverlayInAppPresenterTest {
         val activity: AppCompatActivity = mock()
         val fragmentManager: FragmentManager = mock()
         val fragment: Fragment = mock()
-
-        whenever(mockIamDialogProvider.provideDialog(anyNotNull(), any(), any(), any())).thenReturn(
-            mockIamDialog
-        )
-        whenever(mockCurrentActivityProvider.get()).thenReturn(activity)
-        whenever(activity.supportFragmentManager).thenReturn(fragmentManager)
-        whenever(fragmentManager.findFragmentByTag("MOBILE_ENGAGE_IAM_DIALOG_TAG")).thenReturn(
-            fragment
-        )
-
         val countDownLatch = CountDownLatch(1)
+        var callbackCalled = false
+        Thread {
+            whenever(
+                mockIamDialogProvider.provideDialog(
+                    anyNotNull(),
+                    any(),
+                    any(),
+                    any()
+                )
+            ).thenReturn(
+                mockIamDialog
+            )
+            whenever(mockCurrentActivityProvider.get()).thenReturn(activity)
+            whenever(activity.supportFragmentManager).thenReturn(fragmentManager)
+            whenever(fragmentManager.findFragmentByTag("MOBILE_ENGAGE_IAM_DIALOG_TAG")).thenReturn(
+                fragment
+            )
 
-        inAppPresenter.present(
-            "1",
-            SID,
-            URL,
-            "requestId",
-            0L,
-            "<html><body><p>Hello</p></body></html>"
-        ) {
-            countDownLatch.countDown()
-        }
-
+            inAppPresenter.present(
+                "1",
+                SID,
+                URL,
+                "requestId",
+                0L,
+                "<html><body><p>Hello</p></body></html>"
+            ) {
+                callbackCalled = true
+                countDownLatch.countDown()
+            }
+        }.start()
         countDownLatch.await()
 
         verify(mockIamDialog, times(0)).show(any<FragmentManager>(), any())
+        callbackCalled shouldBe true
+
     }
 
     @Test
     fun testPresent_shouldNotShowDialog_whenFragmentManager_isInSavedState() {
         val activity: AppCompatActivity = mock()
         val fragmentManager: FragmentManager = mock()
-        val fragment: Fragment = mock()
-
-        whenever(mockIamDialogProvider.provideDialog(anyNotNull(), any(), any(), any())).thenReturn(
-            mockIamDialog
-        )
-        whenever(mockCurrentActivityProvider.get()).thenReturn(activity)
-        whenever(activity.supportFragmentManager).thenReturn(fragmentManager)
-        whenever(fragmentManager.isStateSaved).thenReturn(true)
-        whenever(fragmentManager.findFragmentByTag("MOBILE_ENGAGE_IAM_DIALOG_TAG")).thenReturn(null)
-
         val countDownLatch = CountDownLatch(1)
+        var callbackCalled = false
+        Thread {
+            whenever(
+                mockIamDialogProvider.provideDialog(
+                    anyNotNull(),
+                    any(),
+                    any(),
+                    any()
+                )
+            ).thenReturn(
+                mockIamDialog
+            )
+            whenever(mockCurrentActivityProvider.get()).thenReturn(activity)
+            whenever(activity.supportFragmentManager).thenReturn(fragmentManager)
+            whenever(fragmentManager.isStateSaved).thenReturn(true)
+            whenever(fragmentManager.findFragmentByTag("MOBILE_ENGAGE_IAM_DIALOG_TAG")).thenReturn(
+                null
+            )
 
-        inAppPresenter.present(
-            "1",
-            SID,
-            URL,
-            "requestId",
-            0L,
-            "<html><body><p>Hello</p></body></html>"
-        ) {
-            countDownLatch.countDown()
-        }
-
+            inAppPresenter.present(
+                "1",
+                SID,
+                URL,
+                "requestId",
+                0L,
+                "<html><body><p>Hello</p></body></html>"
+            ) {
+                callbackCalled = true
+                countDownLatch.countDown()
+            }
+        }.start()
         countDownLatch.await()
 
         verify(mockIamDialog, times(0)).show(any<FragmentManager>(), any())
+        callbackCalled shouldBe true
+
     }
 }

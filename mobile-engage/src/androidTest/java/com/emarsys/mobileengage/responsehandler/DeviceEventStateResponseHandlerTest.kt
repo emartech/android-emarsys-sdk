@@ -6,10 +6,14 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.util.RequestModelHelper
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Test
-import org.mockito.kotlin.*
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import java.net.URL
 
 class DeviceEventStateResponseHandlerTest {
@@ -24,7 +28,7 @@ class DeviceEventStateResponseHandlerTest {
     private lateinit var handler: DeviceEventStateResponseHandler
     private lateinit var mockRequestModelHelper: RequestModelHelper
 
-    @Before
+    @BeforeEach
     fun setup() {
         mockRequestModel = mock {
             on { url } doReturn URL(EVENT_BASE)

@@ -3,12 +3,12 @@ package com.emarsys.core.request
 import com.emarsys.core.connection.ConnectionProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.request.model.RequestModel
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.fail
+
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
@@ -20,9 +20,7 @@ class RequestTaskTest {
     private lateinit var connectionProvider: ConnectionProvider
     private lateinit var mockTimestampProvider: TimestampProvider
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+
 
     companion object {
         private const val WRONG_URL = "https://localhost/missing"
@@ -30,7 +28,7 @@ class RequestTaskTest {
         private const val TIMESTAMP_2: Long = 1600
     }
 
-    @Before
+    @BeforeEach
     fun setUp() {
         connectionProvider = ConnectionProvider()
         mockTimestampProvider = mock()
@@ -55,7 +53,7 @@ class RequestTaskTest {
         try {
             requestTask.execute()
         } catch (e: Exception) {
-            Assert.fail("Request Task should handle exception: " + e.message)
+            fail("Request Task should handle exception: " + e.message)
         }
     }
 

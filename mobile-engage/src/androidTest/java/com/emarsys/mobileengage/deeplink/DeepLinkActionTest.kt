@@ -6,12 +6,9 @@ import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.util.waitForTask
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
@@ -29,11 +26,8 @@ class DeepLinkActionTest {
     private lateinit var deepLinkInternal: DeepLinkInternal
     private lateinit var action: DeepLinkAction
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
 
         setupMobileEngageComponent(FakeMobileEngageDependencyContainer())
@@ -42,7 +36,7 @@ class DeepLinkActionTest {
         action = DeepLinkAction(deepLinkInternal)
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         tearDownMobileEngageComponent()
     }

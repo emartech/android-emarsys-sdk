@@ -4,25 +4,22 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 
 class SecureSharedPreferencesProviderTest {
 
     private lateinit var sharedPreferencesProvider: SecureSharedPreferencesProvider
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+
     private lateinit var context: Context
     private lateinit var oldSharedPrefs: SharedPreferences
 
-    @Before
+    @BeforeEach
     fun setUp() {
         context = InstrumentationRegistry.getTargetContext().applicationContext
         oldSharedPrefs = context.getSharedPreferences("test_shared_prefs", MODE_PRIVATE)

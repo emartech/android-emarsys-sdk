@@ -9,7 +9,7 @@ import com.emarsys.core.database.helper.CoreDbHelper
 
 
 class SharedHardwareIdentificationContentProvider : ContentProvider() {
-    private lateinit var coreDbHelper: CoreDbHelper
+    lateinit var coreDbHelper: CoreDbHelper
 
     override fun onCreate(): Boolean {
         this.context?.let {

@@ -3,7 +3,7 @@ package com.emarsys.mobileengage.notification.command
 import com.emarsys.mobileengage.api.push.NotificationInformation
 import com.emarsys.mobileengage.api.push.NotificationInformationListener
 import com.emarsys.mobileengage.push.NotificationInformationListenerProvider
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify

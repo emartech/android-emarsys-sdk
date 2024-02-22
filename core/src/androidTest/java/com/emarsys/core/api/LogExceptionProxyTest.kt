@@ -8,26 +8,24 @@ import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.util.log.LogLevel
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.log.entry.CrashLog
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.mockito.kotlin.*
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.CountDownLatch
+
 
 class LogExceptionProxyTest {
     private lateinit var mockLogger: Logger
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
-
-    @Before
+    @BeforeEach
     fun setUp() {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockLogger = mock()
@@ -41,7 +39,7 @@ class LogExceptionProxyTest {
         setupCoreComponent(dependencyContainer)
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         tearDownCoreComponent()
     }

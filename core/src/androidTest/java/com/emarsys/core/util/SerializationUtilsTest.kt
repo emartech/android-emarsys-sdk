@@ -1,52 +1,42 @@
-package com.emarsys.core.util;
+package com.emarsys.core.util
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import com.emarsys.core.request.model.RequestMethod
+import com.emarsys.core.request.model.RequestModel
+import com.emarsys.core.util.serialization.SerializationUtils
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.Test
 
-import com.emarsys.core.request.model.RequestMethod;
-import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.util.serialization.SerializationException;
-import com.emarsys.core.util.serialization.SerializationUtils;
-import com.emarsys.testUtil.TimeoutUtils;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-
-import java.util.HashMap;
-
-public class SerializationUtilsTest {
-
-    @Rule
-    public TestRule timeout = TimeoutUtils.getTimeoutRule();
-
+class SerializationUtilsTest {
     @Test
-    public void testSerialization() throws SerializationException {
-        HashMap<String, Object> payload = new HashMap<>();
-        payload.put("key", "value");
-        HashMap<String, Object> nested = new HashMap<>();
-        nested.put("key2", "value2");
-        nested.put("key3", true);
-        payload.put("nested", nested);
-
-        HashMap<String, String> headers = new HashMap<>();
-        headers.put("header1", "header-value1");
-        headers.put("header2", "header-value2");
-
-        RequestModel expected = new RequestModel("https://www.google.com", RequestMethod.GET, payload, headers, 999, 101, "id");
-
-        byte[] blob = SerializationUtils.serializableToBlob(expected);
-        RequestModel result = (RequestModel) SerializationUtils.blobToSerializable(blob);
-
-        assertEquals(expected, result);
+    fun testSerialization() {
+        val payload = HashMap<String, Any?>()
+        payload["key"] = "value"
+        val nested = HashMap<String, Any>()
+        nested["key2"] = "value2"
+        nested["key3"] = true
+        payload["nested"] = nested
+        val headers = HashMap<String, String>()
+        headers["header1"] = "header-value1"
+        headers["header2"] = "header-value2"
+        val expected = RequestModel(
+            "https://www.google.com",
+            RequestMethod.GET,
+            payload,
+            headers,
+            999,
+            101,
+            "id"
+        )
+        val blob = SerializationUtils.serializableToBlob(expected)
+        val result = SerializationUtils.blobToSerializable(blob) as RequestModel
+        result shouldBe expected
     }
 
     @Test
-    public void testSerialization_serializesNullCorrectly() throws SerializationException {
-        RequestModel requestModel = null;
-        byte[] bytes = SerializationUtils.serializableToBlob(requestModel);
-        RequestModel result = (RequestModel) SerializationUtils.blobToSerializable(bytes);
-        assertNull(result);
+    fun testSerialization_serializesNullCorrectly() {
+        val requestModel: RequestModel? = null
+        val bytes = SerializationUtils.serializableToBlob(requestModel)
+        val result = SerializationUtils.blobToSerializable(bytes) as RequestModel?
+        result shouldBe null
     }
-
 }

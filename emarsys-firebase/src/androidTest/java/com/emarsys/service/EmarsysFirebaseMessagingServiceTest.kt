@@ -12,20 +12,21 @@ import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.ReflectionTestUtils
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.mockito.kotlin.*
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.spy
+import org.mockito.kotlin.timeout
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 
 
 class EmarsysFirebaseMessagingServiceTest {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+
 
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
@@ -36,7 +37,7 @@ class EmarsysFirebaseMessagingServiceTest {
     private lateinit var spyCoreHandler: SdkHandler
     private lateinit var emarsysFirebaseMessagingService: EmarsysFirebaseMessagingService
 
-    @Before
+    @BeforeEach
     fun setUp() {
         emarsysFirebaseMessagingService = EmarsysFirebaseMessagingService()
         mockPushInternal = mock()
@@ -50,7 +51,7 @@ class EmarsysFirebaseMessagingServiceTest {
         )
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         tearDownMobileEngageComponent()
         FeatureTestUtils.resetFeatures()

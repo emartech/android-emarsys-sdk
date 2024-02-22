@@ -9,14 +9,15 @@ import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.notification.NotificationCommandFactory
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import org.junit.*
-import org.junit.rules.TestRule
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+
 import org.mockito.Mockito
 import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
@@ -43,17 +44,13 @@ class NotificationActionUtilsTest {
 
     private lateinit var context: Context
 
-    @Rule
-    @JvmField
-    var timeout: TestRule = TimeoutUtils.timeoutRule
-
-    @Before
+    @BeforeEach
     fun init() {
         context = getTargetContext().applicationContext
         setupMobileEngageComponent(FakeMobileEngageDependencyContainer())
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         mobileEngage().concurrentHandlerHolder.coreLooper.quitSafely()
         tearDownMobileEngageComponent()
@@ -90,7 +87,7 @@ class NotificationActionUtilsTest {
             testActions,
             testNotificationData
         )
-        Assert.assertTrue(result.isEmpty())
+        result.isEmpty() shouldBe true
     }
 
     @Test
@@ -106,7 +103,7 @@ class NotificationActionUtilsTest {
             testActions,
             testNotificationData
         )
-        Assert.assertTrue(result.isEmpty())
+        result.isEmpty() shouldBe true
     }
 
     @Test
@@ -122,7 +119,7 @@ class NotificationActionUtilsTest {
             testActions,
             testNotificationData
         )
-        Assert.assertTrue(result.isEmpty())
+        result.isEmpty() shouldBe true
     }
 
     @Test
@@ -139,7 +136,7 @@ class NotificationActionUtilsTest {
             testActions,
             testNotificationData
         )
-        Assert.assertTrue(result.isEmpty())
+        result.isEmpty() shouldBe true
     }
 
     @Test

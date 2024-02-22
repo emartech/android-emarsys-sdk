@@ -2,13 +2,13 @@ package com.emarsys.predict.request
 
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.storage.KeyValueStore
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 import org.mockito.Mockito
 
 class PredictHeaderFactoryTest {
@@ -22,11 +22,8 @@ class PredictHeaderFactoryTest {
     private lateinit var mockDeviceInfo: DeviceInfo
     private lateinit var mockKeyValueStore: KeyValueStore
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockKeyValueStore = Mockito.mock(KeyValueStore::class.java)
 
@@ -42,9 +39,11 @@ class PredictHeaderFactoryTest {
         headerFactory = PredictHeaderFactory(mockRequestContext)
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testConstructor_requestContext_mustNotBeNull() {
-        PredictHeaderFactory(null)
+        shouldThrow<IllegalArgumentException> {
+            PredictHeaderFactory(null)
+        }
     }
 
     @Test
@@ -59,8 +58,10 @@ class PredictHeaderFactoryTest {
     @Test
     fun testCreateBaseHeader_shouldPutXpInCookiesInHeader_whenXpIsNotNull() {
         whenever(mockKeyValueStore.getString("xp")).thenReturn("testXpCookie")
-        val expected = mapOf("User-Agent" to "EmarsysSDK|osversion:$OS_VERSION|platform:$PLATFORM",
-                "Cookie" to "xp=testXpCookie;")
+        val expected = mapOf(
+            "User-Agent" to "EmarsysSDK|osversion:$OS_VERSION|platform:$PLATFORM",
+            "Cookie" to "xp=testXpCookie;"
+        )
 
         val result = headerFactory.createBaseHeader()
 
@@ -70,8 +71,10 @@ class PredictHeaderFactoryTest {
     @Test
     fun testCreateBaseHeader_shouldPutVisitorIdInCookiesInHeader_whenVisitorIdIsNotNull() {
         whenever(mockKeyValueStore.getString("predict_visitor_id")).thenReturn("testVisitorId")
-        val expected = mapOf("User-Agent" to "EmarsysSDK|osversion:$OS_VERSION|platform:$PLATFORM",
-                "Cookie" to "cdv=testVisitorId")
+        val expected = mapOf(
+            "User-Agent" to "EmarsysSDK|osversion:$OS_VERSION|platform:$PLATFORM",
+            "Cookie" to "cdv=testVisitorId"
+        )
 
         val result = headerFactory.createBaseHeader()
 
@@ -82,8 +85,10 @@ class PredictHeaderFactoryTest {
     fun testCreateBaseHeader_shouldPutVisitorIdAndXpInCookiesInHeader_whenBothAvailable() {
         whenever(mockKeyValueStore.getString("xp")).thenReturn("testXpCookie")
         whenever(mockKeyValueStore.getString("predict_visitor_id")).thenReturn("testVisitorId")
-        val expected = mapOf("User-Agent" to "EmarsysSDK|osversion:$OS_VERSION|platform:$PLATFORM",
-                "Cookie" to "xp=testXpCookie;cdv=testVisitorId")
+        val expected = mapOf(
+            "User-Agent" to "EmarsysSDK|osversion:$OS_VERSION|platform:$PLATFORM",
+            "Cookie" to "xp=testXpCookie;cdv=testVisitorId"
+        )
 
         val result = headerFactory.createBaseHeader()
 

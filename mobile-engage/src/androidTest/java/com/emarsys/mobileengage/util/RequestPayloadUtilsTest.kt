@@ -7,6 +7,7 @@ import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.storage.StringStorage
+import com.emarsys.core.util.AndroidVersionUtils
 import com.emarsys.core.util.TimestampUtils
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.iam.model.IamConversionUtils
@@ -14,12 +15,11 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.session.SessionIdHolder
 import com.emarsys.mobileengage.testUtil.RandomMETestUtils
 import com.emarsys.testUtil.RandomTestUtils
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
@@ -40,7 +40,8 @@ class RequestPayloadUtilsTest {
         const val CONTACT_FIELD_ID = 3
         const val EVENT_NAME = "testEventName"
         const val TIMESTAMP = 123456789L
-        const val REFRESH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ4IjoieSJ9.bKXKVZCwf8J55WzWagrg2S0o2k_xZQ-HYfHIIj_2Z_U"
+        const val REFRESH_TOKEN =
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ4IjoieSJ9.bKXKVZCwf8J55WzWagrg2S0o2k_xZQ-HYfHIIj_2Z_U"
         const val ARE_NOTIFICATIONS_ENABLED = true
         const val IMPORTANCE = 0
         const val CHANNEL_ID_1 = "channelId1"
@@ -56,22 +57,24 @@ class RequestPayloadUtilsTest {
     private lateinit var mockChannelSettings: List<ChannelSettings>
     private lateinit var mockSessionIdHolder: SessionIdHolder
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
         mockChannelSettings = listOf(
-                ChannelSettings(channelId = CHANNEL_ID_1,
-                        importance = IMPORTANCE,
-                        isCanBypassDnd = true,
-                        isCanShowBadge = true,
-                        isShouldShowLights = true,
-                        isShouldVibrate = true),
-                ChannelSettings(channelId = CHANNEL_ID_2,
-                        importance = IMPORTANCE))
+            ChannelSettings(
+                channelId = CHANNEL_ID_1,
+                importance = IMPORTANCE,
+                isCanBypassDnd = true,
+                isCanShowBadge = true,
+                isShouldShowLights = true,
+                isShouldVibrate = true
+            ),
+            ChannelSettings(
+                channelId = CHANNEL_ID_2,
+                importance = IMPORTANCE
+            )
+        )
         mockNotificationSettings = mock {
             on { areNotificationsEnabled } doReturn ARE_NOTIFICATIONS_ENABLED
             on { importance } doReturn IMPORTANCE
@@ -117,7 +120,7 @@ class RequestPayloadUtilsTest {
     fun testCreateSetPushTokenPayload() {
         val payload = RequestPayloadUtils.createSetPushTokenPayload(PUSH_TOKEN)
         payload shouldBe mapOf(
-                "pushToken" to PUSH_TOKEN
+            "pushToken" to PUSH_TOKEN
         )
     }
 
@@ -126,41 +129,44 @@ class RequestPayloadUtilsTest {
     fun testCreateTrackDeviceInfoPayload() {
         val payload = RequestPayloadUtils.createTrackDeviceInfoPayload(mockRequestContext)
         payload shouldBe mapOf(
-                "platform" to PLATFORM,
-                "applicationVersion" to APPLICATION_VERSION,
-                "deviceModel" to DEVICE_MODEL,
-                "osVersion" to OS_VERSION,
-                "sdkVersion" to SDK_VERSION,
-                "language" to LANGUAGE,
-                "timezone" to TIMEZONE,
-                "pushSettings" to mapOf(
-                        "areNotificationsEnabled" to ARE_NOTIFICATIONS_ENABLED,
+            "platform" to PLATFORM,
+            "applicationVersion" to APPLICATION_VERSION,
+            "deviceModel" to DEVICE_MODEL,
+            "osVersion" to OS_VERSION,
+            "sdkVersion" to SDK_VERSION,
+            "language" to LANGUAGE,
+            "timezone" to TIMEZONE,
+            "pushSettings" to mapOf(
+                "areNotificationsEnabled" to ARE_NOTIFICATIONS_ENABLED,
+                "importance" to IMPORTANCE,
+                "channelSettings" to listOf(
+                    mapOf(
+                        "channelId" to CHANNEL_ID_1,
                         "importance" to IMPORTANCE,
-                        "channelSettings" to listOf(
-                                mapOf("channelId" to CHANNEL_ID_1,
-                                        "importance" to IMPORTANCE,
-                                        "canShowBadge" to true,
-                                        "canBypassDnd" to true,
-                                        "shouldVibrate" to true,
-                                        "shouldShowLights" to true
-                                ),
-                                mapOf("channelId" to CHANNEL_ID_2,
-                                        "importance" to IMPORTANCE,
-                                        "canShowBadge" to false,
-                                        "canBypassDnd" to false,
-                                        "shouldVibrate" to false,
-                                        "shouldShowLights" to false
-                                )
-                        )
+                        "canShowBadge" to true,
+                        "canBypassDnd" to true,
+                        "shouldVibrate" to true,
+                        "shouldShowLights" to true
+                    ),
+                    mapOf(
+                        "channelId" to CHANNEL_ID_2,
+                        "importance" to IMPORTANCE,
+                        "canShowBadge" to false,
+                        "canBypassDnd" to false,
+                        "shouldVibrate" to false,
+                        "shouldShowLights" to false
+                    )
                 )
+            )
         )
     }
 
     @Test
     @SdkSuppress(maxSdkVersion = android.os.Build.VERSION_CODES.N)
     fun testCreateTrackDeviceInfoPayload_belowOreo() {
-        val payload = RequestPayloadUtils.createTrackDeviceInfoPayload(mockRequestContext)
-        payload shouldBe mapOf(
+        if (AndroidVersionUtils.isBelowOreo) {
+            val payload = RequestPayloadUtils.createTrackDeviceInfoPayload(mockRequestContext)
+            payload shouldBe mapOf(
                 "platform" to PLATFORM,
                 "applicationVersion" to APPLICATION_VERSION,
                 "deviceModel" to DEVICE_MODEL,
@@ -169,29 +175,30 @@ class RequestPayloadUtilsTest {
                 "language" to LANGUAGE,
                 "timezone" to TIMEZONE,
                 "pushSettings" to mapOf(
-                        "areNotificationsEnabled" to ARE_NOTIFICATIONS_ENABLED,
-                        "importance" to IMPORTANCE
+                    "areNotificationsEnabled" to ARE_NOTIFICATIONS_ENABLED,
+                    "importance" to IMPORTANCE
                 )
-        )
-
+            )
+        }
     }
 
     @Test
     fun testCreateCustomEventPayload_whenEventAttributesIsNull() {
         val event = mapOf(
-                "type" to "custom",
-                "name" to EVENT_NAME,
-                "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP),
-                "sessionId" to SESSION_ID
+            "type" to "custom",
+            "name" to EVENT_NAME,
+            "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP),
+            "sessionId" to SESSION_ID
         )
 
         val expectedPayload = mapOf<String, Any>(
-                "clicks" to emptyList<Any>(),
-                "viewedMessages" to emptyList<Any>(),
-                "events" to listOf(event)
+            "clicks" to emptyList<Any>(),
+            "viewedMessages" to emptyList<Any>(),
+            "events" to listOf(event)
         )
 
-        val actualPayload = RequestPayloadUtils.createCustomEventPayload(EVENT_NAME, null, mockRequestContext)
+        val actualPayload =
+            RequestPayloadUtils.createCustomEventPayload(EVENT_NAME, null, mockRequestContext)
 
         actualPayload shouldBe expectedPayload
     }
@@ -201,20 +208,21 @@ class RequestPayloadUtilsTest {
         val attribute = mapOf("attributeKey" to "attributeValue")
 
         val event = mapOf(
-                "type" to "custom",
-                "name" to EVENT_NAME,
-                "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP),
-                "attributes" to attribute,
-                "sessionId" to SESSION_ID
+            "type" to "custom",
+            "name" to EVENT_NAME,
+            "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP),
+            "attributes" to attribute,
+            "sessionId" to SESSION_ID
         )
 
         val expectedPayload = mapOf<String, Any>(
-                "clicks" to emptyList<Any>(),
-                "viewedMessages" to emptyList<Any>(),
-                "events" to listOf(event)
+            "clicks" to emptyList<Any>(),
+            "viewedMessages" to emptyList<Any>(),
+            "events" to listOf(event)
         )
 
-        val actualPayload = RequestPayloadUtils.createCustomEventPayload(EVENT_NAME, attribute, mockRequestContext)
+        val actualPayload =
+            RequestPayloadUtils.createCustomEventPayload(EVENT_NAME, attribute, mockRequestContext)
 
         actualPayload shouldBe expectedPayload
     }
@@ -222,19 +230,20 @@ class RequestPayloadUtilsTest {
     @Test
     fun testCreateCustomEventPayload_whenEventAttributesIsEmpty() {
         val event = mapOf(
-                "type" to "custom",
-                "name" to EVENT_NAME,
-                "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP),
-                "sessionId" to SESSION_ID
+            "type" to "custom",
+            "name" to EVENT_NAME,
+            "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP),
+            "sessionId" to SESSION_ID
         )
 
         val expectedPayload = mapOf<String, Any>(
-                "clicks" to emptyList<Any>(),
-                "viewedMessages" to emptyList<Any>(),
-                "events" to listOf(event)
+            "clicks" to emptyList<Any>(),
+            "viewedMessages" to emptyList<Any>(),
+            "events" to listOf(event)
         )
 
-        val actualPayload = RequestPayloadUtils.createCustomEventPayload(EVENT_NAME, emptyMap(), mockRequestContext)
+        val actualPayload =
+            RequestPayloadUtils.createCustomEventPayload(EVENT_NAME, emptyMap(), mockRequestContext)
 
         actualPayload shouldBe expectedPayload
     }
@@ -242,19 +251,23 @@ class RequestPayloadUtilsTest {
     @Test
     fun testCreateInternalCustomEventPayload_whenEventAttributesIsNull() {
         val event = mapOf(
-                "type" to "internal",
-                "name" to EVENT_NAME,
-                "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP),
-                "sessionId" to SESSION_ID
+            "type" to "internal",
+            "name" to EVENT_NAME,
+            "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP),
+            "sessionId" to SESSION_ID
         )
 
         val expectedPayload = mapOf<String, Any>(
-                "clicks" to emptyList<Any>(),
-                "viewedMessages" to emptyList<Any>(),
-                "events" to listOf(event)
+            "clicks" to emptyList<Any>(),
+            "viewedMessages" to emptyList<Any>(),
+            "events" to listOf(event)
         )
 
-        val actualPayload = RequestPayloadUtils.createInternalCustomEventPayload(EVENT_NAME, null, mockRequestContext)
+        val actualPayload = RequestPayloadUtils.createInternalCustomEventPayload(
+            EVENT_NAME,
+            null,
+            mockRequestContext
+        )
 
         actualPayload shouldBe expectedPayload
     }
@@ -264,18 +277,22 @@ class RequestPayloadUtilsTest {
         whenever(mockSessionIdHolder.sessionId).thenReturn(null)
 
         val event = mapOf(
-                "type" to "internal",
-                "name" to EVENT_NAME,
-                "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP)
+            "type" to "internal",
+            "name" to EVENT_NAME,
+            "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP)
         )
 
         val expectedPayload = mapOf<String, Any>(
-                "clicks" to emptyList<Any>(),
-                "viewedMessages" to emptyList<Any>(),
-                "events" to listOf(event)
+            "clicks" to emptyList<Any>(),
+            "viewedMessages" to emptyList<Any>(),
+            "events" to listOf(event)
         )
 
-        val actualPayload = RequestPayloadUtils.createInternalCustomEventPayload(EVENT_NAME, null, mockRequestContext)
+        val actualPayload = RequestPayloadUtils.createInternalCustomEventPayload(
+            EVENT_NAME,
+            null,
+            mockRequestContext
+        )
 
         actualPayload shouldBe expectedPayload
     }
@@ -285,20 +302,24 @@ class RequestPayloadUtilsTest {
         val attribute = mapOf("attributeKey" to "attributeValue")
 
         val event = mapOf(
-                "type" to "internal",
-                "name" to EVENT_NAME,
-                "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP),
-                "attributes" to attribute,
-                "sessionId" to SESSION_ID
+            "type" to "internal",
+            "name" to EVENT_NAME,
+            "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP),
+            "attributes" to attribute,
+            "sessionId" to SESSION_ID
         )
 
         val expectedPayload = mapOf<String, Any>(
-                "clicks" to emptyList<Any>(),
-                "viewedMessages" to emptyList<Any>(),
-                "events" to listOf(event)
+            "clicks" to emptyList<Any>(),
+            "viewedMessages" to emptyList<Any>(),
+            "events" to listOf(event)
         )
 
-        val actualPayload = RequestPayloadUtils.createInternalCustomEventPayload(EVENT_NAME, attribute, mockRequestContext)
+        val actualPayload = RequestPayloadUtils.createInternalCustomEventPayload(
+            EVENT_NAME,
+            attribute,
+            mockRequestContext
+        )
 
         actualPayload shouldBe expectedPayload
     }
@@ -306,19 +327,23 @@ class RequestPayloadUtilsTest {
     @Test
     fun testCreateInternalCustomEventPayload_whenEventAttributesIsEmpty() {
         val event = mapOf(
-                "type" to "internal",
-                "name" to EVENT_NAME,
-                "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP),
-                "sessionId" to SESSION_ID
+            "type" to "internal",
+            "name" to EVENT_NAME,
+            "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP),
+            "sessionId" to SESSION_ID
         )
 
         val expectedPayload = mapOf<String, Any>(
-                "clicks" to emptyList<Any>(),
-                "viewedMessages" to emptyList<Any>(),
-                "events" to listOf(event)
+            "clicks" to emptyList<Any>(),
+            "viewedMessages" to emptyList<Any>(),
+            "events" to listOf(event)
         )
 
-        val actualPayload = RequestPayloadUtils.createInternalCustomEventPayload(EVENT_NAME, emptyMap(), mockRequestContext)
+        val actualPayload = RequestPayloadUtils.createInternalCustomEventPayload(
+            EVENT_NAME,
+            emptyMap(),
+            mockRequestContext
+        )
 
         actualPayload shouldBe expectedPayload
     }
@@ -326,10 +351,10 @@ class RequestPayloadUtilsTest {
     @Test
     fun testCreateCompositeRequestModelPayload_payloadContainsDoNotDisturb_whenDoNotDisturbIsTrue() {
         val payload = RequestPayloadUtils.createCompositeRequestModelPayload(
-                emptyList(),
-                emptyList(),
-                emptyList(),
-                true
+            emptyList(),
+            emptyList(),
+            emptyList(),
+            true
         )
 
         (payload["dnd"] as Boolean) shouldBe true
@@ -338,30 +363,30 @@ class RequestPayloadUtilsTest {
     @Test
     fun testCreateCompositeRequestModelPayload() {
         val events = listOf(
-                RandomTestUtils.randomMap(),
-                RandomTestUtils.randomMap(),
-                RandomTestUtils.randomMap()
+            RandomTestUtils.randomMap(),
+            RandomTestUtils.randomMap(),
+            RandomTestUtils.randomMap()
         )
         val displayedIams = listOf(
-                RandomMETestUtils.randomDisplayedIam(),
-                RandomMETestUtils.randomDisplayedIam()
+            RandomMETestUtils.randomDisplayedIam(),
+            RandomMETestUtils.randomDisplayedIam()
         )
         val buttonClicks = listOf(
-                RandomMETestUtils.randomButtonClick(),
-                RandomMETestUtils.randomButtonClick(),
-                RandomMETestUtils.randomButtonClick()
+            RandomMETestUtils.randomButtonClick(),
+            RandomMETestUtils.randomButtonClick(),
+            RandomMETestUtils.randomButtonClick()
         )
         val expectedPayload = mapOf(
-                "events" to events,
-                "viewedMessages" to IamConversionUtils.displayedIamsToArray(displayedIams),
-                "clicks" to IamConversionUtils.buttonClicksToArray(buttonClicks)
+            "events" to events,
+            "viewedMessages" to IamConversionUtils.displayedIamsToArray(displayedIams),
+            "clicks" to IamConversionUtils.buttonClicksToArray(buttonClicks)
         )
 
         val resultPayload = RequestPayloadUtils.createCompositeRequestModelPayload(
-                events,
-                displayedIams,
-                buttonClicks,
-                false
+            events,
+            displayedIams,
+            buttonClicks,
+            false
         )
 
         resultPayload shouldBe expectedPayload
@@ -370,7 +395,7 @@ class RequestPayloadUtilsTest {
     @Test
     fun testCreateRefreshContactTokenPayload() {
         val expectedPayload = mapOf(
-                "refreshToken" to REFRESH_TOKEN
+            "refreshToken" to REFRESH_TOKEN
         )
 
         val resultPayload = RequestPayloadUtils.createRefreshContactTokenPayload(mockRequestContext)
@@ -382,9 +407,9 @@ class RequestPayloadUtilsTest {
     fun testCreateInlineInAppPayload() {
         val viewId = "testViewId"
         val clicks = listOf(
-                ButtonClicked("campaignId1", "buttonId1", 1L),
-                ButtonClicked("campaignId2", "buttonId2", 2L),
-                ButtonClicked("campaignId3", "buttonId3", 3L)
+            ButtonClicked("campaignId1", "buttonId1", 1L),
+            ButtonClicked("campaignId2", "buttonId2", 2L),
+            ButtonClicked("campaignId3", "buttonId3", 3L)
         )
         val expectedPayload = mapOf(
             "viewIds" to listOf(viewId),

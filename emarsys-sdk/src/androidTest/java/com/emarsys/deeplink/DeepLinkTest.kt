@@ -7,9 +7,9 @@ import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal
 import com.emarsys.testUtil.IntegrationTestUtils
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
@@ -20,7 +20,7 @@ class DeepLinkTest {
     private lateinit var deeplinkApi: DeepLink
 
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockActivity = mock()
         mockCompletionListener = mock()
@@ -30,7 +30,8 @@ class DeepLinkTest {
         setupEmarsysComponent(FakeDependencyContainer(
                 deepLinkInternal = mockDeepLinkInternal))
     }
-    @After
+
+    @AfterEach
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys()
     }

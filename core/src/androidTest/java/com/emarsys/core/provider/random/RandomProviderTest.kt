@@ -1,8 +1,8 @@
 package com.emarsys.core.provider.random
 
-import io.kotlintest.matchers.doubles.shouldBeGreaterThanOrEqual
-import io.kotlintest.matchers.doubles.shouldBeLessThanOrEqual
-import org.junit.Test
+import io.kotest.matchers.doubles.shouldBeGreaterThanOrEqual
+import io.kotest.matchers.doubles.shouldBeLessThanOrEqual
+import org.junit.jupiter.api.Test
 
 class RandomProviderTest {
 

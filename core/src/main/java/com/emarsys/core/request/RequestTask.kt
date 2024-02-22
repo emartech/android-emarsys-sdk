@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets
 import javax.net.ssl.HttpsURLConnection
 
 @Mockable
-class RequestTask(
+open class RequestTask(
     private val requestModel: RequestModel,
     private val connectionProvider: ConnectionProvider,
     private val timestampProvider: TimestampProvider
@@ -30,7 +30,7 @@ class RequestTask(
         private const val TIMEOUT = 30000
     }
 
-    fun execute(): Try<ResponseModel> {
+    open fun execute(): Try<ResponseModel> {
         var responseModel: ResponseModel? = null
         var exception: Exception? = null
         val dbEnd = timestampProvider.provideTimestamp()

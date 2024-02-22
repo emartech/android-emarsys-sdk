@@ -6,14 +6,14 @@ import com.emarsys.fake.FakeHuaweiDependencyContainer
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.huawei.hms.push.RemoteMessage
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Test
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class EmarsysHuaweiMessagingServiceUtilsTest {
     private lateinit var context: Context
 
-    @Before
+    @BeforeEach
     fun init() {
         context = InstrumentationRegistry.getTargetContext()
         setupMobileEngageComponent(

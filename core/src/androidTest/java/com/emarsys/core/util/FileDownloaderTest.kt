@@ -5,16 +5,17 @@ import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.testUtil.FileTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
-import com.emarsys.testUtil.RetryUtils.retryRule
 import com.emarsys.testUtil.TestUrls.LARGE_IMAGE
 import com.emarsys.testUtil.TestUrls.customResponse
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import org.junit.Assert.*
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+import org.junitpioneer.jupiter.RetryingTest
+
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
@@ -27,44 +28,42 @@ class FileDownloaderTest {
     private lateinit var context: Context
     private lateinit var fileDownloader: FileDownloader
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Rule
-    @JvmField
-    var retry: TestRule = retryRule
-
-    @Before
+    @BeforeEach
     fun setUp() {
         context = getTargetContext()
         fileDownloader = FileDownloader(context)
     }
 
     @Test
+    @RetryingTest(3)
     fun testDownload_shouldNotReturnNull_whenUrlIsCorrect() {
-        assertNotNull(fileDownloader.download(LARGE_IMAGE))
+        fileDownloader.download(LARGE_IMAGE) shouldNotBe null
     }
 
     @Test
+    @RetryingTest(3)
     fun testDownload_shouldReturnNull_whenSchemeIsNotHttps() {
-        assertNull(fileDownloader.download("little://cat"))
+        fileDownloader.download("little://cat") shouldBe null
     }
 
     @Test
+    @RetryingTest(3)
     fun testDownload_shouldReturnNull_whenResourceDoesNotExist() {
         val result = fileDownloader.download(customResponse(404))
         result shouldBe null
     }
 
     @Test
+    @RetryingTest(3)
     fun testDownload_returnedPathShouldExist() {
         val filePath = fileDownloader.download(LARGE_IMAGE)
         val file = File(filePath!!)
-        assertTrue(file.exists())
+        file.exists() shouldBe true
     }
 
     @Test
+    @RetryingTest(3)
     fun testDownload_downloadedAndRemoteFileShouldBeTheSame() {
         val latch = CountDownLatch(1)
         val concurrentHandlerHolder: ConcurrentHandlerHolder =
@@ -78,12 +77,10 @@ class FileDownloaderTest {
             val fileInputStream: InputStream = FileInputStream(file)
             val remoteInputStream = fileDownloader.inputStreamFromUrl(path)
             try {
-                assertTrue(
-                    Arrays.equals(
-                        convertToByteArray(fileInputStream),
-                        convertToByteArray(remoteInputStream!!)
-                    )
-                )
+                Arrays.equals(
+                    convertToByteArray(fileInputStream),
+                    convertToByteArray(remoteInputStream!!)
+                ) shouldBe true
             } finally {
                 fileInputStream.close()
                 remoteInputStream?.close()
@@ -94,34 +91,39 @@ class FileDownloaderTest {
     }
 
     @Test
+    @RetryingTest(3)
     fun testDelete_shouldDeleteTheFile() {
         val filePath = createTempFile()
         val file = File(filePath)
-        assertTrue(file.exists())
+        file.exists() shouldBe true
         fileDownloader.delete(filePath)
-        assertFalse(file.exists())
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testDelete_shouldThrowException_whenFileIsNotExist() {
-        fileDownloader.delete("file:///invalidFile.file")
+        file.exists() shouldBe false
     }
 
     @Test
+    fun testDelete_shouldThrowException_whenFileIsNotExist() {
+        shouldThrow<IllegalArgumentException> {
+            fileDownloader.delete("file:///invalidFile.file")
+        }
+    }
+
+    @Test
+    @RetryingTest(3)
     fun testWriteReadFileIntoString() {
         val cacheFolder = context.cacheDir
         val fileName = UUID.randomUUID().toString()
         val fileUrl = File(cacheFolder, fileName).absolutePath
         val expected = "ContentOfTheFile\nNew line"
         FileTestUtils.writeToFile(expected, fileUrl)
-        assertEquals(expected, fileDownloader.readFileIntoString(fileUrl))
+        fileDownloader.readFileIntoString(fileUrl) shouldBe expected
     }
 
     @Test
+    @RetryingTest(3)
     fun testReadURLIntoString() {
         fileDownloader.download(LARGE_IMAGE)?.let {
             val expected = fileDownloader.readFileIntoString(it)
-            assertEquals(expected, fileDownloader.readURLIntoString(LARGE_IMAGE))
+            fileDownloader.readURLIntoString(LARGE_IMAGE) shouldBe expected
         }
     }
 

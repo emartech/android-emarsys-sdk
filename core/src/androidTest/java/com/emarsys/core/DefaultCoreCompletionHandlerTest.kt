@@ -4,13 +4,16 @@ import com.emarsys.core.api.ResponseErrorException
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.mockito.kotlin.*
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.spy
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.verifyNoMoreInteractions
 
 class DefaultCoreCompletionHandlerTest {
 
@@ -26,11 +29,8 @@ class DefaultCoreCompletionHandlerTest {
     private lateinit var coreCompletionHandler: DefaultCoreCompletionHandler
     private lateinit var responseErrorException: ResponseErrorException
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     @Suppress("UNCHECKED_CAST")
     fun init() {
         mockMap = mock()
@@ -90,7 +90,7 @@ class DefaultCoreCompletionHandlerTest {
         coreCompletionHandler.onSuccess("id1", mock())
 
         verify(listener1).onCompleted(null)
-        verify(listener2, times(0))
+        verifyNoInteractions(listener2)
     }
 
     @Test

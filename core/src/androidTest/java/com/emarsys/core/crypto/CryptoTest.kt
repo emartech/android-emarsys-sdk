@@ -1,9 +1,9 @@
 package com.emarsys.core.crypto
 
 import android.util.Base64
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import org.junit.Test
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import org.junit.jupiter.api.Test
 import java.security.KeyFactory
 import java.security.PublicKey
 import java.security.spec.X509EncodedKeySpec

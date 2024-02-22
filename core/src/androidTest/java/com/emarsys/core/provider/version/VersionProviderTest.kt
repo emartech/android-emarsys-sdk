@@ -1,21 +1,17 @@
 package com.emarsys.core.provider.version
 
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 
 class VersionProviderTest {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var versionProvider: VersionProvider
 
-    @Before
+    @BeforeEach
     fun setUp() {
         versionProvider = VersionProvider()
     }

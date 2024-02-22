@@ -3,15 +3,14 @@ package com.emarsys.core.request.model
 import android.net.Uri
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+
+import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Test
+
 import org.mockito.Mockito
 import java.net.URL
 import java.util.*
@@ -27,11 +26,8 @@ class RequestModelTest {
     private lateinit var timestampProvider: TimestampProvider
     private lateinit var uuidProvider: UUIDProvider
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Before
+    @BeforeEach
     fun init() {
         url = "https://google.com"
         method = RequestMethod.PUT
@@ -48,18 +44,18 @@ class RequestModelTest {
     @Throws(Exception::class)
     fun testBuilder_mandatoryArgumentsInitialized() {
         val result = RequestModel.Builder(timestampProvider, uuidProvider)
-                .url(url)
-                .build()
-        Assert.assertEquals(URL(url), result.url)
+            .url(url)
+            .build()
+        result.url shouldBe URL(url)
     }
 
     @Test
     fun testBuilder_optionalArgumentsInitializedWithDefaultValue() {
         val result = RequestModel.Builder(timestampProvider, uuidProvider).url(url).build()
-        Assert.assertEquals(HashMap<String, String>(), result.headers)
-        Assert.assertEquals(null, result.payload)
-        Assert.assertEquals(RequestMethod.POST, result.method)
-        Assert.assertEquals(Long.MAX_VALUE, result.ttl)
+        result.headers shouldBe HashMap<String, String>()
+        result.payload shouldBe null
+        result.method shouldBe RequestMethod.POST
+        result.ttl shouldBe Long.MAX_VALUE
     }
 
     @Test
@@ -76,17 +72,18 @@ class RequestModelTest {
         val queryParams: MutableMap<String, String> = HashMap()
         queryParams["q1"] = "v1"
         val result = RequestModel.Builder(timestampProvider, uuidProvider)
-                .url(url)
-                .method(method)
-                .payload(payload)
-                .headers(headers)
-                .queryParams(queryParams)
-                .ttl(ttl)
-                .build()
+            .url(url)
+            .method(method)
+            .payload(payload)
+            .headers(headers)
+            .queryParams(queryParams)
+            .ttl(ttl)
+            .build()
         val id = result.id
         val timestamp = result.timestamp
         val urlWithQueryParams = "$url?q1=v1"
-        val expected = RequestModel(urlWithQueryParams, method, payload, headers, timestamp, ttl, id)
+        val expected =
+            RequestModel(urlWithQueryParams, method, payload, headers, timestamp, ttl, id)
 
         result shouldBe expected
     }
@@ -97,8 +94,8 @@ class RequestModelTest {
         val timestamp = 1L
         whenever(timestampProvider.provideTimestamp()).thenReturn(timestamp)
         val result = RequestModel.Builder(timestampProvider, uuidProvider)
-                .url(url)
-                .build()
+            .url(url)
+            .build()
         result.timestamp shouldBe timestamp
     }
 
@@ -108,9 +105,10 @@ class RequestModelTest {
         val requestId = "REQUEST_ID"
         Mockito.`when`(uuidProvider.provideId()).thenReturn(requestId)
         val result = RequestModel.Builder(timestampProvider, uuidProvider)
-                .url(url)
-                .build()
-        Assert.assertEquals(requestId, result.id)
+            .url(url)
+            .build()
+
+        result.id shouldBe requestId
     }
 
     @Test
@@ -118,12 +116,12 @@ class RequestModelTest {
         val queryParams: MutableMap<String, String> = HashMap()
         queryParams["key1"] = "value1"
         val result = RequestModel.Builder(timestampProvider, uuidProvider)
-                .url("https://emarsys.com")
-                .queryParams(queryParams).build()
+            .url("https://emarsys.com")
+            .queryParams(queryParams).build()
         val uri = Uri.parse(result.url.toString())
-        Assert.assertEquals("emarsys.com", uri.host)
-        Assert.assertEquals("value1", uri.getQueryParameter("key1"))
-        Assert.assertEquals(1, uri.queryParameterNames.size.toLong())
+        uri.host shouldBe "emarsys.com"
+        uri.getQueryParameter("key1") shouldBe "value1"
+        uri.queryParameterNames.size.toLong() shouldBe 1
     }
 
     @Test
@@ -132,28 +130,28 @@ class RequestModelTest {
         queryParams["key1"] = "value1"
         queryParams["key2"] = "value2"
         val result = RequestModel.Builder(timestampProvider, uuidProvider)
-                .url("https://emarsys.com")
-                .queryParams(queryParams).build()
+            .url("https://emarsys.com")
+            .queryParams(queryParams).build()
         val uri = Uri.parse(result.url.toString())
-        Assert.assertEquals("emarsys.com", uri.host)
-        Assert.assertEquals("value1", uri.getQueryParameter("key1"))
-        Assert.assertEquals("value2", uri.getQueryParameter("key2"))
-        Assert.assertEquals(2, uri.queryParameterNames.size.toLong())
+        uri.host shouldBe "emarsys.com"
+        uri.getQueryParameter("key1") shouldBe "value1"
+        uri.getQueryParameter("key2") shouldBe "value2"
+        uri.queryParameterNames.size.toLong() shouldBe 2
     }
 
     @Test
     fun testBuilder_ignoresEmptyMap() {
         val result = RequestModel.Builder(timestampProvider, uuidProvider)
-                .url("https://emarsys.com")
-                .queryParams(HashMap()).build()
-        Assert.assertEquals("https://emarsys.com", result.url.toString())
+            .url("https://emarsys.com")
+            .queryParams(HashMap()).build()
+        result.url.toString() shouldBe "https://emarsys.com"
     }
 
     @Test
     fun testBuilder_from() {
         val expected = RequestModel(url, method, payload, headers, timestamp, ttl, id)
         val result = RequestModel.Builder(expected).build()
-        Assert.assertEquals(expected, result)
+        result shouldBe expected
     }
 
     private fun createPayload(): Map<String, Any> {
