@@ -31,7 +31,7 @@ android {
         buildConfigField(
             "String",
             "GOOGLE_OAUTH_SERVER_CLIENT_ID",
-            "\"${env.GOOGLE_OAUTH_SERVER_CLIENT_ID.value}\""
+            env.fetch("GOOGLE_OAUTH_SERVER_CLIENT_ID", System.getenv("GOOGLE_OAUTH_SERVER_CLIENT_ID") ?: "")
         )
     }
 
@@ -55,13 +55,13 @@ android {
         kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get().toString()
     }
 
-    if (env.RELEASE_MODE.orElse("false") == "true") {
+    if (env.fetch("RELEASE_MODE", (System.getenv("RELEASE_MODE") ?: "false")) == "true") {
         signingConfigs {
             create("release") {
-                storePassword = env.ANDROID_RELEASE_STORE_PASSWORD.value
-                keyAlias = env.ANDROID_RELEASE_KEY_ALIAS.value
-                keyPassword = env.ANDROID_RELEASE_KEY_PASSWORD.value
-                storeFile = file(env.ANDROID_RELEASE_STORE_FILE_BASE64.value)
+                storePassword = env.fetch( "ANDROID_RELEASE_STORE_PASSWORD", (System.getenv("ANDROID_RELEASE_STORE_PASSWORD") ?: ""))
+                keyAlias = env.fetch("ANDROID_RELEASE_KEY_ALIAS", (System.getenv("ANDROID_RELEASE_KEY_ALIAS") ?: ""))
+                keyPassword = env.fetch("ANDROID_RELEASE_KEY_PASSWORD", (System.getenv("ANDROID_RELEASE_KEY_PASSWORD") ?: ""))
+                storeFile = file(env.fetch("ANDROID_RELEASE_STORE_FILE_BASE64", (System.getenv("ANDROID_RELEASE_STORE_FILE_BASE64") ?: "")))
             }
         }
         buildTypes {
@@ -87,7 +87,7 @@ android {
 }
 
 dependencies {
-    if (env.USE_LOCAL_DEPENDENCY.orElse("false") == "true") {
+    if (env.fetch("USE_LOCAL_DEPENDENCY", (System.getenv("USE_LOCAL_DEPENDENCY") ?: "false")) == "true") {
         implementation(project(":emarsys-sdk"))
         implementation(project(":emarsys-firebase"))
         implementation(project(":emarsys-huawei"))

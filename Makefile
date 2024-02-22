@@ -27,13 +27,12 @@ help: check-env ## Show this help
 	@echo
 
 build-test: check-env ## builds android tests excluding and lint
-	@./gradlew clean assembleAndroidTest -x lint -x
+	@./gradlew clean assembleAndroidTest -x lint
 
 create-apks: check-env ## create apks for testing
 	@./gradlew assembleAndroidTest -x :sample:test
 
 prepare-ci: check-env ## setup prerequisites for pipeline
-	@chmod +x gradlew
 	@echo $ANDROID_HOME > local.properties
 	@./gradlew base64EnvToFile -PpropertyName=GOOGLE_SERVICES_JSON_BASE64 -Pfile=./sample/google-services.json
 
