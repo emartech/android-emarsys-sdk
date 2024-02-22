@@ -15,10 +15,8 @@ android {
             targetSdk = libs.versions.android.targetSdk.get().toInt()
         }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        testInstrumentationRunnerArgument(
-            "runnerBuilder",
+        testInstrumentationRunnerArguments["runnerBuilder"] =
             "de.mannodermaus.junit5.AndroidJUnit5Builder"
-        )
 
     }
     buildTypes {

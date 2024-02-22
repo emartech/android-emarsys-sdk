@@ -27,7 +27,6 @@ import org.mockito.kotlin.verify
 class EmarsysHuaweiMessagingServiceTest {
 
 
-
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
 
@@ -48,7 +47,9 @@ class EmarsysHuaweiMessagingServiceTest {
             "coreHandler",
             spyCoreHandler
         )
-        Looper.prepare()
+        if (Looper.myLooper() == null) {
+            Looper.prepare()
+        }
         emarsysHuaweiMessagingService = EmarsysHuaweiMessagingService()
     }
 

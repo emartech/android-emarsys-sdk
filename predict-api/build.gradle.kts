@@ -20,10 +20,8 @@ android {
 
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        testInstrumentationRunnerArgument(
-            "runnerBuilder",
+        testInstrumentationRunnerArguments["runnerBuilder"] =
             "de.mannodermaus.junit5.AndroidJUnit5Builder"
-        )
     }
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
