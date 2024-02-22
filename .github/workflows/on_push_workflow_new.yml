@@ -2,6 +2,8 @@ name: New on commit workflow
 
 on:
   workflow_dispatch:
+  push:
+    branches: [ dev ]
 
 env:
   USE_LOCAL_DEPENDENCY: ${{ vars.USE_LOCAL_DEPENDENCY }}
