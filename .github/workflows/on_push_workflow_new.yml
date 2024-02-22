@@ -29,37 +29,7 @@ env:
   SLACK_WEBHOOK: ${{ secrets.SLACK_MOBILE_TEAM_CI_CHANNEL_WEBHOOK }}
 
 jobs:
-  Build:
-    runs-on: ubuntu-latest
-    name: Build job
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: dev
-          submodules: true
-          fetch-depth: 0 # 0 indicates all history
-
-      - name: set up JDK 1.17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: 17
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-version: 8.6
-          cache-overwrite-existing: true
-          gradle-home-cache-cleanup: true
-
-      - name: Prepare CI
-        run: make prepare-ci
-
-      - name: Build with Gradle
-        run: make build-test
-
   Test:
-    needs: Build
     runs-on: ubuntu-latest
     name: Test modules
     strategy:
@@ -95,41 +65,39 @@ jobs:
         run: make prepare-ci
 
       - name: Authenticate to Google Cloud
-        if: matrix.platform == 'android'
         uses: google-github-actions/auth@v2.1.1
         with:
           credentials_json: ${{ env.FIREBASE_SERVICE_ACCOUNT_JSON }}
 
       - name: Set up Cloud SDK
-        if: matrix.platform == 'android'
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ env.FIREBASE_PROJECT_ID }}
 
-      - name: create apks
-        run: make create-apks
+      - name: Build
+        run: make build-test
 
-      - name: test core
+      - name: Test core
         if: matrix.module == 'core'
         run: make test-android-firebase MODULE_NAME=core
 
-      - name: test mobile-engage
+      - name: Test mobile-engage
         if: matrix.module == 'mobile-engage'
         run: make test-android-firebase MODULE_NAME=mobile-engage
 
-      - name: test predict
+      - name: Test predict
         if: matrix.module == 'predict'
         run: make test-android-firebase MODULE_NAME=predict
 
-      - name: test emarsys-firebase
+      - name: Test emarsys-firebase
         if: matrix.module == 'emarsys-firebase'
         run: make test-android-firebase MODULE_NAME=emarsys-firebase
 
-      - name: test emarsys-huawei
+      - name: Test emarsys-huawei
         if: matrix.module == 'emarsys-huawei'
         run: make test-android-firebase MODULE_NAME=emarsys-huawei
 
-      - name: test emarsys-sdk
+      - name: Test emarsys-sdk
         if: matrix.module == 'emarsys-sdk'
         run: make test-android-firebase MODULE_NAME=emarsys-sdk
 
