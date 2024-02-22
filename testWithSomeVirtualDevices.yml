@@ -3,16 +3,16 @@ core-api:
   app: sample-debug-androidTest.apk
   test: core-api-debug-androidTest.apk
   device:
-    - model: Nexus5X
-      version: 24
+    - model: Pixel2.arm
+      version: 28
       locale: 'en'
       orientation: portrait
-    - model: Nexus6P
-      version: 26
-      locale: 'en'
-      orientation: portrait
-    - model: redfin
+    - model: MediumPhone.arm
       version: 30
+      locale: 'en'
+      orientation: portrait
+    - model: SmallPhone.arm
+      version: 33
       locale: 'en'
       orientation: portrait
 
@@ -21,16 +21,16 @@ core:
   app: sample-debug-androidTest.apk
   test: core-debug-androidTest.apk
   device:
-    - model: Nexus5X
-      version: 24
+    - model: Pixel2.arm
+      version: 28
       locale: 'en'
       orientation: portrait
-    - model: Nexus6P
-      version: 26
-      locale: 'en'
-      orientation: portrait
-    - model: Pixel2
+    - model: MediumPhone.arm
       version: 30
+      locale: 'en'
+      orientation: portrait
+    - model: SmallPhone.arm
+      version: 33
       locale: 'en'
       orientation: portrait
 
@@ -39,16 +39,16 @@ mobile-engage-api:
   app: sample-debug-androidTest.apk
   test: mobile-engage-api-debug-androidTest.apk
   device:
-    - model: Nexus5X
-      version: 24
+    - model: Pixel2.arm
+      version: 28
       locale: 'en'
       orientation: portrait
-    - model: Nexus6P
-      version: 26
-      locale: 'en'
-      orientation: portrait
-    - model: Pixel2
+    - model: MediumPhone.arm
       version: 30
+      locale: 'en'
+      orientation: portrait
+    - model: SmallPhone.arm
+      version: 33
       locale: 'en'
       orientation: portrait
 
@@ -57,16 +57,16 @@ mobile-engage:
   app: sample-debug-androidTest.apk
   test: mobile-engage-debug-androidTest.apk
   device:
-    - model: Nexus5X
-      version: 24
+    - model: Pixel2.arm
+      version: 28
       locale: 'en'
       orientation: portrait
-    - model: Nexus6P
-      version: 26
-      locale: 'en'
-      orientation: portrait
-    - model: Pixel2
+    - model: MediumPhone.arm
       version: 30
+      locale: 'en'
+      orientation: portrait
+    - model: SmallPhone.arm
+      version: 33
       locale: 'en'
       orientation: portrait
 
@@ -75,16 +75,16 @@ predict-api:
   app: sample-debug-androidTest.apk
   test: predict-api-debug-androidTest.apk
   device:
-    - model: Nexus5X
-      version: 24
+    - model: Pixel2.arm
+      version: 28
       locale: 'en'
       orientation: portrait
-    - model: Nexus6P
-      version: 26
-      locale: 'en'
-      orientation: portrait
-    - model: Pixel2
+    - model: MediumPhone.arm
       version: 30
+      locale: 'en'
+      orientation: portrait
+    - model: SmallPhone.arm
+      version: 33
       locale: 'en'
       orientation: portrait
 
@@ -93,16 +93,16 @@ predict:
   app: sample-debug-androidTest.apk
   test: predict-debug-androidTest.apk
   device:
-    - model: Nexus5X
-      version: 24
+    - model: Pixel2.arm
+      version: 28
       locale: 'en'
       orientation: portrait
-    - model: Nexus6P
-      version: 26
-      locale: 'en'
-      orientation: portrait
-    - model: Pixel2
+    - model: MediumPhone.arm
       version: 30
+      locale: 'en'
+      orientation: portrait
+    - model: SmallPhone.arm
+      version: 33
       locale: 'en'
       orientation: portrait
 
@@ -111,16 +111,16 @@ emarsys-sdk:
   app: sample-debug-androidTest.apk
   test: emarsys-sdk-debug-androidTest.apk
   device:
-    - model: Nexus5X
-      version: 24
+    - model: Pixel2.arm
+      version: 28
       locale: 'en'
       orientation: portrait
-    - model: Nexus6P
-      version: 26
-      locale: 'en'
-      orientation: portrait
-    - model: Pixel2
+    - model: MediumPhone.arm
       version: 30
+      locale: 'en'
+      orientation: portrait
+    - model: SmallPhone.arm
+      version: 33
       locale: 'en'
       orientation: portrait
 
@@ -129,16 +129,16 @@ emarsys:
   app: sample-debug-androidTest.apk
   test: emarsys-debug-androidTest.apk
   device:
-    - model: Nexus5X
-      version: 24
+    - model: Pixel2.arm
+      version: 28
       locale: 'en'
       orientation: portrait
-    - model: Nexus6P
-      version: 26
-      locale: 'en'
-      orientation: portrait
-    - model: Pixel2
+    - model: MediumPhone.arm
       version: 30
+      locale: 'en'
+      orientation: portrait
+    - model: SmallPhone.arm
+      version: 33
       locale: 'en'
       orientation: portrait
 
@@ -147,16 +147,16 @@ common:
   app: sample-debug-androidTest.apk
   test: common-debug-androidTest.apk
   device:
-    - model: Nexus5X
-      version: 24
+    - model: Pixel2.arm
+      version: 28
       locale: 'en'
       orientation: portrait
-    - model: Nexus6P
-      version: 26
-      locale: 'en'
-      orientation: portrait
-    - model: Pixel2
+    - model: MediumPhone.arm
       version: 30
+      locale: 'en'
+      orientation: portrait
+    - model: SmallPhone.arm
+      version: 33
       locale: 'en'
       orientation: portrait
 
@@ -165,16 +165,16 @@ emarsys-e2e-test:
   app: sample-debug-androidTest.apk
   test: emarsys-e2e-test-debug-androidTest.apk
   device:
-    - model: Nexus5X
-      version: 24
+    - model: Pixel2.arm
+      version: 28
       locale: 'en'
       orientation: portrait
-    - model: Nexus6P
-      version: 26
-      locale: 'en'
-      orientation: portrait
-    - model: Pixel2
+    - model: MediumPhone.arm
       version: 30
+      locale: 'en'
+      orientation: portrait
+    - model: SmallPhone.arm
+      version: 33
       locale: 'en'
       orientation: portrait
 
@@ -183,16 +183,16 @@ emarsys-firebase:
   app: sample-debug-androidTest.apk
   test: emarsys-firebase-debug-androidTest.apk
   device:
-    - model: Nexus5X
-      version: 24
+    - model: Pixel2.arm
+      version: 28
       locale: 'en'
       orientation: portrait
-    - model: Nexus6P
-      version: 26
-      locale: 'en'
-      orientation: portrait
-    - model: Pixel2
+    - model: MediumPhone.arm
       version: 30
+      locale: 'en'
+      orientation: portrait
+    - model: SmallPhone.arm
+      version: 33
       locale: 'en'
       orientation: portrait
 
@@ -201,15 +201,15 @@ emarsys-huawei:
   app: sample-debug-androidTest.apk
   test: emarsys-huawei-debug-androidTest.apk
   device:
-    - model: Nexus5X
-      version: 24
+    - model: Pixel2.arm
+      version: 28
       locale: 'en'
       orientation: portrait
-    - model: Nexus6P
-      version: 26
-      locale: 'en'
-      orientation: portrait
-    - model: Pixel2
+    - model: MediumPhone.arm
       version: 30
+      locale: 'en'
+      orientation: portrait
+    - model: SmallPhone.arm
+      version: 33
       locale: 'en'
       orientation: portrait
