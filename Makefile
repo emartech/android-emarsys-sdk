@@ -1,5 +1,6 @@
 .PHONY: check-env help build-test create-apks prepare-ci run-github-workflow-locally test-android-firebase test-android-firebase-emulator
 .DEFAULT_GOAL := help
+SHELL := /bin/bash
 
 ifneq (,$(wildcard .env))
 include .env
