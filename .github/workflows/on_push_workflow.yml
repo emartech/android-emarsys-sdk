@@ -11,7 +11,23 @@ env:
   RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
   RELEASE_STORE_FILE: ${{ secrets.RELEASE_STORE_FILE }}
   DEVELOPMENT_MODE: ${{ secrets.DEVELOPMENT_MODE }}
-  GOOGLE_SERVICES_API_KEY: ${{ secrets.GOOGLE_SERVICES_API_KEY }}
+
+  USE_LOCAL_DEPENDENCY: ${{ vars.USE_LOCAL_DEPENDENCY }}
+  RELEASE_MODE: ${{ vars.RELEASE_MODE }}
+  ANDROID_RELEASE_STORE_FILE_BASE64: ${{ secrets.ANDROID_RELEASE_STORE_FILE_BASE64 }}
+  ANDROID_RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_RELEASE_STORE_PASSWORD }}
+  ANDROID_RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_RELEASE_KEY_ALIAS }}
+  ANDROID_RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEY_PASSWORD }}
+  FIREBASE_PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID }}
+  FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+  GOOGLE_OAUTH_SERVER_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH_SERVER_CLIENT_ID }}
+  GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+  OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+  OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+  SONATYPE_STAGING_PROFILE_ID: ${{ secrets.SONATYPE_STAGING_PROFILE_ID }}
+  SONATYPE_SIGNING_KEY_ID: ${{ secrets.SONATYPE_SIGNING_KEY_ID }}
+  SONATYPE_SIGNING_PASSWORD: ${{ secrets.SONATYPE_SIGNING_PASSWORD }}
+  SONATYPE_SIGNING_SECRET_KEY_RING_FILE_BASE64: ${{ secrets.SONATYPE_SIGNING_SECRET_KEY_RING_FILE_BASE64 }}
   SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
   SLACK_ICON: https://icons.iconarchive.com/icons/martz90/circle/256/android-icon.png
   SLACK_TITLE: Commit status
@@ -35,18 +51,12 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 17
-      - name: create-google services json
-        uses: jsdaniell/create-json@1.1.2
-        with:
-          name: google-services.json
-          json: ${{ secrets.GOOGLE_SERVICES_JSON }}
-          dir: sample
 
-      - name: create local.properties
-        run: echo $ANDROID_HOME > local.properties
+      - name: Prepare CI
+        run: make prepare-ci
 
       - name: Build with Gradle
-        run: ./gradlew clean assembleAndroidTest -x lint
+        run: make build-test
 
       - name: upload sample app artifact
         uses: actions/upload-artifact@v2
