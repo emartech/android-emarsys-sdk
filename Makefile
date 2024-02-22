@@ -44,6 +44,7 @@ test-android-firebase-emulator: check-env ## run Android Instrumented tests on e
        --device model=Pixel2.arm,version=28,locale=en,orientation=portrait  \
        --device model=MediumPhone.arm,version=30,locale=en,orientation=portrait \
        --device model=SmallPhone.arm,version=33,locale=en,orientation=portrait \
+       --environment-variables runnerBuilder=de.mannodermaus.junit5.AndroidJUnit5Builder \
        --client-details matrixLabel="Android Emarsys SDK - virtual devices"
 
 test-android-firebase: check-env ## run Android Instrumented tests on real devices on Firebase Test Lab
@@ -55,6 +56,7 @@ test-android-firebase: check-env ## run Android Instrumented tests on real devic
        --device model=a51,version=31,locale=en,orientation=portrait \
        --device model=bluejay,version=32,locale=en,orientation=portrait \
        --device model=b4q,version=33,locale=en,orientation=portrait \
+       --environment-variables runnerBuilder=de.mannodermaus.junit5.AndroidJUnit5Builder \
        --client-details matrixLabel="Unified SDK - physical devices"
 
 run-github-workflow-locally: check-env ## needs act to be installed: `brew install act` and docker running. Pass in workflow path to run
