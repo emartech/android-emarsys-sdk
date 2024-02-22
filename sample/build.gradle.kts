@@ -31,7 +31,7 @@ android {
         buildConfigField(
             "String",
             "GOOGLE_OAUTH_SERVER_CLIENT_ID",
-            env.fetch("GOOGLE_OAUTH_SERVER_CLIENT_ID", System.getenv("GOOGLE_OAUTH_SERVER_CLIENT_ID") ?: "")
+            "\"${env.fetch("GOOGLE_OAUTH_SERVER_CLIENT_ID", System.getenv("GOOGLE_OAUTH_SERVER_CLIENT_ID") ?: "")}\""
         )
     }
 
