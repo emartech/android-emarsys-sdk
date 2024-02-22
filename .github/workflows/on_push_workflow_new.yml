@@ -1,4 +1,4 @@
-name: Last push build
+name: New on commit workflow
 
 on:
   workflow_dispatch:
