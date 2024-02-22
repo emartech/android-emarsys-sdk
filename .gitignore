@@ -9,3 +9,5 @@ sample/google-services.json
 sample/agconnect-services.json
 .fleet
 .env
+firebase_service_account.json
+workflow.secrets
