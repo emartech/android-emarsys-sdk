@@ -79,27 +79,27 @@ jobs:
 
       - name: Test core
         if: matrix.module == 'core'
-        run: make test-android-firebase MODULE_NAME=core
+        run: make test-android-firebase-emulator MODULE_NAME=core
 
       - name: Test mobile-engage
         if: matrix.module == 'mobile-engage'
-        run: make test-android-firebase MODULE_NAME=mobile-engage
+        run: make test-android-firebase-emulator MODULE_NAME=mobile-engage
 
       - name: Test predict
         if: matrix.module == 'predict'
-        run: make test-android-firebase MODULE_NAME=predict
+        run: make test-android-firebase-emulator MODULE_NAME=predict
 
       - name: Test emarsys-firebase
         if: matrix.module == 'emarsys-firebase'
-        run: make test-android-firebase MODULE_NAME=emarsys-firebase
+        run: make test-android-firebase-emulator MODULE_NAME=emarsys-firebase
 
       - name: Test emarsys-huawei
         if: matrix.module == 'emarsys-huawei'
-        run: make test-android-firebase MODULE_NAME=emarsys-huawei
+        run: make test-android-firebase-emulator MODULE_NAME=emarsys-huawei
 
       - name: Test emarsys-sdk
         if: matrix.module == 'emarsys-sdk'
-        run: make test-android-firebase MODULE_NAME=emarsys-sdk
+        run: make test-android-firebase-emulator MODULE_NAME=emarsys-sdk
 
 #  GradleLint:
 #    name: Run lint on project

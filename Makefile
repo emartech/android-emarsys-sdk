@@ -1,4 +1,4 @@
-.PHONY: check-env help build-test create-apks prepare-ci run-github-workflow-locally test-android-firebase test-android-firebase-emulator
+.PHONY: check-env help build-test create-testing-apks prepare-ci run-github-workflow-locally test-android-firebase test-android-firebase-emulator
 .DEFAULT_GOAL := help
 SHELL := /bin/bash
 
@@ -29,7 +29,7 @@ help: check-env ## Show this help
 build-test: check-env ## builds android tests excluding and lint
 	@./gradlew clean assembleAndroidTest -x lint
 
-create-apks: check-env ## create apks for testing
+create-testing-apks: check-env ## create apks for testing
 	@./gradlew assembleAndroidTest -x :sample:test
 
 prepare-ci: check-env ## setup prerequisites for pipeline
@@ -45,6 +45,7 @@ test-android-firebase-emulator: check-env ## run Android Instrumented tests on e
        --device model=MediumPhone.arm,version=30,locale=en,orientation=portrait \
        --device model=SmallPhone.arm,version=33,locale=en,orientation=portrait \
        --environment-variables runnerBuilder=de.mannodermaus.junit5.AndroidJUnit5Builder \
+       --environment-variables clearPackageData=true \
        --client-details matrixLabel="Android Emarsys SDK - virtual devices"
 
 test-android-firebase: check-env ## run Android Instrumented tests on real devices on Firebase Test Lab
@@ -57,6 +58,7 @@ test-android-firebase: check-env ## run Android Instrumented tests on real devic
        --device model=bluejay,version=32,locale=en,orientation=portrait \
        --device model=b4q,version=33,locale=en,orientation=portrait \
        --environment-variables runnerBuilder=de.mannodermaus.junit5.AndroidJUnit5Builder \
+       --environment-variables clearPackageData=true \
        --client-details matrixLabel="Unified SDK - physical devices"
 
 run-github-workflow-locally: check-env ## needs act to be installed: `brew install act` and docker running. Pass in workflow path to run
