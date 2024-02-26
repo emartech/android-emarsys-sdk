@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import androidx.annotation.RequiresPermission
 import com.emarsys.core.CoreCompletionHandler
+import com.emarsys.core.Mockable
 import com.emarsys.core.api.MissingPermissionException
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.handler.ConcurrentHandlerHolder
@@ -33,7 +34,7 @@ import org.json.JSONObject
 import kotlin.math.abs
 import com.emarsys.mobileengage.api.geofence.Geofence as MEGeofence
 
-
+@Mockable
 class DefaultGeofenceInternal(
     private val requestModelFactory: MobileEngageRequestModelFactory,
     private val requestManager: RequestManager,
