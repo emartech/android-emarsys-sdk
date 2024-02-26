@@ -32,6 +32,7 @@ import com.emarsys.core.app.AppLifecycleObserver
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.connection.ConnectionProvider
 import com.emarsys.core.connection.ConnectionWatchDog
+import com.emarsys.core.contentresolver.EmarsysContentResolver
 import com.emarsys.core.contentresolver.hardwareid.HardwareIdContentResolver
 import com.emarsys.core.crypto.Crypto
 import com.emarsys.core.crypto.HardwareIdentificationCrypto
@@ -452,8 +453,9 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     override val hardwareIdProvider: HardwareIdProvider by lazy {
         val hardwareRepository = HardwareRepository(coreDbHelper, concurrentHandlerHolder)
         val hardwareIdentificationCrypto = HardwareIdentificationCrypto(config.sharedSecret, crypto)
+        val emarsysContentResolver = EmarsysContentResolver(config.application)
         val hardwareIdContentResolver = HardwareIdContentResolver(
-            config.application,
+            emarsysContentResolver,
             hardwareIdentificationCrypto,
             config.sharedPackageNames
         )

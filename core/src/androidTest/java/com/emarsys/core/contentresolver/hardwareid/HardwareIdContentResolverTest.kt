@@ -1,17 +1,14 @@
-package com.emarsys.core.contentresolver.hardwareid
-
-import android.content.Context
 import android.database.Cursor
 import android.net.Uri
+import com.emarsys.core.contentresolver.EmarsysContentResolver
+import com.emarsys.core.contentresolver.hardwareid.HardwareIdContentResolver
 import com.emarsys.core.crypto.HardwareIdentificationCrypto
 import com.emarsys.core.database.DatabaseContract
 import com.emarsys.core.device.HardwareIdentification
-import com.emarsys.core.provider.hardwareid.HardwareIdProviderTest
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -26,7 +23,7 @@ class HardwareIdContentResolverTest {
 
     }
 
-    private var mockContext: Context = mockk()
+    private var mockEmarsysContentResolver: EmarsysContentResolver = mockk()
     private lateinit var contentResolver: HardwareIdContentResolver
     private lateinit var mockHardwareIdentificationCrypto: HardwareIdentificationCrypto
     private lateinit var mockCursor: Cursor
@@ -38,12 +35,12 @@ class HardwareIdContentResolverTest {
             every { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_ENCRYPTED_HARDWARE_ID) } returns 0
             every { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_SALT) } returns 1
             every { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_IV) } returns 2
-            every { getString(0) } returns HardwareIdProviderTest.ENCRYPTED_HARDWARE_ID
-            every { getString(1) } returns HardwareIdProviderTest.SALT
-            every { getString(2) } returns HardwareIdProviderTest.IV
+            every { getString(0) } returns ENCRYPTED_HARDWARE_ID
+            every { getString(1) } returns SALT
+            every { getString(2) } returns IV
         }
         every {
-            mockContext.contentResolver.query(
+            mockEmarsysContentResolver.query(
                 any<Uri>(),
                 any(),
                 any(),
@@ -66,7 +63,7 @@ class HardwareIdContentResolverTest {
             IV
         )
         contentResolver = HardwareIdContentResolver(
-            mockContext,
+            mockEmarsysContentResolver,
             mockHardwareIdentificationCrypto,
             SHARED_PACKAGE_NAMES
         )
@@ -86,13 +83,12 @@ class HardwareIdContentResolverTest {
             every { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_ENCRYPTED_HARDWARE_ID) } returns 0
             every { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_SALT) } returns 1
             every { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_IV) } returns 2
-            every { getString(0) } returns HardwareIdProviderTest.ENCRYPTED_HARDWARE_ID
-            every { getString(1) } returns HardwareIdProviderTest.SALT
-            every { getString(2) } returns HardwareIdProviderTest.IV
+            every { getString(0) } returns ENCRYPTED_HARDWARE_ID
+            every { getString(1) } returns SALT
+            every { getString(2) } returns IV
         }
-        val mockContext: Context = mockk()
         every {
-            mockContext.contentResolver.query(
+            mockEmarsysContentResolver.query(
                 any<Uri>(),
                 any(),
                 any(),
@@ -101,7 +97,7 @@ class HardwareIdContentResolverTest {
             )
         } returns mockCursor
         val contentResolver = HardwareIdContentResolver(
-            mockContext,
+            mockEmarsysContentResolver,
             mockHardwareIdentificationCrypto,
             SHARED_PACKAGE_NAMES
         )
@@ -114,7 +110,11 @@ class HardwareIdContentResolverTest {
     @Test
     fun testProvideHardwareId_shouldReturnFalse_whenSharedPackageNamesIsMissing() {
         val contentResolver =
-            HardwareIdContentResolver(mockContext, mockHardwareIdentificationCrypto, null)
+            HardwareIdContentResolver(
+                mockEmarsysContentResolver,
+                mockHardwareIdentificationCrypto,
+                null
+            )
 
         val result = contentResolver.resolveHardwareId()
 
