@@ -187,12 +187,12 @@ jobs:
       - run: git fetch --all || echo "==> Accept any result"
 
       - name: Download sample app
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: sample
 
       - name: Download core tests
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: core
 
@@ -216,12 +216,12 @@ jobs:
       - run: git fetch --all || echo "==> Accept any result"
 
       - name: Download sample app
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: sample
 
       - name: Download mobile-engage tests
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: mobile-engage
 
@@ -245,12 +245,12 @@ jobs:
       - run: git fetch --all || echo "==> Accept any result"
 
       - name: Download sample app
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: sample
 
       - name: Download predict tests
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: predict
 
@@ -274,12 +274,12 @@ jobs:
       - run: git fetch --all || echo "==> Accept any result"
 
       - name: Download sample app
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: sample
 
       - name: Download emarsys-sdk tests
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: emarsys-sdk
 
@@ -306,12 +306,12 @@ jobs:
       - run: git fetch --all || echo "==> Accept any result"
 
       - name: Download sample app
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: sample
 
       - name: Download emarsys tests
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: emarsys
 
@@ -335,12 +335,12 @@ jobs:
       - run: git fetch --all || echo "==> Accept any result"
 
       - name: Download sample app
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: sample
 
       - name: Download common tests
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: common
 
@@ -364,12 +364,12 @@ jobs:
       - run: git fetch --all || echo "==> Accept any result"
 
       - name: Download sample app
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: sample
 
       - name: Download emarsys-firebase tests
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: emarsys-firebase
 
@@ -393,12 +393,12 @@ jobs:
       - run: git fetch --all || echo "==> Accept any result"
 
       - name: Download sample app
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: sample
 
       - name: Download emarsys-huawei tests
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: emarsys-huawei
 
@@ -422,7 +422,7 @@ jobs:
       - run: git fetch --all || echo "==> Accept any result"
 
       - name: Download sample app
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: mobile-sdk-sample
 
