@@ -81,6 +81,9 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
+      - run: gcloud info
+      - run: gcloud config set project ${{ env.FIREBASE_PROJECT_ID }}
+
       - name: Build
         run: make build-test
 
