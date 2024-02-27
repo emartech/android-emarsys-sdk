@@ -78,12 +78,12 @@ jobs:
       - run: git fetch --all || echo "==> Accept any result"
 
       - name: Download sample app
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: sample
 
       - name: Download Emarsys E2E tests
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: emarsys-e2e-test
 
