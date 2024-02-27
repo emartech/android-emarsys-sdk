@@ -33,6 +33,9 @@ env:
 
 jobs:
   Test:
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ubuntu-latest
     name: Test & Lint
     strategy:
