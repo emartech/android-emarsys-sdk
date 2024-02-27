@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Build
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.emarsys.core.api.MissingPermissionException
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
@@ -120,6 +121,7 @@ class DefaultGeofenceInternalTest : AnnotationSpec() {
         )
 
         mockContext = mock()
+        val context: Context = getInstrumentation().targetContext
         whenever(mockContext.packageName).thenReturn(
             "com.emarsys.mobileengage.test"
         )
@@ -127,10 +129,9 @@ class DefaultGeofenceInternalTest : AnnotationSpec() {
             whenever(mockContext.attributionTag).thenReturn("tag")
         }
 
-
         val intent = Intent("com.emarsys.sdk.GEOFENCE_ACTION")
         pendingIntent =
-            PendingIntent.getBroadcast(mockContext, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+            PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
         mockPendingIntentProvider = mock()
         whenever(mockPendingIntentProvider.providePendingIntent()).thenReturn(pendingIntent)
