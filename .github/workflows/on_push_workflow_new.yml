@@ -69,7 +69,7 @@ jobs:
         run: make prepare-ci
 
       - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2.1.1
+        uses: google-github-actions/auth@v2.1.2
         with:
           credentials_json: ${{ env.FIREBASE_SERVICE_ACCOUNT_JSON }}
 
