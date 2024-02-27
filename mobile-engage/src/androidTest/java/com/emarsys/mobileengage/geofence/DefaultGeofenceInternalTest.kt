@@ -257,7 +257,7 @@ class DefaultGeofenceInternalTest : AnnotationSpec() {
         geofenceInternal.enable(null)
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-            verify(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION))
+            verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         }
         verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     }
@@ -435,7 +435,7 @@ class DefaultGeofenceInternalTest : AnnotationSpec() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
             verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
             verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-            verify(mockFusedLocationProviderClient.lastLocation)
+            verify(mockFusedLocationProviderClient).lastLocation
         }
     }
 
