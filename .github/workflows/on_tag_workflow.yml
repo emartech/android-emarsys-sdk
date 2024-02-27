@@ -102,7 +102,7 @@ jobs:
         run: ./gradlew :sample:bundleRelease
 
       - name: Upload bundle
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: mobile-sdk-sample
           path: sample/build/outputs/bundle/release/sample-release.aab

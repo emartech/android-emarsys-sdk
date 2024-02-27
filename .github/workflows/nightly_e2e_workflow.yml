@@ -49,13 +49,13 @@ jobs:
         run: ./gradlew assembleAndroidTest -x lint
 
       - name: upload sample app artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: sample
           path: sample/build/outputs/apk/androidTest/debug/sample-debug-androidTest.apk
 
       - name: upload emarsys-e2e-test test apk artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: emarsys-e2e-test
           path: emarsys-e2e-test/build/outputs/apk/androidTest/debug/emarsys-e2e-test-debug-androidTest.apk
