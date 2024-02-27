@@ -35,6 +35,10 @@ create-testing-apks: check-env ## create apks for testing
 lint: check-env ## run lint
 	@./gradlew lint
 
+prepare-ci: check-env ## setup prerequisites for pipeline
+	@echo $ANDROID_HOME > local.properties
+	@./gradlew base64EnvToFile -PpropertyName=GOOGLE_SERVICES_JSON_BASE64 -Pfile=./sample/google-services.json
+
 test-android-firebase-emulator: check-env ## run Android Instrumented tests on emulators on Firebase Test Lab
 	@gcloud firebase test android run \
        --type instrumentation \
