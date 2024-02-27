@@ -59,55 +59,55 @@ jobs:
         run: make build-test
 
       - name: upload sample app artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: sample
           path: sample/build/outputs/apk/androidTest/debug/sample-debug-androidTest.apk
 
       - name: upload core test apk artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: core
           path: core/build/outputs/apk/androidTest/debug/core-debug-androidTest.apk
 
       - name: upload mobile-engage test apk artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: mobile-engage
           path: mobile-engage/build/outputs/apk/androidTest/debug/mobile-engage-debug-androidTest.apk
 
       - name: upload emarsys-sdk test apk artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: predict
           path: predict/build/outputs/apk/androidTest/debug/predict-debug-androidTest.apk
 
       - name: upload emarsys test apk artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: emarsys
           path: emarsys/build/outputs/apk/androidTest/debug/emarsys-debug-androidTest.apk
 
       - name: upload emarsys-sdk test apk artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: emarsys-sdk
           path: emarsys-sdk/build/outputs/apk/androidTest/debug/emarsys-sdk-debug-androidTest.apk
 
       - name: upload common test apk artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: common
           path: common/build/outputs/apk/androidTest/debug/common-debug-androidTest.apk
 
       - name: upload emarsys-firebase test apk artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: emarsys-firebase
           path: emarsys-firebase/build/outputs/apk/androidTest/debug/emarsys-firebase-debug-androidTest.apk
 
       - name: upload emarsys-huawei test apk artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: emarsys-huawei
           path: emarsys-huawei/build/outputs/apk/androidTest/debug/emarsys-huawei-debug-androidTest.apk
@@ -179,7 +179,7 @@ jobs:
         run: ./gradlew :sample:bundleRelease
 
       - name: Upload bundle
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: mobile-sdk-sample
           path: sample/build/outputs/bundle/release/sample-release.aab
