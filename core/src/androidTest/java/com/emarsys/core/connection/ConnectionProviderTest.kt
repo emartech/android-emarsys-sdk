@@ -1,16 +1,15 @@
 package com.emarsys.core.connection
 
 import com.emarsys.core.request.model.RequestModel
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.should
 import io.kotest.matchers.types.beTheSameInstanceAs
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import java.net.URL
 
-class ConnectionProviderTest {
+class ConnectionProviderTest : AnnotationSpec() {
     companion object {
         const val HTTP_PATH = "http://emarsys.com"
         const val HTTPS_PATH = "https://emarsys.com"
@@ -19,7 +18,7 @@ class ConnectionProviderTest {
     private lateinit var provider: ConnectionProvider
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         provider = ConnectionProvider()
     }

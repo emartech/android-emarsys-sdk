@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.iam.jsbridge
 
+
 import android.app.Activity
 import android.content.ClipboardManager
 import androidx.test.core.app.ActivityScenario
@@ -12,15 +13,13 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.model.InAppMetaData
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.ThreadSpy
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doAnswer
@@ -34,7 +33,7 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
-class JSCommandFactoryTest {
+class JSCommandFactoryTest : AnnotationSpec() {
     private companion object {
         const val PROPERTY = "testProperty"
         const val TIMESTAMP = 1233L
@@ -57,7 +56,7 @@ class JSCommandFactoryTest {
     private lateinit var mockClipboardManager: ClipboardManager
     private lateinit var scenario: ActivityScenario<FakeActivity>
 
-    @BeforeEach
+    @Before
     fun setUp() {
         scenario = ActivityScenario.launch(FakeActivity::class.java)
         val countDownLatch = CountDownLatch(1)
@@ -91,7 +90,7 @@ class JSCommandFactoryTest {
         countDownLatch.await()
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         scenario.close()
     }

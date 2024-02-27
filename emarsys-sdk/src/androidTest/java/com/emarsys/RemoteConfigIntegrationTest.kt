@@ -4,18 +4,26 @@ package com.emarsys
 import android.app.Application
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.di.emarsys
-import com.emarsys.testUtil.*
-import com.emarsys.testUtil.rules.DuplicatedThreadExtension
+import com.emarsys.testUtil.AnnotationSpec
+import com.emarsys.testUtil.ConnectionTestUtils
+import com.emarsys.testUtil.DatabaseTestUtils
+import com.emarsys.testUtil.InstrumentationRegistry
+import com.emarsys.testUtil.IntegrationTestUtils
+import com.emarsys.testUtil.rules.ConnectionRule
+import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.Rule
 import java.util.concurrent.CountDownLatch
 
-@ExtendWith(DuplicatedThreadExtension::class)
 
-class RemoteConfigIntegrationTest {
+class RemoteConfigIntegrationTest : AnnotationSpec() {
+    @Rule
+    @JvmField
+    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
+
+    @Rule
+    @JvmField
+    val connectionRule = ConnectionRule(application)
 
     private companion object {
         private const val APP_ID = "EMS1F-17E15"
@@ -28,7 +36,7 @@ class RemoteConfigIntegrationTest {
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
 
 
-    @BeforeEach
+    @Before
     fun setup() {
         DatabaseTestUtils.deleteCoreDatabase()
 
@@ -44,7 +52,7 @@ class RemoteConfigIntegrationTest {
         latch = CountDownLatch(1)
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys(application)
     }

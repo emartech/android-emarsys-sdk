@@ -1,10 +1,10 @@
 package com.emarsys.core.testUtil
 
+import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestMethod
+import com.emarsys.core.request.model.RequestMethod.GET
 import com.emarsys.core.request.model.RequestModel
-import com.emarsys.core.provider.timestamp.TimestampProvider
-import com.emarsys.core.request.model.RequestMethod.*
 import com.emarsys.testUtil.TestUrls
 
 object RequestModelTestUtils {

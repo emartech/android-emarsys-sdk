@@ -14,29 +14,32 @@ import com.emarsys.core.storage.Storage
 import com.emarsys.di.DefaultEmarsysComponent
 import com.emarsys.di.DefaultEmarsysDependencies
 import com.emarsys.di.emarsys
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ConnectionTestUtils
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.IntegrationTestUtils
+import com.emarsys.testUtil.RetryUtils
 import com.emarsys.testUtil.mockito.whenever
-import com.emarsys.testUtil.rules.DuplicatedThreadExtension
+import com.emarsys.testUtil.rules.DuplicatedThreadRule
+import com.emarsys.testUtil.rules.RetryRule
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.junitpioneer.jupiter.RetryingTest
-
+import org.junit.Rule
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
 import java.util.concurrent.CountDownLatch
 
-@ExtendWith(DuplicatedThreadExtension::class)
+class MobileEngageRefreshContactTokenIntegrationTest : AnnotationSpec() {
 
-class MobileEngageRefreshContactTokenIntegrationTest {
+    @Rule
+    @JvmField
+    val retryRule: RetryRule = RetryUtils.retryRule
+
+    @Rule
+    @JvmField
+    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
 
     companion object {
         private const val APP_ID = "14C19-A121F"
@@ -52,7 +55,7 @@ class MobileEngageRefreshContactTokenIntegrationTest {
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
 
-    @BeforeEach
+    @Before
     fun setup() {
         DatabaseTestUtils.deleteCoreDatabase()
 
@@ -103,13 +106,13 @@ class MobileEngageRefreshContactTokenIntegrationTest {
         completionListenerLatch = CountDownLatch(1)
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys(application)
     }
 
     @Test
-    @RetryingTest(3)
+
     fun testRefreshContactToken_shouldUpdateContactToken_whenOutDated() {
         contactTokenStorage.remove()
         contactTokenStorage.set("tokenForIntegrationTest")

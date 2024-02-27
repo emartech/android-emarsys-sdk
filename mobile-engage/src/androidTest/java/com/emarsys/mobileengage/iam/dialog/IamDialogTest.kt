@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.iam.dialog
 
+
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.webkit.WebView
@@ -26,15 +27,13 @@ import com.emarsys.mobileengage.iam.model.InAppMetaData
 import com.emarsys.mobileengage.iam.webview.IamWebView
 import com.emarsys.mobileengage.iam.webview.IamWebViewFactory
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ExtensionTestUtils.runOnMain
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.fake.FakeActivity
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -43,7 +42,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
-class IamDialogTest {
+class IamDialogTest : AnnotationSpec() {
     private companion object {
         const val CAMPAIGN_ID = "id_value"
         private const val SID = "testSid"
@@ -65,7 +64,7 @@ class IamDialogTest {
     private lateinit var iamDialog: IamDialog
     private lateinit var scenario: ActivityScenario<FakeActivity>
 
-    @BeforeEach
+    @Before
     fun setUp() {
         scenario = ActivityScenario.launch(FakeActivity::class.java)
         val countDownLatch = CountDownLatch(1)
@@ -112,7 +111,7 @@ class IamDialogTest {
         countDownLatch.await()
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         tearDownMobileEngageComponent()
         scenario.close()

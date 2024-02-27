@@ -8,17 +8,14 @@ import androidx.lifecycle.LifecycleRegistry
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.session.Session
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import java.util.concurrent.CountDownLatch
 
-class AppLifecycleObserverTest {
+class AppLifecycleObserverTest : AnnotationSpec() {
     private lateinit var mockSession: Session
     private lateinit var appLifecycleObserver: AppLifecycleObserver
     private lateinit var coreHandlerHolder: ConcurrentHandlerHolder
@@ -26,7 +23,7 @@ class AppLifecycleObserverTest {
     private lateinit var uiHandler: Handler
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         uiHandler = Handler(Looper.getMainLooper())
         mockSession = mock()

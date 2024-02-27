@@ -2,12 +2,12 @@ package com.emarsys.mobileengage.notification.command
 
 import com.emarsys.mobileengage.push.PushInternal
 
-import org.junit.jupiter.api.Test
+import com.emarsys.testUtil.AnnotationSpec
 
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 
-class TrackMessageOpenCommandTest {
+class TrackMessageOpenCommandTest : AnnotationSpec() {
 
 
     @Test

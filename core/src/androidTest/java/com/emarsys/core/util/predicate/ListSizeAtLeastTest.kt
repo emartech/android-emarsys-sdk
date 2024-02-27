@@ -1,17 +1,15 @@
 package com.emarsys.core.util.predicate
 
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
 
 
-class ListSizeAtLeastTest {
+class ListSizeAtLeastTest : AnnotationSpec() {
 
 
     private lateinit var predicate: ListSizeAtLeast<Int>
 
-    @BeforeEach
+    @Before
     fun init() {
         predicate = ListSizeAtLeast(5)
     }

@@ -7,14 +7,12 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.fake.FakeConnectionChangeListener
 import com.emarsys.core.handler.ConcurrentHandlerHolder
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import java.util.concurrent.CountDownLatch
 
-class ConnectivityChangeReceiverTest {
+class ConnectivityChangeReceiverTest : AnnotationSpec() {
     private lateinit var receiver: ConnectivityChangeReceiver
     private lateinit var mockListener: ConnectionChangeListener
     private lateinit var context: Context
@@ -22,7 +20,7 @@ class ConnectivityChangeReceiverTest {
 
     lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
-    @BeforeEach
+    @Before
     fun setup() {
         context = InstrumentationRegistry.getInstrumentation().targetContext
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
@@ -30,7 +28,7 @@ class ConnectivityChangeReceiverTest {
         mockListener = mock()
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         concurrentHandlerHolder.coreLooper.quit()
     }

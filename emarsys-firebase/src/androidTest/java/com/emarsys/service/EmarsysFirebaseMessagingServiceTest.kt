@@ -1,5 +1,6 @@
 package com.emarsys.service
 
+
 import android.app.Application
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.device.DeviceInfo
@@ -9,12 +10,10 @@ import com.emarsys.fake.FakeFirebaseDependencyContainer
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.push.PushInternal
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.ReflectionTestUtils
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -24,8 +23,7 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 
 
-class EmarsysFirebaseMessagingServiceTest {
-
+class EmarsysFirebaseMessagingServiceTest : AnnotationSpec() {
 
 
     private val application: Application
@@ -37,7 +35,7 @@ class EmarsysFirebaseMessagingServiceTest {
     private lateinit var spyCoreHandler: SdkHandler
     private lateinit var emarsysFirebaseMessagingService: EmarsysFirebaseMessagingService
 
-    @BeforeEach
+    @Before
     fun setUp() {
         emarsysFirebaseMessagingService = EmarsysFirebaseMessagingService()
         mockPushInternal = mock()
@@ -51,7 +49,7 @@ class EmarsysFirebaseMessagingServiceTest {
         )
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         tearDownMobileEngageComponent()
         FeatureTestUtils.resetFeatures()

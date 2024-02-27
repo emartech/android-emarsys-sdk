@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.service
 
+
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
@@ -8,21 +9,18 @@ import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.notification.NotificationCommandFactory
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.mockito.ThreadSpy
 import io.kotest.matchers.shouldBe
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-
 import org.mockito.Mockito
 import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
-class NotificationActionUtilsTest {
+class NotificationActionUtilsTest : AnnotationSpec() {
     private companion object {
         const val SMALL_RESOURCE_ID = 123
         const val COLOR_RESOURCE_ID = 456
@@ -44,13 +42,13 @@ class NotificationActionUtilsTest {
 
     private lateinit var context: Context
 
-    @BeforeEach
+    @Before
     fun init() {
         context = getTargetContext().applicationContext
         setupMobileEngageComponent(FakeMobileEngageDependencyContainer())
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         mobileEngage().concurrentHandlerHolder.coreLooper.quitSafely()
         tearDownMobileEngageComponent()

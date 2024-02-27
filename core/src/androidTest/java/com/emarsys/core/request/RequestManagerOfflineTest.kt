@@ -22,24 +22,21 @@ import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
 import com.emarsys.core.worker.DefaultWorker
 import com.emarsys.core.worker.Worker
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.collections.beEmpty
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import java.io.IOException
 import java.util.concurrent.CountDownLatch
 
-class RequestManagerOfflineTest {
+class RequestManagerOfflineTest : AnnotationSpec() {
     companion object {
         const val URL = "https://www.emarsys.com/"
     }
-
 
 
     private lateinit var connectionStates: Array<Boolean>
@@ -60,7 +57,7 @@ class RequestManagerOfflineTest {
     private lateinit var coreCompletionHandlerMiddlewareProvider: CoreCompletionHandlerMiddlewareProvider
     private lateinit var mockProxyProvider: CompletionHandlerProxyProvider
 
-    @BeforeEach
+    @Before
     fun setup() {
         watchDogCountDown = 0
         completionHandlerCountDown = 0
@@ -70,7 +67,7 @@ class RequestManagerOfflineTest {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         concurrentHandlerHolder.coreLooper.quit()
         concurrentHandlerHolder.networkLooper.quit()

@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.responsehandler
 
+
 import android.content.ClipboardManager
 import androidx.test.core.app.ActivityScenario
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
@@ -14,11 +15,9 @@ import com.emarsys.mobileengage.iam.dialog.IamDialog
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.fake.FakeActivity
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doReturn
@@ -26,7 +25,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.spy
 import org.mockito.kotlin.verify
 
-class InAppMessageResponseHandlerTest {
+class InAppMessageResponseHandlerTest : AnnotationSpec() {
 
     private lateinit var handler: InAppMessageResponseHandler
     private lateinit var presenter: OverlayInAppPresenter
@@ -38,7 +37,7 @@ class InAppMessageResponseHandlerTest {
     private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
     private lateinit var scenario: ActivityScenario<FakeActivity>
 
-    @BeforeEach
+    @Before
     fun init() {
         scenario = ActivityScenario.launch(FakeActivity::class.java)
         scenario.onActivity { activity ->
@@ -75,7 +74,7 @@ class InAppMessageResponseHandlerTest {
         }
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         scenario.close()
     }

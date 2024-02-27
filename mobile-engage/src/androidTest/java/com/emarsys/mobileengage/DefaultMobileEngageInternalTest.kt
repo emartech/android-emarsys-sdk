@@ -12,8 +12,8 @@ import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.session.MobileEngageSession
 import com.emarsys.mobileengage.session.SessionIdHolder
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+
+import com.emarsys.testUtil.AnnotationSpec
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.eq
@@ -29,7 +29,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 
-class DefaultMobileEngageInternalTest {
+class DefaultMobileEngageInternalTest : AnnotationSpec() {
 
     private companion object {
         const val CONTACT_FIELD_ID = 999
@@ -75,7 +75,7 @@ class DefaultMobileEngageInternalTest {
     private lateinit var mockSessionIdHolder: SessionIdHolder
 
 
-    @BeforeEach
+    @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
         mockEventServiceInternal = mock()

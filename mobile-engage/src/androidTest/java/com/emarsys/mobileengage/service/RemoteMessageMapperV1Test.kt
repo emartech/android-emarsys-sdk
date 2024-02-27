@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.service
 
+
 import android.content.Context
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.resource.MetaDataReader
@@ -9,17 +10,15 @@ import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperV1
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.json.JSONObject
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
-class RemoteMessageMapperV1Test {
+class RemoteMessageMapperV1Test : AnnotationSpec() {
     private companion object {
         const val TITLE = "title"
         const val BODY = "body"
@@ -40,7 +39,7 @@ class RemoteMessageMapperV1Test {
     private lateinit var remoteMessageMapperV1: RemoteMessageMapperV1
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         context = InstrumentationRegistry.getTargetContext()
 
@@ -58,7 +57,7 @@ class RemoteMessageMapperV1Test {
         )
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         mobileEngage().concurrentHandlerHolder.coreLooper.quitSafely()
         tearDownMobileEngageComponent()

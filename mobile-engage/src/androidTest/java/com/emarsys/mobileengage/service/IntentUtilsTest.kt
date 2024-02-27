@@ -9,15 +9,14 @@ import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.service.IntentUtils.createLaunchIntent
 import com.emarsys.mobileengage.service.IntentUtils.createNotificationHandlerServiceIntent
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
-class IntentUtilsTest {
+class IntentUtilsTest : AnnotationSpec() {
     private companion object {
         const val TITLE = "title"
         const val BODY = "body"
@@ -47,7 +46,7 @@ class IntentUtilsTest {
 
     private lateinit var context: Context
 
-    @BeforeEach
+    @Before
     fun init() {
         setupMobileEngageComponent(FakeMobileEngageDependencyContainer())
         context = getTargetContext()

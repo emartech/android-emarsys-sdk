@@ -1,15 +1,14 @@
 package com.emarsys.mobileengage
 
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 
-class MobileEngageRequestContextTest {
+class MobileEngageRequestContextTest : AnnotationSpec() {
 
     private lateinit var requestContext: MobileEngageRequestContext
 
-    @BeforeEach
+    @Before
     fun setUp() {
 
         requestContext = MobileEngageRequestContext(

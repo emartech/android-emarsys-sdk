@@ -14,17 +14,14 @@ import com.emarsys.mobileengage.iam.model.IamConversionUtils
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.session.SessionIdHolder
 import com.emarsys.mobileengage.testUtil.RandomMETestUtils
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.RandomTestUtils
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
-class RequestPayloadUtilsTest {
+class RequestPayloadUtilsTest : AnnotationSpec() {
     private companion object {
         const val PUSH_TOKEN = "pushToken"
         const val APPLICATION_CODE = "applicationCode"
@@ -58,7 +55,7 @@ class RequestPayloadUtilsTest {
     private lateinit var mockSessionIdHolder: SessionIdHolder
 
 
-    @BeforeEach
+    @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
         mockChannelSettings = listOf(

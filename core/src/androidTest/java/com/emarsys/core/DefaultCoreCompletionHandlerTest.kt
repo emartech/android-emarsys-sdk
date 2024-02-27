@@ -4,9 +4,8 @@ import com.emarsys.core.api.ResponseErrorException
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.spy
@@ -15,7 +14,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.verifyNoMoreInteractions
 
-class DefaultCoreCompletionHandlerTest {
+class DefaultCoreCompletionHandlerTest : AnnotationSpec() {
 
     companion object {
         const val STATUS_CODE = 500
@@ -30,7 +29,7 @@ class DefaultCoreCompletionHandlerTest {
     private lateinit var responseErrorException: ResponseErrorException
 
 
-    @BeforeEach
+    @Before
     @Suppress("UNCHECKED_CAST")
     fun init() {
         mockMap = mock()

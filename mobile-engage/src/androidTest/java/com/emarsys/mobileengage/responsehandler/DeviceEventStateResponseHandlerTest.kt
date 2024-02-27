@@ -6,9 +6,8 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.util.RequestModelHelper
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -16,7 +15,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import java.net.URL
 
-class DeviceEventStateResponseHandlerTest {
+class DeviceEventStateResponseHandlerTest : AnnotationSpec() {
     companion object {
         private const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
         private const val EVENT_BASE = "$EVENT_HOST/v4/apps/%s/events"
@@ -28,7 +27,7 @@ class DeviceEventStateResponseHandlerTest {
     private lateinit var handler: DeviceEventStateResponseHandler
     private lateinit var mockRequestModelHelper: RequestModelHelper
 
-    @BeforeEach
+    @Before
     fun setup() {
         mockRequestModel = mock {
             on { url } doReturn URL(EVENT_BASE)

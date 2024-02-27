@@ -7,21 +7,20 @@ import com.emarsys.core.database.DatabaseContract
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.helper.DbHelper
 import com.emarsys.core.handler.ConcurrentHandlerHolder
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 import java.util.Date
 
-class ButtonClickedRepositoryTest {
+class ButtonClickedRepositoryTest : AnnotationSpec() {
     private lateinit var repository: ButtonClickedRepository
     private lateinit var buttonClicked1: ButtonClicked
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
-    @BeforeEach
+    @Before
     fun setUp() {
         deleteCoreDatabase()
         val context = getTargetContext()

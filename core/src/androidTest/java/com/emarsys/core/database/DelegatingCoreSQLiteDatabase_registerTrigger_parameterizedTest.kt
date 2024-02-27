@@ -5,22 +5,41 @@ import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.trigger.TriggerEvent
 import com.emarsys.core.database.trigger.TriggerKey
 import com.emarsys.core.database.trigger.TriggerType
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
+import io.kotest.data.forAll
+import io.kotest.data.headers
+import io.kotest.data.row
+import io.kotest.data.table
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 
-class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
+class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest : AnnotationSpec() {
+
+    companion object {
+
+        private const val TABLE_NAME = "TEST"
+        private const val COLUMN_1 = "column1"
+        private const val COLUMN_2 = "column2"
+        const val CREATE = "CREATE TABLE $TABLE_NAME ($COLUMN_1 TEXT, $COLUMN_2 INTEGER);"
+        const val DROP = "DROP TABLE $TABLE_NAME IF EXISTS;"
+
+        private lateinit var mockRunnable: Runnable
+        private lateinit var db: DelegatingCoreSQLiteDatabase
+
+        private val contentValues = ContentValues().apply {
+            put(COLUMN_1, "value")
+            put(COLUMN_2, 1234)
+        }
+    }
 
     private lateinit var registeredTriggerMap: MutableMap<TriggerKey, MutableList<Runnable>>
 
-    @BeforeEach
-    fun init() {
+    @Before
+    fun setUp() {
         DatabaseTestUtils.deleteCoreDatabase()
 
         val coreDbHelper = CoreDbHelper(
@@ -35,28 +54,89 @@ class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
         mockRunnable = mock()
     }
 
-    @ParameterizedTest
-    @MethodSource("data")
-    fun testTrigger(
-        tableName: String,
-        triggerType: TriggerType,
-        triggerEvent: TriggerEvent,
-        setup: Runnable,
-        trigger: Runnable,
-        action: Runnable
-    ) {
-        setup.run()
+    @Test
+    fun testTrigger() {
+        table(
+            headers("tableName", "triggerType", "triggerEvent", "setup", "trigger", "action"),
+            row(
+                TABLE_NAME,
+                TriggerType.BEFORE,
+                TriggerEvent.INSERT,
+                Runnable {
 
-        val unusedTriggerMap = createUnusedTriggerMap(tableName, triggerEvent)
-        unusedTriggerMap.forEach { (key, trigger) ->
-            db.registerTrigger(key.tableName, key.triggerType, key.triggerEvent, trigger)
+                },
+                Runnable {
+                    db.backingDatabase.rawQuery("SELECT * FROM $TABLE_NAME", emptyArray()).let {
+                        it.count shouldBe 0
+                    }
+                    mockRunnable.run()
+                },
+                Runnable {
+                    db.insert(TABLE_NAME, null, contentValues)
+                }),
+            row(
+                TABLE_NAME,
+                TriggerType.AFTER,
+                TriggerEvent.INSERT,
+                Runnable {
+
+                },
+                Runnable {
+                    db.backingDatabase.rawQuery("SELECT * FROM $TABLE_NAME", emptyArray()).let {
+                        it.count shouldBe 1
+                    }
+                    mockRunnable.run()
+                },
+                Runnable {
+                    db.insert(TABLE_NAME, null, contentValues)
+                }),
+            row(
+                TABLE_NAME,
+                TriggerType.BEFORE,
+                TriggerEvent.DELETE,
+                Runnable {
+                    db.insert(TABLE_NAME, null, contentValues)
+                },
+                Runnable {
+                    db.backingDatabase.rawQuery("SELECT * FROM $TABLE_NAME", emptyArray()).let {
+                        it.count shouldBe 1
+                    }
+                    mockRunnable.run()
+                },
+                Runnable {
+                    db.delete(TABLE_NAME, null, null)
+                }),
+            row(
+                TABLE_NAME,
+                TriggerType.AFTER,
+                TriggerEvent.DELETE,
+                Runnable {
+                    db.insert(TABLE_NAME, null, contentValues)
+                },
+                Runnable {
+                    db.backingDatabase.rawQuery("SELECT * FROM $TABLE_NAME", emptyArray()).let {
+                        it.count shouldBe 0
+                    }
+                    mockRunnable.run()
+                },
+                Runnable {
+                    db.delete(TABLE_NAME, null, null)
+                })
+        ).forAll { tableName, triggerType, triggerEvent, setup, trigger, action ->
+            setUp()
+            setup.run()
+
+            val unusedTriggerMap = createUnusedTriggerMap(tableName, triggerEvent)
+            unusedTriggerMap.forEach { (key, trigger) ->
+                db.registerTrigger(key.tableName, key.triggerType, key.triggerEvent, trigger)
+            }
+            db.registerTrigger(tableName, triggerType, triggerEvent, trigger)
+
+            action.run()
+
+            unusedTriggerMap.values.forEach { verifyNoInteractions(it) }
+            verify(mockRunnable).run()
         }
-        db.registerTrigger(tableName, triggerType, triggerEvent, trigger)
-
-        action.run()
-
-        unusedTriggerMap.values.forEach { verifyNoInteractions(it) }
-        verify(mockRunnable).run()
     }
 
     private fun createUnusedTriggerMap(
@@ -80,89 +160,4 @@ class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
         }
     }
 
-    companion object {
-
-        private const val TABLE_NAME = "TEST"
-        private const val COLUMN_1 = "column1"
-        private const val COLUMN_2 = "column2"
-        const val CREATE = "CREATE TABLE $TABLE_NAME ($COLUMN_1 TEXT, $COLUMN_2 INTEGER);"
-
-        private lateinit var mockRunnable: Runnable
-        private lateinit var db: DelegatingCoreSQLiteDatabase
-
-        private val contentValues = ContentValues().apply {
-            put(COLUMN_1, "value")
-            put(COLUMN_2, 1234)
-        }
-
-        @JvmStatic
-        fun data(): Collection<Array<Any>> {
-            return listOf(
-                arrayOf(
-                    TABLE_NAME,
-                    TriggerType.BEFORE,
-                    TriggerEvent.INSERT,
-                    Runnable {
-
-                    },
-                    Runnable {
-                        db.backingDatabase.rawQuery("SELECT * FROM $TABLE_NAME", emptyArray()).let {
-                            it.count shouldBe 0
-                        }
-                        mockRunnable.run()
-                    },
-                    Runnable {
-                        db.insert(TABLE_NAME, null, contentValues)
-                    }),
-                arrayOf(
-                    TABLE_NAME,
-                    TriggerType.AFTER,
-                    TriggerEvent.INSERT,
-                    Runnable {
-
-                    },
-                    Runnable {
-                        db.backingDatabase.rawQuery("SELECT * FROM $TABLE_NAME", emptyArray()).let {
-                            it.count shouldBe 1
-                        }
-                        mockRunnable.run()
-                    },
-                    Runnable {
-                        db.insert(TABLE_NAME, null, contentValues)
-                    }),
-                arrayOf(
-                    TABLE_NAME,
-                    TriggerType.BEFORE,
-                    TriggerEvent.DELETE,
-                    Runnable {
-                        db.insert(TABLE_NAME, null, contentValues)
-                    },
-                    Runnable {
-                        db.backingDatabase.rawQuery("SELECT * FROM $TABLE_NAME", emptyArray()).let {
-                            it.count shouldBe 1
-                        }
-                        mockRunnable.run()
-                    },
-                    Runnable {
-                        db.delete(TABLE_NAME, null, null)
-                    }),
-                arrayOf(
-                    TABLE_NAME,
-                    TriggerType.AFTER,
-                    TriggerEvent.DELETE,
-                    Runnable {
-                        db.insert(TABLE_NAME, null, contentValues)
-                    },
-                    Runnable {
-                        db.backingDatabase.rawQuery("SELECT * FROM $TABLE_NAME", emptyArray()).let {
-                            it.count shouldBe 0
-                        }
-                        mockRunnable.run()
-                    },
-                    Runnable {
-                        db.delete(TABLE_NAME, null, null)
-                    })
-            )
-        }
-    }
 }

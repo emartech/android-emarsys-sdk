@@ -1,31 +1,30 @@
 package com.emarsys.mobileengage.iam.dialog.action
 
+
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory.create
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.iam.InAppInternal
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.ThreadSpy
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.isNull
 import org.mockito.kotlin.whenever
 
-class SendDisplayedIamActionTest {
+class SendDisplayedIamActionTest : AnnotationSpec() {
     private lateinit var action: SendDisplayedIamAction
     private lateinit var handler: ConcurrentHandlerHolder
     private lateinit var inAppInternal: InAppInternal
 
-    @BeforeEach
+    @Before
     fun init() {
         handler = create()
         inAppInternal = Mockito.mock(InAppInternal::class.java)
         action = SendDisplayedIamAction(handler, inAppInternal)
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         handler.coreLooper.quit()
     }

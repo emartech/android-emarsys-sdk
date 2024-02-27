@@ -7,11 +7,10 @@ import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.device.HardwareIdentification
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.storage.Storage
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -19,7 +18,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 
 
-class HardwareIdProviderTest {
+class HardwareIdProviderTest : AnnotationSpec() {
 
     companion object {
         private const val HARDWARE_ID = "hw_value"
@@ -47,7 +46,7 @@ class HardwareIdProviderTest {
     private lateinit var mockRepository: Repository<HardwareIdentification?, SqlSpecification>
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockStorage = mock()
         mockUUIDProvider = mock {

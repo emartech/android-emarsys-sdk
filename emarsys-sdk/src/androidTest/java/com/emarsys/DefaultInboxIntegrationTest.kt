@@ -1,5 +1,6 @@
 package com.emarsys
 
+
 import android.app.Application
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.device.DeviceInfo
@@ -9,26 +10,32 @@ import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.di.DefaultEmarsysComponent
 import com.emarsys.di.DefaultEmarsysDependencies
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.IntegrationTestUtils
+import com.emarsys.testUtil.KotestRunnerAndroid
 import com.emarsys.testUtil.mockito.whenever
-import com.emarsys.testUtil.rules.ConnectionExtension
-import com.emarsys.testUtil.rules.DuplicatedThreadExtension
+import com.emarsys.testUtil.rules.ConnectionRule
+import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.jupiter.api.extension.RegisterExtension
+import org.junit.Rule
+import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.mock
 import java.util.concurrent.CountDownLatch
 
 
-@ExtendWith(DuplicatedThreadExtension::class)
-class DefaultInboxIntegrationTest {
+@RunWith(KotestRunnerAndroid::class)
+class DefaultInboxIntegrationTest : AnnotationSpec() {
+    @Rule
+    @JvmField
+    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
+
+    @Rule
+    @JvmField
+    val connectionRule = ConnectionRule(application)
 
     companion object {
         private const val APP_ID = "14C19-A121F"
@@ -45,11 +52,8 @@ class DefaultInboxIntegrationTest {
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
 
-    @JvmField
-    @RegisterExtension
-    var connectionExtension: ConnectionExtension = ConnectionExtension(application)
 
-    @BeforeEach
+    @Before
     fun setup() {
         DatabaseTestUtils.deleteCoreDatabase()
 
@@ -86,7 +90,7 @@ class DefaultInboxIntegrationTest {
         IntegrationTestUtils.doLogin(2575)
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys(application)
     }

@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.notification
 
+
 import android.content.Context
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.event.CacheableEventHandler
@@ -7,19 +8,15 @@ import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.notification.command.AppEventCommand
 import com.emarsys.mobileengage.notification.command.CustomEventCommand
 import com.emarsys.mobileengage.notification.command.OpenExternalUrlCommand
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.json.JSONArray
 import org.json.JSONObject
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.kotlin.mock
 
-class ActionCommandFactoryTest {
-
+class ActionCommandFactoryTest : AnnotationSpec() {
 
 
     private lateinit var factory: ActionCommandFactory
@@ -28,7 +25,7 @@ class ActionCommandFactoryTest {
     private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var mockNotificationCacheableEventHandler: CacheableEventHandler
 
-    @BeforeEach
+    @Before
     fun setUp() {
         context = InstrumentationRegistry.getTargetContext().applicationContext
 

@@ -14,9 +14,8 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.session.SessionIdHolder
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
@@ -27,7 +26,7 @@ import org.mockito.kotlin.isNull
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
-class DefaultDeepLinkInternalTest {
+class DefaultDeepLinkInternalTest : AnnotationSpec() {
     private lateinit var mockActivity: Activity
     private lateinit var deepLinkInternal: DeepLinkInternal
     private lateinit var mockManager: RequestManager
@@ -37,7 +36,7 @@ class DefaultDeepLinkInternalTest {
     private lateinit var mockDeviceInfo: DeviceInfo
     private lateinit var mockDeepLinkServiceProvider: ServiceEndpointProvider
 
-    @BeforeEach
+    @Before
     fun init() {
         mockActivity = mock(Activity::class.java, Mockito.RETURNS_DEEP_STUBS)
         mockManager = mock(RequestManager::class.java)

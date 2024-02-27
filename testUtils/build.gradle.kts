@@ -15,8 +15,6 @@ android {
             targetSdk = libs.versions.android.targetSdk.get().toInt()
         }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        testInstrumentationRunnerArguments["runnerBuilder"] =
-            "de.mannodermaus.junit5.AndroidJUnit5Builder"
 
     }
     buildTypes {
@@ -30,7 +28,15 @@ android {
     }
     packaging {
         resources {
-            excludes += arrayOf("README.txt", "META-INF/LICENSE.md", "META-INF/LICENSE-notice.md")
+            excludes += arrayOf(
+                "README.txt",
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE-notice.md",
+                "**/attach_hotspot_windows.dll",
+                "META-INF/AL2.0",
+                "META-INF/LGPL2.1",
+                "META-INF/licenses/ASM"
+            )
         }
     }
     compileOptions {
@@ -54,7 +60,9 @@ dependencies {
 
     api(libs.kotlin.stdlib)
     implementation(libs.kotlin.reflect)
+    api(libs.junit)
     api(libs.kotest.assertions.core)
+    api(libs.kotest.runner.junit4)
     api(libs.mockito.android)
     api(libs.mockito.kotlin)
     api(libs.androidx.test.rules)
@@ -63,16 +71,6 @@ dependencies {
     api(libs.mockk.android)
     api(libs.mockk.agent)
 
-    api("de.mannodermaus.junit5:android-test-core:1.4.0")
-    api("de.mannodermaus.junit5:android-test-runner:1.4.0")
-    api("de.mannodermaus.junit5:android-test-extensions:1.4.0")
-    api("org.junit.jupiter:junit-jupiter-api:5.10.0")
-    api("org.junit.jupiter:junit-jupiter:5.10.0")
-    api("org.junit-pioneer:junit-pioneer:2.2.0")
-    runtimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
-    androidTestApi("org.junit.jupiter:junit-jupiter-api:5.10.0")
-    androidTestRuntimeOnly("de.mannodermaus.junit5:android-test-runner:1.4.0")
-
     coreLibraryDesugaring(libs.android.tools.desugar)
 }
 configurations {
@@ -80,4 +78,3 @@ configurations {
         exclude(group = "io.mockk", module = "mockk-agent-jvm")
     }
 }
-junitPlatform {}

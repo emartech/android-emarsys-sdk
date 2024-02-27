@@ -1,23 +1,21 @@
 package com.emarsys.core.concurrency
 
 import com.emarsys.core.handler.ConcurrentHandlerHolder
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 
 
-class ConcurrentHandlerHolderFactoryTest {
+class ConcurrentHandlerHolderFactoryTest : AnnotationSpec() {
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         concurrentHandlerHolder.coreLooper.quit()
     }

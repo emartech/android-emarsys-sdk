@@ -5,13 +5,13 @@ import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.emarsys
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.di.tearDownEmarsysComponent
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+
+
+import com.emarsys.testUtil.AnnotationSpec
 import org.mockito.Mockito
 import org.mockito.kotlin.mock
 
-class PredictRestrictedTest {
+class PredictRestrictedTest : AnnotationSpec() {
     private companion object {
         const val CONTACT_FIELD_ID = 999
     }
@@ -20,7 +20,7 @@ class PredictRestrictedTest {
     private lateinit var predictRestricted: PredictRestricted
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockPredictInternal = mock()
 
@@ -30,7 +30,7 @@ class PredictRestrictedTest {
         predictRestricted = PredictRestricted()
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         try {
             emarsys().concurrentHandlerHolder.coreLooper.quit()

@@ -1,10 +1,10 @@
 package com.emarsys.mobileengage.notification
 
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
 
-class LaunchActivityCommandLifecycleCallbacksFactoryTest {
+class LaunchActivityCommandLifecycleCallbacksFactoryTest : AnnotationSpec() {
     @Test
     fun testCreate() {
         val latch = CountDownLatch(1)

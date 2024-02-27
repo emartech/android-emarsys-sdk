@@ -14,20 +14,18 @@ import com.emarsys.predict.api.model.CartItem
 import com.emarsys.predict.api.model.Logic
 import com.emarsys.predict.api.model.Product
 import com.emarsys.predict.api.model.RecommendationFilter
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.RandomTestUtils.randomNumberString
 import com.emarsys.testUtil.RandomTestUtils.randomString
 import com.emarsys.testUtil.mockito.anyNotNull
 import io.kotest.assertions.throwables.shouldThrow
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
-class PredictTest {
+class PredictTest : AnnotationSpec() {
     companion object {
         const val AVAILABILITY_ZONE = "HU"
     }
@@ -40,7 +38,7 @@ class PredictTest {
     private lateinit var resultListenerCallback: (Try<List<Product>>) -> Unit
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockPredictInternal = mock()
         resultListenerCallback = mock()
@@ -56,7 +54,7 @@ class PredictTest {
         mockRecommendationFilters = listOf(mockRecommendationFilter)
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         try {
             val handler = emarsys().concurrentHandlerHolder

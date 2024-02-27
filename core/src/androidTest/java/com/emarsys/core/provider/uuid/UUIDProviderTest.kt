@@ -1,9 +1,9 @@
 package com.emarsys.core.provider.uuid
 
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldNotBe
-import org.junit.jupiter.api.Test
 
-class UUIDProviderTest {
+class UUIDProviderTest : AnnotationSpec() {
     @Test
     fun testProvideId_returnsNotNullId() {
         val provider = UUIDProvider()

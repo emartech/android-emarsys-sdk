@@ -1,24 +1,21 @@
 package com.emarsys.predict.util
 
+
 import com.emarsys.predict.api.model.CartItem
 import com.emarsys.predict.api.model.PredictCartItem
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.Mockito.mock
 
-class CartItemUtilsTest {
+class CartItemUtilsTest : AnnotationSpec() {
 
 
     private lateinit var cartItem1: CartItem
     private lateinit var cartItem2: CartItem
     private lateinit var cartItem3: CartItem
 
-    @BeforeEach
+    @Before
     fun init() {
         cartItem1 = PredictCartItem("1", 100.0, 2.0)
         cartItem2 = PredictCartItem("2", 200.0, 4.0)

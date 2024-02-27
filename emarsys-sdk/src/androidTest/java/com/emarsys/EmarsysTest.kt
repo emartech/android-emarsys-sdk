@@ -34,7 +34,11 @@ import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseHandlersProcessor
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.deeplink.DeepLinkApi
-import com.emarsys.di.*
+import com.emarsys.di.DefaultEmarsysComponent
+import com.emarsys.di.FakeDependencyContainer
+import com.emarsys.di.emarsys
+import com.emarsys.di.isEmarsysComponentSetup
+import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.eventservice.EventServiceApi
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.MessageInboxApi
@@ -49,7 +53,14 @@ import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.geofence.FetchGeofencesAction
 import com.emarsys.mobileengage.iam.AppStartAction
 import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestRepositoryProxy
-import com.emarsys.mobileengage.responsehandler.*
+import com.emarsys.mobileengage.responsehandler.ClientInfoResponseHandler
+import com.emarsys.mobileengage.responsehandler.DeviceEventStateResponseHandler
+import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler
+import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandlerV4
+import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler
+import com.emarsys.mobileengage.responsehandler.MobileEngageClientStateResponseHandler
+import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
+import com.emarsys.mobileengage.responsehandler.OnEventActionResponseHandler
 import com.emarsys.predict.PredictApi
 import com.emarsys.predict.PredictRestrictedApi
 import com.emarsys.predict.api.model.Logic
@@ -58,23 +69,40 @@ import com.emarsys.predict.api.model.RecommendationFilter
 import com.emarsys.predict.response.VisitorIdResponseHandler
 import com.emarsys.predict.response.XPResponseHandler
 import com.emarsys.push.PushApi
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.CollectionTestUtils.getElementByType
 import com.emarsys.testUtil.CollectionTestUtils.numberOfElementsIn
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.ReflectionTestUtils.getInstanceField
-import com.emarsys.testUtil.rules.DuplicatedThreadExtension
+import com.emarsys.testUtil.rules.ConnectionRule
+import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.kotlin.*
+import org.junit.Rule
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.inOrder
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.spy
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.verifyNoMoreInteractions
+import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
-@ExtendWith(DuplicatedThreadExtension::class)
-class EmarsysTest {
+class EmarsysTest : AnnotationSpec() {
+    @Rule
+    @JvmField
+    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
+
+
+    @Rule
+    @JvmField
+    val connectionRule = ConnectionRule(getTargetContext().applicationContext as Application)
+
     companion object {
         private const val APPLICATION_CODE = "EMS11-C3FD3"
         private const val CONTACT_FIELD_ID = 3
@@ -130,7 +158,7 @@ class EmarsysTest {
     private lateinit var latch: CountDownLatch
     private lateinit var predictResultListenerCallback: (Try<List<Product>>) -> Unit
 
-    @BeforeEach
+    @Before
     fun setUp() {
         application = spy(getTargetContext().applicationContext as Application)
         completionListener = mock()
@@ -250,7 +278,7 @@ class EmarsysTest {
         latch = CountDownLatch(1)
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys()
     }

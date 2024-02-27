@@ -1,18 +1,16 @@
 package com.emarsys.core.util.log.entry
 
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
 
 
-class CrashLogTest {
+class CrashLogTest : AnnotationSpec() {
 
     private lateinit var crashLog: CrashLog
     private lateinit var exception: Exception
 
 
-    @BeforeEach
+    @Before
     fun init() {
         exception = ConcurrentModificationException("cause of the exception")
         crashLog = CrashLog(exception, "testInfo")

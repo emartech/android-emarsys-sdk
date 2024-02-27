@@ -2,14 +2,13 @@ package com.emarsys.core.shard
 
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 
-class ShardModelTest {
+class ShardModelTest : AnnotationSpec() {
 
     companion object {
         const val ID = "shard_id"
@@ -24,7 +23,7 @@ class ShardModelTest {
     private lateinit var payload: Map<String, Any>
 
 
-    @BeforeEach
+    @Before
     fun init() {
         payload = createPayload()
         timestampProvider = mock(TimestampProvider::class.java)

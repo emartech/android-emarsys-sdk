@@ -1,21 +1,17 @@
 package com.emarsys.core.util.batch
 
 import com.emarsys.core.shard.ShardModel
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.Mockito.mock
 
-class ListChunkerTest {
+class ListChunkerTest : AnnotationSpec() {
 
 
     private lateinit var chunker: ListChunker<Any>
 
-    @BeforeEach
+    @Before
     fun init() {
         chunker = ListChunker(1)
     }

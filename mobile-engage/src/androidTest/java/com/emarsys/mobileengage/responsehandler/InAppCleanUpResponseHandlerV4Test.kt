@@ -10,12 +10,11 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.model.specification.FilterByCampaignId
 import com.emarsys.mobileengage.util.RequestModelHelper
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -24,7 +23,7 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import java.net.URL
 
-class InAppCleanUpResponseHandlerV4Test {
+class InAppCleanUpResponseHandlerV4Test : AnnotationSpec() {
     companion object {
         private const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
         private const val EVENT_BASE = "$EVENT_HOST/v4/apps/%s/events"
@@ -37,7 +36,7 @@ class InAppCleanUpResponseHandlerV4Test {
     private lateinit var mockRequestModelHelper: RequestModelHelper
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockRequestModel = mock {
             on { url } doReturn URL(EVENT_BASE)

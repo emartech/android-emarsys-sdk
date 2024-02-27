@@ -11,20 +11,16 @@ import com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_TYPE
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.util.serialization.SerializationUtils.serializableToBlob
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.Assertions
-
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
+import org.junit.Assert
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import java.io.Serializable
 
-class ShardModelRepositoryTest {
+class ShardModelRepositoryTest : AnnotationSpec() {
 
     private lateinit var shardModel: ShardModel
     private lateinit var repository: ShardModelRepository
@@ -39,7 +35,7 @@ class ShardModelRepositoryTest {
         const val SHARD_ID = "shard_id"
     }
 
-    @BeforeEach
+    @Before
     fun init() {
         DatabaseTestUtils.deleteCoreDatabase()
         context = InstrumentationRegistry.getTargetContext()
@@ -63,7 +59,7 @@ class ShardModelRepositoryTest {
         result.getAsString(SHARD_COLUMN_TYPE) shouldBe shardModel.type
         result.getAsLong(SHARD_COLUMN_TIMESTAMP) shouldBe shardModel.timestamp
         result.getAsLong(SHARD_COLUMN_TTL) shouldBe shardModel.ttl
-        Assertions.assertArrayEquals(
+        Assert.assertArrayEquals(
             serializableToBlob(shardModel.data),
             result.getAsByteArray(SHARD_COLUMN_DATA)
         )

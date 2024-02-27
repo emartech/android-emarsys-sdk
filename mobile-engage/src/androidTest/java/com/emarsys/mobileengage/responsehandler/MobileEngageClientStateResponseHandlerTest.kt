@@ -1,25 +1,24 @@
 package com.emarsys.mobileengage.responsehandler
 
+
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.mobileengage.util.RequestModelHelper
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import java.net.URL
 
-class MobileEngageClientStateResponseHandlerTest {
+class MobileEngageClientStateResponseHandlerTest : AnnotationSpec() {
     private companion object {
-        const val X_CLIENT_STATE_VALUE = "TG9yZW0gSXBzdW0gaXMgc2ltcGx5IGR1bW15IHRleHQgb2YgdGhlIHByaW50aW5nIGFuZCB0"
+        const val X_CLIENT_STATE_VALUE =
+            "TG9yZW0gSXBzdW0gaXMgc2ltcGx5IGR1bW15IHRleHQgb2YgdGhlIHByaW50aW5nIGFuZCB0"
         const val APPLICATION_CODE = "applicationCode"
         const val CLIENT_HOST = "https://mobile-events.eservice.emarsys.net/v3"
     }
@@ -30,7 +29,7 @@ class MobileEngageClientStateResponseHandlerTest {
     private lateinit var mockRequestModelHelper: RequestModelHelper
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockStorage = mock()
         requestModelMock = mock {

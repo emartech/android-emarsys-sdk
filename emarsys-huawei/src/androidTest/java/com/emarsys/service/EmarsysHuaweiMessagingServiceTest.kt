@@ -1,5 +1,6 @@
 package com.emarsys.service
 
+
 import android.app.Application
 import android.os.Looper
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
@@ -10,12 +11,10 @@ import com.emarsys.fake.FakeHuaweiDependencyContainer
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.push.PushInternal
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.ReflectionTestUtils
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -24,7 +23,7 @@ import org.mockito.kotlin.timeout
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 
-class EmarsysHuaweiMessagingServiceTest {
+class EmarsysHuaweiMessagingServiceTest : AnnotationSpec() {
 
 
     private val application: Application
@@ -36,7 +35,7 @@ class EmarsysHuaweiMessagingServiceTest {
     private lateinit var emarsysHuaweiMessagingService: EmarsysHuaweiMessagingService
     private lateinit var spyCoreHandler: SdkHandler
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockPushInternal = mock()
 
@@ -53,7 +52,7 @@ class EmarsysHuaweiMessagingServiceTest {
         emarsysHuaweiMessagingService = EmarsysHuaweiMessagingService()
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         tearDownMobileEngageComponent()
         FeatureTestUtils.resetFeatures()

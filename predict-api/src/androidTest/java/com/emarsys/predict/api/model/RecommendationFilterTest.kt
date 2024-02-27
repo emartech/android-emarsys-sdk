@@ -2,12 +2,11 @@ package com.emarsys.predict.api.model
 
 import com.emarsys.predict.api.model.RecommendationFilter.Companion.exclude
 import com.emarsys.predict.api.model.RecommendationFilter.Companion.include
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import java.util.Arrays
 
-class RecommendationFilterTest {
+class RecommendationFilterTest : AnnotationSpec() {
 
     companion object {
         private const val FIELD = "field"
@@ -21,7 +20,7 @@ class RecommendationFilterTest {
     lateinit var include: RecommendationFilter.Include
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         exclude = exclude(FIELD)
         include = include(FIELD)

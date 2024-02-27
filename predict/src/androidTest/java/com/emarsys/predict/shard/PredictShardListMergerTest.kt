@@ -9,17 +9,16 @@ import com.emarsys.core.storage.KeyValueStore
 import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.request.PredictRequestModelBuilder
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.Mockito.any
 import org.mockito.Mockito.anyMap
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 
-class PredictShardListMergerTest {
+class PredictShardListMergerTest : AnnotationSpec() {
 
     private companion object {
         const val ID = "id"
@@ -47,7 +46,7 @@ class PredictShardListMergerTest {
     private lateinit var shard3: ShardModel
 
 
-    @BeforeEach
+    @Before
     fun init() {
         mockStore = mock(KeyValueStore::class.java)
         mockTimestampProvider = mock(TimestampProvider::class.java)

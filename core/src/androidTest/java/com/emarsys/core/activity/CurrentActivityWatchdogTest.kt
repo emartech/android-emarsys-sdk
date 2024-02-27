@@ -5,22 +5,21 @@ import android.os.Bundle
 import com.emarsys.core.provider.Property
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.activity.FallbackActivityProvider
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 
-class CurrentActivityWatchdogTest {
+class CurrentActivityWatchdogTest : AnnotationSpec() {
     private lateinit var watchdog: CurrentActivityWatchdog
     private lateinit var activity: Activity
     private lateinit var nextActivity: Activity
     private lateinit var activityProvider: Property<Activity?>
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         activityProvider = mock()
         watchdog = CurrentActivityWatchdog(activityProvider)

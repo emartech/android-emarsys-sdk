@@ -16,18 +16,17 @@ import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.specification.Everything
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.util.serialization.SerializationUtils
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
 import org.json.JSONException
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import org.junit.Assert
 import org.mockito.Mockito
 import java.util.*
 
-class RequestModelRepositoryTest {
+class RequestModelRepositoryTest : AnnotationSpec() {
 
 
     companion object {
@@ -49,7 +48,7 @@ class RequestModelRepositoryTest {
     private var headers: HashMap<String, String>? = null
     private var payload: HashMap<String, Any?>? = null
 
-    @BeforeEach
+    @Before
     fun init() {
         deleteCoreDatabase()
         context = getTargetContext()
@@ -72,21 +71,21 @@ class RequestModelRepositoryTest {
         result.getAsString(REQUEST_COLUMN_NAME_REQUEST_ID) shouldBe request!!.id
         result.getAsString(REQUEST_COLUMN_NAME_METHOD) shouldBe request!!.method.name
         result.getAsString(REQUEST_COLUMN_NAME_URL) shouldBe request!!.url.toString()
-        Assertions.assertArrayEquals(
+        Assert.assertArrayEquals(
             SerializationUtils.serializableToBlob(
                 request!!.headers
             ), result.getAsByteArray(REQUEST_COLUMN_NAME_HEADERS)
         )
-        Assertions.assertArrayEquals(
+        Assert.assertArrayEquals(
             SerializationUtils.serializableToBlob(
                 request!!.payload
             ), result.getAsByteArray(REQUEST_COLUMN_NAME_PAYLOAD)
         )
-        Assertions.assertEquals(
+        Assert.assertEquals(
             request!!.timestamp,
             result.getAsLong(REQUEST_COLUMN_NAME_TIMESTAMP) as Long
         )
-        Assertions.assertEquals(request!!.ttl, result.getAsLong(REQUEST_COLUMN_NAME_TTL) as Long)
+        Assert.assertEquals(request!!.ttl, result.getAsLong(REQUEST_COLUMN_NAME_TTL) as Long)
     }
 
     @Test

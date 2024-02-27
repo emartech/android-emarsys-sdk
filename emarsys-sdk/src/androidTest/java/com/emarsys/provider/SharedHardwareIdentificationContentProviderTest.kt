@@ -5,14 +5,13 @@ import android.database.Cursor
 import android.net.Uri
 import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.helper.CoreDbHelper
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ReflectionTestUtils
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 
-class SharedHardwareIdentificationContentProviderTest {
+class SharedHardwareIdentificationContentProviderTest : AnnotationSpec() {
 
     private companion object {
         const val ENCRYPTED_HARDWARE_ID = "encrypted_hardware_id"
@@ -25,7 +24,7 @@ class SharedHardwareIdentificationContentProviderTest {
     private lateinit var mockCursor: Cursor
     private lateinit var provider: SharedHardwareIdentificationContentProvider
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockCursor = mockk {
             every { getString(0) } returns ENCRYPTED_HARDWARE_ID

@@ -1,11 +1,10 @@
 package com.emarsys.core.util.log.entry
 
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 
-import org.junit.jupiter.api.Test
 
-
-class StatusLogTest {
+class StatusLogTest : AnnotationSpec() {
     private companion object {
         const val testCallerMethodName = "testCallerMethodName"
         val testParameters = mapOf(
@@ -13,11 +12,11 @@ class StatusLogTest {
             "parameter2" to "value2"
         )
         val testStatus = mapOf(
-                "key1" to "value1",
-                "key2" to mapOf(
-                        "statusMapKey1" to "statusValue1",
-                        "statusMapKey2" to "statusValue2"
-                )
+            "key1" to "value1",
+            "key2" to mapOf(
+                "statusMapKey1" to "statusValue1",
+                "statusMapKey2" to "statusValue2"
+            )
         )
     }
 

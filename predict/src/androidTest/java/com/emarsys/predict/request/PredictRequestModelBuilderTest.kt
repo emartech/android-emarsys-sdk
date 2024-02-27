@@ -14,6 +14,7 @@ import com.emarsys.predict.api.model.PredictCartItem
 import com.emarsys.predict.api.model.RecommendationFilter
 import com.emarsys.predict.api.model.RecommendationLogic
 import com.emarsys.predict.model.LastTrackedItemContainer
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.data.forAll
@@ -22,11 +23,9 @@ import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import org.json.JSONObject
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 
-class PredictRequestModelBuilderTest {
+class PredictRequestModelBuilderTest : AnnotationSpec() {
 
     private companion object {
         const val TIMESTAMP = 123456789L
@@ -62,7 +61,7 @@ class PredictRequestModelBuilderTest {
     private lateinit var mockServiceProvider: ServiceEndpointProvider
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockKeyValueStore = mock(KeyValueStore::class.java).apply {
             whenever(getString(PREDICT_VISITOR_ID_KEY)).thenReturn("visitorId")

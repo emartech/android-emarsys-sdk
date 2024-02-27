@@ -6,20 +6,16 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.shard.ShardModel
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.RandomTestUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.Mockito
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
-class LogShardListMergerTest {
+class LogShardListMergerTest : AnnotationSpec() {
 
     private companion object {
         const val ID = "id"
@@ -36,7 +32,7 @@ class LogShardListMergerTest {
     private lateinit var deviceInfo: DeviceInfo
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         timestampProvider = mock()
         whenever(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP)

@@ -1,31 +1,27 @@
 package com.emarsys.predict.response
 
+
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.KeyValueStore
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 
-class VisitorIdResponseHandlerTest {
-
+class VisitorIdResponseHandlerTest : AnnotationSpec() {
 
 
     private lateinit var keyValueStore: KeyValueStore
     private lateinit var mockServiceEndpointProvider: ServiceEndpointProvider
     private lateinit var responseHandler: VisitorIdResponseHandler
 
-    @BeforeEach
+    @Before
     fun init() {
         keyValueStore = mock(KeyValueStore::class.java)
         mockServiceEndpointProvider = mock(ServiceEndpointProvider::class.java).apply {

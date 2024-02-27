@@ -1,17 +1,16 @@
 package com.emarsys.eventservice
 
+
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.event.EventServiceInternal
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.IntegrationTestUtils
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
-class EventServiceTest {
+class EventServiceTest : AnnotationSpec() {
     companion object {
         private const val EVENT_NAME = "testEventName"
         private val EVENT_ATTRIBUTES = mapOf(
@@ -25,7 +24,7 @@ class EventServiceTest {
     private lateinit var eventServiceApi: EventServiceApi
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockCompletionListener = mock()
         mockEventServiceInternal = mock()
@@ -34,7 +33,7 @@ class EventServiceTest {
         setupEmarsysComponent(FakeDependencyContainer(eventServiceInternal = mockEventServiceInternal))
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys()
     }

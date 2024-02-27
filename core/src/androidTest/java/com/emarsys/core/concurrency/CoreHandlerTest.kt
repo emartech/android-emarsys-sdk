@@ -1,19 +1,17 @@
 package com.emarsys.core.concurrency
 
 import android.os.HandlerThread
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
 
-class CoreHandlerTest {
+class CoreHandlerTest : AnnotationSpec() {
     private lateinit var handler: CoreHandler
     private lateinit var handlerThread: HandlerThread
     private lateinit var failingRunnable: Runnable
 
-    @BeforeEach
+    @Before
     fun setUp() {
         val threadName = "test"
         handlerThread = HandlerThread(threadName)
@@ -22,7 +20,7 @@ class CoreHandlerTest {
         failingRunnable = Runnable { throw RuntimeException("error") }
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         handlerThread.quit()
     }

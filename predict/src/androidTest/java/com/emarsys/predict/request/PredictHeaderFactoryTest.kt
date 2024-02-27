@@ -1,17 +1,15 @@
 package com.emarsys.predict.request
 
+
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.storage.KeyValueStore
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.Mockito
 
-class PredictHeaderFactoryTest {
+class PredictHeaderFactoryTest : AnnotationSpec() {
     private companion object {
         const val OS_VERSION = "1.0.0"
         const val PLATFORM = "android"
@@ -23,7 +21,7 @@ class PredictHeaderFactoryTest {
     private lateinit var mockKeyValueStore: KeyValueStore
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockKeyValueStore = Mockito.mock(KeyValueStore::class.java)
 

@@ -3,15 +3,13 @@ package com.emarsys.core.storage
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
 
 
-class SecureSharedPreferencesProviderTest {
+class SecureSharedPreferencesProviderTest : AnnotationSpec() {
 
     private lateinit var sharedPreferencesProvider: SecureSharedPreferencesProvider
 
@@ -19,7 +17,7 @@ class SecureSharedPreferencesProviderTest {
     private lateinit var context: Context
     private lateinit var oldSharedPrefs: SharedPreferences
 
-    @BeforeEach
+    @Before
     fun setUp() {
         context = InstrumentationRegistry.getTargetContext().applicationContext
         oldSharedPrefs = context.getSharedPreferences("test_shared_prefs", MODE_PRIVATE)

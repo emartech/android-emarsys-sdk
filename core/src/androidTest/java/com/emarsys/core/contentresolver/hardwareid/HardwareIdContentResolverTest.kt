@@ -5,14 +5,13 @@ import com.emarsys.core.contentresolver.hardwareid.HardwareIdContentResolver
 import com.emarsys.core.crypto.HardwareIdentificationCrypto
 import com.emarsys.core.database.DatabaseContract
 import com.emarsys.core.device.HardwareIdentification
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 
-class HardwareIdContentResolverTest {
+class HardwareIdContentResolverTest : AnnotationSpec() {
 
     companion object {
         private val SHARED_PACKAGE_NAMES =
@@ -28,7 +27,7 @@ class HardwareIdContentResolverTest {
     private lateinit var mockHardwareIdentificationCrypto: HardwareIdentificationCrypto
     private lateinit var mockCursor: Cursor
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockCursor = mockk(relaxed = true) {
             every { moveToFirst() } returns true

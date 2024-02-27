@@ -5,21 +5,19 @@ import com.emarsys.core.feature.FeatureRegistry.disableFeature
 import com.emarsys.core.feature.FeatureRegistry.enableFeature
 import com.emarsys.core.feature.FeatureRegistry.isFeatureEnabled
 import com.emarsys.core.feature.FeatureRegistry.reset
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
-class FeatureRegistryTest {
+class FeatureRegistryTest : AnnotationSpec() {
     private lateinit var feature1: FlipperFeature
     private lateinit var feature2: FlipperFeature
     private lateinit var feature3: FlipperFeature
     private lateinit var features: List<FlipperFeature>
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         reset()
         feature1 = mock()
@@ -31,7 +29,7 @@ class FeatureRegistryTest {
         features = listOf(feature1, feature2, feature3)
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         reset()
     }

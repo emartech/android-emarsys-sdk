@@ -1,26 +1,22 @@
 package com.emarsys.core.endpoint
 
 import com.emarsys.core.storage.StringStorage
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.Mockito
 
-class ServiceEndpointProviderTest {
+class ServiceEndpointProviderTest : AnnotationSpec() {
     companion object {
         const val ENDPOINT = "https://emarsys.com"
         const val DEFAULT_ENDPOINT = "https://default.emarsys.com"
     }
 
 
-
     private lateinit var serviceEndpointProvider: ServiceEndpointProvider
     private lateinit var mockServiceUrlStorage: StringStorage
 
-    @BeforeEach
+    @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
         mockServiceUrlStorage = Mockito.mock(StringStorage::class.java)

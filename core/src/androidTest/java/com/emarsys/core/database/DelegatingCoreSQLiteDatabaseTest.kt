@@ -4,25 +4,23 @@ import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.trigger.TriggerEvent
 import com.emarsys.core.database.trigger.TriggerKey
 import com.emarsys.core.database.trigger.TriggerType
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.shouldBe
-
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.Mockito.mock
 
-class DelegatingCoreSQLiteDatabaseTest {
-
+class DelegatingCoreSQLiteDatabaseTest : AnnotationSpec() {
 
 
     private lateinit var db: DelegatingCoreSQLiteDatabase
     private lateinit var triggerMap: MutableMap<TriggerKey, MutableList<Runnable>>
 
-    @BeforeEach
+    @Before
     fun init() {
-        val coreDbHelper = CoreDbHelper(InstrumentationRegistry.getTargetContext().applicationContext, mutableMapOf())
+        val coreDbHelper = CoreDbHelper(
+            InstrumentationRegistry.getTargetContext().applicationContext,
+            mutableMapOf()
+        )
 
         triggerMap = mutableMapOf()
 

@@ -1,20 +1,17 @@
 package com.emarsys.core.response
 
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainAll
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.Mockito.inOrder
 import org.mockito.Mockito.mock
 
-class ResponseHandlersProcessorTest {
+class ResponseHandlersProcessorTest : AnnotationSpec() {
 
 
     private lateinit var responseHandlersProcessor: ResponseHandlersProcessor
 
-    @BeforeEach
+    @Before
     fun setUp() {
         responseHandlersProcessor = ResponseHandlersProcessor()
     }

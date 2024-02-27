@@ -8,10 +8,8 @@ import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.util.log.LogLevel
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.log.entry.CrashLog
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.eq
@@ -21,11 +19,11 @@ import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.CountDownLatch
 
 
-class LogExceptionProxyTest {
+class LogExceptionProxyTest : AnnotationSpec() {
     private lateinit var mockLogger: Logger
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
-    @BeforeEach
+    @Before
     fun setUp() {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockLogger = mock()
@@ -39,7 +37,7 @@ class LogExceptionProxyTest {
         setupCoreComponent(dependencyContainer)
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         tearDownCoreComponent()
     }

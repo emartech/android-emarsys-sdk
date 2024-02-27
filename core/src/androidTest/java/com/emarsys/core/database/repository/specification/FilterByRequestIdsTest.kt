@@ -7,15 +7,13 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.request.model.RequestModelRepository
 import com.emarsys.core.request.model.specification.FilterByRequestIds
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 
-class FilterByRequestIdsTest {
-
+class FilterByRequestIdsTest : AnnotationSpec() {
 
 
     private lateinit var repository: RequestModelRepository
@@ -24,7 +22,7 @@ class FilterByRequestIdsTest {
     private lateinit var requestModel3: RequestModel
     private lateinit var requestModel4: RequestModel
 
-    @BeforeEach
+    @Before
     fun init() {
         DatabaseTestUtils.deleteCoreDatabase()
         val timestampProvider = TimestampProvider()

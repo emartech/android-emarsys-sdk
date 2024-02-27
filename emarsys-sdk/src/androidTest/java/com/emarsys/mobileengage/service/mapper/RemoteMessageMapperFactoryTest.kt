@@ -3,20 +3,19 @@ package com.emarsys.mobileengage.service.mapper
 import android.content.Context
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.resource.MetaDataReader
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 
 
-class RemoteMessageMapperFactoryTest {
+class RemoteMessageMapperFactoryTest : AnnotationSpec() {
     private lateinit var mockMetaDataReader: MetaDataReader
     private lateinit var context: Context
     private lateinit var mockUuidProvider: UUIDProvider
     private lateinit var remoteMessageMapperFactory: RemoteMessageMapperFactory
 
-    @BeforeEach
+    @Before
     fun init() {
         mockMetaDataReader = mock()
         context = InstrumentationRegistry.getTargetContext()

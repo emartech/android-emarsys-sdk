@@ -1,27 +1,25 @@
 package com.emarsys.predict.provider
 
+
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.predict.request.PredictHeaderFactory
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.request.PredictRequestModelBuilder
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.Mockito.mock
 
-class PredictRequestModelBuilderProviderTest {
+class PredictRequestModelBuilderProviderTest : AnnotationSpec() {
 
     private lateinit var mockRequestContext: PredictRequestContext
     private lateinit var mockHeaderFactory: PredictHeaderFactory
     private lateinit var mockServiceProvider: ServiceEndpointProvider
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockRequestContext = mock(PredictRequestContext::class.java)
         mockHeaderFactory = mock(PredictHeaderFactory::class.java)

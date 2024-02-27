@@ -1,14 +1,14 @@
 package com.emarsys.mobileengage.iam
 
 import com.emarsys.core.provider.timestamp.TimestampProvider
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+
+import com.emarsys.testUtil.AnnotationSpec
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
-class PushToInAppActionTest {
+class PushToInAppActionTest : AnnotationSpec() {
 
     companion object {
         const val CAMPAIGN_ID = "campaignId"
@@ -25,7 +25,7 @@ class PushToInAppActionTest {
     private lateinit var mockTimestampProvider: TimestampProvider
 
 
-    @BeforeEach
+    @Before
     fun setup() {
         mockOverlayInAppPresenter = mock()
         mockTimestampProvider = mock()

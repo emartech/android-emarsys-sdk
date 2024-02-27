@@ -1,13 +1,13 @@
 package com.emarsys.mobileengage.notification.command
 
 
-import org.junit.jupiter.api.Test
+import com.emarsys.testUtil.AnnotationSpec
 
 import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
-class CompositeCommandTest {
+class CompositeCommandTest : AnnotationSpec() {
 
 
     @Test

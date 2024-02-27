@@ -1,19 +1,17 @@
 package com.emarsys.mobileengage.event
 
+
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.spy
 
-class DefaultEventServiceInternalTest {
+class DefaultEventServiceInternalTest : AnnotationSpec() {
 
     companion object {
         const val REQUEST_ID = "request_id"
@@ -31,7 +29,7 @@ class DefaultEventServiceInternalTest {
     private lateinit var eventServiceInternal: EventServiceInternal
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockRequestModel = mock(RequestModel::class.java)
         mockRequestManager = mock(RequestManager::class.java)

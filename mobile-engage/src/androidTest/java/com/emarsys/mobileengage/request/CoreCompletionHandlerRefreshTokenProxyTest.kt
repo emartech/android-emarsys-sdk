@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.request
 
+
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.model.RequestMethod
@@ -8,11 +9,8 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.util.RequestModelHelper
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.eq
@@ -21,8 +19,7 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import java.net.URL
 
-class CoreCompletionHandlerRefreshTokenProxyTest {
-
+class CoreCompletionHandlerRefreshTokenProxyTest : AnnotationSpec() {
 
 
     companion object {
@@ -41,7 +38,7 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
     private lateinit var mockRequestModelHelper: RequestModelHelper
     private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockRequestModel = mock {
             on { url } doReturn URL(CLIENT_HOST)

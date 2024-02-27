@@ -4,16 +4,15 @@ import android.content.Context
 import android.os.Bundle
 import com.emarsys.fake.FakeFirebaseDependencyContainer
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.google.firebase.messaging.RemoteMessage
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 
-class EmarsysFirebaseMessagingServiceUtilsTest {
+class EmarsysFirebaseMessagingServiceUtilsTest : AnnotationSpec() {
     private lateinit var context: Context
 
-    @BeforeEach
+    @Before
     fun init() {
         context = InstrumentationRegistry.getTargetContext()
         setupMobileEngageComponent(

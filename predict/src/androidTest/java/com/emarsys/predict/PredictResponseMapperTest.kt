@@ -1,24 +1,22 @@
 package com.emarsys.predict
 
+
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.predict.api.model.Product
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.Mockito
 
-class PredictResponseMapperTest {
+class PredictResponseMapperTest : AnnotationSpec() {
 
     private lateinit var predictResponseMapper: PredictResponseMapper
     private lateinit var mockResponseModel: ResponseModel
     private lateinit var expectedResult: List<Product>
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         predictResponseMapper = PredictResponseMapper()
         mockResponseModel = Mockito.mock(ResponseModel::class.java)

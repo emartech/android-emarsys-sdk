@@ -12,12 +12,11 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.mobileengage.iam.dialog.IamDialog
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.anyNotNull
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -25,7 +24,7 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import java.util.concurrent.CountDownLatch
 
-class OverlayInAppPresenterTest {
+class OverlayInAppPresenterTest : AnnotationSpec() {
     companion object {
         private var SID = "testSid"
         private var URL = "https://www.emarsys.com"
@@ -39,7 +38,7 @@ class OverlayInAppPresenterTest {
 
     private lateinit var inAppPresenter: OverlayInAppPresenter
 
-    @BeforeEach
+    @Before
     fun setUp() {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockIamDialog = mock()

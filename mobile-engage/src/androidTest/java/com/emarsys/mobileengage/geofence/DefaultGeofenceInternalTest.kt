@@ -26,6 +26,7 @@ import com.emarsys.mobileengage.geofence.model.GeofenceResponse
 import com.emarsys.mobileengage.geofence.model.TriggeringEmarsysGeofence
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.mockito.whenever
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -36,8 +37,6 @@ import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
 import io.kotest.matchers.shouldBe
 import org.json.JSONObject
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.Mockito.spy
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
@@ -50,7 +49,7 @@ import org.mockito.kotlin.verifyNoInteractions
 import java.util.concurrent.CountDownLatch
 import com.emarsys.mobileengage.api.geofence.Geofence as MEGeofence
 
-class DefaultGeofenceInternalTest {
+class DefaultGeofenceInternalTest : AnnotationSpec() {
 
     private companion object {
         val refreshTrigger = Trigger(
@@ -106,7 +105,7 @@ class DefaultGeofenceInternalTest {
     private lateinit var pendingIntent: PendingIntent
     private lateinit var mockTask: Task<Void>
 
-    @BeforeEach
+    @Before
     fun setUp() {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockInitialEnterTriggerEnabledStorage = mock()

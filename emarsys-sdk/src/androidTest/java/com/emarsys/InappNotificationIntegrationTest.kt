@@ -1,5 +1,6 @@
 package com.emarsys
 
+import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.Intent
@@ -7,6 +8,7 @@ import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.app.AppLifecycleObserver
+import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.di.DefaultEmarsysComponent
 import com.emarsys.di.DefaultEmarsysDependencies
@@ -15,13 +17,11 @@ import com.emarsys.mobileengage.iam.OverlayInAppPresenter
 import com.emarsys.mobileengage.service.IntentUtils
 import com.emarsys.mobileengage.service.NotificationData
 import com.emarsys.mobileengage.service.NotificationOperation
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ConnectionTestUtils
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.IntegrationTestUtils
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
@@ -29,7 +29,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
-class InappNotificationIntegrationTest {
+class InappNotificationIntegrationTest : AnnotationSpec() {
 
     private companion object {
         const val APP_ID = "14C19-A121F"
@@ -39,12 +39,13 @@ class InappNotificationIntegrationTest {
     private lateinit var completionListenerLatch: CountDownLatch
     private lateinit var baseConfig: EmarsysConfig
     private lateinit var mockInappPresenterOverlay: OverlayInAppPresenter
+    private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
 
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
 
 
-    @BeforeEach
+    @Before
     fun setup() {
         completionListenerLatch = CountDownLatch(1)
 
@@ -75,12 +76,17 @@ class InappNotificationIntegrationTest {
         ).thenAnswer {
             completionListenerLatch.countDown()
         }
+        mockCurrentActivityProvider = mock()
+        val mockActivity = mock<Activity>()
+        whenever(mockCurrentActivityProvider.get()).thenReturn(mockActivity)
 
         DefaultEmarsysDependencies(baseConfig, object : DefaultEmarsysComponent(baseConfig) {
             override val overlayInAppPresenter: OverlayInAppPresenter
                 get() = mockInappPresenterOverlay
             override val activityLifecycleWatchdog: ActivityLifecycleWatchdog
                 get() = mock()
+            override val currentActivityProvider: CurrentActivityProvider
+                get() = mockCurrentActivityProvider
             override val activityLifecycleActionRegistry: ActivityLifecycleActionRegistry
                 get() = mock()
             override val appLifecycleObserver: AppLifecycleObserver
@@ -96,7 +102,7 @@ class InappNotificationIntegrationTest {
         IntegrationTestUtils.doLogin()
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys(application)
     }

@@ -1,5 +1,6 @@
 package com.emarsys.inapp.ui
 
+
 import androidx.test.core.app.ActivityScenario
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.ResponseErrorException
@@ -20,15 +21,13 @@ import com.emarsys.mobileengage.iam.model.InAppMetaData
 import com.emarsys.mobileengage.iam.webview.IamWebView
 import com.emarsys.mobileengage.iam.webview.IamWebViewFactory
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ExtensionTestUtils.runOnMain
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.fake.FakeActivity
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.json.JSONObject
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.Mockito.spy
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
@@ -39,7 +38,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
-class InlineInAppViewTest {
+class InlineInAppViewTest : AnnotationSpec() {
     private companion object {
         const val VIEW_ID = "testViewId"
         const val OTHER_VIEW_ID = "testViewId2"
@@ -60,7 +59,7 @@ class InlineInAppViewTest {
     private lateinit var scenario: ActivityScenario<FakeActivity>
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
 
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
@@ -106,7 +105,7 @@ class InlineInAppViewTest {
         runOnMain {}
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys()
         scenario.close()

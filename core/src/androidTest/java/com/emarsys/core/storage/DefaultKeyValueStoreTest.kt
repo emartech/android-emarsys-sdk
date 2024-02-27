@@ -3,16 +3,14 @@ package com.emarsys.core.storage
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import org.junit.Assert
 
 
-class DefaultKeyValueStoreTest {
+class DefaultKeyValueStoreTest : AnnotationSpec() {
     companion object {
         private const val KEY = "key"
         private const val DELTA = 0.001
@@ -28,7 +26,7 @@ class DefaultKeyValueStoreTest {
     private lateinit var store: DefaultKeyValueStore
     private lateinit var prefs: SharedPreferences
 
-    @BeforeEach
+    @Before
     @SuppressLint("ApplySharedPref")
     fun init() {
         prefs = InstrumentationRegistry.getTargetContext()
@@ -38,7 +36,7 @@ class DefaultKeyValueStoreTest {
         store = DefaultKeyValueStore(prefs)
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         prefs.edit().clear().commit()
     }
@@ -170,13 +168,13 @@ class DefaultKeyValueStoreTest {
     fun test_put_get_float_shouldStoreValue() {
         store.putFloat(KEY, 2.4f)
         store
-        Assertions.assertEquals(2.4f, store.getFloat(KEY), DELTA.toFloat())
+        Assert.assertEquals(2.4f, store.getFloat(KEY), DELTA.toFloat())
     }
 
     @Test
     fun test_put_get_double_shouldStoreValue() {
         store.putDouble(KEY, 0.2)
-        Assertions.assertEquals(0.2, store.getDouble(KEY), DELTA)
+        Assert.assertEquals(0.2, store.getDouble(KEY), DELTA)
     }
 
     @Test
@@ -187,11 +185,11 @@ class DefaultKeyValueStoreTest {
         store.putDouble(KEY4, java.lang.Double.POSITIVE_INFINITY)
         store.putDouble(KEY5, java.lang.Double.NEGATIVE_INFINITY)
 
-        Assertions.assertEquals(java.lang.Double.MAX_VALUE, store.getDouble(KEY1), DELTA)
-        Assertions.assertEquals(java.lang.Double.MIN_VALUE, store.getDouble(KEY2), DELTA)
-        Assertions.assertEquals(java.lang.Double.NaN, store.getDouble(KEY3), DELTA)
-        Assertions.assertEquals(java.lang.Double.POSITIVE_INFINITY, store.getDouble(KEY4), DELTA)
-        Assertions.assertEquals(java.lang.Double.NEGATIVE_INFINITY, store.getDouble(KEY5), DELTA)
+        Assert.assertEquals(java.lang.Double.MAX_VALUE, store.getDouble(KEY1), DELTA)
+        Assert.assertEquals(java.lang.Double.MIN_VALUE, store.getDouble(KEY2), DELTA)
+        Assert.assertEquals(java.lang.Double.NaN, store.getDouble(KEY3), DELTA)
+        Assert.assertEquals(java.lang.Double.POSITIVE_INFINITY, store.getDouble(KEY4), DELTA)
+        Assert.assertEquals(java.lang.Double.NEGATIVE_INFINITY, store.getDouble(KEY5), DELTA)
     }
 
     @Test
@@ -212,10 +210,10 @@ class DefaultKeyValueStoreTest {
         store.getLong(KEY) shouldBe 88111
 
         store.putFloat(KEY, 765.23f)
-        Assertions.assertEquals(765.23f, store.getFloat(KEY), DELTA.toFloat())
+        Assert.assertEquals(765.23f, store.getFloat(KEY), DELTA.toFloat())
 
         store.putDouble(KEY, 0.03013)
-        Assertions.assertEquals(0.03013, store.getDouble(KEY), DELTA)
+        Assert.assertEquals(0.03013, store.getDouble(KEY), DELTA)
 
         store.putBoolean(KEY, true)
         store.getBoolean(KEY) shouldBe true
@@ -237,11 +235,11 @@ class DefaultKeyValueStoreTest {
 
         store.putFloat(KEY4, 44.2f)
         store.remove(KEY4)
-        Assertions.assertEquals(0.0f, store.getFloat(KEY4), DELTA.toFloat())
+        Assert.assertEquals(0.0f, store.getFloat(KEY4), DELTA.toFloat())
 
         store.putDouble(KEY5, 120120.0301)
         store.remove(KEY5)
-        Assertions.assertEquals(0.0, store.getDouble(KEY5), DELTA)
+        Assert.assertEquals(0.0, store.getDouble(KEY5), DELTA)
 
         store.putBoolean(KEY6, true)
         store.remove(KEY6)

@@ -2,13 +2,12 @@ package com.emarsys.core.request.model
 
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import java.net.URL
 
-class CompositeRequestModelTest {
+class CompositeRequestModelTest : AnnotationSpec() {
 
     private companion object {
         const val TIMESTAMP = 800L
@@ -26,7 +25,7 @@ class CompositeRequestModelTest {
     private lateinit var payload: Map<String, Any>
     private lateinit var headers: Map<String, String>
 
-    @BeforeEach
+    @Before
     fun setUp() {
         payload = createPayload()
         headers = createHeaders()

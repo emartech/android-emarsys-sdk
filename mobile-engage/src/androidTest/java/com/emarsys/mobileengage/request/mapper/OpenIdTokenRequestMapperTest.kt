@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.request.mapper
 
+
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
@@ -8,17 +9,14 @@ import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.util.RequestModelHelper
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
-class OpenIdTokenRequestMapperTest {
+class OpenIdTokenRequestMapperTest : AnnotationSpec() {
     private companion object {
         const val OPEN_ID_TOKEN = "openIdToken"
         const val TIMESTAMP = 123456789L
@@ -35,7 +33,7 @@ class OpenIdTokenRequestMapperTest {
     private lateinit var mockRequestModelHelper: RequestModelHelper
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockDeviceInfo = mock {
             on { hardwareId } doReturn HARDWARE_ID

@@ -4,52 +4,16 @@ import android.content.ContentValues
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.trigger.TriggerEvent
 import com.emarsys.core.database.trigger.TriggerType
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.MethodSource
-import org.mockito.Mockito
+import io.kotest.data.forAll
+import io.kotest.data.row
+import kotlinx.coroutines.runBlocking
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
 
-class DelegatingCoreSQLiteDatabase_triggerRecursion_parameterizedTest {
-
-    private lateinit var mockRunnable: Runnable
-    private lateinit var db: DelegatingCoreSQLiteDatabase
-
-    @BeforeEach
-    fun init() {
-        DatabaseTestUtils.deleteCoreDatabase()
-
-        val coreDbHelper = CoreDbHelper(
-            InstrumentationRegistry.getTargetContext().applicationContext,
-            mutableMapOf()
-        )
-        db = DelegatingCoreSQLiteDatabase(coreDbHelper.writableDatabase, mutableMapOf())
-
-        db.backingDatabase.execSQL(CREATE)
-
-        mockRunnable = mock(Runnable::class.java)
-    }
-
-    @ParameterizedTest
-    @MethodSource("data")
-    fun testRegisterTrigger_doesNotRunInto_recursiveTriggerLoop(
-        triggerType: TriggerType,
-        triggerEvent: TriggerEvent,
-        triggerAction: Runnable
-    ) {
-        val trigger = Runnable {
-            triggerAction.run()
-            mockRunnable.run()
-        }
-
-        db.registerTrigger(TABLE_NAME, triggerType, triggerEvent, trigger)
-
-        triggerAction.run()
-
-        Mockito.verify(mockRunnable).run()
-    }
+class DelegatingCoreSQLiteDatabase_triggerRecursion_parameterizedTest : AnnotationSpec() {
 
     companion object {
         private const val TABLE_NAME = "TEST"
@@ -63,44 +27,75 @@ class DelegatingCoreSQLiteDatabase_triggerRecursion_parameterizedTest {
         }
     }
 
-    fun data(): Collection<Array<Any>> {
-        return listOf(
-            arrayOf(
+    private lateinit var mockRunnable: Runnable
+    private lateinit var db: DelegatingCoreSQLiteDatabase
+
+    @Before
+    fun setUp() {
+        DatabaseTestUtils.deleteCoreDatabase()
+
+        val coreDbHelper = CoreDbHelper(
+            InstrumentationRegistry.getTargetContext().applicationContext,
+            mutableMapOf()
+        )
+        db = DelegatingCoreSQLiteDatabase(coreDbHelper.writableDatabase, mutableMapOf())
+
+        db.backingDatabase.execSQL(CREATE)
+
+        mockRunnable = mock()
+    }
+
+    @Test
+    fun testRegisterTrigger_doesNotRunInto_recursiveTriggerLoop() = runBlocking {
+        forAll(
+            row(
                 TriggerType.BEFORE,
                 TriggerEvent.INSERT,
                 Runnable {
                     db.insert(TABLE_NAME, null, contentValues)
                 }),
-            arrayOf(
+            row(
                 TriggerType.AFTER,
                 TriggerEvent.INSERT,
                 Runnable {
                     db.insert(TABLE_NAME, null, contentValues)
                 }),
-            arrayOf(
+            row(
                 TriggerType.BEFORE,
                 TriggerEvent.DELETE,
                 Runnable {
                     db.delete(TABLE_NAME, null, null)
                 }),
-            arrayOf(
+            row(
                 TriggerType.AFTER,
                 TriggerEvent.DELETE,
                 Runnable {
                     db.delete(TABLE_NAME, null, null)
                 }),
-            arrayOf(
+            row(
                 TriggerType.BEFORE,
                 TriggerEvent.UPDATE,
                 Runnable {
                     db.update(TABLE_NAME, contentValues, null, null)
                 }),
-            arrayOf(
+            row(
                 TriggerType.AFTER,
                 TriggerEvent.UPDATE,
                 Runnable {
                     db.update(TABLE_NAME, contentValues, null, null)
                 })
-        )
+        ) { triggerType, triggerEvent, triggerAction ->
+            setUp()
+            val trigger = Runnable {
+                triggerAction.run()
+                mockRunnable.run()
+            }
+
+            db.registerTrigger(TABLE_NAME, triggerType, triggerEvent, trigger)
+
+            triggerAction.run()
+
+            verify(mockRunnable).run()
+        }
     }
 }

@@ -1,22 +1,20 @@
 package com.emarsys.core.util
 
+
 import com.emarsys.core.util.JsonUtils.fromList
 import com.emarsys.core.util.JsonUtils.fromMap
 import com.emarsys.core.util.JsonUtils.merge
 import com.emarsys.core.util.JsonUtils.toFlatMap
 import com.emarsys.core.util.JsonUtils.toFlatMapIncludingNulls
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-
-
-import org.junit.jupiter.api.Test
-
 import java.util.*
 
-class JsonUtilsTest {
+class JsonUtilsTest : AnnotationSpec() {
 
     private companion object {
         const val KEY_1 = "key1"

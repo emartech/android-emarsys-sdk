@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.notification.command
 
+
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
@@ -9,13 +10,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import com.emarsys.mobileengage.fake.FakeActivityLifecycleCallbacks
 import com.emarsys.mobileengage.notification.LaunchActivityCommandLifecycleCallbacksFactory
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.fake.FakeActivity
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
@@ -25,13 +24,13 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
-class LaunchApplicationCommandTest {
+class LaunchApplicationCommandTest : AnnotationSpec() {
 
 
     private lateinit var scenario: ActivityScenario<FakeActivity>
     private lateinit var mockProviderLaunchActivityCommand: LaunchActivityCommandLifecycleCallbacksFactory
 
-    @BeforeEach
+    @Before
     fun setUp() {
         scenario = ActivityScenario.launch(FakeActivity::class.java)
         scenario.onActivity { activity ->
@@ -40,7 +39,7 @@ class LaunchApplicationCommandTest {
         }
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         scenario.close()
     }

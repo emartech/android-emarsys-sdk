@@ -14,12 +14,11 @@ import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.request.model.specification.FilterByRequestIds
 import com.emarsys.core.response.ResponseModel
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.ThreadSpy
 import io.kotest.matchers.ints.shouldBeLessThanOrEqual
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.capture
@@ -33,7 +32,7 @@ import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
-class CoreCompletionHandlerMiddlewareTest {
+class CoreCompletionHandlerMiddlewareTest : AnnotationSpec() {
     private lateinit var coreCompletionHandler: CoreCompletionHandler
     private lateinit var requestRepository: Repository<RequestModel, SqlSpecification>
     private lateinit var mockWorker: Worker
@@ -44,7 +43,7 @@ class CoreCompletionHandlerMiddlewareTest {
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
 
-    @BeforeEach
+    @Before
     fun setup() {
         expectedId = "expectedId"
         mockWorker = mock()

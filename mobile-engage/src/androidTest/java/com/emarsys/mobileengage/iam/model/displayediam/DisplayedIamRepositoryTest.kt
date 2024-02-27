@@ -8,23 +8,22 @@ import com.emarsys.core.database.DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_TIME
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.helper.DbHelper
 import com.emarsys.core.handler.ConcurrentHandlerHolder
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import java.util.Date
 
-class DisplayedIamRepositoryTest {
+class DisplayedIamRepositoryTest : AnnotationSpec() {
 
     private lateinit var iamRepository: DisplayedIamRepository
     private lateinit var displayedIam1: DisplayedIam
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         deleteCoreDatabase()
         val context = getTargetContext()

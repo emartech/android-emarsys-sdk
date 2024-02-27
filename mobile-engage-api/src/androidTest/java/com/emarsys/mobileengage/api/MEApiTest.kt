@@ -1,10 +1,10 @@
 package com.emarsys.mobileengage.api
 
 
-import org.junit.jupiter.api.Test
+import com.emarsys.testUtil.AnnotationSpec
 
 
-class MEApiTest {
+class MEApiTest : AnnotationSpec() {
 
 
     @Test

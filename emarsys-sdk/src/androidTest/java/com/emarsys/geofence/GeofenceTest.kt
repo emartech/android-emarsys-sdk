@@ -1,25 +1,24 @@
 package com.emarsys.geofence
 
+
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.geofence.GeofenceInternal
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.IntegrationTestUtils
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
-class GeofenceTest {
+class GeofenceTest : AnnotationSpec() {
 
     private lateinit var geofenceProxy: GeofenceApi
     private lateinit var mockGeofenceInternal: GeofenceInternal
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockGeofenceInternal = mock()
         val dependencyContainer = FakeDependencyContainer(geofenceInternal = mockGeofenceInternal)
@@ -29,7 +28,7 @@ class GeofenceTest {
         geofenceProxy = Geofence()
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys()
     }

@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.service
 
+
 import android.R
 import android.app.Notification
 import android.content.Context
@@ -27,17 +28,13 @@ import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvid
 import com.emarsys.mobileengage.service.MessagingServiceUtils.styleNotification
 import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperFactory
 import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperV1
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.copyInputStreamToFile
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.json.JSONArray
 import org.json.JSONObject
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.ArgumentMatchers
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
@@ -47,7 +44,7 @@ import org.mockito.kotlin.whenever
 import java.io.File
 import java.util.Locale
 
-class MessagingServiceUtilsTest {
+class MessagingServiceUtilsTest : AnnotationSpec() {
     private companion object {
         const val TITLE = "title"
         const val BODY = "body"
@@ -93,7 +90,7 @@ class MessagingServiceUtilsTest {
     private lateinit var mockRemoteMessageMapperV1: RemoteMessageMapperV1
 
 
-    @BeforeEach
+    @Before
     fun init() {
         context = getTargetContext()
         val mockNotificationSettings: NotificationSettings = mock()
@@ -150,7 +147,7 @@ class MessagingServiceUtilsTest {
         )
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         mobileEngage().concurrentHandlerHolder.coreLooper.quitSafely()
         tearDownMobileEngageComponent()

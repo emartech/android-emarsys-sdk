@@ -11,23 +11,21 @@ import com.emarsys.inapp.InApp
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.iam.InAppInternal
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
-class InAppTest {
+class InAppTest : AnnotationSpec() {
     private lateinit var inApp: InApp
     private lateinit var mockInAppInternal: InAppInternal
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockInAppInternal = mock()
         val dependencyContainer = FakeDependencyContainer(inAppInternal = mockInAppInternal)
@@ -36,7 +34,7 @@ class InAppTest {
         inApp = InApp()
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         application.unregisterActivityLifecycleCallbacks(
                 mobileEngage().activityLifecycleWatchdog)

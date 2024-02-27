@@ -1,20 +1,17 @@
 package com.emarsys.core.activity
 
 import android.app.Activity
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
+import com.emarsys.testUtil.AnnotationSpec
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
-class ActivityLifecycleWatchdogTest {
+class ActivityLifecycleWatchdogTest : AnnotationSpec() {
     private lateinit var watchdog: ActivityLifecycleWatchdog
     private lateinit var mockRegistry: ActivityLifecycleActionRegistry
     private lateinit var mockActivity: Activity
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockRegistry = mock()
         mockActivity = mock()

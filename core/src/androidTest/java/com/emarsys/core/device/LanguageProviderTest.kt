@@ -2,18 +2,17 @@ package com.emarsys.core.device
 
 import android.os.Build.VERSION_CODES.P
 import androidx.test.filters.SdkSuppress
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import java.util.Locale
 
-class LanguageProviderTest {
+class LanguageProviderTest : AnnotationSpec() {
 
 
     private lateinit var languageProvider: LanguageProvider
 
-    @BeforeEach
+    @Before
     fun setUp() {
         languageProvider = LanguageProvider()
     }

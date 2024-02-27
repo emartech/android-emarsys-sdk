@@ -1,10 +1,10 @@
 package com.emarsys.core.api
 
 
-import org.junit.jupiter.api.Test
+import com.emarsys.testUtil.AnnotationSpec
 
 
-class ApiTest {
+class ApiTest : AnnotationSpec() {
 
 
     @Test

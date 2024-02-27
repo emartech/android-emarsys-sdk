@@ -13,6 +13,7 @@ import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.util.AndroidVersionUtils
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ApplicationTestUtils.applicationDebug
 import com.emarsys.testUtil.ApplicationTestUtils.applicationRelease
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
@@ -22,16 +23,13 @@ import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.json.JSONObject
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import java.util.*
 
-class DeviceInfoTest {
+class DeviceInfoTest : AnnotationSpec() {
 
     companion object {
         private const val HARDWARE_ID = "hwid"
@@ -49,7 +47,7 @@ class DeviceInfoTest {
     private lateinit var mockNotificationManagerHelper: NotificationSettings
 
 
-    @BeforeEach
+    @Before
     fun setup() {
         tz = TimeZone.getTimeZone("Asia/Tokyo")
         TimeZone.setDefault(tz)
@@ -72,7 +70,7 @@ class DeviceInfoTest {
         )
     }
 
-    @AfterEach
+    @After
     fun teardown() {
         TimeZone.setDefault(null)
     }

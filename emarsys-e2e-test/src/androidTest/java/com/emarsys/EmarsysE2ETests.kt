@@ -1,5 +1,6 @@
 package com.emarsys
 
+
 import android.app.Application
 import android.location.Location
 import android.location.LocationManager
@@ -11,26 +12,30 @@ import com.emarsys.di.emarsys
 import com.emarsys.mobileengage.api.geofence.Trigger
 import com.emarsys.mobileengage.api.geofence.TriggerType
 import com.emarsys.mobileengage.api.inbox.Message
-import com.emarsys.testUtil.*
-import com.emarsys.testUtil.rules.ConnectionExtension
-import com.emarsys.testUtil.rules.DuplicatedThreadExtension
+import com.emarsys.testUtil.AnnotationSpec
+import com.emarsys.testUtil.E2ETestUtils
+import com.emarsys.testUtil.InstrumentationRegistry
+import com.emarsys.testUtil.ReflectionTestUtils
+import com.emarsys.testUtil.RetryUtils
+import com.emarsys.testUtil.rules.DuplicatedThreadRule
+import com.emarsys.testUtil.rules.RetryRule
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.json.JSONObject
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Disabled
-
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.jupiter.api.extension.RegisterExtension
-import org.junitpioneer.jupiter.RetryingTest
-
+import org.junit.Rule
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import com.emarsys.mobileengage.api.geofence.Geofence as MEGeofence
 
-@ExtendWith(DuplicatedThreadExtension::class)
-class EmarsysE2ETests {
+class EmarsysE2ETests : AnnotationSpec() {
+
+    @Rule
+    @JvmField
+    val retryRule: RetryRule = RetryUtils.retryRule
+
+    @Rule
+    @JvmField
+    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
 
     companion object {
         private const val OLD_APPLICATION_CODE = "14C19-A121F"
@@ -44,17 +49,13 @@ class EmarsysE2ETests {
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
 
-    @JvmField
-    @RegisterExtension
-    var connectionExtension: ConnectionExtension = ConnectionExtension(application)
-
-    @AfterEach
+    @After
     fun tearDown() {
         E2ETestUtils.tearDownEmarsys(application)
     }
 
     @Test
-    @RetryingTest(3)
+
     fun testChangeApplicationCode() {
         setup(OLD_APPLICATION_CODE)
 
@@ -73,7 +74,7 @@ class EmarsysE2ETests {
     }
 
     @Test
-    @RetryingTest(3)
+
     fun testChangeApplicationCodeFromNull() {
         setup(null)
 
@@ -92,7 +93,7 @@ class EmarsysE2ETests {
     }
 
     @Test
-    @RetryingTest(3)
+
     fun testChangeApplicationCodeToNull() {
         var disabled = true
         setup(APPLICATION_CODE)
@@ -116,7 +117,7 @@ class EmarsysE2ETests {
     }
 
     @Test
-    @RetryingTest(3)
+
     fun testInbox_addTag_removeTag() {
         setup(APPLICATION_CODE)
 
@@ -160,8 +161,7 @@ class EmarsysE2ETests {
     }
 
     @Test
-    @Disabled("Test is too flaky to run on pipeline")
-    @RetryingTest(3)
+    @Ignore
     fun testGeofence() {
         setup(APPLICATION_CODE)
         RetryUtil.retry {

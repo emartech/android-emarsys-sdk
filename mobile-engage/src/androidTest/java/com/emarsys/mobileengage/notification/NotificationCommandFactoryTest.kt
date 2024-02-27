@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.notification
 
+
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -27,6 +28,7 @@ import com.emarsys.mobileengage.service.IntentUtils
 import com.emarsys.mobileengage.service.NotificationData
 import com.emarsys.mobileengage.service.NotificationMethod
 import com.emarsys.mobileengage.service.NotificationOperation
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.data.forAll
@@ -36,13 +38,10 @@ import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import org.json.JSONObject
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 import org.mockito.kotlin.mock
 
-class NotificationCommandFactoryTest {
+class NotificationCommandFactoryTest : AnnotationSpec() {
     private companion object {
         const val SID = "129487fw123"
         const val MISSING_SID = "Missing sid"
@@ -92,7 +91,7 @@ class NotificationCommandFactoryTest {
     private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
     private lateinit var mockActivity: Activity
 
-    @BeforeEach
+    @Before
     fun setUp() {
         context = InstrumentationRegistry.getTargetContext().applicationContext
         mockConcurrentHandlerHolder = mock()
@@ -126,7 +125,7 @@ class NotificationCommandFactoryTest {
         factory = NotificationCommandFactory(context)
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         tearDownMobileEngageComponent()
     }

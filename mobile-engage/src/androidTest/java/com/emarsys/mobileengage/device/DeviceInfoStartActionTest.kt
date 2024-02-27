@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.device
 
+
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.client.ClientServiceInternal
@@ -7,16 +8,14 @@ import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.util.waitForTask
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.SharedPrefsUtils
 import com.emarsys.testUtil.mockito.whenever
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 
-class DeviceInfoStartActionTest {
+class DeviceInfoStartActionTest : AnnotationSpec() {
 
     private lateinit var deviceInfoPayloadStorage: Storage<String?>
     private lateinit var mockClientServiceInternal: ClientServiceInternal
@@ -24,7 +23,7 @@ class DeviceInfoStartActionTest {
     private lateinit var mockDeviceInfo: DeviceInfo
 
 
-    @BeforeEach
+    @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
         deviceInfoPayloadStorage = mock()
@@ -41,7 +40,7 @@ class DeviceInfoStartActionTest {
 
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         SharedPrefsUtils.clearSharedPrefs("emarsys_secure_shared_preferences")
         tearDownMobileEngageComponent()

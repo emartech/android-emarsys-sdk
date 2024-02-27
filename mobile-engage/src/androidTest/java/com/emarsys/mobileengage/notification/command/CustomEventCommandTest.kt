@@ -1,15 +1,14 @@
 package com.emarsys.mobileengage.notification.command
 
 import com.emarsys.mobileengage.event.EventServiceInternal
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.throwables.shouldThrow
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 
-class CustomEventCommandTest {
+class CustomEventCommandTest : AnnotationSpec() {
     private lateinit var mockEventServiceInternal: EventServiceInternal
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockEventServiceInternal = Mockito.mock(EventServiceInternal::class.java)
     }

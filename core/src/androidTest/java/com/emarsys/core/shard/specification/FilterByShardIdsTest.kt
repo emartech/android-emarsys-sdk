@@ -7,17 +7,15 @@ import com.emarsys.core.database.repository.specification.Everything
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
 
 
-class FilterByShardIdsTest {
+class FilterByShardIdsTest : AnnotationSpec() {
 
     private lateinit var context: Context
     private lateinit var originalShardList: List<ShardModel>
@@ -25,7 +23,7 @@ class FilterByShardIdsTest {
     private lateinit var concurrentHadlerHolder: ConcurrentHandlerHolder
 
 
-    @BeforeEach
+    @Before
     fun init() {
         DatabaseTestUtils.deleteCoreDatabase()
         context = InstrumentationRegistry.getTargetContext().applicationContext

@@ -6,16 +6,16 @@ import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.util.waitForTask
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+
+
+import com.emarsys.testUtil.AnnotationSpec
 import org.mockito.Mockito
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 
-class DeepLinkActionTest {
+class DeepLinkActionTest : AnnotationSpec() {
     companion object {
         init {
             Mockito.mock(Intent::class.java)
@@ -27,7 +27,7 @@ class DeepLinkActionTest {
     private lateinit var action: DeepLinkAction
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
 
         setupMobileEngageComponent(FakeMobileEngageDependencyContainer())
@@ -36,7 +36,7 @@ class DeepLinkActionTest {
         action = DeepLinkAction(deepLinkInternal)
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         tearDownMobileEngageComponent()
     }

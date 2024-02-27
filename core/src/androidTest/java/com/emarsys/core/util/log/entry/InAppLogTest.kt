@@ -4,14 +4,12 @@ package com.emarsys.core.util.log.entry
 import com.emarsys.core.di.FakeCoreDependencyContainer
 import com.emarsys.core.di.setupCoreComponent
 import com.emarsys.core.provider.uuid.UUIDProvider
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
-class InAppLogTest {
+class InAppLogTest : AnnotationSpec() {
     private companion object {
         const val endTime = 10L
         const val startTime = 5L

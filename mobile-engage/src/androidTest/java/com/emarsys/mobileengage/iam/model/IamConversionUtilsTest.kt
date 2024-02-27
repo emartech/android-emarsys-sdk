@@ -3,12 +3,11 @@ package com.emarsys.mobileengage.iam.model
 import com.emarsys.core.util.TimestampUtils
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import java.util.Arrays
 
-class IamConversionUtilsTest {
+class IamConversionUtilsTest : AnnotationSpec() {
     private var buttonClicked1: ButtonClicked? = null
     private var buttonClicked2: ButtonClicked? = null
     private var buttonClicked3: ButtonClicked? = null
@@ -16,7 +15,7 @@ class IamConversionUtilsTest {
     private var displayedIam2: DisplayedIam? = null
     private var displayedIam3: DisplayedIam? = null
 
-    @BeforeEach
+    @Before
     fun init() {
         buttonClicked1 = ButtonClicked("campaign1", "button1", 200)
         buttonClicked2 = ButtonClicked("campaign1", "button2", 400)

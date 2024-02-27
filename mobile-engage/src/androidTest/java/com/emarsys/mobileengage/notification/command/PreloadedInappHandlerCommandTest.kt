@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.notification.command
 
+
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
@@ -10,13 +11,11 @@ import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.service.NotificationData
 import com.emarsys.mobileengage.service.NotificationOperation
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.FileTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.shouldBe
 import org.json.JSONObject
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -26,7 +25,7 @@ import java.io.File
 import java.util.concurrent.CountDownLatch
 
 
-class PreloadedInappHandlerCommandTest {
+class PreloadedInappHandlerCommandTest : AnnotationSpec() {
     companion object {
         private const val URL = "https://www.google.com"
         const val TITLE = "title"
@@ -61,7 +60,7 @@ class PreloadedInappHandlerCommandTest {
     private lateinit var fileUrl: String
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         fileUrl =
             InstrumentationRegistry.getTargetContext().applicationContext.cacheDir.absolutePath + "/test.file"
@@ -83,7 +82,7 @@ class PreloadedInappHandlerCommandTest {
 
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         concurrentHandlerHolder.coreLooper.quitSafely()
         tearDownMobileEngageComponent()

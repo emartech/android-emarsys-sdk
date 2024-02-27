@@ -2,17 +2,14 @@ package com.emarsys.core.util.log.entry
 
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import java.net.URL
 
-class RequestLogTest {
+class RequestLogTest : AnnotationSpec() {
     private companion object {
         const val TOPIC = "log_request"
         const val IN_DATABASE_TIME_END = 3L
@@ -23,7 +20,7 @@ class RequestLogTest {
     private lateinit var requestLog: RequestLog
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockRequestModel = mock {
             on { url }.doReturn(URL("https://emarsys.com"))

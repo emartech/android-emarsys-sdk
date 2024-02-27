@@ -31,7 +31,12 @@ android {
         buildConfigField(
             "String",
             "GOOGLE_OAUTH_SERVER_CLIENT_ID",
-            "\"${env.fetch("GOOGLE_OAUTH_SERVER_CLIENT_ID", System.getenv("GOOGLE_OAUTH_SERVER_CLIENT_ID") ?: "")}\""
+            "\"${
+                env.fetch(
+                    "GOOGLE_OAUTH_SERVER_CLIENT_ID",
+                    System.getenv("GOOGLE_OAUTH_SERVER_CLIENT_ID") ?: ""
+                )
+            }\""
         )
     }
 
@@ -58,10 +63,24 @@ android {
     if (env.fetch("RELEASE_MODE", (System.getenv("RELEASE_MODE") ?: "false")) == "true") {
         signingConfigs {
             create("release") {
-                storePassword = env.fetch( "ANDROID_RELEASE_STORE_PASSWORD", (System.getenv("ANDROID_RELEASE_STORE_PASSWORD") ?: ""))
-                keyAlias = env.fetch("ANDROID_RELEASE_KEY_ALIAS", (System.getenv("ANDROID_RELEASE_KEY_ALIAS") ?: ""))
-                keyPassword = env.fetch("ANDROID_RELEASE_KEY_PASSWORD", (System.getenv("ANDROID_RELEASE_KEY_PASSWORD") ?: ""))
-                storeFile = file(env.fetch("ANDROID_RELEASE_STORE_FILE_BASE64", (System.getenv("ANDROID_RELEASE_STORE_FILE_BASE64") ?: "")))
+                storePassword = env.fetch(
+                    "ANDROID_RELEASE_STORE_PASSWORD",
+                    (System.getenv("ANDROID_RELEASE_STORE_PASSWORD") ?: "")
+                )
+                keyAlias = env.fetch(
+                    "ANDROID_RELEASE_KEY_ALIAS",
+                    (System.getenv("ANDROID_RELEASE_KEY_ALIAS") ?: "")
+                )
+                keyPassword = env.fetch(
+                    "ANDROID_RELEASE_KEY_PASSWORD",
+                    (System.getenv("ANDROID_RELEASE_KEY_PASSWORD") ?: "")
+                )
+                storeFile = file(
+                    env.fetch(
+                        "ANDROID_RELEASE_STORE_FILE_BASE64",
+                        (System.getenv("ANDROID_RELEASE_STORE_FILE_BASE64") ?: "")
+                    )
+                )
             }
         }
         buildTypes {
@@ -81,13 +100,25 @@ android {
     }
     packaging {
         resources {
-            excludes += arrayOf("META-INF/LICENSE.md", "META-INF/LICENSE-notice.md")
+            excludes += arrayOf(
+                "README.txt",
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE-notice.md",
+                "**/attach_hotspot_windows.dll",
+                "META-INF/AL2.0",
+                "META-INF/LGPL2.1",
+                "META-INF/licenses/ASM"
+            )
         }
     }
 }
 
 dependencies {
-    if (env.fetch("USE_LOCAL_DEPENDENCY", (System.getenv("USE_LOCAL_DEPENDENCY") ?: "false")) == "true") {
+    if (env.fetch(
+            "USE_LOCAL_DEPENDENCY",
+            (System.getenv("USE_LOCAL_DEPENDENCY") ?: "false")
+        ) == "true"
+    ) {
         implementation(project(":emarsys-sdk"))
         implementation(project(":emarsys-firebase"))
         implementation(project(":emarsys-huawei"))

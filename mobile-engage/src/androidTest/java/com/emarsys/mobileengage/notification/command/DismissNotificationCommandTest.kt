@@ -6,14 +6,14 @@ import android.content.Intent
 import com.emarsys.mobileengage.service.NotificationData
 import com.emarsys.mobileengage.service.NotificationOperation
 
-import org.junit.jupiter.api.Test
+import com.emarsys.testUtil.AnnotationSpec
 
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 
-class DismissNotificationCommandTest {
+class DismissNotificationCommandTest : AnnotationSpec() {
     private companion object {
         const val TITLE = "title"
         const val BODY = "body"

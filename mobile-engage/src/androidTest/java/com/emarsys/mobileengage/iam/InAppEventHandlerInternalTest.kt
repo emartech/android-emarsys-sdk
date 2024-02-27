@@ -1,18 +1,16 @@
 package com.emarsys.mobileengage.iam
 
 
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
 
 
-class InAppEventHandlerInternalTest {
+class InAppEventHandlerInternalTest : AnnotationSpec() {
 
     private lateinit var inAppEventHandlerInternal: InAppEventHandlerInternal
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         inAppEventHandlerInternal = InAppEventHandlerInternal()
     }

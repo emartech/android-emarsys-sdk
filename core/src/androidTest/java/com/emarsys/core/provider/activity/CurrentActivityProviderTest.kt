@@ -1,14 +1,13 @@
 package com.emarsys.core.provider.activity
 
 import android.app.Activity
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import java.lang.ref.WeakReference
 
-class CurrentActivityProviderTest {
+class CurrentActivityProviderTest : AnnotationSpec() {
     private lateinit var provider: CurrentActivityProvider
     private lateinit var mockFallbackActivityProvider: FallbackActivityProvider
 
@@ -18,7 +17,7 @@ class CurrentActivityProviderTest {
     }
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockFallbackActivityProvider = mock()
         provider = CurrentActivityProvider(WeakReference(null), mockFallbackActivityProvider)

@@ -7,17 +7,16 @@ import com.emarsys.mobileengage.api.action.DismissActionModel
 import com.emarsys.mobileengage.api.action.OpenExternalUrlActionModel
 import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.mobileengage.api.inbox.Message
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import java.net.URL
 
-class MessageInboxResponseMapperTest {
+class MessageInboxResponseMapperTest : AnnotationSpec() {
 
     private lateinit var messageInboxResponseMapper: MessageInboxResponseMapper
 
-    @BeforeEach
+    @Before
     fun setUp() {
         messageInboxResponseMapper = MessageInboxResponseMapper()
     }

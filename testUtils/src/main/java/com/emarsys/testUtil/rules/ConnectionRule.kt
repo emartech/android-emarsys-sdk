@@ -2,12 +2,20 @@ package com.emarsys.testUtil.rules
 
 import android.app.Application
 import com.emarsys.testUtil.ConnectionTestUtils
-import org.junit.jupiter.api.extension.BeforeEachCallback
-import org.junit.jupiter.api.extension.ExtensionContext
+import org.junit.rules.TestRule
+import org.junit.runner.Description
+import org.junit.runners.model.Statement
 
-class ConnectionExtension(private val application: Application) : BeforeEachCallback {
-    override fun beforeEach(p0: ExtensionContext?) {
-        ConnectionTestUtils.checkConnection(application)
+class ConnectionRule(private val application: Application) : TestRule {
+
+    override fun apply(base: Statement?, description: Description?): Statement {
+        return object : Statement() {
+            override fun evaluate() {
+                ConnectionTestUtils.checkConnection(application)
+                base?.evaluate()
+                return
+            }
+        }
     }
 
 

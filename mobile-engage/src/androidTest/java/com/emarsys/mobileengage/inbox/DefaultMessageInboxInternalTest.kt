@@ -18,10 +18,9 @@ import com.emarsys.mobileengage.api.inbox.Message
 import com.emarsys.mobileengage.fake.FakeRestClient
 import com.emarsys.mobileengage.fake.FakeResultListener
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.CoroutineScope
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doReturn
@@ -33,7 +32,7 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
-class DefaultMessageInboxInternalTest {
+class DefaultMessageInboxInternalTest : AnnotationSpec() {
     private companion object {
         private const val TAG = "READ"
         private const val LOWER_CASED_TAG = "read"
@@ -54,7 +53,7 @@ class DefaultMessageInboxInternalTest {
     private lateinit var message: Message
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         message = Message(
             "testMessageId",

@@ -1,5 +1,6 @@
 package com.emarsys.config
 
+
 import com.emarsys.EmarsysRequestModelFactory
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.config.model.RemoteConfig
@@ -33,13 +34,11 @@ import com.emarsys.mobileengage.client.ClientServiceInternal
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.predict.PredictInternal
 import com.emarsys.predict.request.PredictRequestContext
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ExtensionTestUtils.tryCast
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doAnswer
@@ -56,7 +55,7 @@ import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
-class DefaultConfigInternalTest {
+class DefaultConfigInternalTest : AnnotationSpec() {
     private companion object {
         const val APPLICATION_CODE = "applicationCode"
         const val MERCHANT_ID = "merchantId"
@@ -98,7 +97,7 @@ class DefaultConfigInternalTest {
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
 
-    @BeforeEach
+    @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
         FeatureTestUtils.resetFeatures()
@@ -187,7 +186,7 @@ class DefaultConfigInternalTest {
         )
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         FeatureTestUtils.resetFeatures()
     }

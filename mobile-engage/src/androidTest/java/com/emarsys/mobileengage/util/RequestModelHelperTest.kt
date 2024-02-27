@@ -1,19 +1,17 @@
 package com.emarsys.mobileengage.util
 
+
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.request.model.RequestModel
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.Mockito.mock
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import java.net.URL
 
-class RequestModelHelperTest {
+class RequestModelHelperTest : AnnotationSpec() {
 
     private companion object {
         const val CLIENT_HOST = "https://me-client.eservice.emarsys.net/v3"
@@ -34,7 +32,7 @@ class RequestModelHelperTest {
     private lateinit var mockRequestModel: RequestModel
     private lateinit var requestModelHelper: RequestModelHelper
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockRequestModel = mock()
 

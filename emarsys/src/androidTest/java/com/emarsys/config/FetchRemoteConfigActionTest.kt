@@ -4,23 +4,23 @@ import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.fake.FakeEmarsysDependencyContainer
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+
+
+import com.emarsys.testUtil.AnnotationSpec
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.timeout
 import org.mockito.kotlin.times
 import org.mockito.kotlin.whenever
 
-class FetchRemoteConfigActionTest {
+class FetchRemoteConfigActionTest : AnnotationSpec() {
 
     private lateinit var fetchAction: FetchRemoteConfigAction
     private lateinit var mockConfigInternal: ConfigInternal
     private lateinit var mockCompletionListener: CompletionListener
 
 
-    @BeforeEach
+    @Before
     fun setup() {
         mockConfigInternal = mock()
         mockCompletionListener = mock()
@@ -31,7 +31,7 @@ class FetchRemoteConfigActionTest {
             FetchRemoteConfigAction(mockConfigInternal, completionListener = mockCompletionListener)
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         tearDownMobileEngageComponent()
     }

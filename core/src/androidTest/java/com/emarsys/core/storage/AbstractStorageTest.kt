@@ -1,20 +1,17 @@
 package com.emarsys.core.storage
 
 import android.content.SharedPreferences
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.Mockito.CALLS_REAL_METHODS
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 
-class AbstractStorageTest {
+class AbstractStorageTest : AnnotationSpec() {
     private companion object {
         const val VALUE = "value"
     }
@@ -23,7 +20,7 @@ class AbstractStorageTest {
     private lateinit var mockStorage: AbstractStorage<String, SharedPreferences>
 
 
-    @BeforeEach
+    @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
         mockSharedPreferences = mock()

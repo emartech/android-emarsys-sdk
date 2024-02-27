@@ -1,7 +1,6 @@
 package com.emarsys.core.response
 
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import com.emarsys.testUtil.AnnotationSpec
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -9,11 +8,11 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
-class AbstractResponseHandlerTest {
+class AbstractResponseHandlerTest : AnnotationSpec() {
     private lateinit var abstractResponseHandler: AbstractResponseHandler
 
 
-    @BeforeEach
+    @Before
     fun init() {
         abstractResponseHandler = mock()
     }

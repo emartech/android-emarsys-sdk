@@ -3,13 +3,13 @@ package com.emarsys.mobileengage.notification.command
 import android.content.Context
 import android.content.Intent
 
-import org.junit.jupiter.api.Test
+import com.emarsys.testUtil.AnnotationSpec
 
 import org.mockito.Mockito
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
-class OpenExternalUrlCommandTest {
+class OpenExternalUrlCommandTest : AnnotationSpec() {
     companion object {
         init {
             Mockito.mock(Context::class.java)

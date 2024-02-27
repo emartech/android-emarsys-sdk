@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.request.mapper
 
+
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
@@ -10,18 +11,15 @@ import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.mobileengage.util.RequestPayloadUtils
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
-class ContactTokenHeaderMapperTest {
+class ContactTokenHeaderMapperTest : AnnotationSpec() {
     private companion object {
         const val CONTACT_TOKEN = "contactToken"
         const val REFRESH_TOKEN = "refreshToken"
@@ -41,7 +39,7 @@ class ContactTokenHeaderMapperTest {
     private lateinit var mockRequestModelHelper: RequestModelHelper
 
 
-    @BeforeEach
+    @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
         mockContactTokenStorage = mock {

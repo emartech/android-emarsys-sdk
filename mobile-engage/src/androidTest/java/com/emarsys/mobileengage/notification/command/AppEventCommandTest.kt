@@ -4,24 +4,23 @@ import android.content.Context
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.event.CacheableEventHandler
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.mockito.ThreadSpy
+import io.kotest.assertions.fail
 import org.json.JSONException
 import org.json.JSONObject
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.fail
 import org.mockito.kotlin.*
 import java.util.concurrent.CountDownLatch
 
-class AppEventCommandTest {
+class AppEventCommandTest : AnnotationSpec() {
 
 
     private lateinit var applicationContext: Context
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var mockEventHandler: CacheableEventHandler
 
-    @BeforeEach
+    @Before
     fun setUp() {
         applicationContext = getTargetContext().applicationContext
         mockEventHandler = mock()
@@ -90,7 +89,7 @@ class AppEventCommandTest {
                 null
             ).run()
         } catch (e: Exception) {
-            fail(e.message)
+            fail(e.message!!)
         }
     }
 }

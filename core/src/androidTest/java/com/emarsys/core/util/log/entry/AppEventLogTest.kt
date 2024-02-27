@@ -1,11 +1,10 @@
 package com.emarsys.core.util.log.entry
 
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 
-import org.junit.jupiter.api.Test
 
-
-class AppEventLogTest {
+class AppEventLogTest : AnnotationSpec() {
 
 
     @Test

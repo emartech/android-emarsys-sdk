@@ -7,22 +7,20 @@ import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.util.waitForTask
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 
-class AppStartActionTest {
+class AppStartActionTest : AnnotationSpec() {
 
     private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var mockContactTokenStorage: Storage<String?>
     private lateinit var startAction: AppStartAction
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockEventServiceInternal = mock()
         mockContactTokenStorage = mock()
@@ -32,7 +30,7 @@ class AppStartActionTest {
         startAction = AppStartAction(mockEventServiceInternal, mockContactTokenStorage)
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         tearDownMobileEngageComponent()
     }

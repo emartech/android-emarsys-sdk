@@ -1,25 +1,26 @@
 package com.emarsys.config
 
+
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.mockito.whenever
-import com.emarsys.testUtil.rules.DuplicatedThreadExtension
+import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.Rule
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.doReturn
 
-@ExtendWith(DuplicatedThreadExtension::class)
 
-class ConfigTest {
+class ConfigTest : AnnotationSpec() {
+    @Rule
+    @JvmField
+    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
 
     companion object {
         private const val CLIENT_HOST = "https://me-client.eservice.emarsys.net"
@@ -30,7 +31,7 @@ class ConfigTest {
     lateinit var config: Config
     lateinit var mockConfigInternal: ConfigInternal
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockConfigInternal = mock(ConfigInternal::class.java)
         val mockClientServiceProvider: ServiceEndpointProvider = org.mockito.kotlin.mock {
@@ -54,7 +55,7 @@ class ConfigTest {
     }
 
 
-    @AfterEach
+    @After
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys()
     }
@@ -76,7 +77,10 @@ class ConfigTest {
 
         config.changeApplicationCode("testApplicationCode", mockCompletionListener)
 
-        verify(mockConfigInternal).changeApplicationCode("testApplicationCode", mockCompletionListener)
+        verify(mockConfigInternal).changeApplicationCode(
+            "testApplicationCode",
+            mockCompletionListener
+        )
     }
 
     @Test

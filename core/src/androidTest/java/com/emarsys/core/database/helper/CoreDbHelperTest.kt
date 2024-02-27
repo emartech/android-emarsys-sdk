@@ -2,27 +2,24 @@ package com.emarsys.core.database.helper
 
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 
 
-class CoreDbHelperTest {
+class CoreDbHelperTest : AnnotationSpec() {
 
     companion object {
         const val LATEST_DB_VERSION = 5
     }
 
 
-
     private lateinit var dbHelper: CoreDbHelper
     private lateinit var db: SQLiteDatabase
 
-    @BeforeEach
+    @Before
     fun init() {
         DatabaseTestUtils.deleteCoreDatabase()
         dbHelper = CoreDbHelper(
@@ -32,7 +29,7 @@ class CoreDbHelperTest {
         DatabaseTestUtils.dropAllTables(db)
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         db.close()
     }

@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.iam.webview
 
+
 import androidx.test.core.app.ActivityScenario
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
@@ -8,20 +9,16 @@ import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
 import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory
 import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactoryProvider
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ExtensionTestUtils.runOnMain
 import com.emarsys.testUtil.fake.FakeActivity
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import java.util.concurrent.CountDownLatch
 
-class IamWebViewFactoryTest {
+class IamWebViewFactoryTest : AnnotationSpec() {
 
     private lateinit var mockJSCommandFactoryProvider: JSCommandFactoryProvider
     private lateinit var mockJSCommandFactory: JSCommandFactory
@@ -33,7 +30,7 @@ class IamWebViewFactoryTest {
     private lateinit var webViewFactory: IamWebViewFactory
     private lateinit var scenario: ActivityScenario<FakeActivity>
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockJsBridge = mock()
         mockJsBridgeFactory = mock {
@@ -61,7 +58,7 @@ class IamWebViewFactoryTest {
         }
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         scenario.close()
     }

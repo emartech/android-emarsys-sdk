@@ -1,18 +1,17 @@
 package com.emarsys.mobileengage.iam.jsbridge
 
+
 import androidx.test.core.app.ActivityScenario
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.iam.model.InAppMetaData
 import com.emarsys.mobileengage.iam.webview.IamWebView
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.fake.FakeActivity
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import org.json.JSONObject
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
@@ -26,7 +25,7 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.verifyNoMoreInteractions
 
 
-class IamJsBridgeTest {
+class IamJsBridgeTest : AnnotationSpec() {
 
     private val jsonObject = JSONObject(
         mapOf(
@@ -51,7 +50,7 @@ class IamJsBridgeTest {
     private lateinit var captor: ArgumentCaptor<JSONObject>
     private lateinit var scenario: ActivityScenario<FakeActivity>
 
-    @BeforeEach
+    @Before
     fun setUp() {
         scenario = ActivityScenario.launch(FakeActivity::class.java)
         scenario.onActivity { activity ->
@@ -86,7 +85,7 @@ class IamJsBridgeTest {
         }
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         scenario.close()
     }

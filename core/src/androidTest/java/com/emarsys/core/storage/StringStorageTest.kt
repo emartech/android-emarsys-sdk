@@ -1,16 +1,15 @@
 package com.emarsys.core.storage
 
 import android.content.SharedPreferences
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.assertions.throwables.shouldThrow
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.Mockito.anyString
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 
-class StringStorageTest {
+class StringStorageTest : AnnotationSpec() {
 
     private companion object {
         const val VALUE = "value"
@@ -23,7 +22,7 @@ class StringStorageTest {
     private lateinit var storageKey: StorageKey
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         storageKey = mock(StorageKey::class.java).apply {
             whenever(key).thenReturn(KEY)

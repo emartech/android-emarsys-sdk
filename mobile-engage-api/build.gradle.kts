@@ -23,15 +23,21 @@ android {
 
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        testInstrumentationRunnerArguments["runnerBuilder"] =
-            "de.mannodermaus.junit5.AndroidJUnit5Builder"
     }
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
     }
     packaging {
         resources {
-            excludes += arrayOf("META-INF/LICENSE.md", "META-INF/LICENSE-notice.md")
+            excludes += arrayOf(
+                "README.txt",
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE-notice.md",
+                "**/attach_hotspot_windows.dll",
+                "META-INF/AL2.0",
+                "META-INF/LGPL2.1",
+                "META-INF/licenses/ASM"
+            )
         }
     }
 }

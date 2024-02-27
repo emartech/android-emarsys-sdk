@@ -9,19 +9,17 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.worker.CoreCompletionHandlerMiddleware
 import com.emarsys.core.worker.Worker
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.should
 import io.kotest.matchers.types.beInstanceOf
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import java.util.concurrent.CountDownLatch
 
-class CoreCompletionHandlerMiddlewareProviderTest {
-
+class CoreCompletionHandlerMiddlewareProviderTest : AnnotationSpec() {
 
 
     private lateinit var mockRequestRepository: Repository<RequestModel, SqlSpecification>
@@ -34,7 +32,7 @@ class CoreCompletionHandlerMiddlewareProviderTest {
     private lateinit var latch: CountDownLatch
     private lateinit var runnableFactory: RunnableFactory
 
-    @BeforeEach
+    @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
         latch = CountDownLatch(1)

@@ -2,16 +2,15 @@ package com.emarsys.config
 
 import android.app.Application
 import android.content.SharedPreferences
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
-class ConfigLoaderTest {
+class ConfigLoaderTest : AnnotationSpec() {
     companion object {
         private const val SHARED_PREF_NAME = "testPrefName"
         const val APP_CODE = "testAppCode"
@@ -24,7 +23,7 @@ class ConfigLoaderTest {
     private lateinit var mockSharedPreferences: SharedPreferences
     private lateinit var mockApplication : Application
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockSharedPreferences = mock()
         mockApplication = mock {

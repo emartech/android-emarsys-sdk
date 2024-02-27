@@ -1,17 +1,15 @@
 package com.emarsys.core.provider.version
 
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
 
 
-class VersionProviderTest {
+class VersionProviderTest : AnnotationSpec() {
 
 
     private lateinit var versionProvider: VersionProvider
 
-    @BeforeEach
+    @Before
     fun setUp() {
         versionProvider = VersionProvider()
     }

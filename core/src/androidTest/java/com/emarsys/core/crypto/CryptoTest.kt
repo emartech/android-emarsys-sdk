@@ -1,16 +1,17 @@
 package com.emarsys.core.crypto
 
 import android.util.Base64
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import org.junit.jupiter.api.Test
 import java.security.KeyFactory
 import java.security.PublicKey
 import java.security.spec.X509EncodedKeySpec
 
-class CryptoTest {
+class CryptoTest : AnnotationSpec() {
     private companion object {
-        private const val PUBLIC_KEY = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAELjWEUIBX9zlm1OI4gF1hMCBLzpaBwgs9HlmSIBAqP4MDGy4ibOOV3FVDrnAY0Q34LZTbPBlp3gRNZJ19UoSy2Q=="
+        private const val PUBLIC_KEY =
+            "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAELjWEUIBX9zlm1OI4gF1hMCBLzpaBwgs9HlmSIBAqP4MDGy4ibOOV3FVDrnAY0Q34LZTbPBlp3gRNZJ19UoSy2Q=="
         private const val SECRET = "testSecret"
         private const val OLD_ITERATION_COUNT = 65536
     }
@@ -18,8 +19,9 @@ class CryptoTest {
     @Test
     fun testVerify_success() {
         val crypto = Crypto(createPublicKey())
-        val result = crypto.verify("testData".toByteArray(),
-                "MEUCIQDb6AxUK2W4IyKJ/P02Y0BNlm2ioP7ytu3dOyumc4hN8gIgEzwKmeCtd6Jn9Neg4Epn+oSkV4wAJNmfAgeeAM0u7Nw="
+        val result = crypto.verify(
+            "testData".toByteArray(),
+            "MEUCIQDb6AxUK2W4IyKJ/P02Y0BNlm2ioP7ytu3dOyumc4hN8gIgEzwKmeCtd6Jn9Neg4Epn+oSkV4wAJNmfAgeeAM0u7Nw="
         )
 
         result shouldBe true

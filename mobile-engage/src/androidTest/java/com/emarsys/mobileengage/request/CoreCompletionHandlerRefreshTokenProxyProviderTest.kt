@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.request
 
+
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.request.RestClient
@@ -9,16 +10,13 @@ import com.emarsys.core.worker.CoreCompletionHandlerMiddleware
 import com.emarsys.core.worker.Worker
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.util.RequestModelHelper
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.Mockito.mock
 import org.mockito.kotlin.mock
 
-class CoreCompletionHandlerRefreshTokenProxyProviderTest {
+class CoreCompletionHandlerRefreshTokenProxyProviderTest : AnnotationSpec() {
     private lateinit var mockCoreCompletionHandlerMiddlewareProvider: CoreCompletionHandlerMiddlewareProvider
     private lateinit var mockCoreCompletionHandlerMiddleware: CoreCompletionHandlerMiddleware
     private lateinit var mockRestClient: RestClient
@@ -36,7 +34,7 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest {
     private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
 
 
-    @BeforeEach
+    @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
         mockCoreCompletionHandlerMiddlewareProvider = mock()

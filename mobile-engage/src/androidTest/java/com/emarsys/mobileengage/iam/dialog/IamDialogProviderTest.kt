@@ -1,23 +1,21 @@
 package com.emarsys.mobileengage.iam.dialog
 
+
 import androidx.test.core.app.ActivityScenario
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.fake.FakeActivity
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import java.util.concurrent.CountDownLatch
 import kotlin.concurrent.thread
 
-class IamDialogProviderTest {
+class IamDialogProviderTest : AnnotationSpec() {
 
     private lateinit var iamDialogProvider: IamDialogProvider
     private lateinit var scenario: ActivityScenario<FakeActivity>
 
-    @BeforeEach
+    @Before
     fun setUp() {
         scenario = ActivityScenario.launch(FakeActivity::class.java)
         scenario.onActivity { activity ->
@@ -31,7 +29,7 @@ class IamDialogProviderTest {
         }
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         scenario.close()
     }

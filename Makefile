@@ -44,8 +44,6 @@ test-android-firebase-emulator: check-env ## run Android Instrumented tests on e
        --device model=Pixel2.arm,version=28,locale=en,orientation=portrait  \
        --device model=MediumPhone.arm,version=30,locale=en,orientation=portrait \
        --device model=SmallPhone.arm,version=33,locale=en,orientation=portrait \
-       --environment-variables runnerBuilder=de.mannodermaus.junit5.AndroidJUnit5Builder \
-       --environment-variables clearPackageData=true \
        --client-details matrixLabel="Android Emarsys SDK - virtual devices"
 
 test-android-firebase: check-env ## run Android Instrumented tests on real devices on Firebase Test Lab
@@ -53,13 +51,11 @@ test-android-firebase: check-env ## run Android Instrumented tests on real devic
        --type instrumentation \
        --app ./sample/build/outputs/apk/androidTest/debug/sample-debug-androidTest.apk \
        --test ./$(MODULE_NAME)/build/outputs/apk/androidTest/debug/$(MODULE_NAME)-debug-androidTest.apk \
-       --device model=f2q,version=30,locale=en,orientation=portrait  \
-       --device model=a51,version=31,locale=en,orientation=portrait \
-       --device model=bluejay,version=32,locale=en,orientation=portrait \
-       --device model=b4q,version=33,locale=en,orientation=portrait \
-       --environment-variables runnerBuilder=de.mannodermaus.junit5.AndroidJUnit5Builder \
-       --environment-variables clearPackageData=true \
-       --client-details matrixLabel="Unified SDK - physical devices"
+       --device model=redfin,version=30,locale=en,orientation=portrait  \
+       --device model=q2q,version=31,locale=en,orientation=portrait \
+       --device model=oriole,version=32,locale=en,orientation=portrait \
+       --device model=felix,version=33,locale=en,orientation=portrait \
+       --client-details matrixLabel="Android Emarsys SDK - physical devices"
 
 run-github-workflow-locally: check-env ## needs act to be installed: `brew install act` and docker running. Pass in workflow path to run
 	@act --secret-file ./workflow.secrets  -W $(WORKFLOW_PATH) --container-architecture linux/amd64

@@ -3,18 +3,17 @@ package com.emarsys.core.resource
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.os.Bundle
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
 
-class MetaDataReaderTest {
+class MetaDataReaderTest : AnnotationSpec() {
     private var reader: MetaDataReader? = null
 
-    @BeforeEach
+    @Before
     @Throws(Exception::class)
     fun setUp() {
         reader = MetaDataReader()

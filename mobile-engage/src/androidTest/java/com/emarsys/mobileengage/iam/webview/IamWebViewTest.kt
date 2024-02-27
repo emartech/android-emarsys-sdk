@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.iam.webview
 
+
 import android.app.Activity
 import androidx.test.core.app.ActivityScenario
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
@@ -11,18 +12,16 @@ import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory
 import com.emarsys.mobileengage.iam.jsbridge.OnAppEventListener
 import com.emarsys.mobileengage.iam.jsbridge.OnCloseListener
 import com.emarsys.mobileengage.iam.model.InAppMetaData
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ExtensionTestUtils.runOnMain
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
-class IamWebViewTest {
+class IamWebViewTest : AnnotationSpec() {
 
     private lateinit var iamWebView: IamWebView
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
@@ -33,7 +32,7 @@ class IamWebViewTest {
     private lateinit var mockActivity: Activity
     private lateinit var scenario: ActivityScenario<FakeActivity>
 
-    @BeforeEach
+    @Before
     fun setUp() {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockActivity = mock()
@@ -63,7 +62,7 @@ class IamWebViewTest {
         }
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         scenario.close()
     }

@@ -1,13 +1,14 @@
 package com.emarsys.core.util
 
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.Test
 
-class MapExtensionsKtTest {
+class MapExtensionsKtTest : AnnotationSpec() {
 
     @Test
     fun testGetCaseInsensitive() {
-        val map: Map<String?, String?> = mapOf("KeY0" to "Value0", "KeY1" to "Value1", "key2" to "Value2")
+        val map: Map<String?, String?> =
+            mapOf("KeY0" to "Value0", "KeY1" to "Value1", "key2" to "Value2")
         val result = map.getCaseInsensitive("key1")
 
         result shouldBe "Value1"

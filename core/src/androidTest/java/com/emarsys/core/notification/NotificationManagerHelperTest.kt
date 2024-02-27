@@ -1,15 +1,12 @@
 package com.emarsys.core.notification
 
 import com.emarsys.core.api.notification.ChannelSettings
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.Mockito.mock
 
-class NotificationManagerHelperTest {
+class NotificationManagerHelperTest : AnnotationSpec() {
 
     private companion object {
         const val CHANNEL_ID_1 = "channelId1"
@@ -21,7 +18,7 @@ class NotificationManagerHelperTest {
     private lateinit var notificationManagerHelper: NotificationManagerHelper
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockNotificationManagerProxy = mock(NotificationManagerProxy::class.java)
         notificationManagerHelper = NotificationManagerHelper(mockNotificationManagerProxy)

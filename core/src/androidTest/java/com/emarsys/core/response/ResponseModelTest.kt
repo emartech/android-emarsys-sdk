@@ -1,22 +1,18 @@
 package com.emarsys.core.response
 
+
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.request.model.RequestModel
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import org.json.JSONException
 import org.json.JSONObject
-
-
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import java.net.HttpCookie
 import java.util.*
 
-class ResponseModelTest {
+class ResponseModelTest : AnnotationSpec() {
 
     companion object {
         private const val timestamp: Long = 4200
@@ -32,7 +28,7 @@ class ResponseModelTest {
     private lateinit var mockRequestModel: RequestModel
 
 
-    @BeforeEach
+    @Before
     fun init() {
         statusCode = 200
         message = "OK"

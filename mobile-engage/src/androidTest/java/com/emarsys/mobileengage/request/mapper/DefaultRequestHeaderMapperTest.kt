@@ -1,20 +1,18 @@
 package com.emarsys.mobileengage.request.mapper
 
+
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.MobileEngageRequestContext
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
-class DefaultRequestHeaderMapperTest {
+class DefaultRequestHeaderMapperTest : AnnotationSpec() {
 
     private companion object {
         const val TIMESTAMP = 234123L
@@ -29,7 +27,7 @@ class DefaultRequestHeaderMapperTest {
     private lateinit var mockDeviceInfo: DeviceInfo
 
 
-    @BeforeEach
+    @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
         mockDeviceInfo = mock {

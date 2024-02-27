@@ -30,14 +30,13 @@ import com.emarsys.predict.model.LastTrackedItemContainer
 import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.request.PredictRequestModelBuilder
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
 import com.emarsys.testUtil.mockito.anyNotNull
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.argumentCaptor
@@ -49,7 +48,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import java.util.concurrent.CountDownLatch
 
-class DefaultPredictInternalTest {
+class DefaultPredictInternalTest : AnnotationSpec() {
 
     companion object {
         const val TTL = Long.MAX_VALUE
@@ -84,7 +83,7 @@ class DefaultPredictInternalTest {
     private lateinit var mockResultListener: ResultListener<Try<List<Product>>>
     private lateinit var mockLastTrackedItemContainer: LastTrackedItemContainer
 
-    @BeforeEach
+    @Before
     @Suppress("UNCHECKED_CAST")
     fun init() {
         latch = CountDownLatch(1)

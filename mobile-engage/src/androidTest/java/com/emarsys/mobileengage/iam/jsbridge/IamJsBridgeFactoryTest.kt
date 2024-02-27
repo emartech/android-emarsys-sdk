@@ -1,11 +1,11 @@
 package com.emarsys.mobileengage.iam.jsbridge
 
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 
-class IamJsBridgeFactoryTest {
+class IamJsBridgeFactoryTest : AnnotationSpec() {
 
     @Test
     fun createJsBridge_shouldReturnJSBridge() {

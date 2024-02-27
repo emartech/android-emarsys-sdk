@@ -1,11 +1,11 @@
 package com.emarsys.mobileengage.notification.command
 
 import com.emarsys.mobileengage.event.EventServiceInternal
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.throwables.shouldThrow
-import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 
-class TrackActionClickCommandTest {
+class TrackActionClickCommandTest : AnnotationSpec() {
     @Test
     fun testConstructor_eventServiceInternal_mustNotBeNull() {
         shouldThrow<IllegalArgumentException> {

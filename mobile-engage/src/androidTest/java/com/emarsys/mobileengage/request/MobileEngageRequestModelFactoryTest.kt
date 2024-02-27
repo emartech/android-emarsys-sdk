@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.request
 
+
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.device.DeviceInfo
@@ -14,17 +15,14 @@ import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository
 import com.emarsys.mobileengage.util.RequestPayloadUtils
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
-class MobileEngageRequestModelFactoryTest {
+class MobileEngageRequestModelFactoryTest : AnnotationSpec() {
 
     private companion object {
         const val TIMESTAMP = 123456789L
@@ -59,7 +57,7 @@ class MobileEngageRequestModelFactoryTest {
     lateinit var mockButtonClickedRepository: ButtonClickedRepository
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockEventServiceProvider = mock {
             on { provideEndpointHost() } doReturn EVENT_HOST

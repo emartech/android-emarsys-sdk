@@ -4,6 +4,7 @@ import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.test.filters.SdkSuppress
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ConnectionTestUtils.getConnectivityManagerMock
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.ReflectionTestUtils.setInstanceField
@@ -11,11 +12,10 @@ import io.kotest.data.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.Test
 
 
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
-class Connectivity_getConnectionState_ParameterizedTest {
+class Connectivity_getConnectionState_ParameterizedTest : AnnotationSpec() {
 
 
     @Test

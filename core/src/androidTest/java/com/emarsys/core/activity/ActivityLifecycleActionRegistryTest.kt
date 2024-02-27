@@ -6,9 +6,8 @@ import com.emarsys.core.activity.ActivityLifecycleAction.ActivityLifecycle.RESUM
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doReturn
@@ -19,7 +18,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
-class ActivityLifecycleActionRegistryTest {
+class ActivityLifecycleActionRegistryTest : AnnotationSpec() {
 
     private lateinit var activityLifecycleActionRegistry: ActivityLifecycleActionRegistry
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
@@ -30,7 +29,7 @@ class ActivityLifecycleActionRegistryTest {
     private lateinit var mockActions: MutableList<ActivityLifecycleAction>
     private lateinit var mockActivity: Activity
 
-    @BeforeEach
+    @Before
     fun setup() {
         mockActivity = mock()
         mockAction1 = mock {

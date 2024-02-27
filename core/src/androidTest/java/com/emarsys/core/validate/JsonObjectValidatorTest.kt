@@ -1,23 +1,19 @@
 package com.emarsys.core.validate
 
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import org.json.JSONObject
-
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.Mockito.mock
 
-class JsonObjectValidatorTest {
+class JsonObjectValidatorTest : AnnotationSpec() {
 
 
     lateinit var json: JSONObject
 
-    @BeforeEach
+    @Before
     fun init() {
         json = JSONObject()
             .put("key1", "value1")

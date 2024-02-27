@@ -14,12 +14,10 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.log.entry.LogEntry
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.ThreadSpy
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.kotlin.any
 import org.mockito.kotlin.capture
@@ -33,14 +31,13 @@ import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
 
-class LoggerTest {
+class LoggerTest : AnnotationSpec() {
 
     companion object {
         const val TIMESTAMP = 400L
         const val UUID = "UUID12345"
         const val TTL = Long.MAX_VALUE
     }
-
 
 
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
@@ -52,7 +49,7 @@ class LoggerTest {
     private lateinit var loggerMock: Logger
     private lateinit var mockLogLevelStorage: StringStorage
 
-    @BeforeEach
+    @Before
     @Suppress("UNCHECKED_CAST")
     fun init() {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
@@ -86,7 +83,7 @@ class LoggerTest {
         setupCoreComponent(dependencyContainer)
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         if (CoreComponent.isSetup()) {
             core().concurrentHandlerHolder.coreLooper.quitSafely()

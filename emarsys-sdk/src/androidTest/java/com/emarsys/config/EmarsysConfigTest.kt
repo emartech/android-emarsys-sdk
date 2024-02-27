@@ -1,5 +1,6 @@
 package com.emarsys.config
 
+
 import android.app.Application
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.api.experimental.FlipperFeature
@@ -7,18 +8,16 @@ import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.api.event.EventHandler
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.IntegrationTestUtils
 import io.kotest.assertions.fail
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
-class EmarsysConfigTest {
+class EmarsysConfigTest : AnnotationSpec() {
     companion object {
         private const val APP_ID = "appID"
         private const val MERCHANT_ID = "MERCHANT_ID"
@@ -36,7 +35,7 @@ class EmarsysConfigTest {
     private var automaticPushTokenSending = false
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         FeatureTestUtils.resetFeatures()
         val mockClientServiceProvider: ServiceEndpointProvider = mock {
@@ -67,7 +66,7 @@ class EmarsysConfigTest {
         )
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys(application)
     }

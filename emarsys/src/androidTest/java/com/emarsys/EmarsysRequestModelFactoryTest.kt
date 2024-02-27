@@ -6,15 +6,13 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.MobileEngageRequestContext
+
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
-class EmarsysRequestModelFactoryTest {
+class EmarsysRequestModelFactoryTest : AnnotationSpec() {
 
     companion object {
         const val HARDWARE_ID = "hardware_id"
@@ -30,7 +28,7 @@ class EmarsysRequestModelFactoryTest {
     private lateinit var mockMobileEngageRequestContext: MobileEngageRequestContext
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockTimeStampProvider = mock {
             on { provideTimestamp() } doReturn TIMESTAMP

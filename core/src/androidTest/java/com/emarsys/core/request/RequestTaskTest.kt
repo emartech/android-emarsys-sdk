@@ -3,12 +3,8 @@ package com.emarsys.core.request
 import com.emarsys.core.connection.ConnectionProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.request.model.RequestModel
-
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.fail
-
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.assertions.fail
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
@@ -16,10 +12,9 @@ import org.mockito.kotlin.whenever
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
-class RequestTaskTest {
+class RequestTaskTest : AnnotationSpec() {
     private lateinit var connectionProvider: ConnectionProvider
     private lateinit var mockTimestampProvider: TimestampProvider
-
 
 
     companion object {
@@ -28,7 +23,7 @@ class RequestTaskTest {
         private const val TIMESTAMP_2: Long = 1600
     }
 
-    @BeforeEach
+    @Before
     fun setUp() {
         connectionProvider = ConnectionProvider()
         mockTimestampProvider = mock()

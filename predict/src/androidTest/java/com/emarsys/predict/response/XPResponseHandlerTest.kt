@@ -1,29 +1,26 @@
 package com.emarsys.predict.response
 
+
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.KeyValueStore
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
-
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
-
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 
-class XPResponseHandlerTest {
+class XPResponseHandlerTest : AnnotationSpec() {
 
 
     private lateinit var keyValueStore: KeyValueStore
     private lateinit var responseHandler: XPResponseHandler
     private lateinit var mockPredictServiceProvider: ServiceEndpointProvider
 
-    @BeforeEach
+    @Before
     fun init() {
         mockPredictServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
             whenever(provideEndpointHost()).thenReturn("https://recommender.scarabresearch.com")

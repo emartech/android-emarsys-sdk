@@ -104,6 +104,7 @@ androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx
 io-coil = { module = "io.coil-kt:coil-compose", version.ref = "io-coil" }
 io-coil-compose = { module = "io.coil-kt:coil", version.ref = "io-coil" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
+kotest-runner-junit4 = { module = "io.kotest:kotest-runner-junit4", version.ref = "kotest" }
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 kotest-framework-engine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }

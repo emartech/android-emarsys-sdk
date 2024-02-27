@@ -8,11 +8,11 @@ import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
+import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 
-class JSCommandFactoryProviderTest {
+class JSCommandFactoryProviderTest : AnnotationSpec() {
 
     @Test
     fun provide_shouldReturnJSCommandFactory() {

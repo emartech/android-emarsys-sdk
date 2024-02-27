@@ -5,23 +5,21 @@ import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.collections.beEmpty
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
 
 
-class EverythingTest {
+class EverythingTest : AnnotationSpec() {
 
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
 
-    @BeforeEach
+    @Before
     fun init() {
         DatabaseTestUtils.deleteCoreDatabase()
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()

@@ -4,18 +4,17 @@ import android.webkit.WebView
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.fake.FakeMessageLoadedListener
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
 
-class IamWebViewClientTest {
+class IamWebViewClientTest : AnnotationSpec() {
     private lateinit var latch: CountDownLatch
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
 
-    @BeforeEach
+    @Before
     fun setUp() {
         latch = CountDownLatch(1)
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()

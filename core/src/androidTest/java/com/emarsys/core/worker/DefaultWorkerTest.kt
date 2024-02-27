@@ -13,11 +13,10 @@ import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.testUtil.RequestModelTestUtils.createRequestModel
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.doNothing
@@ -30,7 +29,7 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
-class DefaultWorkerTest {
+class DefaultWorkerTest : AnnotationSpec() {
     companion object {
         const val URL = "https://www.google.com"
     }
@@ -48,7 +47,7 @@ class DefaultWorkerTest {
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
 
-    @BeforeEach
+    @Before
     fun setup() {
         deleteCoreDatabase()
         watchDogMock = mock()
