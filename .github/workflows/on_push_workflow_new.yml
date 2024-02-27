@@ -3,10 +3,10 @@ name: New on commit workflow
 on:
   pull_request:
     types: [ opened, reopened, synchronize ]
-  workflow_dispatch:
   push:
     branches-ignore:
       - 'dependabot/**'
+  workflow_dispatch:
 
 env:
   USE_LOCAL_DEPENDENCY: ${{ vars.USE_LOCAL_DEPENDENCY }}
