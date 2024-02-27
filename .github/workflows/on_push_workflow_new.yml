@@ -31,16 +31,17 @@ env:
 jobs:
   Test:
     runs-on: ubuntu-latest
-    name: Test modules
+    name: Test & Lint
     strategy:
       matrix:
         include:
-          - module: core
-          - module: mobile-engage
-          - module: predict
-          - module: emarsys-firebase
-          - module: emarsys-huawei
-          - module: emarsys-sdk
+          - task: core
+          - task: mobile-engage
+          - task: predict
+          - task: emarsys-firebase
+          - task: emarsys-huawei
+          - task: emarsys-sdk
+          - task: lint
     steps:
       - uses: actions/checkout@v4
         with:
@@ -78,159 +79,58 @@ jobs:
         run: make build-test
 
       - name: Test core
-        if: matrix.module == 'core'
+        if: matrix.task == 'core'
         run: make test-android-firebase-emulator MODULE_NAME=core
 
       - name: Test mobile-engage
-        if: matrix.module == 'mobile-engage'
+        if: matrix.task == 'mobile-engage'
         run: make test-android-firebase-emulator MODULE_NAME=mobile-engage
 
       - name: Test predict
-        if: matrix.module == 'predict'
+        if: matrix.task == 'predict'
         run: make test-android-firebase-emulator MODULE_NAME=predict
 
       - name: Test emarsys-firebase
-        if: matrix.module == 'emarsys-firebase'
+        if: matrix.task == 'emarsys-firebase'
         run: make test-android-firebase-emulator MODULE_NAME=emarsys-firebase
 
       - name: Test emarsys-huawei
         if: matrix.module == 'emarsys-huawei'
-        run: make test-android-firebase-emulator MODULE_NAME=emarsys-huawei
+        run: make task-android-firebase-emulator MODULE_NAME=emarsys-huawei
 
       - name: Test emarsys-sdk
-        if: matrix.module == 'emarsys-sdk'
+        if: matrix.task == 'emarsys-sdk'
         run: make test-android-firebase-emulator MODULE_NAME=emarsys-sdk
 
-#  GradleLint:
-#    name: Run lint on project
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v3
-#        with:
-#          submodules: true
-#          fetch-depth: 0 # 0 indicates all history
-#      - run: git fetch --all || echo "==> Accept any result"
-#      - name: set up JDK 1.17
-#        uses: actions/setup-java@v3
-#        with:
-#          distribution: 'temurin'
-#          java-version: 17
-#      - name: create-google services json
-#        uses: jsdaniell/create-json@1.1.2
-#        with:
-#          name: google-services.json
-#          json: ${{ secrets.GOOGLE_SERVICES_JSON }}
-#          dir: sample
-#
-#      - name: create local.properties
-#        run: echo $ANDROID_HOME > local.properties
-#
-#      - name: Lint project with Gradle
-#        run: ./gradlew lint
+      - name: Run lint
+        if: matrix.task == 'lint'
+        run: make lint
 
-#  CreateReleaseBundle:
-#    name: Create release bundle
-#    needs: Build
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v3
-#        with:
-#          submodules: true
-#          fetch-depth: 0 # 0 indicates all history
-#      - run: git fetch --all || echo "==> Accept any result"
-#      - name: set up JDK 1.17
-#        uses: actions/setup-java@v3
-#        with:
-#          distribution: 'temurin'
-#          java-version: 17
-#      - name: create-google services json
-#        uses: jsdaniell/create-json@1.1.2
-#        with:
-#          name: google-services.json
-#          json: ${{ secrets.GOOGLE_SERVICES_JSON }}
-#          dir: sample
-#
-#      - name: create local.properties
-#        run: echo $ANDROID_HOME > local.properties
-#
-#      - name: Create release keystore file
-#        shell: bash
-#        run: |
-#          echo "${{ secrets.ANDROID_KEYSTORE }}" > mobile-team-android.jks.asc
-#                    gpg -d --passphrase "${{ secrets.ANDROID_GPG_PASSWORD }}" --batch mobile-team-android.jks.asc > sample/mobile-team-android.jks
-#      - name: Create release sample app with Gradle
-#        run: ./gradlew :sample:bundleRelease
-#
-#      - name: Upload bundle
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: mobile-sdk-sample
-#          path: sample/build/outputs/bundle/release/sample-release.aab
+  Report:
+    if: always()
+    needs: [ Test ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report on Slack (Error)
+        if: ${{ !cancelled() && contains(needs.*.result, 'failure') }}
+        uses: megamegax/slack_action@0.3.1
+        with:
+          webhook_url: '${{env.SLACK_WEBHOOK}}'
+          channel: '${{env.SLACK_CHANNEL}}'
+          message: 'On push workflow failed! :man-gesturing-no: :blobcatfearful:'
+          user_name: '${{env.SLACK_USERNAME}}'
+          job_status: 'failure'
+          user_icon: '${{env.SLACK_ICON}}'
+          actions: '[{ "type": "button", "text": "View actions", "url": "https://github.com/emartech/android-emarsys-sdk/actions" },{ "type": "button", "text": "View Firebase", "url": "https://console.firebase.google.com/project/ems-mobile-sdk/testlab/histories/" }]'
 
-#  ReleaseSample:
-#    name: Release sample app
-#    runs-on: ubuntu-latest
-#    needs: [ Build, TestCore, TestMobileEngage, TestPredict, TestEmarsysSDK, TestEmarsys, TestCommon, TestEmarsysFirebase, TestEmarsysHuawei, CreateReleaseBundle, GradleLint ]
-#    steps:
-#      - uses: actions/checkout@v3
-#        with:
-#          submodules: true
-#          fetch-depth: 0 # 0 indicates all history
-#      - run: git fetch --all || echo "==> Accept any result"
-#
-#      - name: Download sample app
-#        uses: actions/download-artifact@v2
-#        with:
-#          name: mobile-sdk-sample
-#
-#      - name: create-google services json
-#        uses: jsdaniell/create-json@1.1.2
-#        with:
-#          name: google-play-services.json
-#          json: ${{ secrets.GOOGLE_PLAY_STORE_SEVICE_ACCOUNT_JSON }}
-#
-#      - name: Playstore upload
-#        uses: r0adkll/upload-google-play@v1.0.15
-#        with:
-#          serviceAccountJson: google-play-services.json
-#          packageName: com.emarsys.sample
-#          releaseFile: sample-release.aab
-#          track: alpha
-#
-#  SlackNotification:
-#    name: Send slack notification
-#    runs-on: ubuntu-latest
-#    needs: [ ReleaseSample ]
-#    steps:
-#      - name: Slack Notification
-#        uses: megamegax/slack_action@0.2.3
-#        with:
-#          channel: '${{env.SLACK_CHANNEL}}'
-#          message: 'Last push build successful! :man-gesturing-ok: :bananadance:'
-#          user_name: '${{env.SLACK_USERNAME}}'
-#          job_status: 'success'
-#          user_icon: '${{env.SLACK_ICON}}'
-#          actions: '[{ "type": "button", "text": "View actions", "url": "https://github.com/emartech/android-emarsys-sdk/actions" },{ "type": "button", "text": "View Firebase", "url": "https://console.firebase.google.com/project/ems-mobile-sdk/testlab/histories/" },{ "type": "button", "text": "Install page", "url": "http://ems-mobileteam-artifacts.s3-website-eu-west-1.amazonaws.com/index-ems.html" }]'
-
-#
-#  SlackNotificationOnError:
-#    name: Send slack on error
-#    runs-on: ubuntu-latest
-#    needs: [ ReleaseSample ]
-#    if: ${{ failure() }}
-#    steps:
-#      - uses: actions/checkout@v3
-#        with:
-#          submodules: true
-#          fetch-depth: 0 # 0 indicates all history
-#      - run: git fetch --all || echo "==> Accept any result"
-#
-#      - name: Slack Notification
-#        uses: megamegax/slack_action@0.2.3
-#        with:
-#          channel: '${{env.SLACK_CHANNEL}}'
-#          message: 'Last push build failed! :man-gesturing-no: :blobcatfearful:'
-#          user_name: '${{env.SLACK_USERNAME}}'
-#          job_status: 'failure'
-#          user_icon: '${{env.SLACK_ICON}}'
-#          actions: '[{ "type": "button", "text": "View actions", "url": "https://github.com/emartech/android-emarsys-sdk/actions" },{ "type": "button", "text": "View Firebase", "url": "https://console.firebase.google.com/project/ems-mobile-sdk/testlab/histories/" }]'
+      - name: Report on Slack (Success)
+        if: ${{ !contains(needs.*.result, 'cancelled') && !contains(needs.*.result, 'failure') }}
+        uses: megamegax/slack_action@0.3.1
+        with:
+          webhook_url: '${{env.SLACK_WEBHOOK}}'
+          channel: '${{env.SLACK_CHANNEL}}'
+          message: 'On push workflow successful! :man-gesturing-ok: :success-kid:'
+          user_name: '${{env.SLACK_USERNAME}}'
+          job_status: 'success'
+          user_icon: '${{env.SLACK_ICON}}'
+          actions: '[{ "type": "button", "text": "View actions", "url": "https://github.com/emartech/android-emarsys-sdk/actions" },{ "type": "button", "text": "View Firebase", "url": "https://console.firebase.google.com/project/ems-mobile-sdk/testlab/histories/" },{ "type": "button", "text": "Install page", "url": "http://ems-mobileteam-artifacts.s3-website-eu-west-1.amazonaws.com/index-ems.html" }]'

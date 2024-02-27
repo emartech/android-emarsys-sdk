@@ -1,4 +1,4 @@
-.PHONY: check-env help build-test create-testing-apks prepare-ci run-github-workflow-locally test-android-firebase test-android-firebase-emulator
+.PHONY: check-env help build-test create-testing-apks lint prepare-ci run-github-workflow-locally test-android-firebase test-android-firebase-emulator
 .DEFAULT_GOAL := help
 SHELL := /bin/bash
 
@@ -32,9 +32,8 @@ build-test: check-env ## builds android tests excluding and lint
 create-testing-apks: check-env ## create apks for testing
 	@./gradlew assembleAndroidTest -x :sample:test
 
-prepare-ci: check-env ## setup prerequisites for pipeline
-	@echo $ANDROID_HOME > local.properties
-	@./gradlew base64EnvToFile -PpropertyName=GOOGLE_SERVICES_JSON_BASE64 -Pfile=./sample/google-services.json
+lint: check-env ## run lint
+	@./gradlew lint
 
 test-android-firebase-emulator: check-env ## run Android Instrumented tests on emulators on Firebase Test Lab
 	@gcloud firebase test android run \
