@@ -1,0 +1,51 @@
+name: Auto-Merge Dependabot PRs on CI Success
+
+on:
+  repository_dispatch:
+    types: [ checks-complete ]
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "PR_NUMBER=${{ toJson(github.event.client_payload.prNumber) }}" >> $GITHUB_ENV
+      - name: Wait for 10 seconds
+        run: sleep 10
+      - name: Check CI status and Merge PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = process.env.PR_NUMBER;
+            if (!prNumber) {
+              console.log("No PR number found.");
+              return;
+            }
+
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+            });
+            if(pullRequest.merged) {
+              console.log(`PR #${prNumber} is already merged.`);
+              return;
+            }
+            const { data: listCheckRuns } = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: pullRequest.head.sha,
+            });
+             console.log("checks: ", listCheckRuns);
+            const allChecksPassed = listCheckRuns.check_runs.every(check => check.conclusion === 'success' || check.name === 'Inclusive Language' || check.conclusion === 'skipped');
+
+            if (allChecksPassed) {
+              await github.rest.pulls.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+              });
+              console.log(`Merged PR #${prNumber}`);
+            } else {
+              console.log(`Not all checks passed for PR #${prNumber}`);
+            }
+
+          github-token: ${{ secrets.GITHUB_TOKEN }}

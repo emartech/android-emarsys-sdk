@@ -1,9 +1,12 @@
 name: New on commit workflow
 
 on:
+  pull_request:
+    types: [ opened, reopened, synchronize ]
   workflow_dispatch:
   push:
-    branches: [ dev ]
+    branches-ignore:
+      - 'dependabot/**'
 
 env:
   USE_LOCAL_DEPENDENCY: ${{ vars.USE_LOCAL_DEPENDENCY }}
@@ -134,3 +137,11 @@ jobs:
           job_status: 'success'
           user_icon: '${{env.SLACK_ICON}}'
           actions: '[{ "type": "button", "text": "View actions", "url": "https://github.com/emartech/android-emarsys-sdk/actions" },{ "type": "button", "text": "View Firebase", "url": "https://console.firebase.google.com/project/ems-mobile-sdk/testlab/histories/" },{ "type": "button", "text": "Install page", "url": "http://ems-mobileteam-artifacts.s3-website-eu-west-1.amazonaws.com/index-ems.html" }]'
+
+      - name: Trigger automerge
+        if: ${{ !contains(needs.*.result, 'cancelled') && !contains(needs.*.result, 'failure') && github.event.pull_request != null && github.actor == 'dependabot[bot]' && github.event.pull_request.merged == false}}
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.AUTO_MERGE_TOKEN }}
+          event-type: checks-complete
+          client-payload: '{ "prNumber": "${{ github.event.pull_request.number }}"}'
