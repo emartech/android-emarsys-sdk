@@ -74,7 +74,7 @@ jobs:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2.1.2
         with:
-          workload_identity_provider: 'projects/395478287999/locations/global/workloadIdentityPools/github-actions/providers/github-actions'
+          workload_identity_provider: 'projects/395478287999/locations/global/workloadIdentityPools/github-actions'
           service_account: 'firebase-test-lab-service-acco@ems-mobile-sdk.iam.gserviceaccount.com'
           create_credentials_file: true
 
