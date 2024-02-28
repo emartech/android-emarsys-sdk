@@ -1,4 +1,4 @@
-.PHONY: check-env help build-test create-testing-apks lint prepare-ci run-github-workflow-locally test-android-firebase test-android-firebase-emulator
+.PHONY: base64-secret-to-file build-test check-env help create-sample-release-bundle create-testing-apks lint prepare-ci run-github-workflow-locally test-android-firebase test-android-firebase-emulator
 .DEFAULT_GOAL := help
 SHELL := /bin/bash
 
@@ -26,11 +26,17 @@ help: check-env ## Show this help
 	@fgrep -h "##" $(MAKEFILE_LIST) | grep ":" | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/\(.*\):.*##[ \t]*/    \1 ## /' | sort | column -t -s '##'
 	@echo
 
+base64-secret-to-file: check-env ## decode base64 secret to path
+	@./gradlew base64EnvToFile -PpropertyName=$(SECRET) -Pfile=$(FILE)
+
 build-test: check-env ## builds android tests excluding and lint
 	@./gradlew clean assembleAndroidTest -x lint
 
 create-testing-apks: check-env ## create apks for testing
 	@./gradlew assembleAndroidTest -x :sample:test
+
+create-sample-release-bundle: check-env ## create sample app release bundle
+	@./gradlew :sample:bundleRelease
 
 lint: check-env ## run lint
 	@./gradlew lint

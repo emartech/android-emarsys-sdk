@@ -1,17 +1,14 @@
-name: Last push build
+name: On Push
 
 on:
-  workflow_dispatch:
+  pull_request:
+    types: [ opened, reopened, synchronize ]
   push:
-    branches: [ dev ]
+    branches-ignore:
+      - 'dependabot/**'
+  workflow_dispatch:
 
 env:
-  RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PRIVATE_KEY_PASSWORD }}
-  RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_KEYSTORE_ALIAS }}
-  RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-  RELEASE_STORE_FILE: ${{ secrets.RELEASE_STORE_FILE }}
-  DEVELOPMENT_MODE: ${{ secrets.DEVELOPMENT_MODE }}
-
   USE_LOCAL_DEPENDENCY: ${{ vars.USE_LOCAL_DEPENDENCY }}
   RELEASE_MODE: ${{ vars.RELEASE_MODE }}
   ANDROID_RELEASE_STORE_FILE_BASE64: ${{ secrets.ANDROID_RELEASE_STORE_FILE_BASE64 }}
@@ -35,446 +32,122 @@ env:
   SLACK_WEBHOOK: ${{ secrets.SLACK_MOBILE_TEAM_CI_CHANNEL_WEBHOOK }}
 
 jobs:
-  Build:
-    # The type of runner that the job will run on
+  Test:
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ubuntu-latest
-    name: Build job
+    name: Test & Lint
+    strategy:
+      matrix:
+        include:
+          - task: core
+          - task: mobile-engage
+          - task: predict
+          - task: emarsys-firebase
+          - task: emarsys-huawei
+          - task: emarsys-sdk
+          - task: lint
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: dev
           submodules: true
           fetch-depth: 0 # 0 indicates all history
-      - run: git fetch --all || echo "==> Accept any result"
+
       - name: set up JDK 1.17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: 17
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.6
+          cache-overwrite-existing: true
+          gradle-home-cache-cleanup: true
 
       - name: Prepare CI
         run: make prepare-ci
 
-      - name: Build with Gradle
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2.1.2
+        with:
+          workload_identity_provider: 'projects/395478287999/locations/global/workloadIdentityPools/github-actions/providers/github-actions '
+          service_account: 'firebase-test-lab-service-acco@ems-mobile-sdk.iam.gserviceaccount.com'
+          create_credentials_file: true
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - run: gcloud info
+      - run: gcloud config set project ${{ env.FIREBASE_PROJECT_ID }}
+
+      - name: Build
         run: make build-test
 
-      - name: upload sample app artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: sample
-          path: sample/build/outputs/apk/androidTest/debug/sample-debug-androidTest.apk
+      - name: Test core
+        if: matrix.task == 'core'
+        run: make test-android-firebase-emulator MODULE_NAME=core
 
-      - name: upload core test apk artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: core
-          path: core/build/outputs/apk/androidTest/debug/core-debug-androidTest.apk
+      - name: Test mobile-engage
+        if: matrix.task == 'mobile-engage'
+        run: make test-android-firebase-emulator MODULE_NAME=mobile-engage
 
-      - name: upload mobile-engage test apk artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: mobile-engage
-          path: mobile-engage/build/outputs/apk/androidTest/debug/mobile-engage-debug-androidTest.apk
+      - name: Test predict
+        if: matrix.task == 'predict'
+        run: make test-android-firebase-emulator MODULE_NAME=predict
 
-      - name: upload emarsys-sdk test apk artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: predict
-          path: predict/build/outputs/apk/androidTest/debug/predict-debug-androidTest.apk
+      - name: Test emarsys-firebase
+        if: matrix.task == 'emarsys-firebase'
+        run: make test-android-firebase-emulator MODULE_NAME=emarsys-firebase
 
-      - name: upload emarsys test apk artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: emarsys
-          path: emarsys/build/outputs/apk/androidTest/debug/emarsys-debug-androidTest.apk
+      - name: Test emarsys-huawei
+        if: matrix.module == 'emarsys-huawei'
+        run: make task-android-firebase-emulator MODULE_NAME=emarsys-huawei
 
-      - name: upload emarsys-sdk test apk artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: emarsys-sdk
-          path: emarsys-sdk/build/outputs/apk/androidTest/debug/emarsys-sdk-debug-androidTest.apk
+      - name: Test emarsys-sdk
+        if: matrix.task == 'emarsys-sdk'
+        run: make test-android-firebase-emulator MODULE_NAME=emarsys-sdk
 
-      - name: upload common test apk artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: common
-          path: common/build/outputs/apk/androidTest/debug/common-debug-androidTest.apk
+      - name: Run lint
+        if: matrix.task == 'lint'
+        run: make lint
 
-      - name: upload emarsys-firebase test apk artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: emarsys-firebase
-          path: emarsys-firebase/build/outputs/apk/androidTest/debug/emarsys-firebase-debug-androidTest.apk
-
-      - name: upload emarsys-huawei test apk artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: emarsys-huawei
-          path: emarsys-huawei/build/outputs/apk/androidTest/debug/emarsys-huawei-debug-androidTest.apk
-
-      - name: create testlab services json
-        uses: jsdaniell/create-json@1.1.2
-        with:
-          name: sacc_key.json
-          json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-
-  GradleLint:
-    name: Run lint on project
+  Report:
+    if: always()
+    needs: [ Test ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Report on Slack (Error)
+        if: ${{ !cancelled() && contains(needs.*.result, 'failure') }}
+        uses: megamegax/slack_action@0.3.1
         with:
-          submodules: true
-          fetch-depth: 0 # 0 indicates all history
-      - run: git fetch --all || echo "==> Accept any result"
-      - name: set up JDK 1.17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: 17
-      - name: create-google services json
-        uses: jsdaniell/create-json@1.1.2
-        with:
-          name: google-services.json
-          json: ${{ secrets.GOOGLE_SERVICES_JSON }}
-          dir: sample
-
-      - name: create local.properties
-        run: echo $ANDROID_HOME > local.properties
-
-      - name: Lint project with Gradle
-        run: ./gradlew lint
-
-  CreateReleaseBundle:
-    name: Create release bundle
-    needs: Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: true
-          fetch-depth: 0 # 0 indicates all history
-      - run: git fetch --all || echo "==> Accept any result"
-      - name: set up JDK 1.17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: 17
-      - name: create-google services json
-        uses: jsdaniell/create-json@1.1.2
-        with:
-          name: google-services.json
-          json: ${{ secrets.GOOGLE_SERVICES_JSON }}
-          dir: sample
-
-      - name: create local.properties
-        run: echo $ANDROID_HOME > local.properties
-
-      - name: Create release keystore file
-        shell: bash
-        run: |
-          echo "${{ secrets.ANDROID_KEYSTORE }}" > mobile-team-android.jks.asc
-                    gpg -d --passphrase "${{ secrets.ANDROID_GPG_PASSWORD }}" --batch mobile-team-android.jks.asc > sample/mobile-team-android.jks
-      - name: Create release sample app with Gradle
-        run: ./gradlew :sample:bundleRelease
-
-      - name: Upload bundle
-        uses: actions/upload-artifact@v4
-        with:
-          name: mobile-sdk-sample
-          path: sample/build/outputs/bundle/release/sample-release.aab
-
-  TestCore:
-    name: Run core tests on Firebase
-    needs: Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: true
-          fetch-depth: 0 # 0 indicates all history
-      - run: git fetch --all || echo "==> Accept any result"
-
-      - name: Download sample app
-        uses: actions/download-artifact@v4
-        with:
-          name: sample
-
-      - name: Download core tests
-        uses: actions/download-artifact@v4
-        with:
-          name: core
-
-      - name: Run tests
-        uses: asadmansr/Firebase-Test-Lab-Action@v1.0
-        with:
-          arg-spec: 'testWithSomeVirtualDevices.yml:core'
-        env:
-          SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-
-  TestMobileEngage:
-    name: Run mobile-engage tests on Firebase
-    needs: Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: true
-          fetch-depth: 0 # 0 indicates all history
-      - run: git fetch --all || echo "==> Accept any result"
-
-      - name: Download sample app
-        uses: actions/download-artifact@v4
-        with:
-          name: sample
-
-      - name: Download mobile-engage tests
-        uses: actions/download-artifact@v4
-        with:
-          name: mobile-engage
-
-      - name: Run tests
-        uses: asadmansr/Firebase-Test-Lab-Action@v1.0
-        with:
-          arg-spec: 'testWithSomeVirtualDevices.yml:mobile-engage'
-        env:
-          SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-
-  TestPredict:
-    name: Run predict tests on Firebase
-    needs: Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: true
-          fetch-depth: 0 # 0 indicates all history
-      - run: git fetch --all || echo "==> Accept any result"
-
-      - name: Download sample app
-        uses: actions/download-artifact@v4
-        with:
-          name: sample
-
-      - name: Download predict tests
-        uses: actions/download-artifact@v4
-        with:
-          name: predict
-
-      - name: Run tests
-        uses: asadmansr/Firebase-Test-Lab-Action@v1.0
-        with:
-          arg-spec: 'testWithSomeVirtualDevices.yml:predict'
-        env:
-          SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-
-  TestEmarsysSDK:
-    name: Run emarsys-sdk tests on Firebase
-    needs: Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: true
-          fetch-depth: 0 # 0 indicates all history
-      - run: git fetch --all || echo "==> Accept any result"
-
-      - name: Download sample app
-        uses: actions/download-artifact@v4
-        with:
-          name: sample
-
-      - name: Download emarsys-sdk tests
-        uses: actions/download-artifact@v4
-        with:
-          name: emarsys-sdk
-
-      - name: Display structure of downloaded files
-        run: ls -R
-
-      - name: Run tests
-        uses: asadmansr/Firebase-Test-Lab-Action@v1.0
-        with:
-          arg-spec: 'testWithSomeVirtualDevices.yml:emarsys-sdk'
-        env:
-          SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-
-  TestEmarsys:
-    name: Run emarsys tests on Firebase
-    needs: Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: true
-          fetch-depth: 0 # 0 indicates all history
-      - run: git fetch --all || echo "==> Accept any result"
-
-      - name: Download sample app
-        uses: actions/download-artifact@v4
-        with:
-          name: sample
-
-      - name: Download emarsys tests
-        uses: actions/download-artifact@v4
-        with:
-          name: emarsys
-
-      - name: Run tests
-        uses: asadmansr/Firebase-Test-Lab-Action@v1.0
-        with:
-          arg-spec: 'testWithSomeVirtualDevices.yml:emarsys'
-        env:
-          SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-
-  TestCommon:
-    name: Run common tests on Firebase
-    needs: Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: true
-          fetch-depth: 0 # 0 indicates all history
-      - run: git fetch --all || echo "==> Accept any result"
-
-      - name: Download sample app
-        uses: actions/download-artifact@v4
-        with:
-          name: sample
-
-      - name: Download common tests
-        uses: actions/download-artifact@v4
-        with:
-          name: common
-
-      - name: Run tests
-        uses: asadmansr/Firebase-Test-Lab-Action@v1.0
-        with:
-          arg-spec: 'testWithSomeVirtualDevices.yml:common'
-        env:
-          SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-
-  TestEmarsysFirebase:
-    name: Run emarsys-firebase tests on Firebase
-    needs: Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: true
-          fetch-depth: 0 # 0 indicates all history
-      - run: git fetch --all || echo "==> Accept any result"
-
-      - name: Download sample app
-        uses: actions/download-artifact@v4
-        with:
-          name: sample
-
-      - name: Download emarsys-firebase tests
-        uses: actions/download-artifact@v4
-        with:
-          name: emarsys-firebase
-
-      - name: Run tests
-        uses: asadmansr/Firebase-Test-Lab-Action@v1.0
-        with:
-          arg-spec: 'testWithSomeVirtualDevices.yml:emarsys-firebase'
-        env:
-          SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-
-  TestEmarsysHuawei:
-    name: Run emarsys-huawei tests on Firebase
-    needs: Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: true
-          fetch-depth: 0 # 0 indicates all history
-      - run: git fetch --all || echo "==> Accept any result"
-
-      - name: Download sample app
-        uses: actions/download-artifact@v4
-        with:
-          name: sample
-
-      - name: Download emarsys-huawei tests
-        uses: actions/download-artifact@v4
-        with:
-          name: emarsys-huawei
-
-      - name: Run tests
-        uses: asadmansr/Firebase-Test-Lab-Action@v1.0
-        with:
-          arg-spec: 'testWithSomeVirtualDevices.yml:emarsys-huawei'
-        env:
-          SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-
-  ReleaseSample:
-    name: Release sample app
-    runs-on: ubuntu-latest
-    needs: [ Build, TestCore, TestMobileEngage, TestPredict, TestEmarsysSDK, TestEmarsys, TestCommon, TestEmarsysFirebase, TestEmarsysHuawei, CreateReleaseBundle, GradleLint ]
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: true
-          fetch-depth: 0 # 0 indicates all history
-      - run: git fetch --all || echo "==> Accept any result"
-
-      - name: Download sample app
-        uses: actions/download-artifact@v4
-        with:
-          name: mobile-sdk-sample
-
-      - name: create-google services json
-        uses: jsdaniell/create-json@1.1.2
-        with:
-          name: google-play-services.json
-          json: ${{ secrets.GOOGLE_PLAY_STORE_SEVICE_ACCOUNT_JSON }}
-
-      - name: Playstore upload
-        uses: r0adkll/upload-google-play@v1.1.3
-        with:
-          serviceAccountJson: google-play-services.json
-          packageName: com.emarsys.sample
-          releaseFile: sample-release.aab
-          track: alpha
-
-  SlackNotification:
-    name: Send slack notification
-    runs-on: ubuntu-latest
-    needs: [ ReleaseSample ]
-    steps:
-      - name: Slack Notification
-        uses: megamegax/slack_action@0.2.3
-        with:
+          webhook_url: '${{env.SLACK_WEBHOOK}}'
           channel: '${{env.SLACK_CHANNEL}}'
-          message: 'Last push build successful! :man-gesturing-ok: :bananadance:'
+          message: 'On push workflow failed! :man-gesturing-no: :blobcatfearful:'
+          user_name: '${{env.SLACK_USERNAME}}'
+          job_status: 'failure'
+          user_icon: '${{env.SLACK_ICON}}'
+          actions: '[{ "type": "button", "text": "View actions", "url": "https://github.com/emartech/android-emarsys-sdk/actions" },{ "type": "button", "text": "View Firebase", "url": "https://console.firebase.google.com/project/ems-mobile-sdk/testlab/histories/" }]'
+
+      - name: Report on Slack (Success)
+        if: ${{ !contains(needs.*.result, 'cancelled') && !contains(needs.*.result, 'failure') }}
+        uses: megamegax/slack_action@0.3.1
+        with:
+          webhook_url: '${{env.SLACK_WEBHOOK}}'
+          channel: '${{env.SLACK_CHANNEL}}'
+          message: 'On push workflow successful! :man-gesturing-ok: :success-kid:'
           user_name: '${{env.SLACK_USERNAME}}'
           job_status: 'success'
           user_icon: '${{env.SLACK_ICON}}'
           actions: '[{ "type": "button", "text": "View actions", "url": "https://github.com/emartech/android-emarsys-sdk/actions" },{ "type": "button", "text": "View Firebase", "url": "https://console.firebase.google.com/project/ems-mobile-sdk/testlab/histories/" },{ "type": "button", "text": "Install page", "url": "http://ems-mobileteam-artifacts.s3-website-eu-west-1.amazonaws.com/index-ems.html" }]'
 
-
-  SlackNotificationOnError:
-    name: Send slack on error
-    runs-on: ubuntu-latest
-    needs: [ ReleaseSample ]
-    if: ${{ failure() }}
-    steps:
-      - uses: actions/checkout@v3
+      - name: Trigger automerge
+        if: ${{ !contains(needs.*.result, 'cancelled') && !contains(needs.*.result, 'failure') && github.event.pull_request != null && github.actor == 'dependabot[bot]' && github.event.pull_request.merged == false}}
+        uses: peter-evans/repository-dispatch@v3
         with:
-          submodules: true
-          fetch-depth: 0 # 0 indicates all history
-      - run: git fetch --all || echo "==> Accept any result"
-
-      - name: Slack Notification
-        uses: megamegax/slack_action@0.2.3
-        with:
-          channel: '${{env.SLACK_CHANNEL}}'
-          message: 'Last push build failed! :man-gesturing-no: :blobcatfearful:'
-          user_name: '${{env.SLACK_USERNAME}}'
-          job_status: 'failure'
-          user_icon: '${{env.SLACK_ICON}}'
-          actions: '[{ "type": "button", "text": "View actions", "url": "https://github.com/emartech/android-emarsys-sdk/actions" },{ "type": "button", "text": "View Firebase", "url": "https://console.firebase.google.com/project/ems-mobile-sdk/testlab/histories/" }]'
+          token: ${{ secrets.AUTO_MERGE_TOKEN }}
+          event-type: checks-complete
+          client-payload: '{ "prNumber": "${{ github.event.pull_request.number }}"}'

@@ -11,3 +11,6 @@ sample/agconnect-services.json
 .env
 firebase_service_account.json
 workflow.secrets
+mobile-team-android.jks.asc
+sample/mobile-team-android.jks
+/mobile-team-android.jks
