@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kapt)
     //   alias(libs.plugins.huawei.agconnect)
 }
+apply(from = "../gradle/release.gradle")
 
 dependencies {
     implementation(project(":core-api"))

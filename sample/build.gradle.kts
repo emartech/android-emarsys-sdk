@@ -7,9 +7,9 @@ plugins {
     alias(libs.plugins.google.services)
 //    alias(libs.plugins.huawei.agconnect)
 }
-
+val sdkVersion: GitVersion by rootProject.extra
 group = "com.emarsys.sample"
-
+version = sdkVersion.versionName
 android {
     namespace = "com.emarsys.sample"
     defaultConfig {
@@ -22,12 +22,11 @@ android {
             targetSdk = libs.versions.android.targetSdk.get().toInt()
         }
         multiDexEnabled = true
-        val version: GitVersion by rootProject.extra
-        versionCode = version.versionCode
-        versionName = version.versionName
+        versionCode = sdkVersion.versionCode
+        versionName = sdkVersion.versionName
 
         testInstrumentationRunner = "com.emarsys.sample.testutils.SampleAppTestRunner"
-        resValue("string", "sdk_version", version.versionName)
+        resValue("string", "sdk_version", sdkVersion.versionName)
         buildConfigField(
             "String",
             "GOOGLE_OAUTH_SERVER_CLIENT_ID",

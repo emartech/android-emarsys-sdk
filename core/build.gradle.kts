@@ -4,6 +4,9 @@ plugins {
     alias(libs.plugins.kotlin.allopen)
     alias(libs.plugins.kapt)
 }
+apply(from = "../gradle/release.gradle")
+
+val sdkVersion: GitVersion by rootProject.extra
 
 dependencies {
     implementation(project(":core-api"))
@@ -26,9 +29,9 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        val version: GitVersion by rootProject.extra
-        buildConfigField("int", "VERSION_CODE", "${version.versionCode}")
-        buildConfigField("String", "VERSION_NAME", "\"${version.versionName}\"")
+        val sdkVersion: GitVersion by rootProject.extra
+        buildConfigField("int", "VERSION_CODE", "${sdkVersion.versionCode}")
+        buildConfigField("String", "VERSION_NAME", "\"${sdkVersion.versionName}\"")
     }
 
     buildFeatures {

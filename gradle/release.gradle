@@ -1,120 +1,77 @@
-ext.modules = [':core-api', ':core', ':common', ':mobile-engage-api', ':mobile-engage', ':predict-api', ':predict', ':emarsys', ':emarsys-firebase', ':emarsys-huawei', ':emarsys-sdk']
-
-apply plugin: 'maven-publish'
-apply plugin: 'signing'
-apply plugin: "io.github.gradle-nexus.publish-plugin"
-
-
-def ossrhUsername = null
-def ossrhPassword = null
-def sonatypeStagingProfileId = null
-
-def localConfigPropertiesFile = rootProject.file('localConfig.properties')
-def localConfigProperties = new Properties()
-if (localConfigPropertiesFile.exists()) {
-    localConfigProperties.load(new FileInputStream(localConfigPropertiesFile))
-    ossrhUsername = localConfigProperties.getProperty("ossrhUsername")
-    ossrhPassword = localConfigProperties.getProperty("ossrhPassword")
-    sonatypeStagingProfileId = localConfigProperties.getProperty("sonatypeStagingProfileId")
-
-    ext["signing.keyId"] = localConfigProperties.getProperty("signingKeyId")
-    ext["signing.password"] = localConfigProperties.getProperty("signingPassword")
-    ext["signing.secretKeyRingFile"] = localConfigProperties.getProperty("signingSecretKeyRingFile")
-} else {
-    ossrhUsername = System.env.OSSRH_USERNAME
-    ossrhPassword = System.env.OSSRH_PASSWORD
-    sonatypeStagingProfileId = System.env.SONATYPE_STAGING_PROFILE_ID
-
-    ext["signing.keyId"] = System.env.SIGNING_KEYID
-    ext["signing.password"] = System.env.SIGNING_PASSWORD
-    ext["signing.secretKeyRingFile"] = System.env.SIGNING_SECRET_KEY_RING_FILE
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    archiveClassifier = 'sources'
 }
 
-modules.each {
-    project(it) {
-        task sourcesJar(type: Jar) {
-            from android.sourceSets.main.java.srcDirs
-            archiveClassifier = 'sources'
-        }
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    failOnError false
+}
 
-        task javadoc(type: Javadoc) {
-            source = android.sourceSets.main.java.srcDirs
-            failOnError false
-        }
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    archiveClassifier = 'javadoc'
+    if (javadoc.destinationDir != null) {
+        from javadoc.destinationDir
+    } else {
+        println("Javadoc not found")
+    }
+}
 
-        task javadocJar(type: Jar, dependsOn: javadoc) {
-            archiveClassifier = 'javadoc'
-            from javadoc.destinationDir
-        }
-
-        afterEvaluate {
-            publishing {
-                publications {
-                    "${project.name}"(MavenPublication) {
-                        groupId = group
-                        artifactId = project.name
-                        artifact sourcesJar
-                        artifact javadocJar
-                        artifact("$buildDir/outputs/aar/${project.name}-release.aar")
-                        pom {
-                            name = project.name
-                            description = "${project.name} module of the EmarsysSDK"
-                            url = 'https://github.com/emartech/android-emarsys-sdk'
-                            licenses {
-                                license {
-                                    name = 'Mozilla Public License 2.0'
-                                    url = 'https://github.com/emartech/android-emarsys-sdk/blob/master/LICENSE'
-                                }
+afterEvaluate {
+    publishing {
+        publications {
+            "${project.name}"(MavenPublication) {
+                groupId = group
+                artifactId = project.name
+                artifact sourcesJar
+                artifact javadocJar
+                artifact("$buildDir/outputs/aar/${project.name}-release.aar")
+                pom {
+                    name = project.name
+                    description = "${project.name} module of the EmarsysSDK"
+                    url = 'https://github.com/emartech/android-emarsys-sdk'
+                    licenses {
+                        license {
+                            name = 'Mozilla Public License 2.0'
+                            url = 'https://github.com/emartech/android-emarsys-sdk/blob/master/LICENSE'
+                        }
+                    }
+                    organization {
+                        name = 'Emarsys'
+                        url = 'https://emarsys.com'
+                    }
+                    developers {
+                        developer {
+                            organization = 'Emarsys'
+                            organizationUrl = 'https://emarsys.com'
+                        }
+                    }
+                    scm {
+                        connection = 'scm:git:https://github.com/emartech/android-emarsys-sdk.git'
+                        developerConnection = 'scm:git:https://github.com/emartech/android-emarsys-sdk.git'
+                        url = 'https://github.com/emartech/android-emarsys-sdk'
+                    }
+                    withXml {
+                        def dependenciesNode = asNode().appendNode("dependencies")
+                        configurations.getByName("api") {
+                            dependencies.forEach {
+                                def dependencyNode = dependenciesNode.appendNode("dependency")
+                                dependencyNode.appendNode("groupId", it.group)
+                                dependencyNode.appendNode("artifactId", it.name)
+                                dependencyNode.appendNode("version", it.version)
                             }
-                            organization {
-                                name = 'Emarsys'
-                                url = 'https://emarsys.com'
-                            }
-                            developers {
-                                developer {
-                                    organization = 'Emarsys'
-                                    organizationUrl = 'https://emarsys.com'
-                                }
-                            }
-                            scm {
-                                connection = 'scm:git:https://github.com/emartech/android-emarsys-sdk.git'
-                                developerConnection = 'scm:git:https://github.com/emartech/android-emarsys-sdk.git'
-                                url = 'https://github.com/emartech/android-emarsys-sdk'
-                            }
-                            withXml {
-                                def dependenciesNode = asNode().appendNode("dependencies")
-                                configurations.getByName("api") {
-                                    dependencies.forEach {
-                                        def dependencyNode = dependenciesNode.appendNode("dependency")
-                                        dependencyNode.appendNode("groupId", it.group)
-                                        dependencyNode.appendNode("artifactId", it.name)
-                                        dependencyNode.appendNode("version", it.version)
-                                    }
-                                }
-                                configurations.getByName("implementation") {
-                                    dependencies.forEach {
-                                        def dependencyNode = dependenciesNode.appendNode("dependency")
-                                        dependencyNode.appendNode("groupId", it.group)
-                                        dependencyNode.appendNode("artifactId", it.name)
-                                        dependencyNode.appendNode("version", it.version)
-                                    }
-                                }
+                        }
+                        configurations.getByName("implementation") {
+                            dependencies.forEach {
+                                def dependencyNode = dependenciesNode.appendNode("dependency")
+                                dependencyNode.appendNode("groupId", it.group)
+                                dependencyNode.appendNode("artifactId", it.name)
+                                dependencyNode.appendNode("version", it.version)
                             }
                         }
                     }
                 }
             }
-        }
-    }
-}
-
-nexusPublishing {
-    packageGroup = "com.emarsys"
-    repositories {
-        sonatype {
-            stagingProfileId = sonatypeStagingProfileId
-            username = ossrhUsername
-            password = ossrhPassword
         }
     }
 }

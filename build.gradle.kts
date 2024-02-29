@@ -15,9 +15,18 @@ plugins {
     alias(libs.plugins.dotenv)
     alias(libs.plugins.ben.manes.versions)
     alias(libs.plugins.android.junit5) apply false
+    alias(libs.plugins.nexus.publish)
+    id("maven-publish")
+    id("signing")
 }
 
 versionData()
+
+allprojects {
+    val sdkVersion: GitVersion by rootProject.extra
+    group = "com.emarsys"
+    version = sdkVersion.versionName
+}
 
 fun versionData() {
     val git = Grgit.open(
@@ -44,10 +53,17 @@ fun versionData() {
             versionCodeTime = 0
         )
     }
-    val version by extra(v)
+    val sdkVersion by extra(v)
 
-    println("versionName: ${version.versionName}")
-    println("versionCode: ${version.versionCode}")
+    ext["signing.keyId"] =
+        env.fetch("SONATYPE_SIGNING_KEY_ID") ?: System.getenv("SONATYPE_SIGNING_KEY_ID")
+    ext["signing.password"] =
+        env.fetch("SONATYPE_SIGNING_PASSWORD") ?: System.getenv("SONATYPE_SIGNING_PASSWORD")
+    ext["signing.secretKeyRingFile"] = "./secring.asc.gpg"
+
+
+    println("versionName: ${sdkVersion.versionName}")
+    println("versionCode: ${sdkVersion.versionCode}")
 }
 
 tasks {
@@ -65,6 +81,19 @@ tasks {
             file(file).apply {
                 writeBytes(decodedBytes)
             }
+        }
+    }
+}
+
+
+nexusPublishing {
+    packageGroup = "com.emarsys"
+    repositories {
+        sonatype {
+            stagingProfileId = env.fetch("SONATYPE_STAGING_PROFILE_ID")
+                ?: System.getenv("SONATYPE_STAGING_PROFILE_ID")
+            username = env.fetch("OSSRH_USERNAME") ?: System.getenv("OSSRH_USERNAME")
+            password = env.fetch("OSSRH_PASSWORD") ?: System.getenv("OSSRH_PASSWORD")
         }
     }
 }

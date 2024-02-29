@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.allopen)
     alias(libs.plugins.kapt)
 }
+apply(from = "../gradle/release.gradle")
 
 dependencies {
     implementation(project(":core"))

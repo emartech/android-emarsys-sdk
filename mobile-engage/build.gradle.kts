@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kapt)
 }
+apply(from = "../gradle/release.gradle")
 
 dependencies {
     implementation(project(":common"))
