@@ -11,7 +11,6 @@ env:
   RELEASE_STORE_PASSWORD:  ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
   RELEASE_STORE_FILE: ${{ secrets.RELEASE_STORE_FILE }}
   DEVELOPMENT_MODE: ${{ secrets.DEVELOPMENT_MODE }}
-  GOOGLE_SERVICES_API_KEY: ${{ secrets.GOOGLE_SERVICES_API_KEY }}
   SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
   SLACK_ICON: https://icons.iconarchive.com/icons/martz90/circle/256/android-icon.png
   SLACK_TITLE: Commit status
@@ -31,7 +30,7 @@ jobs:
 
       - run: git fetch --all || echo "==> Accept any result"
       - name: set up JDK 1.17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: 17
@@ -50,13 +49,13 @@ jobs:
         run: ./gradlew assembleAndroidTest -x lint
 
       - name: upload sample app artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: sample
           path: sample/build/outputs/apk/androidTest/debug/sample-debug-androidTest.apk
 
       - name: upload emarsys-e2e-test test apk artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: emarsys-e2e-test
           path: emarsys-e2e-test/build/outputs/apk/androidTest/debug/emarsys-e2e-test-debug-androidTest.apk
@@ -79,12 +78,12 @@ jobs:
       - run: git fetch --all || echo "==> Accept any result"
 
       - name: Download sample app
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: sample
 
       - name: Download Emarsys E2E tests
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: emarsys-e2e-test
 

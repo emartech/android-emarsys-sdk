@@ -11,7 +11,6 @@ env:
   RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
   RELEASE_STORE_FILE: ${{ secrets.RELEASE_STORE_FILE }}
   DEVELOPMENT_MODE: ${{ secrets.DEVELOPMENT_MODE }}
-  GOOGLE_SERVICES_API_KEY: ${{ secrets.GOOGLE_SERVICES_API_KEY }}
   SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
   SLACK_ICON: https://icons.iconarchive.com/icons/martz90/circle/256/android-icon.png
   SLACK_TITLE: Nightly build status
@@ -30,7 +29,7 @@ jobs:
           fetch-depth: 0 # 0 indicates all history
       - run: git fetch --all || echo "==> Accept any result"
       - name: set up JDK 1.17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: 17
@@ -48,55 +47,55 @@ jobs:
         run: ./gradlew assembleAndroidTest -x lint
 
       - name: upload sample app artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: sample
           path: sample/build/outputs/apk/androidTest/debug/sample-debug-androidTest.apk
 
       - name: upload core test apk artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: core
           path: core/build/outputs/apk/androidTest/debug/core-debug-androidTest.apk
 
       - name: upload mobile-engage test apk artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: mobile-engage
           path: mobile-engage/build/outputs/apk/androidTest/debug/mobile-engage-debug-androidTest.apk
 
       - name: upload predict test apk artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: predict
           path: predict/build/outputs/apk/androidTest/debug/predict-debug-androidTest.apk
 
       - name: upload emarsys test apk artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: emarsys
           path: emarsys/build/outputs/apk/androidTest/debug/emarsys-debug-androidTest.apk
 
       - name: upload emarsys-sdk test apk artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: emarsys-sdk
           path: emarsys-sdk/build/outputs/apk/androidTest/debug/emarsys-sdk-debug-androidTest.apk
 
       - name: upload common test apk artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: common
           path: common/build/outputs/apk/androidTest/debug/common-debug-androidTest.apk
 
       - name: upload emarsys-firebase test apk artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: emarsys-firebase
           path: emarsys-firebase/build/outputs/apk/androidTest/debug/emarsys-firebase-debug-androidTest.apk
 
       - name: upload emarsys-huawei test apk artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: emarsys-huawei
           path: emarsys-huawei/build/outputs/apk/androidTest/debug/emarsys-huawei-debug-androidTest.apk
@@ -118,7 +117,7 @@ jobs:
           fetch-depth: 0 # 0 indicates all history
       - run: git fetch --all || echo "==> Accept any result"
       - name: set up JDK 1.17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: 17
@@ -147,7 +146,7 @@ jobs:
           fetch-depth: 0 # 0 indicates all history
       - run: git fetch --all || echo "==> Accept any result"
       - name: set up JDK 1.17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: 17
@@ -170,7 +169,7 @@ jobs:
         run: ./gradlew :sample:bundleRelease
 
       - name: Upload bundle
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: mobile-sdk-sample
           path: sample/build/outputs/bundle/release/sample-release.aab
@@ -188,12 +187,12 @@ jobs:
       - run: git fetch --all || echo "==> Accept any result"
 
       - name: Download sample app
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: sample
 
       - name: Download core tests
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: core
 
@@ -217,12 +216,12 @@ jobs:
       - run: git fetch --all || echo "==> Accept any result"
 
       - name: Download sample app
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: sample
 
       - name: Download mobile-engage tests
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: mobile-engage
 
@@ -246,12 +245,12 @@ jobs:
       - run: git fetch --all || echo "==> Accept any result"
 
       - name: Download sample app
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: sample
 
       - name: Download predict tests
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: predict
 
@@ -275,12 +274,12 @@ jobs:
       - run: git fetch --all || echo "==> Accept any result"
 
       - name: Download sample app
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: sample
 
       - name: Download emarsys-sdk tests
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: emarsys-sdk
 
@@ -307,12 +306,12 @@ jobs:
       - run: git fetch --all || echo "==> Accept any result"
 
       - name: Download sample app
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: sample
 
       - name: Download emarsys tests
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: emarsys
 
@@ -336,12 +335,12 @@ jobs:
       - run: git fetch --all || echo "==> Accept any result"
 
       - name: Download sample app
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: sample
 
       - name: Download common tests
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: common
 
@@ -365,12 +364,12 @@ jobs:
       - run: git fetch --all || echo "==> Accept any result"
 
       - name: Download sample app
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: sample
 
       - name: Download emarsys-firebase tests
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: emarsys-firebase
 
@@ -394,12 +393,12 @@ jobs:
       - run: git fetch --all || echo "==> Accept any result"
 
       - name: Download sample app
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: sample
 
       - name: Download emarsys-huawei tests
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: emarsys-huawei
 
@@ -423,7 +422,7 @@ jobs:
       - run: git fetch --all || echo "==> Accept any result"
 
       - name: Download sample app
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: mobile-sdk-sample
 
@@ -434,7 +433,7 @@ jobs:
           json: ${{ secrets.GOOGLE_PLAY_STORE_SEVICE_ACCOUNT_JSON }}
 
       - name: Playstore upload
-        uses: r0adkll/upload-google-play@v1.0.15
+        uses: r0adkll/upload-google-play@v1.1.3
         with:
           serviceAccountJson: google-play-services.json
           packageName: com.emarsys.sample
