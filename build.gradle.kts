@@ -60,10 +60,11 @@ tasks {
         doLast {
             val base64String = env.fetch(propertyName)
             val decoder = Base64.getDecoder()
-            val decodedString = String(decoder.decode(base64String))
+            val decodedBytes = decoder.decode(base64String)
 
-            val outputFile = file(file)
-            outputFile.writeText(decodedString)
+            file(file).apply {
+                writeBytes(decodedBytes)
+            }
         }
     }
 }

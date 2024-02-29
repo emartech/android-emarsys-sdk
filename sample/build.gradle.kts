@@ -76,10 +76,7 @@ android {
                     (System.getenv("ANDROID_RELEASE_KEY_PASSWORD") ?: "")
                 )
                 storeFile = file(
-                    env.fetch(
-                        "ANDROID_RELEASE_STORE_FILE_BASE64",
-                        (System.getenv("ANDROID_RELEASE_STORE_FILE_BASE64") ?: "")
-                    )
+                    "./mobile-team-android.jks"
                 )
             }
         }
@@ -133,13 +130,11 @@ dependencies {
     implementation(libs.kotlin.reflect)
     implementation(libs.kotlin.stdlib)
     implementation(libs.androidx.material)
-    // implementation("androidx.cardview:cardview:1.0.0")
     implementation(libs.play.services.auth)
     implementation(libs.androidx.appcompat)
     implementation(libs.io.coil)
 
     implementation(libs.androidx.core.ktx)
-    // implementation("com.google.android.material:material:1.11.0")
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.material)
     implementation(libs.androidx.compose.ui.tooling.preview)

@@ -5,8 +5,6 @@ on:
     workflows: [ "On Push" ]
     types:
       - completed
-  push:
-    branches: [ dev ]
 
 env:
   USE_LOCAL_DEPENDENCY: ${{ vars.USE_LOCAL_DEPENDENCY }}
