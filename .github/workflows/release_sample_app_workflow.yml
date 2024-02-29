@@ -5,6 +5,7 @@ on:
     workflows: [ "On Push" ]
     types:
       - completed
+  workflow_dispatch:
 
 env:
   USE_LOCAL_DEPENDENCY: ${{ vars.USE_LOCAL_DEPENDENCY }}
@@ -34,8 +35,9 @@ jobs:
     name: Release Sample App
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
+          ref: dev
           submodules: true
           fetch-depth: 0 # 0 indicates all history
       - name: set up JDK 1.17
