@@ -2,7 +2,7 @@ name: Release Sample
 
 on:
   workflow_run:
-    workflows: [ "On Push" ]
+    workflows: [ "On Push", "Nightly build" ]
     types:
       - completed
   workflow_dispatch:
@@ -68,7 +68,7 @@ jobs:
           serviceAccountJson: ./sample/google-play-store-service-account.json
           packageName: com.emarsys.sample
           releaseFiles: sample/build/outputs/bundle/release/sample-release.aab
-          track: alpha
+          track: ${{ github.event.workflow_run.inputs.track }}
 
   Report:
     if: always()
