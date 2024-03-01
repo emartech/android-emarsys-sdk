@@ -83,6 +83,7 @@ android {
             getByName("release") {
                 signingConfig = signingConfigs.getByName("release")
                 isMinifyEnabled = false
+                isDebuggable = false
                 proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
             }
         }
