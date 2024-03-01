@@ -58,14 +58,14 @@ jobs:
         run: make base64-secret-to-file SECRET=ANDROID_RELEASE_STORE_FILE_BASE64 FILE=sample/mobile-team-android.jks
 
       - name: Create sample app release bundle
-        run: ./gradlew :sample:bundleRelease
+        run: make create-sample-release-bundle
 
       - name: PlayStore upload
         uses: r0adkll/upload-google-play@v1.1.3
         with:
           serviceAccountJson: ./sample/google-services.json
           packageName: com.emarsys.sample
-          releaseFile: ./sample/build/outputs/bundle/release/sample-release.aab
+          releaseFiles: ./sample/build/outputs/bundle/release/sample-release.aab
           track: alpha
 
   Report:
