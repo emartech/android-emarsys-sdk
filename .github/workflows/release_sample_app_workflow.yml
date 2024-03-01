@@ -33,6 +33,7 @@ env:
 
 jobs:
   ReleaseSampleApp:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Release Sample App
     runs-on: ubuntu-latest
     steps:
@@ -71,7 +72,7 @@ jobs:
           track: ${{ github.event.workflow_run.inputs.track }}
 
   Report:
-    if: always()
+    if: ${{ always() && github.event.workflow_run.conclusion == 'success' }}
     needs: [ ReleaseSampleApp ]
     runs-on: ubuntu-latest
     steps:
