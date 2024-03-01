@@ -65,7 +65,7 @@ jobs:
         with:
           serviceAccountJson: ./sample/google-services.json
           packageName: com.emarsys.sample
-          releaseFile: sample/build/outputs/bundle/release/sample-release.aab
+          releaseFile: ./sample/build/outputs/bundle/release/sample-release.aab
           track: alpha
 
   Report:
