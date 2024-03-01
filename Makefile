@@ -50,7 +50,7 @@ prepare-release: check-env ## setup prerequisites for release
 
 prepare-sample-release: check-env ## prepares .jks file for sample release
 	@./gradlew base64EnvToFile -PpropertyName=ANDROID_RELEASE_STORE_FILE_BASE64 -Pfile=sample/mobile-team-android.jks \
-	@./gradlew base64EnvToFile -PpropertyName=GOOGLE_PLAY_STORE_SEVICE_ACCOUNT_JSON_BASE64 -Pfile=sample/google-play-store-service-account.json
+	&& ./gradlew base64EnvToFile -PpropertyName=GOOGLE_PLAY_STORE_SEVICE_ACCOUNT_JSON_BASE64 -Pfile=sample/google-play-store-service-account.json
 
 test-android-firebase-emulator: check-env ## run Android Instrumented tests on emulators on Firebase Test Lab
 	@gcloud firebase test android run \
