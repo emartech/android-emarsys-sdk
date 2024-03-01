@@ -17,6 +17,7 @@ env:
   FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
   GOOGLE_OAUTH_SERVER_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH_SERVER_CLIENT_ID }}
   GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+  GOOGLE_PLAY_STORE_SEVICE_ACCOUNT_JSON_BASE64: ${{ secrets.GOOGLE_PLAY_STORE_SEVICE_ACCOUNT_JSON_BASE64 }}
   OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
   OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
   SONATYPE_STAGING_PROFILE_ID: ${{ secrets.SONATYPE_STAGING_PROFILE_ID }}
@@ -52,8 +53,8 @@ jobs:
       - name: Prepare CI
         run: make prepare-ci
 
-      - name: Prepare keystore file
-        run: make base64-secret-to-file SECRET=ANDROID_RELEASE_STORE_FILE_BASE64 FILE=sample/mobile-team-android.jks
+      - name: Prepare sample release
+        run: make prepare-sample-release
 
       - name: Create sample app release bundle
         run: ./gradlew :sample:bundleRelease
@@ -61,7 +62,7 @@ jobs:
       - name: PlayStore upload
         uses: r0adkll/upload-google-play@v1.1.3
         with:
-          serviceAccountJson: ./sample/google-services.json
+          serviceAccountJson: ./sample/google-play-store-service-account.json
           packageName: com.emarsys.sample
           releaseFile: sample/build/outputs/bundle/release/sample-release.aab
           track: alpha
