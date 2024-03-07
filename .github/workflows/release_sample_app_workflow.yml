@@ -33,7 +33,7 @@ env:
 
 jobs:
   ReleaseSampleApp:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     name: Release Sample App
     runs-on: ubuntu-latest
     steps:
@@ -69,7 +69,7 @@ jobs:
           serviceAccountJson: ./sample/google-play-store-service-account.json
           packageName: com.emarsys.sample
           releaseFiles: sample/build/outputs/bundle/release/sample-release.aab
-          track: ${{ github.event.workflow_run.inputs.track }}
+          track: ${{ github.event.workflow_run.inputs.track != null && github.event.workflow_run.inputs.track || alpha }}
 
   Report:
     if: ${{ always() && github.event.workflow_run.conclusion == 'success' }}
