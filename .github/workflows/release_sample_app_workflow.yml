@@ -72,7 +72,7 @@ jobs:
           track: ${{ github.event.workflow_run.inputs.track != null && github.event.workflow_run.inputs.track || 'alpha' }}
 
   Report:
-    if: ${{ always() && github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     needs: [ ReleaseSampleApp ]
     runs-on: ubuntu-latest
     steps:
