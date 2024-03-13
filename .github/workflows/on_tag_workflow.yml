@@ -39,7 +39,7 @@ jobs:
           distribution: 'temurin'
           java-version: 17
       - name: create-google services json
-        uses: jsdaniell/create-json@1.1.2
+        uses: jsdaniell/create-json@v1.2.3
         with:
           name: google-services.json
           json: ${{ secrets.GOOGLE_SERVICES_JSON }}
@@ -81,7 +81,7 @@ jobs:
           distribution: 'temurin'
           java-version: 17
       - name: create-google services json
-        uses: jsdaniell/create-json@1.1.2
+        uses: jsdaniell/create-json@v1.2.3
         with:
           name: google-services.json
           json: ${{ secrets.GOOGLE_SERVICES_JSON }}
@@ -124,7 +124,7 @@ jobs:
           name: mobile-sdk-sample
 
       - name: create-google services json
-        uses: jsdaniell/create-json@1.1.2
+        uses: jsdaniell/create-json@v1.2.3
         with:
           name: google-play-services.json
           json: ${{ secrets.GOOGLE_PLAY_STORE_SEVICE_ACCOUNT_JSON }}
