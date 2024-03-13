@@ -12,8 +12,8 @@ import com.emarsys.Emarsys.trackDeepLink
 import com.emarsys.clientservice.ClientServiceApi
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.config.ConfigApi
+import com.emarsys.config.ConfigInternal
 import com.emarsys.config.EmarsysConfig
-import com.emarsys.config.FetchRemoteConfigAction
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.api.experimental.FlipperFeature
@@ -139,6 +139,7 @@ class EmarsysTest : AnnotationSpec() {
     private lateinit var mockLoggingMobileEngageApi: MobileEngageApi
     private lateinit var mockLoggingPredict: PredictApi
     private lateinit var mockConfig: ConfigApi
+    private lateinit var mockConfigInternal: ConfigInternal
     private lateinit var mockMessageInbox: MessageInboxApi
     private lateinit var mockHardwareIdProvider: HardwareIdProvider
     private lateinit var mockLanguageProvider: LanguageProvider
@@ -207,6 +208,7 @@ class EmarsysTest : AnnotationSpec() {
         mockLoggingPredict = mock()
         mockPredictRestricted = mock()
         mockConfig = mock()
+        mockConfigInternal = mock()
         mockMessageInbox = mock()
         mockLogic = mock()
         mockRecommendationFilter = mock()
@@ -269,6 +271,7 @@ class EmarsysTest : AnnotationSpec() {
                 predictRestricted = mockPredictRestricted,
                 loggingPredictRestricted = mockPredictRestricted,
                 config = mockConfig,
+                configInternal = mockConfigInternal,
                 eventService = mockEventServiceApi,
                 loggingEventService = mockLoggingEventServiceApi,
                 deepLink = mockDeepLinkApi,
@@ -284,7 +287,7 @@ class EmarsysTest : AnnotationSpec() {
     }
 
     @Test
-    fun testSetup_whenMobileEngageApplicationCodeAndMerchantIdAreNull_mobileEngageAndPredict_shouldBeDisabled() {
+    fun testSetup_whenMobileEngageApplicationCodeAndMerchantIdAreNull_mobileEngageAndPredict_shouldBeDisabled_andShouldNotFetchRemoteConfig() {
         val config = createConfig()
             .applicationCode(null)
             .merchantId(null)
@@ -295,13 +298,24 @@ class EmarsysTest : AnnotationSpec() {
 
         FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe false
         FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe false
+        verify(mockConfigInternal, times(0)).refreshRemoteConfig(any())
     }
 
     @Test
-    fun testSetup_whenMobileEngageApplicationCodeIsNotNull_mobileEngageFeature_shouldBeEnabled() {
+    fun testSetup_shouldNotFetchRemoteConfig_when_ApplicationCode_is_invalid() {
+        listOf("", "null", "nil", "0", null).forEach {
+            verifyRemoteConfigFetchWithInvalidAppcode(it)
+        }
+    }
+
+    @Test
+    fun testSetup_whenMobileEngageApplicationCodeIsNotNull_mobileEngageFeature_shouldBeEnabled_andFetchRemoteConfig() {
         setup(mobileEngageConfig)
 
+        runBlockingOnCoreSdkThread()
+
         FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe true
+        verify(mockConfigInternal).refreshRemoteConfig(any())
     }
 
     @Test
@@ -508,7 +522,6 @@ class EmarsysTest : AnnotationSpec() {
             numberOfElementsIn(actions, DeepLinkAction::class.java).toLong() shouldBe 1
             numberOfElementsIn(actions, DeviceInfoStartAction::class.java).toLong() shouldBe 1
             numberOfElementsIn(actions, FetchGeofencesAction::class.java).toLong() shouldBe 1
-            numberOfElementsIn(actions, FetchRemoteConfigAction::class.java).toLong() shouldBe 1
         }
     }
 
@@ -906,6 +919,18 @@ class EmarsysTest : AnnotationSpec() {
         return EmarsysConfig.Builder()
             .application(application)
             .enableExperimentalFeatures(*experimentalFeatures)
+    }
+
+    private fun verifyRemoteConfigFetchWithInvalidAppcode(appCode: String?) {
+        val config = createConfig()
+            .applicationCode(appCode)
+            .merchantId(null)
+            .build()
+        setup(config)
+
+        runBlockingOnCoreSdkThread()
+
+        verify(mockConfigInternal, times(0)).refreshRemoteConfig(any())
     }
 
     private fun runBlockingOnCoreSdkThread(callback: (() -> Unit)? = null) {

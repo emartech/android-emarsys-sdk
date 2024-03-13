@@ -19,7 +19,6 @@ import com.emarsys.config.ConfigApi
 import com.emarsys.config.ConfigInternal
 import com.emarsys.config.DefaultConfigInternal
 import com.emarsys.config.EmarsysConfig
-import com.emarsys.config.FetchRemoteConfigAction
 import com.emarsys.config.RemoteConfigResponseMapper
 import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.Mapper
@@ -333,7 +332,6 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             DeviceInfoStartAction(clientServiceInternal, deviceInfoPayloadStorage, deviceInfo),
             DeepLinkAction(deepLinkInternal),
             FetchGeofencesAction(geofenceInternal),
-            FetchRemoteConfigAction(configInternal) { logInitialSetup(config) },
             AppStartAction(eventServiceInternal, contactTokenStorage)
         )
         ActivityLifecycleActionRegistry(concurrentHandlerHolder, currentActivityProvider, actions)
