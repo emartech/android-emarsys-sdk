@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Release the SDK
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
           fetch-depth: 0 # 0 indicates all history
@@ -70,7 +70,7 @@ jobs:
     name: Create release bundle from sample app
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
           fetch-depth: 0 # 0 indicates all history
@@ -112,7 +112,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [Release, CreateSampleReleaseBundle]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
           fetch-depth: 0 # 0 indicates all history
@@ -218,7 +218,7 @@ jobs:
     needs: [ReleaseSample]
     if: ${{ failure() }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
           fetch-depth: 0 # 0 indicates all history
