@@ -56,9 +56,9 @@ fun versionData() {
     val sdkVersion by extra(v)
 
     ext["signing.keyId"] =
-        env.fetch("SONATYPE_SIGNING_KEY_ID") ?: System.getenv("SONATYPE_SIGNING_KEY_ID")
+        env.fetchOrNull("SONATYPE_SIGNING_KEY_ID") ?: System.getenv("SONATYPE_SIGNING_KEY_ID")
     ext["signing.password"] =
-        env.fetch("SONATYPE_SIGNING_PASSWORD") ?: System.getenv("SONATYPE_SIGNING_PASSWORD")
+        env.fetchOrNull("SONATYPE_SIGNING_PASSWORD") ?: System.getenv("SONATYPE_SIGNING_PASSWORD")
     ext["signing.secretKeyRingFile"] = "./secring.asc.gpg"
 
 
@@ -90,10 +90,10 @@ nexusPublishing {
     packageGroup = "com.emarsys"
     repositories {
         sonatype {
-            stagingProfileId = env.fetch("SONATYPE_STAGING_PROFILE_ID")
+            stagingProfileId = env.fetchOrNull("SONATYPE_STAGING_PROFILE_ID")
                 ?: System.getenv("SONATYPE_STAGING_PROFILE_ID")
-            username = env.fetch("OSSRH_USERNAME") ?: System.getenv("OSSRH_USERNAME")
-            password = env.fetch("OSSRH_PASSWORD") ?: System.getenv("OSSRH_PASSWORD")
+            username = env.fetchOrNull("OSSRH_USERNAME") ?: System.getenv("OSSRH_USERNAME")
+            password = env.fetchOrNull("OSSRH_PASSWORD") ?: System.getenv("OSSRH_PASSWORD")
         }
     }
 }
