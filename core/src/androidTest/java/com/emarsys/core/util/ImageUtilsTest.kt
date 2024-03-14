@@ -6,17 +6,15 @@ import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.RetryUtils
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.copyInputStreamToFile
-import io.kotlintest.matchers.numerics.shouldBeLessThan
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import org.junit.Before
+import com.emarsys.testUtil.rules.RetryRule
+import io.kotest.matchers.comparables.shouldBeLessThan
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 import org.mockito.Mockito
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doAnswer
@@ -24,7 +22,11 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import java.io.File
 
-class ImageUtilsTest {
+class ImageUtilsTest : AnnotationSpec() {
+
+    @Rule
+    @JvmField
+    val retryRule: RetryRule = RetryUtils.retryRule
 
     private companion object {
         const val IMAGE_URL = "https://emarsys.com"
@@ -36,21 +38,17 @@ class ImageUtilsTest {
     private lateinit var mockLanguageProvider: LanguageProvider
     private lateinit var mockVersionProvider: VersionProvider
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
-
-    @Rule
-    @JvmField
-    var retry: TestRule = RetryUtils.retryRule
 
     @Before
     fun setup() {
         mockFileDownloader = mock {
             on { download(any(), any()) } doAnswer {
                 val fileContent = getTargetContext().resources.openRawResource(
-                        getTargetContext().resources.getIdentifier("emarsys_test_image",
-                                "raw", getTargetContext().packageName))
+                    getTargetContext().resources.getIdentifier(
+                        "emarsys_test_image",
+                        "raw", getTargetContext().packageName
+                    )
+                )
                 val file = File(getTargetContext().cacheDir.toURI().toURL().path + "/testFile.tmp")
                 file.copyInputStreamToFile(fileContent)
                 file.toURI().toURL().path
@@ -72,23 +70,25 @@ class ImageUtilsTest {
         }
 
         deviceInfo = DeviceInfo(
-                getTargetContext(),
-                mockHardwareIdProvider,
-                mockVersionProvider,
-                mockLanguageProvider,
-                Mockito.mock(NotificationManagerHelper::class.java),
-                isAutomaticPushSendingEnabled = true,
-                isGooglePlayAvailable = true
+            getTargetContext(),
+            mockHardwareIdProvider,
+            mockVersionProvider,
+            mockLanguageProvider,
+            Mockito.mock(NotificationManagerHelper::class.java),
+            isAutomaticPushSendingEnabled = true,
+            isGooglePlayAvailable = true
         )
     }
 
 
     @Test
+
     fun testLoadOptimizedBitmap_returnsNull_whenImageUrlIsNull() {
         ImageUtils.loadOptimizedBitmap(mockFileDownloader, null, deviceInfo) shouldBe null
     }
 
     @Test
+
     fun testLoadOptimizedBitmap_withRemoteUrl_CleansUpTempFile() {
         clearCache()
         getTargetContext().cacheDir.list()?.size shouldBe 0
@@ -97,6 +97,7 @@ class ImageUtilsTest {
     }
 
     @Test
+
     fun testLoadOptimizedBitmap_withLocalFile_ShouldNotCleanUpLocalFile() {
         clearCache()
         val fileUrl = mockFileDownloader.download(IMAGE_URL)
@@ -112,6 +113,7 @@ class ImageUtilsTest {
     }
 
     @Test
+
     fun testLoadOptimizedBitmap_withRemoteUrl() {
         val bitmap = ImageUtils.loadOptimizedBitmap(mockFileDownloader, IMAGE_URL, deviceInfo)
         bitmap shouldNotBe null
@@ -120,6 +122,7 @@ class ImageUtilsTest {
     }
 
     @Test
+
     fun testCalculateInSampleSize_returnedValueShouldBe4_whenRequestedWidthIs1080_widthIs2500() {
         val options = BitmapFactory.Options().apply {
             outWidth = 2500

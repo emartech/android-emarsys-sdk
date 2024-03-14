@@ -1,40 +1,32 @@
 package com.emarsys.config
 
+
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.IntegrationTestUtils
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
-import io.kotlintest.shouldBe
-import org.junit.After
-import org.junit.Before
+import io.kotest.matchers.shouldBe
 import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.doReturn
 
 
-class ConfigTest {
+class ConfigTest : AnnotationSpec() {
+    @Rule
+    @JvmField
+    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
 
     companion object {
         private const val CLIENT_HOST = "https://me-client.eservice.emarsys.net"
         private const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
         private const val INBOX_HOST = "https://me-inbox.eservice.emarsys.net/v3"
     }
-
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
-
-    @Rule
-    @JvmField
-    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
 
     lateinit var config: Config
     lateinit var mockConfigInternal: ConfigInternal
@@ -52,10 +44,10 @@ class ConfigTest {
             on { provideEndpointHost() } doReturn INBOX_HOST
         }
         val dependencyContainer = FakeDependencyContainer(
-                configInternal = mockConfigInternal,
-                clientServiceEndpointProvider = mockClientServiceProvider,
-                eventServiceEndpointProvider = mockEventServiceProvider,
-                messageInboxServiceProvider = mockMessageInboxServiceProvider
+            configInternal = mockConfigInternal,
+            clientServiceEndpointProvider = mockClientServiceProvider,
+            eventServiceEndpointProvider = mockEventServiceProvider,
+            messageInboxServiceProvider = mockMessageInboxServiceProvider
         )
 
         setupEmarsysComponent(dependencyContainer)
@@ -85,7 +77,10 @@ class ConfigTest {
 
         config.changeApplicationCode("testApplicationCode", mockCompletionListener)
 
-        verify(mockConfigInternal).changeApplicationCode("testApplicationCode", mockCompletionListener)
+        verify(mockConfigInternal).changeApplicationCode(
+            "testApplicationCode",
+            mockCompletionListener
+        )
     }
 
     @Test

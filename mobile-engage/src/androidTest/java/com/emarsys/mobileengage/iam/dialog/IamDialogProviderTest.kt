@@ -1,33 +1,37 @@
 package com.emarsys.mobileengage.iam.dialog
 
-import androidx.test.rule.ActivityTestRule
+
+import androidx.test.core.app.ActivityScenario
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.fake.FakeActivity
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import io.kotest.matchers.shouldBe
 import org.mockito.kotlin.mock
 import java.util.concurrent.CountDownLatch
 import kotlin.concurrent.thread
 
-class IamDialogProviderTest {
-
-    @Rule
-    @JvmField
-    var activityRule = ActivityTestRule(FakeActivity::class.java, false)
+class IamDialogProviderTest : AnnotationSpec() {
 
     private lateinit var iamDialogProvider: IamDialogProvider
+    private lateinit var scenario: ActivityScenario<FakeActivity>
 
     @Before
     fun setUp() {
-        iamDialogProvider = IamDialogProvider(
-            ConcurrentHandlerHolderFactory.create(),
-            mock(),
-            mock(),
-            mock(),
-            mock()
-        )
+        scenario = ActivityScenario.launch(FakeActivity::class.java)
+        scenario.onActivity { activity ->
+            iamDialogProvider = IamDialogProvider(
+                ConcurrentHandlerHolderFactory.create(),
+                mock(),
+                mock(),
+                mock(),
+                mock()
+            )
+        }
+    }
+
+    @After
+    fun tearDown() {
+        scenario.close()
     }
 
     @Test
@@ -41,6 +45,7 @@ class IamDialogProviderTest {
         }
         latch.await()
     }
+
     @Test
     fun testProvideDialog_shouldSetCorrectArguments() {
         val testSid = "test sid"
@@ -48,7 +53,8 @@ class IamDialogProviderTest {
         val testUrl = "test url"
         val testRequestId = "test request id"
 
-        val resultDialog = iamDialogProvider.provideDialog(testCampaignId, testSid, testUrl, testRequestId)
+        val resultDialog =
+            iamDialogProvider.provideDialog(testCampaignId, testSid, testUrl, testRequestId)
 
         val resultArguments = resultDialog.arguments!!
 

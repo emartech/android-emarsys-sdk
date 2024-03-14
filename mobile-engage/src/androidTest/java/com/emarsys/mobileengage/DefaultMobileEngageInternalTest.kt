@@ -12,17 +12,24 @@ import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.session.MobileEngageSession
 import com.emarsys.mobileengage.session.SessionIdHolder
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.mockito.kotlin.*
+
+import com.emarsys.testUtil.AnnotationSpec
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.inOrder
+import org.mockito.kotlin.isNull
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.spy
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
+import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 
-class DefaultMobileEngageInternalTest {
+class DefaultMobileEngageInternalTest : AnnotationSpec() {
 
     private companion object {
         const val CONTACT_FIELD_ID = 999
@@ -67,9 +74,6 @@ class DefaultMobileEngageInternalTest {
     private lateinit var mockSession: MobileEngageSession
     private lateinit var mockSessionIdHolder: SessionIdHolder
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     @Suppress("UNCHECKED_CAST")

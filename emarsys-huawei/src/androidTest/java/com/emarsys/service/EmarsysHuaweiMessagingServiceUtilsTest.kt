@@ -4,13 +4,12 @@ import android.content.Context
 import android.os.Bundle
 import com.emarsys.fake.FakeHuaweiDependencyContainer
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.huawei.hms.push.RemoteMessage
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Test
+import io.kotest.matchers.shouldBe
 
-class EmarsysHuaweiMessagingServiceUtilsTest {
+class EmarsysHuaweiMessagingServiceUtilsTest : AnnotationSpec() {
     private lateinit var context: Context
 
     @Before

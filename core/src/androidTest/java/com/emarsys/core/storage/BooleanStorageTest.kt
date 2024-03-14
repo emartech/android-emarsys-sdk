@@ -1,15 +1,16 @@
 package com.emarsys.core.storage
 
 import android.content.SharedPreferences
-import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.mockito.Mockito.*
+import io.kotest.assertions.throwables.shouldThrow
+import org.mockito.Mockito.anyBoolean
+import org.mockito.Mockito.anyString
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.verifyNoMoreInteractions
 
-class BooleanStorageTest {
+class BooleanStorageTest : AnnotationSpec() {
 
     private companion object {
         const val VALUE = true
@@ -21,9 +22,6 @@ class BooleanStorageTest {
     private lateinit var storage: BooleanStorage
     private lateinit var storageKey: StorageKey
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {
@@ -43,9 +41,11 @@ class BooleanStorageTest {
         storage = BooleanStorage(storageKey, sharedPreferences)
     }
 
-    @Test(expected = NullPointerException::class)
+    @Test
     fun testConstructor_valueReturnedByKey_mustNotBeNull() {
-        BooleanStorage(mock(StorageKey::class.java), sharedPreferences)
+        shouldThrow<NullPointerException> {
+            BooleanStorage(mock(StorageKey::class.java), sharedPreferences)
+        }
     }
 
     @Test

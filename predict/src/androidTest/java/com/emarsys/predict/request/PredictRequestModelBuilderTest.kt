@@ -14,20 +14,18 @@ import com.emarsys.predict.api.model.PredictCartItem
 import com.emarsys.predict.api.model.RecommendationFilter
 import com.emarsys.predict.api.model.RecommendationLogic
 import com.emarsys.predict.model.LastTrackedItemContainer
-import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.data.forall
-import io.kotlintest.shouldBe
-import io.kotlintest.tables.row
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.data.forAll
+import io.kotest.data.row
+import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import org.json.JSONObject
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
 
-class PredictRequestModelBuilderTest {
+class PredictRequestModelBuilderTest : AnnotationSpec() {
 
     private companion object {
         const val TIMESTAMP = 123456789L
@@ -62,9 +60,6 @@ class PredictRequestModelBuilderTest {
     private lateinit var lastTrackedItemContainer: LastTrackedItemContainer
     private lateinit var mockServiceProvider: ServiceEndpointProvider
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {
@@ -130,14 +125,16 @@ class PredictRequestModelBuilderTest {
         )
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testWithLimit_limit_mustBeGreaterThanZero() {
-        requestModelBuilder.withLimit(-10)
+        shouldThrow<IllegalArgumentException> {
+            requestModelBuilder.withLimit(-10)
+        }
     }
 
     @Test
-    fun testBuild_withLogic_withLogicData() {
-        forall(
+    fun testBuild_withLogic_withLogicData() = runBlocking {
+        forAll(
             row(
                 RecommendationLogic.search("searchTerm"), createRequestModelWithUrl(
                     mapOf(
@@ -311,8 +308,8 @@ class PredictRequestModelBuilderTest {
     }
 
     @Test
-    fun testBuild_withHomeOrPersonalLogic_withFiltersData() {
-        forall(
+    fun testBuild_withHomeOrPersonalLogic_withFiltersData() = runBlocking {
+        forAll(
             row(RecommendationLogic.home()),
             row(RecommendationLogic.personal()),
         ) { logic ->
@@ -369,8 +366,8 @@ class PredictRequestModelBuilderTest {
     }
 
     @Test
-    fun testBuild_withLogic_withoutLogicData() {
-        forall(
+    fun testBuild_withLogic_withoutLogicData() = runBlocking {
+        forAll(
             row(
                 RecommendationLogic.search(), createRequestModelWithUrl(
                     mapOf(
@@ -447,9 +444,9 @@ class PredictRequestModelBuilderTest {
     }
 
     @Test
-    fun testBuild_withLogic_withoutLogicData_withNoLastTrackedItems() {
+    fun testBuild_withLogic_withoutLogicData_withNoLastTrackedItems() = runBlocking {
         lastTrackedItemContainer = LastTrackedItemContainer()
-        forall(
+        forAll(
             row(
                 RecommendationLogic.search(), createRequestModelWithUrl(
                     mapOf(

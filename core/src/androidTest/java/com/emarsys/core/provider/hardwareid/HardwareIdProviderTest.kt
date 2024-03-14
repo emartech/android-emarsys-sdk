@@ -7,18 +7,18 @@ import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.device.HardwareIdentification
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.storage.Storage
-import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.mockito.kotlin.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 
 
-class HardwareIdProviderTest {
+class HardwareIdProviderTest : AnnotationSpec() {
 
     companion object {
         private const val HARDWARE_ID = "hw_value"
@@ -45,9 +45,6 @@ class HardwareIdProviderTest {
     private lateinit var mockUUIDProvider: UUIDProvider
     private lateinit var mockRepository: Repository<HardwareIdentification?, SqlSpecification>
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {

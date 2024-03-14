@@ -11,7 +11,7 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import com.emarsys.Emarsys
 import com.emarsys.di.emarsys
 import com.emarsys.di.tearDownEmarsysComponent
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import java.util.concurrent.CountDownLatch
 
 object IntegrationTestUtils {

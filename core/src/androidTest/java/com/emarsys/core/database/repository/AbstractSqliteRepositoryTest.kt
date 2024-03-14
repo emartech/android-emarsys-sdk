@@ -20,21 +20,23 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.util.serialization.SerializationUtils.serializableToBlob
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.anyNotNull
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 import org.mockito.Mockito
-import org.mockito.kotlin.*
-import java.util.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
-class AbstractSqliteRepositoryTest {
+class AbstractSqliteRepositoryTest : AnnotationSpec() {
 
     companion object {
         private const val DISTINCT = true
@@ -54,9 +56,6 @@ class AbstractSqliteRepositoryTest {
     private lateinit var dummySpecification: SqlSpecification
     private lateinit var testConcurrentHandlerHolder: ConcurrentHandlerHolder
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     @Suppress("UNCHECKED_CAST")
@@ -66,9 +65,9 @@ class AbstractSqliteRepositoryTest {
             ConcurrentHandlerHolderFactory.create()
 
         dummySpecification = sqlSpecification(
-                DISTINCT,
-                COLUMNS,
-                SELECTION,
+            DISTINCT,
+            COLUMNS,
+            SELECTION,
                 SELECTION_ARGS,
                 GROUP_BY,
                 HAVING,

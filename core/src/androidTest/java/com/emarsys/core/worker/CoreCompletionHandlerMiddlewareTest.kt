@@ -14,20 +14,25 @@ import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.request.model.specification.FilterByRequestIds
 import com.emarsys.core.response.ResponseModel
-import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.ThreadSpy
-import io.kotlintest.matchers.numerics.shouldBeLessThanOrEqual
-import io.kotlintest.shouldBe
+import io.kotest.matchers.ints.shouldBeLessThanOrEqual
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 import org.mockito.ArgumentCaptor
-import org.mockito.kotlin.*
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.capture
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.timeout
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.verifyNoMoreInteractions
+import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
-class CoreCompletionHandlerMiddlewareTest {
+class CoreCompletionHandlerMiddlewareTest : AnnotationSpec() {
     private lateinit var coreCompletionHandler: CoreCompletionHandler
     private lateinit var requestRepository: Repository<RequestModel, SqlSpecification>
     private lateinit var mockWorker: Worker
@@ -37,9 +42,6 @@ class CoreCompletionHandlerMiddlewareTest {
     private lateinit var uiHandler: Handler
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setup() {

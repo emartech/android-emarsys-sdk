@@ -1,5 +1,6 @@
 package com.emarsys.core.shard;
 
+import com.emarsys.core.Mockable;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.util.Assert;
@@ -7,6 +8,7 @@ import com.emarsys.core.util.Assert;
 import java.util.HashMap;
 import java.util.Map;
 
+@Mockable
 public class ShardModel {
     final private String id;
     final private String type;

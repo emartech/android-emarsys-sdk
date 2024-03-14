@@ -4,15 +4,14 @@ import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.event.EventServiceInternal
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+
+
+import com.emarsys.testUtil.AnnotationSpec
+
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 
-class InAppInternalTest {
+class InAppInternalTest : AnnotationSpec() {
 
     private companion object {
         const val EVENT_NAME = "customEventName"
@@ -25,9 +24,6 @@ class InAppInternalTest {
     private lateinit var mockCompletionListener: CompletionListener
     private lateinit var mockEventServiceInternal: EventServiceInternal
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun init() {
@@ -37,7 +33,8 @@ class InAppInternalTest {
         mockEventServiceInternal = mock(EventServiceInternal::class.java)
         mockInAppEventHandlerInternal = mock(InAppEventHandlerInternal::class.java)
 
-        inAppInternal = DefaultInAppInternal(mockInAppEventHandlerInternal, mockEventServiceInternal)
+        inAppInternal =
+            DefaultInAppInternal(mockInAppEventHandlerInternal, mockEventServiceInternal)
     }
 
 

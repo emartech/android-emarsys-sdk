@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.geofence
 
+
 import android.location.Location
 import android.location.LocationManager
 import com.emarsys.mobileengage.api.geofence.Geofence
@@ -7,15 +8,12 @@ import com.emarsys.mobileengage.api.geofence.Trigger
 import com.emarsys.mobileengage.api.geofence.TriggerType
 import com.emarsys.mobileengage.geofence.model.GeofenceGroup
 import com.emarsys.mobileengage.geofence.model.GeofenceResponse
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.matchers.shouldBe
 import org.json.JSONObject
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 
-class GeofenceFilterTest {
+
+class GeofenceFilterTest : AnnotationSpec() {
 
     private companion object {
         val currentLocation: Location = Location(LocationManager.GPS_PROVIDER).apply {
@@ -24,17 +22,15 @@ class GeofenceFilterTest {
         }
         val trigger = Trigger(id = "triggerId", type = TriggerType.ENTER, action = JSONObject())
         val allGeofences = listOf(
-                Geofence("geofenceId1", 47.493160, 19.058355, 10.0, null, listOf(trigger)),
-                Geofence("geofenceId2", 47.493812, 19.058537, 10.0, null, listOf(trigger)),
-                Geofence("geofenceId3", 47.493827, 19.060715, 10.0, null, listOf(trigger)),
-                Geofence("geofenceId4", 47.489680, 19.061230, 350.0, null, listOf(trigger)),
-                Geofence("geofenceId5", 47.492292, 19.056440, 10.0, null, listOf(trigger))
+            Geofence("geofenceId1", 47.493160, 19.058355, 10.0, null, listOf(trigger)),
+            Geofence("geofenceId2", 47.493812, 19.058537, 10.0, null, listOf(trigger)),
+            Geofence("geofenceId3", 47.493827, 19.060715, 10.0, null, listOf(trigger)),
+            Geofence("geofenceId4", 47.489680, 19.061230, 350.0, null, listOf(trigger)),
+            Geofence("geofenceId5", 47.492292, 19.056440, 10.0, null, listOf(trigger))
         )
     }
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+
 
     private lateinit var geofenceFilter: GeofenceFilter
 

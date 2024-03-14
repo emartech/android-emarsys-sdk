@@ -1,13 +1,12 @@
 package com.emarsys.core.database
 
-import android.database.sqlite.SQLiteDatabase
 import android.content.ContentValues
 import android.database.Cursor
+import android.database.sqlite.SQLiteDatabase
 import com.emarsys.core.Mockable
 import com.emarsys.core.database.trigger.TriggerEvent
 import com.emarsys.core.database.trigger.TriggerKey
 import com.emarsys.core.database.trigger.TriggerType
-import java.util.ArrayList
 
 @Mockable
 class DelegatingCoreSQLiteDatabase(

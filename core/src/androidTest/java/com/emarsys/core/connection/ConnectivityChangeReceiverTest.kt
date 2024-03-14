@@ -7,24 +7,17 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.fake.FakeConnectionChangeListener
 import com.emarsys.core.handler.ConcurrentHandlerHolder
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
-import io.kotlintest.shouldBe
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.matchers.shouldBe
 import org.mockito.kotlin.mock
 import java.util.concurrent.CountDownLatch
 
-class ConnectivityChangeReceiverTest {
+class ConnectivityChangeReceiverTest : AnnotationSpec() {
     private lateinit var receiver: ConnectivityChangeReceiver
     private lateinit var mockListener: ConnectionChangeListener
     private lateinit var context: Context
 
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
+
     lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
     @Before

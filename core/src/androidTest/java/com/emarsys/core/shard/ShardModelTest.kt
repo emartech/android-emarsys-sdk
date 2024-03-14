@@ -2,16 +2,13 @@ package com.emarsys.core.shard
 
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.mockito.Mockito.`when`
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 
-class ShardModelTest {
+class ShardModelTest : AnnotationSpec() {
 
     companion object {
         const val ID = "shard_id"
@@ -25,9 +22,6 @@ class ShardModelTest {
     private lateinit var uuidProvider: UUIDProvider
     private lateinit var payload: Map<String, Any>
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun init() {
@@ -38,164 +32,190 @@ class ShardModelTest {
         `when`(uuidProvider.provideId()).thenReturn(UUID)
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testConstructor_idMustNotBeNull() {
-        ShardModel(null, TYPE, mapOf(), 0, 0)
+        shouldThrow<IllegalArgumentException> {
+            ShardModel(null, TYPE, mapOf(), 0, 0)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testConstructor_typeMustNotBeNull() {
-        ShardModel(ID, null, mapOf(), 0, 0)
+        shouldThrow<IllegalArgumentException> {
+            ShardModel(ID, null, mapOf(), 0, 0)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testConstructor_dataMustNotBeNull() {
-        ShardModel(ID, TYPE, null, 0, 0)
+        shouldThrow<IllegalArgumentException> {
+            ShardModel(ID, TYPE, null, 0, 0)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testBuilder_timestampProvider_mustBeNotNull() {
-        ShardModel.Builder(null, uuidProvider)
+        shouldThrow<IllegalArgumentException> {
+            ShardModel.Builder(null, uuidProvider)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testBuilder_uuidProvider_mustBeNotNull() {
-        ShardModel.Builder(timestampProvider, null)
+        shouldThrow<IllegalArgumentException> {
+            ShardModel.Builder(timestampProvider, null)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testBuilder_type_mustBeSet() {
-        ShardModel.Builder(timestampProvider, uuidProvider)
+        shouldThrow<IllegalArgumentException> {
+            ShardModel.Builder(timestampProvider, uuidProvider)
                 .build()
+        }
     }
 
     @Test
     fun testBuilder_id_shouldBeInitialized_byUUIDProvider() {
         val shardModel = ShardModel.Builder(timestampProvider, uuidProvider)
-                .type("")
-                .build()
+            .type("")
+            .build()
 
-        assertEquals(UUID, shardModel.id)
+        shardModel.id shouldBe UUID
     }
 
     @Test
     fun testBuilder_timestamp_shouldBeInitialized_byTimestampProvider() {
         val shardModel = ShardModel.Builder(timestampProvider, uuidProvider)
-                .type("")
-                .build()
+            .type("")
+            .build()
 
-        assertEquals(TIMESTAMP, shardModel.timestamp)
+        shardModel.timestamp shouldBe TIMESTAMP
     }
 
     @Test
     fun testBuilder_ttl_shouldHave_defaultValue() {
         val shardModel = ShardModel.Builder(timestampProvider, uuidProvider)
-                .type("")
-                .build()
+            .type("")
+            .build()
 
-        assertEquals(TTL, shardModel.ttl)
+        shardModel.ttl shouldBe TTL
     }
 
     @Test
     fun testBuilder_data_shouldHave_defaultValue() {
         val shardModel = ShardModel.Builder(timestampProvider, uuidProvider)
-                .type("")
-                .build()
+            .type("")
+            .build()
 
-        assertEquals(mapOf<String, Any>(), shardModel.data)
+        shardModel.data shouldBe mapOf()
     }
 
     @Test
     fun testBuilder_ttl_shouldBeSet() {
         val shardModel = ShardModel.Builder(timestampProvider, uuidProvider)
-                .type("")
-                .ttl(321L)
-                .build()
+            .type("")
+            .ttl(321L)
+            .build()
 
-        assertEquals(321L, shardModel.ttl)
+        shardModel.ttl shouldBe 321L
     }
 
     @Test
     fun testBuilder_type_shouldBeSet() {
         val shardModel = ShardModel.Builder(timestampProvider, uuidProvider)
-                .type(TYPE)
-                .build()
+            .type(TYPE)
+            .build()
 
-        assertEquals(TYPE, shardModel.type)
+        shardModel.type shouldBe TYPE
     }
 
     @Test
     fun testBuilder_shouldConcatenate_complexPayload_fromTypeAndData() {
         val shard: ShardModel = ShardModel.Builder(timestampProvider, uuidProvider)
-                .type(TYPE)
-                .payloadEntry("key", createPayload())
-                .payloadEntry("key2", 234567890.9876543)
-                .build()
+            .type(TYPE)
+            .payloadEntry("key", createPayload())
+            .payloadEntry("key2", 234567890.9876543)
+            .build()
 
         val expectedPayload =
-                mapOf(
-                        "key" to mapOf(
-                                "key1" to "231213",
-                                "key2" to listOf(
-                                        mapOf("item1" to "item_1",
-                                                "itemKey2" to 19.9,
-                                                "itemKey3" to 1),
-                                        mapOf("item2" to "item_2",
-                                                "itemKey4" to 29.7,
-                                                "itemKey5" to 3)
-                                )
+            mapOf(
+                "key" to mapOf(
+                    "key1" to "231213",
+                    "key2" to listOf(
+                        mapOf(
+                            "item1" to "item_1",
+                            "itemKey2" to 19.9,
+                            "itemKey3" to 1
                         ),
-                        "key2" to 234567890.9876543)
+                        mapOf(
+                            "item2" to "item_2",
+                            "itemKey4" to 29.7,
+                            "itemKey5" to 3
+                        )
+                    )
+                ),
+                "key2" to 234567890.9876543
+            )
 
-        assertEquals(expectedPayload, shard.data)
+        shard.data shouldBe expectedPayload
     }
 
     @Test
     fun testBuilder_with_requiredArguments() {
         val shard: ShardModel = ShardModel.Builder(timestampProvider, uuidProvider)
-                .type(TYPE)
-                .build()
+            .type(TYPE)
+            .build()
 
         val expected = ShardModel(UUID, TYPE, mapOf(), TIMESTAMP, TTL)
 
-        assertEquals(expected, shard)
+        shard shouldBe expected
     }
 
     @Test
     fun testBuilder_with_allArguments() {
         val shard: ShardModel = ShardModel.Builder(timestampProvider, uuidProvider)
-                .type(TYPE)
-                .payloadEntry("key1", payload)
-                .payloadEntries(mapOf(
-                        "key2" to "value2",
-                        "key3" to 4.1415
-                ))
-                .ttl(312L)
-                .build()
+            .type(TYPE)
+            .payloadEntry("key1", payload)
+            .payloadEntries(
+                mapOf(
+                    "key2" to "value2",
+                    "key3" to 4.1415
+                )
+            )
+            .ttl(312L)
+            .build()
 
         val expected = ShardModel(
-                UUID,
-                TYPE,
-                mapOf(
-                        "key1" to payload,
-                        "key2" to "value2",
-                        "key3" to 4.1415),
-                TIMESTAMP,
-                312L)
+            UUID,
+            TYPE,
+            mapOf(
+                "key1" to payload,
+                "key2" to "value2",
+                "key3" to 4.1415
+            ),
+            TIMESTAMP,
+            312L
+        )
 
-        assertEquals(expected, shard)
+        shard shouldBe expected
     }
 
     private fun createPayload(): Map<String, Any> {
         return mapOf(
-                "key1" to "231213",
-                "key2" to listOf(
-                        mapOf("item1" to "item_1",
-                                "itemKey2" to 19.9,
-                                "itemKey3" to 1),
-                        mapOf("item2" to "item_2",
-                                "itemKey4" to 29.7,
-                                "itemKey5" to 3))
+            "key1" to "231213",
+            "key2" to listOf(
+                mapOf(
+                    "item1" to "item_1",
+                    "itemKey2" to 19.9,
+                    "itemKey3" to 1
+                ),
+                mapOf(
+                    "item2" to "item_2",
+                    "itemKey4" to 29.7,
+                    "itemKey5" to 3
+                )
+            )
         )
     }
 }

@@ -1,14 +1,10 @@
 package com.emarsys.mobileengage
 
-import com.emarsys.core.storage.StringStorage
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Test
-import org.mockito.kotlin.doReturn
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.matchers.shouldBe
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
 
-class MobileEngageRequestContextTest {
+class MobileEngageRequestContextTest : AnnotationSpec() {
 
     private lateinit var requestContext: MobileEngageRequestContext
 

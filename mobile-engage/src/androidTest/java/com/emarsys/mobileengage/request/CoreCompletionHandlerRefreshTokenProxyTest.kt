@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.request
 
+
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.model.RequestMethod
@@ -8,12 +9,8 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.util.RequestModelHelper
-import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.eq
@@ -22,11 +19,8 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import java.net.URL
 
-class CoreCompletionHandlerRefreshTokenProxyTest {
+class CoreCompletionHandlerRefreshTokenProxyTest : AnnotationSpec() {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     companion object {
         const val REQUEST_ID = "testRequestId"

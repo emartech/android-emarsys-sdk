@@ -1,26 +1,21 @@
 package com.emarsys.predict.response
 
+
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.KeyValueStore
-import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 
-class VisitorIdResponseHandlerTest {
+class VisitorIdResponseHandlerTest : AnnotationSpec() {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var keyValueStore: KeyValueStore
     private lateinit var mockServiceEndpointProvider: ServiceEndpointProvider
@@ -35,14 +30,18 @@ class VisitorIdResponseHandlerTest {
         responseHandler = VisitorIdResponseHandler(keyValueStore, mockServiceEndpointProvider)
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testConstructor_keyValueStore_mustNotBeNull() {
-        VisitorIdResponseHandler(null, mockServiceEndpointProvider)
+        shouldThrow<IllegalArgumentException> {
+            VisitorIdResponseHandler(null, mockServiceEndpointProvider)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testConstructor_mockServiceEndpointProvider_mustNotBeNull() {
-        VisitorIdResponseHandler(keyValueStore, null)
+        shouldThrow<IllegalArgumentException> {
+            VisitorIdResponseHandler(keyValueStore, null)
+        }
     }
 
     @Test
@@ -55,20 +54,21 @@ class VisitorIdResponseHandlerTest {
                 .message("OK")
                 .requestModel(requestModel)
                 .build()
-        Assert.assertFalse(responseHandler.shouldHandleResponse(response))
+        responseHandler.shouldHandleResponse(response) shouldBe false
     }
 
     @Test
     fun testShouldHandleResponse_withPredictResponse_withoutVisitorIdCookie() {
         val requestModel = RequestModel.Builder(TimestampProvider(), UUIDProvider())
-                .url("https://recommender.scarabresearch.com/merchants/2345432")
-                .build()
+            .url("https://recommender.scarabresearch.com/merchants/2345432")
+            .build()
         val response = ResponseModel.Builder()
-                .statusCode(200)
-                .message("OK")
-                .requestModel(requestModel)
-                .build()
-        Assert.assertFalse(responseHandler.shouldHandleResponse(response))
+            .statusCode(200)
+            .message("OK")
+            .requestModel(requestModel)
+            .build()
+
+        responseHandler.shouldHandleResponse(response) shouldBe false
     }
 
     @Test
@@ -89,7 +89,7 @@ class VisitorIdResponseHandlerTest {
                 .headers(headers)
                 .requestModel(requestModel)
                 .build()
-        Assert.assertFalse(responseHandler.shouldHandleResponse(response))
+        responseHandler.shouldHandleResponse(response) shouldBe false
     }
 
     @Test
@@ -110,7 +110,7 @@ class VisitorIdResponseHandlerTest {
                 .headers(headers)
                 .requestModel(requestModel)
                 .build()
-        Assert.assertTrue(responseHandler.shouldHandleResponse(response))
+        responseHandler.shouldHandleResponse(response) shouldBe true
     }
 
     @Test

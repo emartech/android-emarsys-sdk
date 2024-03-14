@@ -1,20 +1,14 @@
 package com.emarsys.mobileengage.iam
 
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 
-class InAppEventHandlerInternalTest {
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.matchers.shouldBe
+
+
+class InAppEventHandlerInternalTest : AnnotationSpec() {
 
     private lateinit var inAppEventHandlerInternal: InAppEventHandlerInternal
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {
@@ -23,14 +17,14 @@ class InAppEventHandlerInternalTest {
 
     @Test
     fun testIsPaused_returnsFalse_byDefault() {
-        assertFalse(inAppEventHandlerInternal.isPaused)
+        inAppEventHandlerInternal.isPaused shouldBe false
     }
 
     @Test
     fun testPause_setsIsPaused_toTrue() {
         inAppEventHandlerInternal.pause()
 
-        assertTrue(inAppEventHandlerInternal.isPaused)
+        inAppEventHandlerInternal.isPaused shouldBe true
     }
 
     @Test
@@ -38,6 +32,6 @@ class InAppEventHandlerInternalTest {
         inAppEventHandlerInternal.pause()
         inAppEventHandlerInternal.resume()
 
-        assertFalse(inAppEventHandlerInternal.isPaused)
+        inAppEventHandlerInternal.isPaused shouldBe false
     }
 }

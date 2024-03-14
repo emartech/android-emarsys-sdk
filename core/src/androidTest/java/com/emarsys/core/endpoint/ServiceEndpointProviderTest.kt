@@ -1,24 +1,17 @@
 package com.emarsys.core.endpoint
 
 import com.emarsys.core.storage.StringStorage
-import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
 import org.mockito.Mockito
 
-class ServiceEndpointProviderTest {
+class ServiceEndpointProviderTest : AnnotationSpec() {
     companion object {
         const val ENDPOINT = "https://emarsys.com"
         const val DEFAULT_ENDPOINT = "https://default.emarsys.com"
     }
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var serviceEndpointProvider: ServiceEndpointProvider
     private lateinit var mockServiceUrlStorage: StringStorage

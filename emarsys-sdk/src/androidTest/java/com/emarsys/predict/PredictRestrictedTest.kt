@@ -5,16 +5,13 @@ import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.emarsys
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.di.tearDownEmarsysComponent
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+
+
+import com.emarsys.testUtil.AnnotationSpec
 import org.mockito.Mockito
 import org.mockito.kotlin.mock
 
-class PredictRestrictedTest {
+class PredictRestrictedTest : AnnotationSpec() {
     private companion object {
         const val CONTACT_FIELD_ID = 999
     }
@@ -22,9 +19,6 @@ class PredictRestrictedTest {
     private lateinit var mockPredictInternal: PredictInternal
     private lateinit var predictRestricted: PredictRestricted
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {

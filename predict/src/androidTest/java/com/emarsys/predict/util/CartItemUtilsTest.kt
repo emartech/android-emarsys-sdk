@@ -1,20 +1,15 @@
 package com.emarsys.predict.util
 
+
 import com.emarsys.predict.api.model.CartItem
 import com.emarsys.predict.api.model.PredictCartItem
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import org.mockito.Mockito.mock
 
-class CartItemUtilsTest {
+class CartItemUtilsTest : AnnotationSpec() {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var cartItem1: CartItem
     private lateinit var cartItem2: CartItem
@@ -27,37 +22,44 @@ class CartItemUtilsTest {
         cartItem3 = PredictCartItem("3", 300.0, 8.0)
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testCartItemsToQueryParam_cartItems_mustNotBeNull() {
-        CartItemUtils.cartItemsToQueryParam(null)
+        shouldThrow<IllegalArgumentException> {
+            CartItemUtils.cartItemsToQueryParam(null)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testCartItemsToQueryParam_cartItems_mustNotContainNullElements() {
-        CartItemUtils.cartItemsToQueryParam(listOf(
-                mock(CartItem::class.java),
-                null,
-                mock(CartItem::class.java)
-        ))
+        shouldThrow<IllegalArgumentException> {
+            CartItemUtils.cartItemsToQueryParam(
+                listOf(
+                    mock(CartItem::class.java),
+                    null,
+                    mock(CartItem::class.java)
+                )
+            )
+        }
     }
 
     @Test
     fun testCartItemsToQueryParam_emptyList() {
-        assertEquals("", CartItemUtils.cartItemsToQueryParam(listOf()))
+        CartItemUtils.cartItemsToQueryParam(listOf()) shouldBe ""
     }
 
     @Test
     fun testCartItemsToQueryParam_singletonList() {
-        assertEquals(
-                "i:1,p:100.0,q:2.0",
-                CartItemUtils.cartItemsToQueryParam(listOf(cartItem1)))
+        CartItemUtils.cartItemsToQueryParam(listOf(cartItem1)) shouldBe "i:1,p:100.0,q:2.0"
     }
 
     @Test
     fun testCartItemsToQueryParam() {
-        assertEquals(
-                "i:1,p:100.0,q:2.0|i:2,p:200.0,q:4.0|i:3,p:300.0,q:8.0",
-                CartItemUtils.cartItemsToQueryParam(listOf(cartItem1, cartItem2, cartItem3)))
+        CartItemUtils.cartItemsToQueryParam(
+            listOf(
+                cartItem1,
+                cartItem2,
+                cartItem3
+            )
+        ) shouldBe "i:1,p:100.0,q:2.0|i:2,p:200.0,q:4.0|i:3,p:300.0,q:8.0"
     }
-
 }

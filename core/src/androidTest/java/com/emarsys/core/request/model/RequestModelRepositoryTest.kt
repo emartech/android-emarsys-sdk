@@ -16,22 +16,18 @@ import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.specification.Everything
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.util.serialization.SerializationUtils
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
+import com.emarsys.testUtil.mockito.whenever
+import io.kotest.matchers.shouldBe
 import org.json.JSONException
 import org.junit.Assert
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 import org.mockito.Mockito
 import java.util.*
 
-class RequestModelRepositoryTest {
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
+class RequestModelRepositoryTest : AnnotationSpec() {
+
 
     companion object {
         private const val URL_EMARSYS = "https://www.emarsys.com"
@@ -72,9 +68,9 @@ class RequestModelRepositoryTest {
     @Test
     fun testContentValuesFromItem() {
         val result = repository!!.contentValuesFromItem(request)
-        Assert.assertEquals(request!!.id, result.getAsString(REQUEST_COLUMN_NAME_REQUEST_ID))
-        Assert.assertEquals(request!!.method.name, result.getAsString(REQUEST_COLUMN_NAME_METHOD))
-        Assert.assertEquals(request!!.url.toString(), result.getAsString(REQUEST_COLUMN_NAME_URL))
+        result.getAsString(REQUEST_COLUMN_NAME_REQUEST_ID) shouldBe request!!.id
+        result.getAsString(REQUEST_COLUMN_NAME_METHOD) shouldBe request!!.method.name
+        result.getAsString(REQUEST_COLUMN_NAME_URL) shouldBe request!!.url.toString()
         Assert.assertArrayEquals(
             SerializationUtils.serializableToBlob(
                 request!!.headers
@@ -95,22 +91,23 @@ class RequestModelRepositoryTest {
     @Test
     fun testItemFromCursor() {
         val cursor = Mockito.mock(Cursor::class.java)
-        Mockito.`when`(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_REQUEST_ID)).thenReturn(0)
-        Mockito.`when`(cursor.getString(0)).thenReturn(REQUEST_ID)
-        Mockito.`when`(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_METHOD)).thenReturn(1)
-        Mockito.`when`(cursor.getString(1)).thenReturn(RequestMethod.GET.name)
-        Mockito.`when`(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_URL)).thenReturn(2)
-        Mockito.`when`(cursor.getString(2)).thenReturn(URL)
-        Mockito.`when`(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_HEADERS)).thenReturn(3)
-        Mockito.`when`(cursor.getBlob(3)).thenReturn(SerializationUtils.serializableToBlob(headers))
-        Mockito.`when`(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_PAYLOAD)).thenReturn(4)
-        Mockito.`when`(cursor.getBlob(4)).thenReturn(SerializationUtils.serializableToBlob(payload))
-        Mockito.`when`(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_TIMESTAMP)).thenReturn(5)
-        Mockito.`when`(cursor.getLong(5)).thenReturn(TIMESTAMP)
-        Mockito.`when`(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_TTL)).thenReturn(6)
-        Mockito.`when`(cursor.getLong(6)).thenReturn(TTL)
+        whenever(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_REQUEST_ID)).thenReturn(0)
+        whenever(cursor.getString(0)).thenReturn(REQUEST_ID)
+        whenever(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_METHOD)).thenReturn(1)
+        whenever(cursor.getString(1)).thenReturn(RequestMethod.GET.name)
+        whenever(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_URL)).thenReturn(2)
+        whenever(cursor.getString(2)).thenReturn(URL)
+        whenever(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_HEADERS)).thenReturn(3)
+        whenever(cursor.getBlob(3)).thenReturn(SerializationUtils.serializableToBlob(headers))
+        whenever(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_PAYLOAD)).thenReturn(4)
+        whenever(cursor.getBlob(4)).thenReturn(SerializationUtils.serializableToBlob(payload))
+        whenever(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_TIMESTAMP)).thenReturn(5)
+        whenever(cursor.getLong(5)).thenReturn(TIMESTAMP)
+        whenever(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_TTL)).thenReturn(6)
+        whenever(cursor.getLong(6)).thenReturn(TTL)
         val result = repository!!.itemFromCursor(cursor)
-        Assert.assertEquals(request, result)
+
+        result shouldBe request
     }
 
     @Test
@@ -129,8 +126,8 @@ class RequestModelRepositoryTest {
             300,
             "id2"
         )
-        val expected = Arrays.asList(model1, model2)
-        Assert.assertEquals(expected, result)
+        val expected = listOf(model1, model2)
+        result shouldBe expected
     }
 
     @Throws(JSONException::class)

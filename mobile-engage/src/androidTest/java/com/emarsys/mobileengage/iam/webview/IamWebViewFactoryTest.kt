@@ -1,6 +1,7 @@
 package com.emarsys.mobileengage.iam.webview
 
-import androidx.test.rule.ActivityTestRule
+
+import androidx.test.core.app.ActivityScenario
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
@@ -8,19 +9,16 @@ import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
 import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory
 import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactoryProvider
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ExtensionTestUtils.runOnMain
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.fake.FakeActivity
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
+import java.util.concurrent.CountDownLatch
 
-class IamWebViewFactoryTest {
+class IamWebViewFactoryTest : AnnotationSpec() {
 
     private lateinit var mockJSCommandFactoryProvider: JSCommandFactoryProvider
     private lateinit var mockJSCommandFactory: JSCommandFactory
@@ -30,14 +28,7 @@ class IamWebViewFactoryTest {
     private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
 
     private lateinit var webViewFactory: IamWebViewFactory
-
-    @Rule
-    @JvmField
-    var timeout: TestRule = TimeoutUtils.timeoutRule
-
-    @Rule
-    @JvmField
-    var activityTestRule = ActivityTestRule(FakeActivity::class.java)
+    private lateinit var scenario: ActivityScenario<FakeActivity>
 
     @Before
     fun setUp() {
@@ -52,16 +43,24 @@ class IamWebViewFactoryTest {
         }
 
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
-        mockCurrentActivityProvider = mock {
-            on { get() } doReturn activityTestRule.activity
-        }
 
-        webViewFactory = IamWebViewFactory(
-            mockJsBridgeFactory,
-            mockJSCommandFactoryProvider,
-            concurrentHandlerHolder,
-            mockCurrentActivityProvider
-        )
+        scenario = ActivityScenario.launch(FakeActivity::class.java)
+        scenario.onActivity { activity ->
+            mockCurrentActivityProvider = mock {
+                on { get() } doReturn activity
+            }
+            webViewFactory = IamWebViewFactory(
+                mockJsBridgeFactory,
+                mockJSCommandFactoryProvider,
+                concurrentHandlerHolder,
+                mockCurrentActivityProvider
+            )
+        }
+    }
+
+    @After
+    fun tearDown() {
+        scenario.close()
     }
 
     @Test
@@ -74,9 +73,16 @@ class IamWebViewFactoryTest {
 
     @Test
     fun testCreateWithActivity() {
-        val iamWebView = runOnMain {
-            webViewFactory.create(activityTestRule.activity)
+        val scenario = ActivityScenario.launch(FakeActivity::class.java)
+        val countDownLatch = CountDownLatch(1)
+        scenario.onActivity { activity ->
+            val iamWebView = runOnMain {
+                webViewFactory.create(activity)
+            }
+            iamWebView::class.java shouldBe IamWebView::class.java
+            countDownLatch.countDown()
         }
-        iamWebView::class.java shouldBe IamWebView::class.java
+        countDownLatch.await()
+        scenario.close()
     }
 }

@@ -9,6 +9,9 @@ object AndroidVersionUtils {
         get() = Build.VERSION.SDK_INT < Build.VERSION_CODES.O
     val isBelowQ: Boolean
         get() = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
+
+    val isBelow30: Boolean
+        get() = Build.VERSION.SDK_INT < Build.VERSION_CODES.R
     val isBelowS: Boolean
         get() = Build.VERSION.SDK_INT < Build.VERSION_CODES.S
     val isBelowTiramisu: Boolean

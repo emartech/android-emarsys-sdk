@@ -3,28 +3,35 @@ package com.emarsys.core.util.log
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
-import com.emarsys.core.di.*
+import com.emarsys.core.di.CoreComponent
+import com.emarsys.core.di.FakeCoreDependencyContainer
+import com.emarsys.core.di.core
+import com.emarsys.core.di.setupCoreComponent
+import com.emarsys.core.di.tearDownCoreComponent
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.log.entry.LogEntry
-import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.ThreadSpy
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 import org.mockito.ArgumentCaptor
-import org.mockito.kotlin.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.capture
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.timeout
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
 
-class LoggerTest {
+class LoggerTest : AnnotationSpec() {
 
     companion object {
         const val TIMESTAMP = 400L
@@ -32,9 +39,6 @@ class LoggerTest {
         const val TTL = Long.MAX_VALUE
     }
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var shardRepositoryMock: Repository<ShardModel, SqlSpecification>

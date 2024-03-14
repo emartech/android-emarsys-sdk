@@ -4,22 +4,15 @@ import android.webkit.WebView
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.fake.FakeMessageLoadedListener
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
 import java.util.concurrent.CountDownLatch
 
-class IamWebViewClientTest {
+class IamWebViewClientTest : AnnotationSpec() {
     private lateinit var latch: CountDownLatch
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
 
     @Before
     fun setUp() {
@@ -39,7 +32,8 @@ class IamWebViewClientTest {
             )
         }
         latch.await()
-        Assert.assertEquals(1, listener.invocationCount.toLong())
+
+        listener.invocationCount.toLong() shouldBe 1
     }
 
     @Test
@@ -52,6 +46,6 @@ class IamWebViewClientTest {
             Thread { client.onPageFinished(webView, "") }.start()
         }
         latch.await()
-        Assert.assertEquals(1, listener.invocationCount.toLong())
+        listener.invocationCount.toLong() shouldBe 1
     }
 }

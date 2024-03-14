@@ -6,16 +6,13 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.MobileEngageRequestContext
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.matchers.shouldBe
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
-class EmarsysRequestModelFactoryTest {
+class EmarsysRequestModelFactoryTest : AnnotationSpec() {
 
     companion object {
         const val HARDWARE_ID = "hardware_id"
@@ -30,9 +27,6 @@ class EmarsysRequestModelFactoryTest {
     private lateinit var requestFactory: EmarsysRequestModelFactory
     private lateinit var mockMobileEngageRequestContext: MobileEngageRequestContext
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {

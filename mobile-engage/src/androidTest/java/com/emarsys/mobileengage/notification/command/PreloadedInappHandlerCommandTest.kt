@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.notification.command
 
+
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
@@ -10,16 +11,11 @@ import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.service.NotificationData
 import com.emarsys.mobileengage.service.NotificationOperation
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.FileTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import org.json.JSONObject
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -29,7 +25,7 @@ import java.io.File
 import java.util.concurrent.CountDownLatch
 
 
-class PreloadedInappHandlerCommandTest {
+class PreloadedInappHandlerCommandTest : AnnotationSpec() {
     companion object {
         private const val URL = "https://www.google.com"
         const val TITLE = "title"
@@ -63,9 +59,6 @@ class PreloadedInappHandlerCommandTest {
     private lateinit var mockLifecycleActionRegistry: ActivityLifecycleActionRegistry
     private lateinit var fileUrl: String
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {

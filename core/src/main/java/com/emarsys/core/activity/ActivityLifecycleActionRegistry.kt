@@ -14,7 +14,7 @@ class ActivityLifecycleActionRegistry(
     val triggerOnActivityActions: MutableList<ActivityLifecycleAction> = mutableListOf()
 
     fun execute(activity: Activity?, lifecycles: List<ActivityLifecycleAction.ActivityLifecycle>) {
-        concurrentHandlerHolder.coreHandler.post {
+        concurrentHandlerHolder.post {
             (lifecycleActions + triggerOnActivityActions)
                 .filter {
                     lifecycles.contains(it.triggeringLifecycle)
@@ -33,7 +33,7 @@ class ActivityLifecycleActionRegistry(
     }
 
     fun addTriggerOnActivityAction(activityLifecycleAction: ActivityLifecycleAction) {
-        concurrentHandlerHolder.coreHandler.post {
+        concurrentHandlerHolder.post {
             val currentActivity = currentActivityProvider.get()
             triggerOnActivityActions.add(activityLifecycleAction)
             if (currentActivity != null) {

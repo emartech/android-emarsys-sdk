@@ -11,28 +11,22 @@ import com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_TYPE
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.util.serialization.SerializationUtils.serializableToBlob
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.TimeoutUtils
+import io.kotest.matchers.shouldBe
 import org.junit.Assert
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import java.io.Serializable
 
-class ShardModelRepositoryTest {
+class ShardModelRepositoryTest : AnnotationSpec() {
 
     private lateinit var shardModel: ShardModel
     private lateinit var repository: ShardModelRepository
     private lateinit var payload: Map<String, Serializable>
     private lateinit var context: Context
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     companion object {
         const val TYPE: String = "type1"
@@ -61,11 +55,14 @@ class ShardModelRepositoryTest {
     @Test
     fun testContentValuesFromItem() {
         val result = repository.contentValuesFromItem(shardModel)
-        Assert.assertEquals(shardModel.id, result.getAsString(SHARD_COLUMN_ID))
-        Assert.assertEquals(shardModel.type, result.getAsString(SHARD_COLUMN_TYPE))
-        Assert.assertArrayEquals(serializableToBlob(shardModel.data), result.getAsByteArray(SHARD_COLUMN_DATA))
-        Assert.assertEquals(shardModel.timestamp, result.getAsLong(SHARD_COLUMN_TIMESTAMP))
-        Assert.assertEquals(shardModel.ttl, result.getAsLong(SHARD_COLUMN_TTL))
+        result.getAsString(SHARD_COLUMN_ID) shouldBe shardModel.id
+        result.getAsString(SHARD_COLUMN_TYPE) shouldBe shardModel.type
+        result.getAsLong(SHARD_COLUMN_TIMESTAMP) shouldBe shardModel.timestamp
+        result.getAsLong(SHARD_COLUMN_TTL) shouldBe shardModel.ttl
+        Assert.assertArrayEquals(
+            serializableToBlob(shardModel.data),
+            result.getAsByteArray(SHARD_COLUMN_DATA)
+        )
     }
 
     @Test
@@ -87,6 +84,6 @@ class ShardModelRepositoryTest {
         whenever(cursor.getColumnIndexOrThrow(SHARD_COLUMN_TTL)).thenReturn(4)
         whenever(cursor.getLong(4)).thenReturn(TTL)
 
-        Assert.assertEquals(shardModel, repository.itemFromCursor(cursor))
+        repository.itemFromCursor(cursor) shouldBe shardModel
     }
 }

@@ -6,21 +6,16 @@ import com.emarsys.core.database.repository.specification.Everything
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 
-class FilterByShardTypeTest {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+class FilterByShardTypeTest : AnnotationSpec() {
+
 
     companion object {
         const val TYPE = "type1"
@@ -53,9 +48,11 @@ class FilterByShardTypeTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testConstructor_mustNotBeNull() {
-        FilterByShardType(null)
+        shouldThrow<IllegalArgumentException> {
+            FilterByShardType(null)
+        }
     }
 
     @Test

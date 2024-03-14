@@ -1,25 +1,21 @@
 package com.emarsys.eventservice
 
+
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.event.EventServiceInternal
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.IntegrationTestUtils
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
-class EventServiceTest {
+class EventServiceTest : AnnotationSpec() {
     companion object {
         private const val EVENT_NAME = "testEventName"
         private val EVENT_ATTRIBUTES = mapOf(
-                "key1" to "value1",
-                "key2" to "value2"
+            "key1" to "value1",
+            "key2" to "value2"
         )
     }
 
@@ -27,9 +23,6 @@ class EventServiceTest {
     private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var eventServiceApi: EventServiceApi
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {

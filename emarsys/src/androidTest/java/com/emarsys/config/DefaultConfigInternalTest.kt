@@ -1,5 +1,6 @@
 package com.emarsys.config
 
+
 import com.emarsys.EmarsysRequestModelFactory
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.config.model.RemoteConfig
@@ -33,20 +34,28 @@ import com.emarsys.mobileengage.client.ClientServiceInternal
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.predict.PredictInternal
 import com.emarsys.predict.request.PredictRequestContext
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ExtensionTestUtils.tryCast
 import com.emarsys.testUtil.FeatureTestUtils
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
-import io.kotlintest.shouldBe
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.mockito.kotlin.*
+import io.kotest.matchers.shouldBe
+import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.inOrder
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.spy
+import org.mockito.kotlin.timeout
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.verifyNoMoreInteractions
+import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
-class DefaultConfigInternalTest {
+class DefaultConfigInternalTest : AnnotationSpec() {
     private companion object {
         const val APPLICATION_CODE = "applicationCode"
         const val MERCHANT_ID = "merchantId"
@@ -87,9 +96,6 @@ class DefaultConfigInternalTest {
     private lateinit var mockCompletionListener: CompletionListener
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     @Suppress("UNCHECKED_CAST")

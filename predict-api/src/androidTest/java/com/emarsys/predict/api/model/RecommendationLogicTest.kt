@@ -1,29 +1,18 @@
 package com.emarsys.predict.api.model
 
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
-
-import com.emarsys.predict.api.model.RecommendationLogic.Companion.search
-
-import com.emarsys.predict.api.model.RecommendationLogic.Companion.cart
-import com.emarsys.predict.api.model.RecommendationLogic.Companion.related
-import com.emarsys.predict.api.model.RecommendationLogic.Companion.category
 import com.emarsys.predict.api.model.RecommendationLogic.Companion.alsoBought
-import com.emarsys.predict.api.model.RecommendationLogic.Companion.popular
-import com.emarsys.predict.api.model.RecommendationLogic.Companion.personal
+import com.emarsys.predict.api.model.RecommendationLogic.Companion.cart
+import com.emarsys.predict.api.model.RecommendationLogic.Companion.category
 import com.emarsys.predict.api.model.RecommendationLogic.Companion.home
-import io.kotlintest.shouldBe
+import com.emarsys.predict.api.model.RecommendationLogic.Companion.personal
+import com.emarsys.predict.api.model.RecommendationLogic.Companion.popular
+import com.emarsys.predict.api.model.RecommendationLogic.Companion.related
+import com.emarsys.predict.api.model.RecommendationLogic.Companion.search
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.matchers.shouldBe
 
-import org.junit.Assert
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import java.util.ArrayList
-import java.util.HashMap
 
-class RecommendationLogicTest {
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
+class RecommendationLogicTest : AnnotationSpec() {
 
     @Test
     fun testConstructor_variants_mustBeEmptyList_withoutVariantsParam() {

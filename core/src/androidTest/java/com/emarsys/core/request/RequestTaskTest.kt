@@ -3,12 +3,8 @@ package com.emarsys.core.request
 import com.emarsys.core.connection.ConnectionProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.request.model.RequestModel
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.assertions.fail
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
@@ -16,13 +12,10 @@ import org.mockito.kotlin.whenever
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
-class RequestTaskTest {
+class RequestTaskTest : AnnotationSpec() {
     private lateinit var connectionProvider: ConnectionProvider
     private lateinit var mockTimestampProvider: TimestampProvider
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     companion object {
         private const val WRONG_URL = "https://localhost/missing"
@@ -55,7 +48,7 @@ class RequestTaskTest {
         try {
             requestTask.execute()
         } catch (e: Exception) {
-            Assert.fail("Request Task should handle exception: " + e.message)
+            fail("Request Task should handle exception: " + e.message)
         }
     }
 

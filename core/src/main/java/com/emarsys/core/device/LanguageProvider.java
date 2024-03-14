@@ -1,9 +1,11 @@
 package com.emarsys.core.device;
 
+import com.emarsys.core.Mockable;
 import com.emarsys.core.util.Assert;
 
 import java.util.Locale;
 
+@Mockable
 public class LanguageProvider {
 
     public String provideLanguage(Locale locale) {

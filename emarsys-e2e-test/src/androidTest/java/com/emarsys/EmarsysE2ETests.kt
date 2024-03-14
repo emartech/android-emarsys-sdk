@@ -1,5 +1,6 @@
 package com.emarsys
 
+
 import android.app.Application
 import android.location.Location
 import android.location.LocationManager
@@ -11,24 +12,30 @@ import com.emarsys.di.emarsys
 import com.emarsys.mobileengage.api.geofence.Trigger
 import com.emarsys.mobileengage.api.geofence.TriggerType
 import com.emarsys.mobileengage.api.inbox.Message
-import com.emarsys.testUtil.*
-import com.emarsys.testUtil.rules.ConnectionRule
+import com.emarsys.testUtil.AnnotationSpec
+import com.emarsys.testUtil.E2ETestUtils
+import com.emarsys.testUtil.InstrumentationRegistry
+import com.emarsys.testUtil.ReflectionTestUtils
+import com.emarsys.testUtil.RetryUtils
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import com.emarsys.testUtil.rules.RetryRule
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.json.JSONObject
-import org.junit.After
-import org.junit.Ignore
 import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import com.emarsys.mobileengage.api.geofence.Geofence as MEGeofence
 
+class EmarsysE2ETests : AnnotationSpec() {
 
-class EmarsysE2ETests {
+    @Rule
+    @JvmField
+    val retryRule: RetryRule = RetryUtils.retryRule
+
+    @Rule
+    @JvmField
+    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
 
     companion object {
         private const val OLD_APPLICATION_CODE = "14C19-A121F"
@@ -42,28 +49,13 @@ class EmarsysE2ETests {
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.longTimeoutRule
-
-    @Rule
-    @JvmField
-    val retryRule: RetryRule = RetryUtils.retryRule
-
-    @Rule
-    @JvmField
-    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
-
-    @Rule
-    @JvmField
-    val connectionRule = ConnectionRule(application)
-
     @After
     fun tearDown() {
         E2ETestUtils.tearDownEmarsys(application)
     }
 
     @Test
+
     fun testChangeApplicationCode() {
         setup(OLD_APPLICATION_CODE)
 
@@ -82,6 +74,7 @@ class EmarsysE2ETests {
     }
 
     @Test
+
     fun testChangeApplicationCodeFromNull() {
         setup(null)
 
@@ -100,6 +93,7 @@ class EmarsysE2ETests {
     }
 
     @Test
+
     fun testChangeApplicationCodeToNull() {
         var disabled = true
         setup(APPLICATION_CODE)
@@ -123,6 +117,7 @@ class EmarsysE2ETests {
     }
 
     @Test
+
     fun testInbox_addTag_removeTag() {
         setup(APPLICATION_CODE)
 
@@ -166,7 +161,7 @@ class EmarsysE2ETests {
     }
 
     @Test
-    @Ignore("Test is too flaky to run on pipeline")
+    @Ignore
     fun testGeofence() {
         setup(APPLICATION_CODE)
         RetryUtil.retry {

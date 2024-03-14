@@ -15,13 +15,17 @@ object ExtensionTestUtils {
 
     fun <T> Any.runOnMain(logic: () -> T): T {
         val uiHandler = Handler(Looper.getMainLooper())
-        var result: T? = null
-        val latch = CountDownLatch(1)
-        uiHandler.post {
-            result = logic()
-            latch.countDown()
+        return if (Thread.currentThread() != uiHandler.looper.thread) {
+            var result: T? = null
+            val latch = CountDownLatch(1)
+            uiHandler.post {
+                result = logic()
+                latch.countDown()
+            }
+            latch.await()
+            result!!
+        } else {
+            logic()
         }
-        latch.await()
-        return result!!
     }
 }

@@ -7,6 +7,15 @@ on:
     branches-ignore:
       - 'dependabot/**'
   workflow_dispatch:
+    inputs:
+      track:
+        type: choice
+        description: 'A track to assign the sample app'
+        options:
+          - alpha
+          - beta
+          - stable
+        default: alpha
 
 env:
   USE_LOCAL_DEPENDENCY: ${{ vars.USE_LOCAL_DEPENDENCY }}
@@ -19,6 +28,7 @@ env:
   FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
   GOOGLE_OAUTH_SERVER_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH_SERVER_CLIENT_ID }}
   GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+  GOOGLE_PLAY_STORE_SEVICE_ACCOUNT_JSON_BASE64: ${{ secrets.GOOGLE_PLAY_STORE_SEVICE_ACCOUNT_JSON_BASE64 }}
   OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
   OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
   SONATYPE_STAGING_PROFILE_ID: ${{ secrets.SONATYPE_STAGING_PROFILE_ID }}

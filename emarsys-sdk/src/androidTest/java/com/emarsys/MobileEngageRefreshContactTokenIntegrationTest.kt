@@ -14,28 +14,32 @@ import com.emarsys.core.storage.Storage
 import com.emarsys.di.DefaultEmarsysComponent
 import com.emarsys.di.DefaultEmarsysDependencies
 import com.emarsys.di.emarsys
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ConnectionTestUtils
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.RetryUtils
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import com.emarsys.testUtil.rules.RetryRule
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import org.junit.After
-import org.junit.Before
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
 import java.util.concurrent.CountDownLatch
 
-class MobileEngageRefreshContactTokenIntegrationTest {
+class MobileEngageRefreshContactTokenIntegrationTest : AnnotationSpec() {
+
+    @Rule
+    @JvmField
+    val retryRule: RetryRule = RetryUtils.retryRule
+
+    @Rule
+    @JvmField
+    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
 
     companion object {
         private const val APP_ID = "14C19-A121F"
@@ -51,43 +55,31 @@ class MobileEngageRefreshContactTokenIntegrationTest {
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
-
-    @Rule
-    @JvmField
-    val retryRule: RetryRule = RetryUtils.retryRule
-
-    @Rule
-    @JvmField
-    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
-
     @Before
     fun setup() {
         DatabaseTestUtils.deleteCoreDatabase()
 
         baseConfig = EmarsysConfig.Builder()
-                .application(application)
-                .applicationCode(APP_ID)
-                .build()
+            .application(application)
+            .applicationCode(APP_ID)
+            .build()
 
         FeatureTestUtils.resetFeatures()
 
         val deviceInfo = DeviceInfo(
-                application,
-                Mockito.mock(HardwareIdProvider::class.java).apply {
-                    whenever(provideHardwareId()).thenReturn("mobileengage_integration_hwid")
-                },
-                Mockito.mock(VersionProvider::class.java).apply {
-                    whenever(provideSdkVersion()).thenReturn("0.0.0-mobileengage_integration_version")
-                },
-                Mockito.mock(LanguageProvider::class.java).apply {
-                    whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
-                },
-                Mockito.mock(NotificationManagerHelper::class.java),
-                isAutomaticPushSendingEnabled = true,
-                isGooglePlayAvailable = true
+            application,
+            Mockito.mock(HardwareIdProvider::class.java).apply {
+                whenever(provideHardwareId()).thenReturn("mobileengage_integration_hwid")
+            },
+            Mockito.mock(VersionProvider::class.java).apply {
+                whenever(provideSdkVersion()).thenReturn("0.0.0-mobileengage_integration_version")
+            },
+            Mockito.mock(LanguageProvider::class.java).apply {
+                whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
+            },
+            Mockito.mock(NotificationManagerHelper::class.java),
+            isAutomaticPushSendingEnabled = true,
+            isGooglePlayAvailable = true
         )
 
         DefaultEmarsysDependencies(baseConfig, object : DefaultEmarsysComponent(baseConfig) {
@@ -120,6 +112,7 @@ class MobileEngageRefreshContactTokenIntegrationTest {
     }
 
     @Test
+
     fun testRefreshContactToken_shouldUpdateContactToken_whenOutDated() {
         contactTokenStorage.remove()
         contactTokenStorage.set("tokenForIntegrationTest")

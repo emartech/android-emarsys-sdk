@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.util.Log
-import com.emarsys.core.Mockable
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.request.RequestManager
@@ -12,7 +11,7 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.endpoint.Endpoint
 
-@Mockable
+
 class DefaultDeepLinkInternal(
     private val requestContext: MobileEngageRequestContext,
     private val deepLinkServiceProvider: ServiceEndpointProvider,

@@ -1,13 +1,12 @@
 package com.emarsys.core.crypto
 
 import com.emarsys.core.device.HardwareIdentification
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Test
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.matchers.shouldBe
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
-class HardwareIdentificationCryptoTest {
+class HardwareIdentificationCryptoTest : AnnotationSpec() {
 
     companion object {
         private const val SECRET = "SECRET"
@@ -16,7 +15,8 @@ class HardwareIdentificationCryptoTest {
         private const val SALT = "testSalt"
         private const val IV = "testIv"
         private val HARDWARE = HardwareIdentification(HARDWARE_ID, null, null, null)
-        private val ENCRYPTED_HARDWARE = HardwareIdentification(HARDWARE_ID, ENCRYPTED_HARDWARE_ID, SALT, IV)
+        private val ENCRYPTED_HARDWARE =
+            HardwareIdentification(HARDWARE_ID, ENCRYPTED_HARDWARE_ID, SALT, IV)
     }
 
     private lateinit var hardwareIdentificationCryptoWithSecret: HardwareIdentificationCrypto

@@ -8,3 +8,10 @@ localConfig.properties
 sample/google-services.json
 sample/agconnect-services.json
 .fleet
+.env
+firebase_service_account.json
+workflow.secrets
+mobile-team-android.jks.asc
+sample/mobile-team-android.jks
+mobile-team-android.jks
+secring.asc.gpg

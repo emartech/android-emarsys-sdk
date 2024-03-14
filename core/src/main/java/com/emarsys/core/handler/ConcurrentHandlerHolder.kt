@@ -17,7 +17,13 @@ class ConcurrentHandlerHolder(
     val backgroundLooper = backgroundHandler.handler.looper
 
     fun post(runnable: Runnable) {
-        coreHandler.post(runnable)
+        if (coreHandler.handler.looper.thread.state != Thread.State.TERMINATED) {
+            coreHandler.post(runnable)
+        } else {
+            postOnMain {
+                coreHandler.post(runnable)
+            }
+        }
     }
 
     fun postOnMain(runnable: Runnable) {

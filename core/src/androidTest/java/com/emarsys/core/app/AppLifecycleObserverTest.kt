@@ -8,27 +8,20 @@ import androidx.lifecycle.LifecycleRegistry
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.session.Session
-import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import java.util.concurrent.CountDownLatch
 
-class AppLifecycleObserverTest {
+class AppLifecycleObserverTest : AnnotationSpec() {
     private lateinit var mockSession: Session
     private lateinit var appLifecycleObserver: AppLifecycleObserver
     private lateinit var coreHandlerHolder: ConcurrentHandlerHolder
     private lateinit var mockLifecycleOwner: LifecycleOwner
     private lateinit var uiHandler: Handler
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {

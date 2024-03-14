@@ -1,16 +1,12 @@
 package com.emarsys.core.notification
 
 import com.emarsys.core.api.notification.ChannelSettings
-import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
 import org.mockito.Mockito.mock
 
-class NotificationManagerHelperTest {
+class NotificationManagerHelperTest : AnnotationSpec() {
 
     private companion object {
         const val CHANNEL_ID_1 = "channelId1"
@@ -21,9 +17,6 @@ class NotificationManagerHelperTest {
     private lateinit var mockNotificationManagerProxy: NotificationManagerProxy
     private lateinit var notificationManagerHelper: NotificationManagerHelper
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {

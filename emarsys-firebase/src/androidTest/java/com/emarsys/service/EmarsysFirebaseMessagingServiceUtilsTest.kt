@@ -4,13 +4,12 @@ import android.content.Context
 import android.os.Bundle
 import com.emarsys.fake.FakeFirebaseDependencyContainer
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.google.firebase.messaging.RemoteMessage
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Test
+import io.kotest.matchers.shouldBe
 
-class EmarsysFirebaseMessagingServiceUtilsTest {
+class EmarsysFirebaseMessagingServiceUtilsTest : AnnotationSpec() {
     private lateinit var context: Context
 
     @Before
@@ -25,7 +24,10 @@ class EmarsysFirebaseMessagingServiceUtilsTest {
     fun handleMessage_shouldReturnFalse_ifMessage_isNotEmarsysMessage() {
         val testRemoteMessage = RemoteMessage(Bundle.EMPTY)
 
-        EmarsysFirebaseMessagingServiceUtils.handleMessage(context, testRemoteMessage) shouldBe false
+        EmarsysFirebaseMessagingServiceUtils.handleMessage(
+            context,
+            testRemoteMessage
+        ) shouldBe false
     }
 
     @Test

@@ -19,24 +19,19 @@ import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
 import com.emarsys.core.worker.DefaultWorker
 import com.emarsys.core.worker.Worker
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ConnectionTestUtils.checkConnection
 import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.TestUrls.DENNA_ECHO
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
+import io.kotest.matchers.shouldBe
 import org.json.JSONObject
-import org.junit.After
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.mock
 import java.util.concurrent.CountDownLatch
 
-class RequestManagerDennaTest {
+class RequestManagerDennaTest : AnnotationSpec() {
     private lateinit var manager: RequestManager
     private lateinit var headers: MutableMap<String, String>
     private lateinit var model: RequestModel
@@ -48,9 +43,6 @@ class RequestManagerDennaTest {
     private lateinit var uuidProvider: UUIDProvider
     private lateinit var coreCompletionHandlerMiddlewareProvider: CoreCompletionHandlerMiddlewareProvider
 
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
 
     private lateinit var mockRequestModelMapper: Mapper<RequestModel, RequestModel>
 
@@ -130,18 +122,19 @@ class RequestManagerDennaTest {
         manager.submit(model, null)
         latch.await()
 
-        Assert.assertEquals(null, fakeCompletionHandler.exception)
-        Assert.assertEquals(0, fakeCompletionHandler.onErrorCount.toLong())
-        Assert.assertEquals(1, fakeCompletionHandler.onSuccessCount.toLong())
-        Assert.assertEquals(200, fakeCompletionHandler.successResponseModel.statusCode.toLong())
+        fakeCompletionHandler.exception shouldBe null
+        fakeCompletionHandler.onErrorCount.toLong() shouldBe 0
+        fakeCompletionHandler.onSuccessCount.toLong() shouldBe 1
+        fakeCompletionHandler.successResponseModel.statusCode.toLong() shouldBe 200
         val responseJson = JSONObject(fakeCompletionHandler.successResponseModel.body!!)
         val headers = responseJson["headers"] as JSONObject
-        Assert.assertEquals("value1", headers["Header1".lowercase()])
-        Assert.assertEquals("value2", headers["Header2".lowercase()])
-        Assert.assertEquals("application/json", headers["Accept".lowercase()])
-        Assert.assertEquals("application/x-www-form-urlencoded", headers["Content".lowercase()])
-        Assert.assertEquals("GET", responseJson["method"])
-        Assert.assertFalse(responseJson.has("body"))
+        headers["Header1".lowercase()] shouldBe "value1"
+        headers["Header2".lowercase()] shouldBe "value2"
+        headers["Accept".lowercase()] shouldBe "application/json"
+        headers["Content".lowercase()] shouldBe "application/x-www-form-urlencoded"
+        responseJson["method"] shouldBe "GET"
+
+        responseJson.has("body") shouldBe false
     }
 
     @Test
@@ -163,25 +156,25 @@ class RequestManagerDennaTest {
         manager.submit(model, null)
         latch.await()
 
-        Assert.assertEquals(null, fakeCompletionHandler.exception)
-        Assert.assertEquals(0, fakeCompletionHandler.onErrorCount.toLong())
-        Assert.assertEquals(1, fakeCompletionHandler.onSuccessCount.toLong())
-        Assert.assertEquals(200, fakeCompletionHandler.successResponseModel.statusCode.toLong())
+        fakeCompletionHandler.exception shouldBe null
+        fakeCompletionHandler.onErrorCount.toLong() shouldBe 0
+        fakeCompletionHandler.onSuccessCount.toLong() shouldBe 1
+        fakeCompletionHandler.successResponseModel.statusCode.toLong() shouldBe 200
         val responseJson = JSONObject(fakeCompletionHandler.successResponseModel.body!!)
         val headers = responseJson.getJSONObject("headers")
         val body = responseJson.getJSONObject("body")
-        Assert.assertEquals("value1", headers["Header1".lowercase()])
-        Assert.assertEquals("value2", headers["Header2".lowercase()])
-        Assert.assertEquals("application/json", headers["Accept".lowercase()])
-        Assert.assertEquals("application/x-www-form-urlencoded", headers["Content".lowercase()])
-        Assert.assertEquals("POST", responseJson["method"])
-        Assert.assertEquals("val1", body["key1"])
-        Assert.assertEquals("val2", body["key2"])
-        Assert.assertEquals("val3", body["key3"])
-        Assert.assertEquals(4, body["key4"])
+        headers["Header1".lowercase()] shouldBe "value1"
+        headers["Header2".lowercase()] shouldBe "value2"
+        headers["Accept".lowercase()] shouldBe "application/json"
+        headers["Content".lowercase()] shouldBe "application/x-www-form-urlencoded"
+        responseJson["method"] shouldBe "POST"
+        body["key1"] shouldBe "val1"
+        body["key2"] shouldBe "val2"
+        body["key3"] shouldBe "val3"
+        body["key4"] shouldBe 4
         val soDeepJson = body.getJSONObject("deepKey")
-        Assert.assertEquals("deepValue1", soDeepJson.getString("deep1"))
-        Assert.assertEquals("deepValue2", soDeepJson.getString("deep2"))
+        soDeepJson.getString("deep1") shouldBe "deepValue1"
+        soDeepJson.getString("deep2") shouldBe "deepValue2"
     }
 
     @Test
@@ -192,18 +185,18 @@ class RequestManagerDennaTest {
             ).build()
         manager.submit(model, null)
         latch.await()
-        Assert.assertEquals(null, fakeCompletionHandler.exception)
-        Assert.assertEquals(0, fakeCompletionHandler.onErrorCount.toLong())
-        Assert.assertEquals(1, fakeCompletionHandler.onSuccessCount.toLong())
-        Assert.assertEquals(200, fakeCompletionHandler.successResponseModel.statusCode.toLong())
+        fakeCompletionHandler.exception shouldBe null
+        fakeCompletionHandler.onErrorCount.toLong() shouldBe 0
+        fakeCompletionHandler.onSuccessCount.toLong() shouldBe 1
+        fakeCompletionHandler.successResponseModel.statusCode.toLong() shouldBe 200
         val responseJson = JSONObject(fakeCompletionHandler.successResponseModel!!.body!!)
         val headers = responseJson.getJSONObject("headers")
-        Assert.assertEquals("value1", headers["Header1".lowercase()])
-        Assert.assertEquals("value2", headers["Header2".lowercase()])
-        Assert.assertEquals("application/json", headers["Accept".lowercase()])
-        Assert.assertEquals("application/x-www-form-urlencoded", headers["Content".lowercase()])
-        Assert.assertEquals("PUT", responseJson["method"])
-        Assert.assertFalse(responseJson.has("body"))
+        headers["Header1".lowercase()] shouldBe "value1"
+        headers["Header2".lowercase()] shouldBe "value2"
+        headers["Accept".lowercase()] shouldBe "application/json"
+        headers["Content".lowercase()] shouldBe "application/x-www-form-urlencoded"
+        responseJson["method"] shouldBe "PUT"
+        responseJson.has("body") shouldBe false
     }
 
     @Test
@@ -214,17 +207,17 @@ class RequestManagerDennaTest {
             ).build()
         manager.submit(model, null)
         latch.await()
-        Assert.assertEquals(null, fakeCompletionHandler.exception)
-        Assert.assertEquals(0, fakeCompletionHandler.onErrorCount.toLong())
-        Assert.assertEquals(1, fakeCompletionHandler.onSuccessCount.toLong())
-        Assert.assertEquals(200, fakeCompletionHandler.successResponseModel.statusCode.toLong())
+        fakeCompletionHandler.exception shouldBe null
+        fakeCompletionHandler.onErrorCount.toLong() shouldBe 0
+        fakeCompletionHandler.onSuccessCount.toLong() shouldBe 1
+        fakeCompletionHandler.successResponseModel.statusCode.toLong() shouldBe 200
         val responseJson = JSONObject(fakeCompletionHandler.successResponseModel!!.body!!)
         val headers = responseJson.getJSONObject("headers")
-        Assert.assertEquals("value1", headers["Header1".lowercase()])
-        Assert.assertEquals("value2", headers["Header2".lowercase()])
-        Assert.assertEquals("application/json", headers["Accept".lowercase()])
-        Assert.assertEquals("application/x-www-form-urlencoded", headers["Content".lowercase()])
-        Assert.assertEquals("DELETE", responseJson["method"])
-        Assert.assertFalse(responseJson.has("body"))
+        headers["Header1".lowercase()] shouldBe "value1"
+        headers["Header2".lowercase()] shouldBe "value2"
+        headers["Accept".lowercase()] shouldBe "application/json"
+        headers["Content".lowercase()] shouldBe "application/x-www-form-urlencoded"
+        responseJson["method"] shouldBe "DELETE"
+        responseJson.has("body") shouldBe false
     }
 }

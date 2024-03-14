@@ -3,26 +3,18 @@ package com.emarsys.mobileengage.event
 import android.content.Context
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.feature.FeatureRegistry
-import com.emarsys.mobileengage.api.event.EventHandler
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.ReflectionTestUtils
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.json.JSONObject
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 import org.mockito.kotlin.mock
 
-internal class CacheableEventHandlerTest {
+internal class CacheableEventHandlerTest : AnnotationSpec() {
 
     private lateinit var cacheableEventHandler: CacheableEventHandler
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {

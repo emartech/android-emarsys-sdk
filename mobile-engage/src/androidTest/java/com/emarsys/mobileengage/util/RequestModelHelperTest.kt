@@ -1,20 +1,17 @@
 package com.emarsys.mobileengage.util
 
+
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.request.model.RequestModel
-import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
 import org.mockito.Mockito.mock
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import java.net.URL
 
-class RequestModelHelperTest {
+class RequestModelHelperTest : AnnotationSpec() {
 
     private companion object {
         const val CLIENT_HOST = "https://me-client.eservice.emarsys.net/v3"
@@ -52,9 +49,6 @@ class RequestModelHelperTest {
         requestModelHelper = RequestModelHelper(mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
     }
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Test
     fun testIsMobileEngageRequest_true_whenItIsMobileEngageClient() {

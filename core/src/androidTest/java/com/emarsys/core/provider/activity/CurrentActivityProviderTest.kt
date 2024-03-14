@@ -1,17 +1,13 @@
 package com.emarsys.core.provider.activity
 
 import android.app.Activity
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.matchers.shouldBe
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import java.lang.ref.WeakReference
 
-class CurrentActivityProviderTest {
+class CurrentActivityProviderTest : AnnotationSpec() {
     private lateinit var provider: CurrentActivityProvider
     private lateinit var mockFallbackActivityProvider: FallbackActivityProvider
 
@@ -20,9 +16,6 @@ class CurrentActivityProviderTest {
         val activity2: Activity = mock()
     }
 
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
 
     @Before
     fun setUp() {

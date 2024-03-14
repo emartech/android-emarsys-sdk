@@ -1,23 +1,20 @@
 package com.emarsys.mobileengage.responsehandler
 
+
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.util.RequestModelHelper
-import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import java.net.URL
 
-class MobileEngageTokenResponseHandlerTest {
+class MobileEngageTokenResponseHandlerTest : AnnotationSpec() {
     private companion object {
         const val CLIENT_HOST = "https://mobile-events.eservice.emarsys.net"
         const val CLIENT_BASE = "$CLIENT_HOST/v3/apps/%s/client"
@@ -30,13 +27,11 @@ class MobileEngageTokenResponseHandlerTest {
     private lateinit var requestModelMock: RequestModel
     private lateinit var mockRequestModelHelper: RequestModelHelper
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {
-        token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ4IjoieSJ9.bKXKVZCwf8J55WzWagrg2S0o2k_xZQ-HYfHIIj_2Z_U"
+        token =
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ4IjoieSJ9.bKXKVZCwf8J55WzWagrg2S0o2k_xZQ-HYfHIIj_2Z_U"
         tokenKey = "refreshToken"
         mockStorage = mock()
 

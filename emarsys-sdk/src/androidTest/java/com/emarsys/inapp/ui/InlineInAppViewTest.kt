@@ -1,6 +1,7 @@
 package com.emarsys.inapp.ui
 
-import androidx.test.rule.ActivityTestRule
+
+import androidx.test.core.app.ActivityScenario
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.ResponseErrorException
 import com.emarsys.core.api.result.CompletionListener
@@ -20,18 +21,13 @@ import com.emarsys.mobileengage.iam.model.InAppMetaData
 import com.emarsys.mobileengage.iam.webview.IamWebView
 import com.emarsys.mobileengage.iam.webview.IamWebViewFactory
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ExtensionTestUtils.runOnMain
 import com.emarsys.testUtil.IntegrationTestUtils
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.fake.FakeActivity
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.json.JSONObject
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 import org.mockito.Mockito.spy
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
@@ -42,7 +38,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
-class InlineInAppViewTest {
+class InlineInAppViewTest : AnnotationSpec() {
     private companion object {
         const val VIEW_ID = "testViewId"
         const val OTHER_VIEW_ID = "testViewId2"
@@ -59,64 +55,60 @@ class InlineInAppViewTest {
     private lateinit var mockJsBridge: IamJsBridge
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var mockJsCommandFactory: JSCommandFactory
-
     private lateinit var inlineInAppView: InlineInAppView
+    private lateinit var scenario: ActivityScenario<FakeActivity>
 
-    @Rule
-    @JvmField
-    var activityTestRule = ActivityTestRule(FakeActivity::class.java)
-
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {
+
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockJsBridge = mock()
         mockIamJsBridgeFactory = mock { on { createJsBridge(any()) } doReturn mockJsBridge }
         mockJsCommandFactory = mock()
+        scenario = ActivityScenario.launch(FakeActivity::class.java)
+        scenario.onActivity { activity ->
+            mockIamWebView = spy(runOnMain {
+                IamWebView(
+                    concurrentHandlerHolder,
+                    mockIamJsBridgeFactory,
+                    mockJsCommandFactory,
+                    activity
+                )
+            })
 
-        mockIamWebView = spy(runOnMain {
-            IamWebView(
-                concurrentHandlerHolder,
-                mockIamJsBridgeFactory,
-                mockJsCommandFactory,
-                activityTestRule.activity
+            mockWebViewFactory = mock {
+                on { create(activity) }.thenReturn(mockIamWebView)
+            }
+            mockRequestModel = mock {
+                on { id } doReturn REQUEST_ID
+            }
+            mockResponseModel = mock {
+                on { requestModel } doReturn mockRequestModel
+            }
+            mockRequestManager = mock()
+            mockRequestModelFactory = mock {
+                on { createFetchInlineInAppMessagesRequest("testViewId") }.doReturn(mockRequestModel)
+            }
+
+            setupEmarsysComponent(
+                FakeDependencyContainer(
+                    webViewFactory = mockWebViewFactory,
+                    concurrentHandlerHolder = concurrentHandlerHolder,
+                    requestManager = mockRequestManager,
+                    mobileEngageRequestModelFactory = mockRequestModelFactory,
+                )
             )
-        })
 
-        mockWebViewFactory = mock {
-            on { create(activityTestRule.activity) }.thenReturn(mockIamWebView)
+            inlineInAppView = InlineInAppView(activity)
         }
-        mockRequestModel = mock {
-            on { id } doReturn REQUEST_ID
-        }
-        mockResponseModel = mock {
-            on { requestModel } doReturn mockRequestModel
-        }
-        mockRequestManager = mock()
-        mockRequestModelFactory = mock {
-            on { createFetchInlineInAppMessagesRequest("testViewId") }.doReturn(mockRequestModel)
-        }
-
-        setupEmarsysComponent(
-            FakeDependencyContainer(
-                webViewFactory = mockWebViewFactory,
-                concurrentHandlerHolder = concurrentHandlerHolder,
-                requestManager = mockRequestManager,
-                mobileEngageRequestModelFactory = mockRequestModelFactory,
-            )
-        )
-
-        inlineInAppView = InlineInAppView(activityTestRule.activity)
-
         runOnMain {}
     }
 
     @After
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys()
+        scenario.close()
     }
 
     @Test

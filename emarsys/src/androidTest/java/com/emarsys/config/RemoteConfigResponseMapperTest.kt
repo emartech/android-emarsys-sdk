@@ -1,23 +1,20 @@
 package com.emarsys.config
 
+
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.config.model.RemoteConfig
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.random.RandomProvider
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.util.log.LogLevel
-import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
 import org.mockito.Mockito.mock
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
-class RemoteConfigResponseMapperTest {
+class RemoteConfigResponseMapperTest : AnnotationSpec() {
 
 
     private lateinit var mockResponseModel: ResponseModel
@@ -25,10 +22,6 @@ class RemoteConfigResponseMapperTest {
     private lateinit var mockHardwareIdProvider: HardwareIdProvider
     private lateinit var remoteConfigResponseMapper: RemoteConfigResponseMapper
 
-
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setup() {
@@ -38,7 +31,8 @@ class RemoteConfigResponseMapperTest {
             on { provideHardwareId() } doReturn "testHardwareId"
         }
 
-        remoteConfigResponseMapper = RemoteConfigResponseMapper(mockRandomProvider, mockHardwareIdProvider)
+        remoteConfigResponseMapper =
+            RemoteConfigResponseMapper(mockRandomProvider, mockHardwareIdProvider)
     }
 
     @Test

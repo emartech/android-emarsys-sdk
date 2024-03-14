@@ -1,13 +1,12 @@
 package com.emarsys.mobileengage.responsehandler
 
-import com.emarsys.core.Mockable
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.response.AbstractResponseHandler
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.endpoint.Endpoint
 
-@Mockable
+
 class ClientInfoResponseHandler(private val deviceInfo: DeviceInfo,
                                 private val deviceInfoPayloadStorage: Storage<String?>) : AbstractResponseHandler() {
 

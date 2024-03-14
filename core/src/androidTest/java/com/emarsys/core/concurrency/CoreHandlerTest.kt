@@ -1,21 +1,15 @@
 package com.emarsys.core.concurrency
 
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import android.os.HandlerThread
-import io.kotlintest.shouldBe
-import org.junit.*
-import org.junit.rules.TestRule
-import java.lang.RuntimeException
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import java.util.concurrent.CountDownLatch
 
-class CoreHandlerTest {
+class CoreHandlerTest : AnnotationSpec() {
     private lateinit var handler: CoreHandler
     private lateinit var handlerThread: HandlerThread
     private lateinit var failingRunnable: Runnable
-
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
 
     @Before
     fun setUp() {
@@ -33,8 +27,8 @@ class CoreHandlerTest {
 
     @Test
     fun testConstructor_innerLooper_isInitialized() {
-        Assert.assertNotNull(handler.looper)
-        Assert.assertEquals(handlerThread.name, handler.looper.thread.name)
+        handler.looper shouldNotBe null
+        handlerThread.name shouldBe handler.looper.thread.name
     }
 
     @Test

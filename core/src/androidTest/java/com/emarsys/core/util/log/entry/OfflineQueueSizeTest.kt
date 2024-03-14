@@ -1,16 +1,11 @@
 package com.emarsys.core.util.log.entry
 
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.matchers.shouldBe
 
-class OfflineQueueSizeTest {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+class OfflineQueueSizeTest : AnnotationSpec() {
+
 
     @Test
     fun testTopic() {

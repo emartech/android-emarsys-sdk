@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.device
 
+
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.client.ClientServiceInternal
@@ -7,28 +8,20 @@ import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.util.waitForTask
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.SharedPrefsUtils
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 
-class DeviceInfoStartActionTest {
+class DeviceInfoStartActionTest : AnnotationSpec() {
 
     private lateinit var deviceInfoPayloadStorage: Storage<String?>
     private lateinit var mockClientServiceInternal: ClientServiceInternal
     private lateinit var startAction: DeviceInfoStartAction
     private lateinit var mockDeviceInfo: DeviceInfo
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     @Suppress("UNCHECKED_CAST")
@@ -39,7 +32,11 @@ class DeviceInfoStartActionTest {
 
         setupMobileEngageComponent(FakeMobileEngageDependencyContainer())
 
-        startAction = DeviceInfoStartAction(mockClientServiceInternal, deviceInfoPayloadStorage, mockDeviceInfo)
+        startAction = DeviceInfoStartAction(
+            mockClientServiceInternal,
+            deviceInfoPayloadStorage,
+            mockDeviceInfo
+        )
 
     }
 

@@ -1,5 +1,6 @@
 package com.emarsys.config
 
+
 import android.app.Application
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.api.experimental.FlipperFeature
@@ -7,21 +8,16 @@ import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.api.event.EventHandler
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.IntegrationTestUtils
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.fail
-import io.kotlintest.shouldBe
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.assertions.fail
+import io.kotest.matchers.shouldBe
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
-class EmarsysConfigTest {
+class EmarsysConfigTest : AnnotationSpec() {
     companion object {
         private const val APP_ID = "appID"
         private const val MERCHANT_ID = "MERCHANT_ID"
@@ -38,9 +34,6 @@ class EmarsysConfigTest {
     private lateinit var features: Array<FlipperFeature>
     private var automaticPushTokenSending = false
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {

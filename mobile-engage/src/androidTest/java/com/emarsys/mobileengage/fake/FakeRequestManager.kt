@@ -1,7 +1,6 @@
 package com.emarsys.mobileengage.fake
 
 import com.emarsys.core.CoreCompletionHandler
-import com.emarsys.core.Mockable
 import com.emarsys.core.Registry
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
@@ -13,7 +12,7 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.shard.ShardModel
 import org.mockito.kotlin.mock
 
-@Mockable
+
 class FakeRequestManager(
     private val responseType: ResponseType,
     private val response: ResponseModel

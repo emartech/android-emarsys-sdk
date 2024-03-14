@@ -1,5 +1,6 @@
 package com.emarsys.service
 
+
 import android.app.Application
 import android.os.Looper
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
@@ -10,22 +11,20 @@ import com.emarsys.fake.FakeHuaweiDependencyContainer
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.push.PushInternal
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.ReflectionTestUtils
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.mockito.kotlin.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.spy
+import org.mockito.kotlin.timeout
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 
-class EmarsysHuaweiMessagingServiceTest {
+class EmarsysHuaweiMessagingServiceTest : AnnotationSpec() {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
@@ -47,7 +46,9 @@ class EmarsysHuaweiMessagingServiceTest {
             "coreHandler",
             spyCoreHandler
         )
-        Looper.prepare()
+        if (Looper.myLooper() == null) {
+            Looper.prepare()
+        }
         emarsysHuaweiMessagingService = EmarsysHuaweiMessagingService()
     }
 

@@ -1,22 +1,15 @@
 package com.emarsys.core.activity
 
 import android.app.Activity
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import com.emarsys.testUtil.AnnotationSpec
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
-class ActivityLifecycleWatchdogTest {
+class ActivityLifecycleWatchdogTest : AnnotationSpec() {
     private lateinit var watchdog: ActivityLifecycleWatchdog
     private lateinit var mockRegistry: ActivityLifecycleActionRegistry
     private lateinit var mockActivity: Activity
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {

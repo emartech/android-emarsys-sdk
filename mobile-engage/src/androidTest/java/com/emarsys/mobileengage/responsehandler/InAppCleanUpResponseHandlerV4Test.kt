@@ -10,19 +10,20 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.model.specification.FilterByCampaignId
 import com.emarsys.mobileengage.util.RequestModelHelper
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.data.forall
-import io.kotlintest.shouldBe
-import io.kotlintest.tables.row
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.data.forAll
+import io.kotest.data.row
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.mockito.kotlin.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.whenever
 import java.net.URL
 
-class InAppCleanUpResponseHandlerV4Test {
+class InAppCleanUpResponseHandlerV4Test : AnnotationSpec() {
     companion object {
         private const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
         private const val EVENT_BASE = "$EVENT_HOST/v4/apps/%s/events"
@@ -34,9 +35,6 @@ class InAppCleanUpResponseHandlerV4Test {
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockRequestModelHelper: RequestModelHelper
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {
@@ -94,8 +92,8 @@ class InAppCleanUpResponseHandlerV4Test {
     }
 
     @Test
-    fun testShouldHandleResponse_whenResponseWasSuccessful() {
-        forall(
+    fun testShouldHandleResponse_whenResponseWasSuccessful() = runBlocking {
+        forAll(
             row(buildResponseModel(mockRequestModel, statusCode = 200), true),
             row(buildResponseModel(mockRequestModel, statusCode = 299), true),
             row(buildResponseModel(mockRequestModel, statusCode = 400), false)

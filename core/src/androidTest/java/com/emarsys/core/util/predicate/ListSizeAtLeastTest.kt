@@ -1,17 +1,11 @@
 package com.emarsys.core.util.predicate
 
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.matchers.shouldBe
 
-class ListSizeAtLeastTest {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+class ListSizeAtLeastTest : AnnotationSpec() {
+
 
     private lateinit var predicate: ListSizeAtLeast<Int>
 

@@ -9,16 +9,16 @@ import com.emarsys.core.storage.KeyValueStore
 import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.request.PredictRequestModelBuilder
-import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.mockito.Mockito.*
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import org.mockito.Mockito.any
+import org.mockito.Mockito.anyMap
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
 
-class PredictShardListMergerTest {
+class PredictShardListMergerTest : AnnotationSpec() {
 
     private companion object {
         const val ID = "id"
@@ -45,9 +45,6 @@ class PredictShardListMergerTest {
     private lateinit var shard2: ShardModel
     private lateinit var shard3: ShardModel
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun init() {
@@ -69,9 +66,12 @@ class PredictShardListMergerTest {
             whenever(withShardData(anyMap())).thenReturn(this)
         }
 
-        mockPredictRequestModelBuilderProvider = mock(PredictRequestModelBuilderProvider::class.java).apply {
-            whenever(providePredictRequestModelBuilder()).thenReturn(mockPredictRequestModelBuilder)
-        }
+        mockPredictRequestModelBuilderProvider =
+            mock(PredictRequestModelBuilderProvider::class.java).apply {
+                whenever(providePredictRequestModelBuilder()).thenReturn(
+                    mockPredictRequestModelBuilder
+                )
+            }
 
 
         whenever(mockTimestampProvider.provideTimestamp()).thenReturn(TIMESTAMP)
@@ -79,48 +79,64 @@ class PredictShardListMergerTest {
         whenever(mockDeviceInfo.osVersion).thenReturn(OS_VERSION)
         whenever(mockDeviceInfo.platform).thenReturn(PLATFORM)
 
-        merger = PredictShardListMerger(mockPredictRequestContext, mockPredictRequestModelBuilderProvider)
+        merger = PredictShardListMerger(
+            mockPredictRequestContext,
+            mockPredictRequestModelBuilderProvider
+        )
 
         shard1 = ShardModel("id1", "type1", mapOf("q1" to 1, "q2" to "b"), 100, 100)
         shard2 = ShardModel("id2", "type2", mapOf("q3" to "c"), 110, 100)
         shard3 = ShardModel("id3", "type3", mapOf("<>," to "\"`;/?:^%#@&=\$+{}<>,| "), 120, 100)
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testConstructor_predictRequestContext_mustNotBeNull() {
-        PredictShardListMerger(null, mockPredictRequestModelBuilderProvider)
+        shouldThrow<IllegalArgumentException> {
+            PredictShardListMerger(null, mockPredictRequestModelBuilderProvider)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testConstructor_predictRequestModelBuilderProvider_mustNotBeNull() {
-        PredictShardListMerger(mockPredictRequestContext, null)
+        shouldThrow<IllegalArgumentException> {
+            PredictShardListMerger(mockPredictRequestContext, null)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testMap_shards_mustNotBeNull() {
-        merger.map(null)
+        shouldThrow<IllegalArgumentException> {
+            merger.map(null)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testMap_shards_mustNotContainNullElements() {
-        merger.map(listOf(
-                mock(ShardModel::class.java),
-                null,
-                mock(ShardModel::class.java)
-        ))
+        shouldThrow<IllegalArgumentException> {
+            merger.map(
+                listOf(
+                    mock(ShardModel::class.java),
+                    null,
+                    mock(ShardModel::class.java)
+                )
+            )
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testMap_shards_mustContainAtLeastOneElement() {
-        merger.map(listOf())
+        shouldThrow<IllegalArgumentException> {
+            merger.map(listOf())
+        }
     }
 
     @Test
     fun testMap_singletonList_withMultipleParams() {
         val expected = mapOf(
-                "cp" to 1,
-                "q1" to 1,
-                "q2" to "b")
+            "cp" to 1,
+            "q1" to 1,
+            "q2" to "b"
+        )
         merger.map(listOf(shard1))
 
         verify(mockPredictRequestModelBuilder).withShardData(expected)
@@ -130,10 +146,11 @@ class PredictShardListMergerTest {
     @Test
     fun testMap_multipleShards() {
         val expected = mapOf(
-                "cp" to 1,
-                "q1" to 1,
-                "q2" to "b",
-                "q3" to "c")
+            "cp" to 1,
+            "q1" to 1,
+            "q2" to "b",
+            "q3" to "c"
+        )
         merger.map(listOf(shard1, shard2))
 
         verify(mockPredictRequestModelBuilder).withShardData(expected)
@@ -143,8 +160,9 @@ class PredictShardListMergerTest {
     @Test
     fun testMap_withoutVisitorIdOrContactId() {
         val expected = mapOf(
-                "cp" to 1,
-                "<>," to "\"`;/?:^%#@&=\$+{}<>,| ")
+            "cp" to 1,
+            "<>," to "\"`;/?:^%#@&=\$+{}<>,| "
+        )
 
         merger.map(listOf(shard3))
 
@@ -157,9 +175,10 @@ class PredictShardListMergerTest {
         whenever(mockStore.getString("predict_visitor_id")).thenReturn(VISITOR_ID)
 
         val expected = mapOf(
-                "cp" to 1,
-                "q3" to "c",
-                "vi" to "888999888")
+            "cp" to 1,
+            "q3" to "c",
+            "vi" to "888999888"
+        )
 
         merger.map(listOf(shard2))
 
@@ -172,9 +191,10 @@ class PredictShardListMergerTest {
         whenever(mockStore.getString("predict_contact_id")).thenReturn(CONTACT_ID)
 
         val expected = mapOf(
-                "cp" to 1,
-                "q3" to "c",
-                "ci" to "12345")
+            "cp" to 1,
+            "q3" to "c",
+            "ci" to "12345"
+        )
 
         merger.map(listOf(shard2))
 
@@ -188,10 +208,11 @@ class PredictShardListMergerTest {
         whenever(mockStore.getString("predict_contact_id")).thenReturn(CONTACT_ID)
 
         val expected = mapOf(
-                "cp" to 1,
-                "q3" to "c",
-                "vi" to "888999888",
-                "ci" to "12345")
+            "cp" to 1,
+            "q3" to "c",
+            "vi" to "888999888",
+            "ci" to "12345"
+        )
 
         merger.map(listOf(shard2))
 

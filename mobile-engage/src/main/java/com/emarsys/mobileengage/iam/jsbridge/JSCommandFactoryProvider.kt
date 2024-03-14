@@ -20,7 +20,8 @@ class JSCommandFactoryProvider(
     private val onCloseTriggered: OnCloseListener?,
     private val onAppEventTriggered: OnAppEventListener?,
     private val timestampProvider: TimestampProvider,
-    private val clipboardManager: ClipboardManager): Provider<JSCommandFactory> {
+    private val clipboardManager: ClipboardManager
+) : Provider<JSCommandFactory> {
 
     override fun provide(): JSCommandFactory {
         return JSCommandFactory(

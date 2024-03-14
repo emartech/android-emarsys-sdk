@@ -1,21 +1,29 @@
 package com.emarsys
 
+
 import android.app.Application
 import com.emarsys.config.EmarsysConfig
-
-
 import com.emarsys.di.emarsys
-import com.emarsys.testUtil.*
+import com.emarsys.testUtil.AnnotationSpec
+import com.emarsys.testUtil.ConnectionTestUtils
+import com.emarsys.testUtil.DatabaseTestUtils
+import com.emarsys.testUtil.InstrumentationRegistry
+import com.emarsys.testUtil.IntegrationTestUtils
+import com.emarsys.testUtil.rules.ConnectionRule
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
-import io.kotlintest.shouldBe
-import org.junit.After
-import org.junit.Before
+import io.kotest.matchers.shouldBe
 import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 import java.util.concurrent.CountDownLatch
 
-class RemoteConfigIntegrationTest {
+
+class RemoteConfigIntegrationTest : AnnotationSpec() {
+    @Rule
+    @JvmField
+    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
+
+    @Rule
+    @JvmField
+    val connectionRule = ConnectionRule(application)
 
     private companion object {
         private const val APP_ID = "EMS1F-17E15"
@@ -28,22 +36,14 @@ class RemoteConfigIntegrationTest {
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
 
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
-
-    @Rule
-    @JvmField
-    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
-
     @Before
     fun setup() {
         DatabaseTestUtils.deleteCoreDatabase()
 
         baseConfig = EmarsysConfig.Builder()
-                .application(application)
-                .applicationCode(APP_ID)
-                .build()
+            .application(application)
+            .applicationCode(APP_ID)
+            .build()
 
         ConnectionTestUtils.checkConnection(application)
 

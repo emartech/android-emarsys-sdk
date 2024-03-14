@@ -2,18 +2,14 @@ package com.emarsys.core.util.log.entry
 
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.matchers.shouldBe
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import java.net.URL
 
-class RequestLogTest {
+class RequestLogTest : AnnotationSpec() {
     private companion object {
         const val TOPIC = "log_request"
         const val IN_DATABASE_TIME_END = 3L
@@ -23,9 +19,6 @@ class RequestLogTest {
     private lateinit var mockRequestModel: RequestModel
     private lateinit var requestLog: RequestLog
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {

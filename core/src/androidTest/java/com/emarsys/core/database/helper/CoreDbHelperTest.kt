@@ -2,26 +2,19 @@ package com.emarsys.core.database.helper
 
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.matchers.collections.shouldContain
-import io.kotlintest.shouldBe
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.shouldBe
 
-class CoreDbHelperTest {
+
+class CoreDbHelperTest : AnnotationSpec() {
 
     companion object {
         const val LATEST_DB_VERSION = 5
     }
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var dbHelper: CoreDbHelper
     private lateinit var db: SQLiteDatabase

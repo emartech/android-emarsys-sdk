@@ -1,9 +1,9 @@
 package com.emarsys.core.util
 
-import io.kotlintest.shouldBe
-import org.junit.Test
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.matchers.shouldBe
 
-class ExceptionExtensionsKtTest {
+class ExceptionExtensionsKtTest : AnnotationSpec() {
 
     @Test
     fun testRootCause_shouldReturn_withTheRootCauseOfTheException() {

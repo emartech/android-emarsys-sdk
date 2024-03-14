@@ -3,7 +3,6 @@ package com.emarsys.mobileengage.geofence
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.emarsys.core.Mockable
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.util.SystemUtils
 import com.emarsys.core.util.log.Logger
@@ -13,7 +12,7 @@ import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.geofence.model.TriggeringEmarsysGeofence
 import com.google.android.gms.location.GeofencingEvent
 
-@Mockable
+
 class GeofenceBroadcastReceiver(val concurrentHandlerHolder: ConcurrentHandlerHolder) :
     BroadcastReceiver() {
 

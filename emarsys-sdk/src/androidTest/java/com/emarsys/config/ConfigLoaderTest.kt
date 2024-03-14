@@ -1,18 +1,16 @@
 package com.emarsys.config
 
-import android.app.Activity
 import android.app.Application
 import android.content.SharedPreferences
-import com.emarsys.Emarsys
-import io.kotlintest.matchers.types.shouldBeSameInstanceAs
-import io.kotlintest.shouldBe
-import org.junit.Assert.*
-import org.junit.Before
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.matchers.shouldBe
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
-import org.junit.Test
-import org.mockito.kotlin.*
-
-class ConfigLoaderTest {
+class ConfigLoaderTest : AnnotationSpec() {
     companion object {
         private const val SHARED_PREF_NAME = "testPrefName"
         const val APP_CODE = "testAppCode"

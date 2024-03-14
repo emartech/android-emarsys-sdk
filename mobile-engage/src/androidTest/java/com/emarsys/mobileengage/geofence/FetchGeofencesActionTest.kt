@@ -5,20 +5,14 @@ import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.util.waitForTask
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+
+
+import com.emarsys.testUtil.AnnotationSpec
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
-class FetchGeofencesActionTest {
+class FetchGeofencesActionTest : AnnotationSpec() {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var mockGeofenceInternal: GeofenceInternal
     private lateinit var mockActivity: Activity

@@ -3,22 +3,17 @@ package com.emarsys.core.storage
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 
-class SecureSharedPreferencesProviderTest {
+
+class SecureSharedPreferencesProviderTest : AnnotationSpec() {
 
     private lateinit var sharedPreferencesProvider: SecureSharedPreferencesProvider
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+
     private lateinit var context: Context
     private lateinit var oldSharedPrefs: SharedPreferences
 

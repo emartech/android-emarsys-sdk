@@ -5,26 +5,19 @@ import android.os.Bundle
 import com.emarsys.core.provider.Property
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.activity.FallbackActivityProvider
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.matchers.shouldBe
 import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 
-class CurrentActivityWatchdogTest {
+class CurrentActivityWatchdogTest : AnnotationSpec() {
     private lateinit var watchdog: CurrentActivityWatchdog
     private lateinit var activity: Activity
     private lateinit var nextActivity: Activity
     private lateinit var activityProvider: Property<Activity?>
 
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
 
     @Before
     fun setUp() {

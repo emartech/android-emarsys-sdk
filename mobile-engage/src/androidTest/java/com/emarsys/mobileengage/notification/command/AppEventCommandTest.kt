@@ -4,23 +4,17 @@ import android.content.Context
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.event.CacheableEventHandler
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import com.emarsys.testUtil.mockito.ThreadSpy
+import io.kotest.assertions.fail
 import org.json.JSONException
 import org.json.JSONObject
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 import org.mockito.kotlin.*
 import java.util.concurrent.CountDownLatch
 
-class AppEventCommandTest {
-    @Rule
-    @JvmField
-    val timeout: TestRule = timeoutRule
+class AppEventCommandTest : AnnotationSpec() {
+
 
     private lateinit var applicationContext: Context
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
@@ -95,7 +89,7 @@ class AppEventCommandTest {
                 null
             ).run()
         } catch (e: Exception) {
-            Assert.fail(e.message)
+            fail(e.message!!)
         }
     }
 }

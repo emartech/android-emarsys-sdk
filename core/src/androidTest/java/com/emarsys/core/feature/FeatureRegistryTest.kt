@@ -1,26 +1,21 @@
 package com.emarsys.core.feature
 
 import com.emarsys.core.api.experimental.FlipperFeature
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
-import com.emarsys.core.feature.FeatureRegistry.reset
-import com.emarsys.core.feature.FeatureRegistry.isFeatureEnabled
-import com.emarsys.core.feature.FeatureRegistry.enableFeature
 import com.emarsys.core.feature.FeatureRegistry.disableFeature
-import io.kotlintest.shouldBe
-import org.junit.*
-import org.junit.rules.TestRule
+import com.emarsys.core.feature.FeatureRegistry.enableFeature
+import com.emarsys.core.feature.FeatureRegistry.isFeatureEnabled
+import com.emarsys.core.feature.FeatureRegistry.reset
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.matchers.shouldBe
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
-class FeatureRegistryTest {
+class FeatureRegistryTest : AnnotationSpec() {
     private lateinit var feature1: FlipperFeature
     private lateinit var feature2: FlipperFeature
     private lateinit var feature3: FlipperFeature
     private lateinit var features: List<FlipperFeature>
 
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
 
     @Before
     fun setUp() {

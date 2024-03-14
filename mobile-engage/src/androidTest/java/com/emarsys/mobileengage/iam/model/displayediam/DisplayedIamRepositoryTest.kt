@@ -8,28 +8,20 @@ import com.emarsys.core.database.DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_TIME
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.helper.DbHelper
 import com.emarsys.core.handler.ConcurrentHandlerHolder
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
-import io.kotlintest.shouldBe
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
-import java.util.*
+import java.util.Date
 
-class DisplayedIamRepositoryTest {
+class DisplayedIamRepositoryTest : AnnotationSpec() {
 
     private lateinit var iamRepository: DisplayedIamRepository
     private lateinit var displayedIam1: DisplayedIam
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
 
     @Before
     fun setUp() {
@@ -63,6 +55,6 @@ class DisplayedIamRepositoryTest {
         whenever(mockCursor.getLong(1)).thenReturn(displayedIam1.timestamp)
         val result = iamRepository.itemFromCursor(mockCursor)
         val expected = displayedIam1
-        Assert.assertEquals(expected, result)
+        result shouldBe expected
     }
 }

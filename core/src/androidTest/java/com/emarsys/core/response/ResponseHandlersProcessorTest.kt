@@ -1,19 +1,13 @@
 package com.emarsys.core.response
 
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.matchers.collections.shouldContainAll
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContainAll
 import org.mockito.Mockito.inOrder
 import org.mockito.Mockito.mock
 
-class ResponseHandlersProcessorTest {
+class ResponseHandlersProcessorTest : AnnotationSpec() {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var responseHandlersProcessor: ResponseHandlersProcessor
 
@@ -22,9 +16,11 @@ class ResponseHandlersProcessorTest {
         responseHandlersProcessor = ResponseHandlersProcessor()
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testConstructor_responseHandlers_mustNotBeNull() {
-        ResponseHandlersProcessor(null)
+        shouldThrow<IllegalArgumentException> {
+            ResponseHandlersProcessor(null)
+        }
     }
 
     @Test
@@ -44,9 +40,11 @@ class ResponseHandlersProcessorTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testAddReponseHandler_responseHandlers_mustNotBeNull() {
-        responseHandlersProcessor.addResponseHandlers(null)
+        shouldThrow<IllegalArgumentException> {
+            responseHandlersProcessor.addResponseHandlers(null)
+        }
     }
 
     @Test

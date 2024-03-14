@@ -1,12 +1,14 @@
 package com.emarsys.core.fake;
 
 import static org.mockito.Mockito.mock;
+
 import com.emarsys.core.api.result.Try;
 import com.emarsys.core.connection.ConnectionProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.RequestTask;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
+
 import java.util.HashMap;
 import java.util.List;
 

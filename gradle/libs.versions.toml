@@ -1,0 +1,134 @@
+[versions]
+agp = "8.2.2"
+androidx-test-core = "1.4.0"
+kotlin = "1.9.21"
+kotlinxCoroutines = "1.7.3"
+compose = "1.6.1"
+androidx-navigation-compose = "2.7.6"
+compose-compiler = "1.5.6"
+compose-plugin = "1.6.0-dev1419"
+android-compileSdk = "34"
+android-minSdk = "26"
+android-targetSdk = "34"
+androidx-activity = "1.8.2"
+androidx-activityCompose = "1.8.2"
+androidx-annotation = "1.7.1"
+androidx-appcompat = "1.6.1"
+androidx-constraintlayout = "2.1.4"
+androidx-core-ktx = "1.12.0"
+androidx-datastore-preferences = "1.0.0"
+androidx-espresso-core = "3.5.1"
+androidx-material = "1.11.0"
+androidx-test-runner = "1.5.2"
+androidx-test-rules = "1.5.0"
+androidx-test-junit = "1.1.5"
+androidx-test-fragment = "1.6.2"
+androidx-test-multidex = "2.0.0"
+androidx-lifecycle = "2.7.0"
+androidx-espresso-idling-resource = "3.5.1"
+androidx-security-crypto = "1.1.0-alpha06"
+androidx-navigation-safe-args = "2.5.0"
+io-coil = "2.5.0"
+dokka = "1.9.10"
+junit = "4.13.2"
+playServicesAuth = "20.7.0"
+tink = "1.9.0"
+kotpref = "2.13.0"
+kotest = "5.8.0"
+mockk = "1.13.9"
+fcm = "23.4.0"
+firebase-common = "20.4.2"
+google-gson = "2.10.1"
+agconnect_core = "1.9.1.300"
+hms_push = "6.11.0.300"
+googleServices = "4.4.1"
+google-play-services-location = "21.1.0"
+google-play-services-auth = "20.7.0"
+google-accompanist-swipetorefresh = "0.34.0"
+webkit = "1.7.0"
+mockito-android = "5.10.0"
+mockito-core = "5.10.0"
+mockito-kotlin = "4.1.0"
+grGit = "5.2.2"
+byte-buddy = "1.14.11"
+dotEnv = "4.0.0"
+android-tools-desugar = "2.0.4"
+benManesVersions = "0.51.0"
+android-junit5 = "1.10.0.0"
+nexus-publish = "1.3.0"
+
+[libraries]
+androidx-test-core = { module = "androidx.test:core", version.ref = "androidx-test-core" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+android-tools-desugar = { module = "com.android.tools:desugar_jdk_libs_nio", version.ref = "android-tools-desugar" }
+androidx-runner = { module = "androidx.test:runner", version.ref = "androidx-test-runner" }
+androidx-test-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-junit" }
+androidx-espresso-idling-resource = { group = "androidx.test.espresso", name = "espresso-idling-resource", version.ref = "androidx-espresso-idling-resource" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidx-espresso-core" }
+androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "androidx-annotation" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidx-appcompat" }
+androidx-material = { group = "com.google.android.material", name = "material", version.ref = "androidx-material" }
+androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidx-test-runner" }
+androidx-test-rules = { module = "androidx.test:rules", version.ref = "androidx-test-rules" }
+androidx-test-extensions = { module = "androidx.test.ext:junit", version.ref = "androidx-test-junit" }
+androidx-test-fragment = { module = "androidx.fragment:fragment-testing", version.ref = "androidx-test-fragment" }
+androidx-test-multidex = { module = "androidx.multidex:multidex-instrumentation", version.ref = "androidx-test-multidex" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidx-constraintlayout" }
+androidx-activity = { module = "androidx.activity:activity", version.ref = "androidx-activity" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
+androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
+androidx-lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "androidx-lifecycle" }
+androidx-lifecycle-common-java8 = { module = "androidx.lifecycle:lifecycle-common-java8", version.ref = "androidx-lifecycle" }
+androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "androidx-security-crypto" }
+androidx-webkit = { module = "androidx.webkit:webkit", version.ref = "webkit" }
+google-tink = { module = "com.google.crypto.tink:tink-android", version.ref = "tink" }
+google-play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "google-play-services-location" }
+google-play-services-auth = { module = "androidx.core:core-ktx", version.ref = "google-play-services-auth" }
+google-firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "fcm" }
+google-firebase-common = { group = "com.google.firebase", name = "firebase-common", version.ref = "firebase-common" }
+google-accompanist-swipetorefresh = { module = "com.google.accompanist:accompanist-swiperefresh", version.ref = "google-accompanist-swipetorefresh" }
+google-gson = { module = "com.google.code.gson:gson", version.ref = "google-gson" }
+huawei-hms-push = { group = "com.huawei.hms", name = "push", version.ref = "hms_push" }
+huawei-agconnect-core = { group = "com.huawei.agconnect", name = "agconnect-core", version.ref = "agconnect_core" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "androidx-datastore-preferences" }
+androidx-compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
+androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
+androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
+androidx-compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "androidx-navigation-compose" }
+androidx-compose-material = { module = "androidx.compose.material:material", version.ref = "compose" }
+androidx-compose-material-icons = { module = "androidx.compose.material:material-icons-extended", version.ref = "compose" }
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core-ktx" }
+io-coil = { module = "io.coil-kt:coil-compose", version.ref = "io-coil" }
+io-coil-compose = { module = "io.coil-kt:coil", version.ref = "io-coil" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+kotest-runner-junit4 = { module = "io.kotest:kotest-runner-junit4", version.ref = "kotest" }
+kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotest-framework-engine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
+mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
+mockk-agent = { module = "io.mockk:mockk-agent-jvm", version.ref = "mockk" }
+mockito-android = { module = "org.mockito:mockito-android", version.ref = "mockito-android" }
+mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito-kotlin" }
+byte-buddy = { module = "net.bytebuddy:byte-buddy", version.ref = "byte-buddy" }
+play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
+kotpref = { module = "com.chibatching.kotpref:kotpref", version.ref = "kotpref" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+androidx-navigation-safeargs = { id = "androidx.navigation.safeargs", version.ref = "androidx-navigation-safe-args" }
+kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+kotlin-allopen = { id = "org.jetbrains.kotlin.plugin.allopen", version.ref = "kotlin" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+huawei-agconnect = { id = "com.huawei.agconnect", version.ref = "agconnect_core" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+grgit = { id = "org.ajoberstar.grgit", version.ref = "grGit" }
+dotenv = { id = "co.uzzu.dotenv.gradle", version.ref = "dotEnv" }
+ben-manes-versions = { id = "com.github.ben-manes.versions", version.ref = "benManesVersions" }
+android-junit5 = { id = "de.mannodermaus.android-junit5", version.ref = "android-junit5" }
+nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexus-publish" }

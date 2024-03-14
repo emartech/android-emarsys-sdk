@@ -1,20 +1,14 @@
 package com.emarsys.core.util.log.entry
 
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.matchers.shouldBe
 
-class CrashLogTest {
+
+class CrashLogTest : AnnotationSpec() {
 
     private lateinit var crashLog: CrashLog
     private lateinit var exception: Exception
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun init() {

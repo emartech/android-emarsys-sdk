@@ -9,18 +9,14 @@ import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.service.IntentUtils.createLaunchIntent
 import com.emarsys.mobileengage.service.IntentUtils.createNotificationHandlerServiceIntent
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
-class IntentUtilsTest {
+class IntentUtilsTest : AnnotationSpec() {
     private companion object {
         const val TITLE = "title"
         const val BODY = "body"
@@ -47,11 +43,8 @@ class IntentUtilsTest {
             inapp = null
         )
     }
-    private lateinit var context: Context
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = timeoutRule
+    private lateinit var context: Context
 
     @Before
     fun init() {
@@ -99,7 +92,7 @@ class IntentUtilsTest {
 
     @Test
     fun testCreateLaunchIntent_whenIntentIsNull() {
-        val pm : PackageManager = mock()
+        val pm: PackageManager = mock()
         val mockActivity: Activity = mock {
             on { packageManager } doReturn pm
             on { packageName } doReturn "packageName"

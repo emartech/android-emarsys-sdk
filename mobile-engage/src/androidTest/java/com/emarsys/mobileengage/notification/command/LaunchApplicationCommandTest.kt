@@ -1,22 +1,20 @@
 package com.emarsys.mobileengage.notification.command
 
+
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.lifecycle.Lifecycle
-import androidx.test.rule.ActivityTestRule
+import androidx.test.core.app.ActivityScenario
 import com.emarsys.mobileengage.fake.FakeActivityLifecycleCallbacks
 import com.emarsys.mobileengage.notification.LaunchActivityCommandLifecycleCallbacksFactory
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import com.emarsys.testUtil.fake.FakeActivity
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
@@ -26,36 +24,49 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
-class LaunchApplicationCommandTest {
+class LaunchApplicationCommandTest : AnnotationSpec() {
 
-    @Rule
-    @JvmField
-    var activityRule = ActivityTestRule(FakeActivity::class.java)
 
-    lateinit var mockProviderLaunchActivityCommand: LaunchActivityCommandLifecycleCallbacksFactory
+    private lateinit var scenario: ActivityScenario<FakeActivity>
+    private lateinit var mockProviderLaunchActivityCommand: LaunchActivityCommandLifecycleCallbacksFactory
 
     @Before
     fun setUp() {
-        mockProviderLaunchActivityCommand = Mockito.mock(LaunchActivityCommandLifecycleCallbacksFactory::class.java)
+        scenario = ActivityScenario.launch(FakeActivity::class.java)
+        scenario.onActivity { activity ->
+            mockProviderLaunchActivityCommand =
+                Mockito.mock(LaunchActivityCommandLifecycleCallbacksFactory::class.java)
+        }
     }
 
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
+    @After
+    fun tearDown() {
+        scenario.close()
+    }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testConstructor_intentMustNotBeNull() {
-        LaunchApplicationCommand(null, getTargetContext().applicationContext, mockProviderLaunchActivityCommand)
+        shouldThrow<IllegalArgumentException> {
+            LaunchApplicationCommand(
+                null,
+                getTargetContext().applicationContext,
+                mockProviderLaunchActivityCommand
+            )
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testConstructor_contextMustNotBeNull() {
-        LaunchApplicationCommand(Intent(), null, mockProviderLaunchActivityCommand)
+        shouldThrow<IllegalArgumentException> {
+            LaunchApplicationCommand(Intent(), null, mockProviderLaunchActivityCommand)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testConstructor_providerMustNotBeNull() {
-        LaunchApplicationCommand(Intent(), getTargetContext().applicationContext, null)
+        shouldThrow<IllegalArgumentException> {
+            LaunchApplicationCommand(Intent(), getTargetContext().applicationContext, null)
+        }
     }
 
     @Test
@@ -63,7 +74,9 @@ class LaunchApplicationCommandTest {
         val captor = ArgumentCaptor.forClass(Intent::class.java)
         val launchIntentForPackage = Intent()
         val pm: PackageManager = mock()
-        whenever(pm.getLaunchIntentForPackage(ArgumentMatchers.anyString())).thenReturn(launchIntentForPackage)
+        whenever(pm.getLaunchIntentForPackage(ArgumentMatchers.anyString())).thenReturn(
+            launchIntentForPackage
+        )
         val mockActivity: Activity = mock()
         whenever(mockActivity.applicationContext).thenReturn(mock<Application>())
         whenever(mockActivity.packageManager).thenReturn(pm)
@@ -73,7 +86,12 @@ class LaunchApplicationCommandTest {
         extras.putString("key2", "value")
         val remoteIntent = Intent()
         remoteIntent.putExtras(extras)
-        val command: Runnable = LaunchApplicationCommand(remoteIntent, mockActivity, mockProviderLaunchActivityCommand)
+        val command: Runnable =
+            LaunchApplicationCommand(
+                remoteIntent,
+                mockActivity,
+                mockProviderLaunchActivityCommand
+            )
         command.run()
         verify(mockActivity).startActivity(captor.capture())
         val expectedBundle = launchIntentForPackage.extras
@@ -98,7 +116,12 @@ class LaunchApplicationCommandTest {
         extras.putString("key2", "value")
         val remoteIntent = Intent()
         remoteIntent.putExtras(extras)
-        val command: Runnable = LaunchApplicationCommand(remoteIntent, mockActivity, mockProviderLaunchActivityCommand)
+        val command: Runnable =
+            LaunchApplicationCommand(
+                remoteIntent,
+                mockActivity,
+                mockProviderLaunchActivityCommand
+            )
         command.run()
     }
 
@@ -108,11 +131,14 @@ class LaunchApplicationCommandTest {
             FakeActivityLifecycleCallbacks(onResume = { (invocation.getArgument(0) as CountDownLatch).countDown() })
         }
 
-        val fakeActivity = activityRule.activity
-        val command: Runnable = LaunchApplicationCommand(Intent(), fakeActivity, mockProviderLaunchActivityCommand)
+        scenario.onActivity { activity ->
+            val command: Runnable =
+                LaunchApplicationCommand(Intent(), activity, mockProviderLaunchActivityCommand)
+            command.run()
+        }
 
-        command.run()
-
-        fakeActivity.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED) shouldBe true
+        scenario.onActivity { activity ->
+            activity.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED) shouldBe true
+        }
     }
 }

@@ -1,16 +1,11 @@
 package com.emarsys.core.api
 
-import com.emarsys.testUtil.TimeoutUtils
 
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import com.emarsys.testUtil.AnnotationSpec
 
-class ApiTest {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+class ApiTest : AnnotationSpec() {
+
 
     @Test
     fun test() {

@@ -1,30 +1,24 @@
 package com.emarsys.mobileengage.geofence
 
+
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.api.geofence.Geofence
 import com.emarsys.mobileengage.api.geofence.Trigger
 import com.emarsys.mobileengage.api.geofence.TriggerType
 import com.emarsys.mobileengage.geofence.model.GeofenceGroup
 import com.emarsys.mobileengage.geofence.model.GeofenceResponse
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.matchers.shouldBe
 import org.json.JSONArray
 import org.json.JSONObject
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
-class GeofenceResponseMapperTest {
+class GeofenceResponseMapperTest : AnnotationSpec() {
 
     private lateinit var mockResponseModel: ResponseModel
     private lateinit var mapper: GeofenceResponseMapper
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {

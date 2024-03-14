@@ -12,7 +12,7 @@ import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.util.AndroidVersionUtils
 
 @Mockable
-class ConnectionWatchDog(
+open class ConnectionWatchDog(
     inputContext: Context,
     private val concurrentHandlerHolder: ConcurrentHandlerHolder
 ) : ConnectivityManager.NetworkCallback() {
@@ -55,7 +55,7 @@ class ConnectionWatchDog(
                 ConnectionState.DISCONNECTED
             }
         }
-    val isConnected: Boolean
+    open val isConnected: Boolean
         get() {
             return try {
                 val network = connectivityManager.activeNetwork ?: return false
@@ -74,7 +74,7 @@ class ConnectionWatchDog(
         }
 
 
-    fun registerReceiver(connectionChangeListener: ConnectionChangeListener) {
+    open fun registerReceiver(connectionChangeListener: ConnectionChangeListener) {
         try {
             if (AndroidVersionUtils.isOreoOrAbove) {
                 this.connectionChangeListener = connectionChangeListener

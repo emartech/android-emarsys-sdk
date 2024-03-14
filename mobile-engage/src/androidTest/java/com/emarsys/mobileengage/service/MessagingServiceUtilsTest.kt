@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.service
 
+
 import android.R
 import android.app.Notification
 import android.content.Context
@@ -27,19 +28,13 @@ import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvid
 import com.emarsys.mobileengage.service.MessagingServiceUtils.styleNotification
 import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperFactory
 import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperV1
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
-import com.emarsys.testUtil.RetryUtils.retryRule
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.copyInputStreamToFile
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.json.JSONArray
 import org.json.JSONObject
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
@@ -49,7 +44,7 @@ import org.mockito.kotlin.whenever
 import java.io.File
 import java.util.Locale
 
-class MessagingServiceUtilsTest {
+class MessagingServiceUtilsTest : AnnotationSpec() {
     private companion object {
         const val TITLE = "title"
         const val BODY = "body"
@@ -94,13 +89,6 @@ class MessagingServiceUtilsTest {
     private lateinit var mockSilentNotificationInformationListenerProvider: SilentNotificationInformationListenerProvider
     private lateinit var mockRemoteMessageMapperV1: RemoteMessageMapperV1
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
-
-    @Rule
-    @JvmField
-    var retry: TestRule = retryRule
 
     @Before
     fun init() {

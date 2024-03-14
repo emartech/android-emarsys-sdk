@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.iam.model.requestRepositoryProxy
 
+
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.helper.CoreDbHelper
@@ -26,17 +27,15 @@ import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository
 import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.mobileengage.util.RequestPayloadUtils.createCompositeRequestModelPayload
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.RandomTestUtils.randomString
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.*
-import org.junit.rules.TestRule
 import org.mockito.kotlin.*
 
-class RequestRepositoryProxyTest {
+class RequestRepositoryProxyTest : AnnotationSpec() {
     private lateinit var mockRequestContext: MobileEngageRequestContext
     private lateinit var mockRequestModelRepository: Repository<RequestModel, SqlSpecification>
     private lateinit var mockDisplayedIamRepository: Repository<DisplayedIam, SqlSpecification>
@@ -52,9 +51,6 @@ class RequestRepositoryProxyTest {
     private lateinit var mockRequestModelHelper: RequestModelHelper
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = timeoutRule
 
     @Before
     fun setUp() {
@@ -130,14 +126,14 @@ class RequestRepositoryProxyTest {
     @Test
     fun testIsEmpty_whenEmpty_shouldDelegate_toRequestModelRepository() {
         whenever(mockRequestModelRepository.isEmpty()).thenReturn(true)
-        Assert.assertTrue(compositeRepository.isEmpty())
+        compositeRepository.isEmpty() shouldBe true
         verify(mockRequestModelRepository).isEmpty()
     }
 
     @Test
     fun testIsEmpty_whenNotEmpty_shouldDelegate_toRequestModelRepository() {
         whenever(mockRequestModelRepository.isEmpty()).thenReturn(false)
-        Assert.assertFalse(compositeRepository.isEmpty())
+        compositeRepository.isEmpty() shouldBe false
         verify(mockRequestModelRepository).isEmpty()
     }
 
@@ -152,7 +148,7 @@ class RequestRepositoryProxyTest {
             requestModelRepository.add(requestModel())
         }
         val expected = listOf(firstRequestModel)
-        Assert.assertEquals(expected, compositeRepository.query(QueryLatestRequestModel()))
+        compositeRepository.query(QueryLatestRequestModel()) shouldBe expected
     }
 
     @Test
@@ -160,13 +156,20 @@ class RequestRepositoryProxyTest {
         val customEvent = customEvent(123, "testEventName")
         val requestModel = requestModel()
 
-        whenever(mockRequestModelRepository.query(any())).doReturnConsecutively(listOf(listOf(customEvent, requestModel), listOf()))
+        whenever(mockRequestModelRepository.query(any())).doReturnConsecutively(
+            listOf(
+                listOf(
+                    customEvent,
+                    requestModel
+                ), listOf()
+            )
+        )
 
         val expected = listOf(customEvent, requestModel)
 
         val result = compositeRepository.query(Everything())
 
-        Assert.assertEquals(expected, result)
+        result shouldBe expected
     }
 
     @Test
@@ -232,7 +235,7 @@ class RequestRepositoryProxyTest {
                 expectedComposite,
                 request3
             )
-            Assert.assertEquals(expected, compositeRepository.query(Everything()))
+            compositeRepository.query(Everything()) shouldBe expected
         }
     }
 
@@ -288,7 +291,7 @@ class RequestRepositoryProxyTest {
                 TIMESTAMP, Long.MAX_VALUE, arrayOf(customEvent1.id)
             )
             val expected = listOf(expectedComposite)
-            Assert.assertEquals(expected, compositeRepository.query(Everything()))
+            compositeRepository.query(Everything()) shouldBe expected
         }
     }
 
@@ -377,7 +380,7 @@ class RequestRepositoryProxyTest {
                 expectedComposite,
                 request3
             )
-            Assert.assertEquals(expected, compositeRepository.query(Everything()))
+            compositeRepository.query(Everything()) shouldBe expected
         }
     }
 

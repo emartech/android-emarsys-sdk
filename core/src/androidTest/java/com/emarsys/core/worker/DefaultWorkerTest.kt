@@ -13,19 +13,23 @@ import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.testUtil.RequestModelTestUtils.createRequestModel
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.mockito.kotlin.*
-import java.util.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.doNothing
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.spy
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
-class DefaultWorkerTest {
+class DefaultWorkerTest : AnnotationSpec() {
     companion object {
         const val URL = "https://www.google.com"
     }
@@ -42,9 +46,6 @@ class DefaultWorkerTest {
     private lateinit var notExpiredModel: RequestModel
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
-    @Rule
-    @JvmField
-    var timeout: TestRule = timeoutRule
 
     @Before
     fun setup() {
@@ -100,7 +101,7 @@ class DefaultWorkerTest {
         whenever(worker.requestRepository.isEmpty()).thenReturn(false)
         worker.unlock()
         worker.run()
-        Assert.assertTrue(worker.isLocked)
+        worker.isLocked shouldBe true
     }
 
     @Test
@@ -113,7 +114,7 @@ class DefaultWorkerTest {
             restClient,
             mockProxyProvider
         )
-        Assert.assertEquals(requestRepository, worker.requestRepository)
+        worker.requestRepository shouldBe requestRepository
     }
 
     @Test
@@ -127,7 +128,7 @@ class DefaultWorkerTest {
             restClient,
             mockProxyProvider
         )
-        Assert.assertEquals(watchDog, worker.connectionWatchDog)
+        worker.connectionWatchDog shouldBe watchDog
     }
 
     @Test
@@ -158,14 +159,14 @@ class DefaultWorkerTest {
     fun testRun_isLockedShouldBeFalse_whenThereIsNoMoreElementInTheQueue() {
         whenever(requestRepository.isEmpty()).thenReturn(true)
         worker.run()
-        Assert.assertFalse(worker.isLocked)
+        worker.isLocked shouldBe false
     }
 
     @Test
     fun testRun_isLockedShouldBeFalse_whenNotConnectedAndIsRunning() {
         whenever(watchDogMock.isConnected).thenReturn(false)
         worker.run()
-        Assert.assertFalse(worker.isLocked)
+        worker.isLocked shouldBe false
     }
 
     @Test
@@ -178,7 +179,7 @@ class DefaultWorkerTest {
             worker.run()
             verify(worker.restClient).execute(capture(), any())
             val returnedModel = firstValue
-            Assert.assertEquals(expectedModel, returnedModel)
+            returnedModel shouldBe expectedModel
         }
 
     }
@@ -194,7 +195,7 @@ class DefaultWorkerTest {
             verify(requestRepository, times(3)).query(any())
             verify(requestRepository, times(2)).remove(any())
             verify(worker.restClient).execute(eq(notExpiredModel), any())
-            Assert.assertTrue(worker.isLocked)
+            worker.isLocked shouldBe true
         }
     }
 
@@ -211,7 +212,7 @@ class DefaultWorkerTest {
         argumentCaptor<String>().apply {
             verify(worker.coreCompletionHandler, times(2)).onError(capture(), any<Exception>())
             val expectedIds: List<String> = ArrayList(listOf(expiredModel1.id, expiredModel2.id))
-            Assert.assertEquals(expectedIds, allValues)
+            allValues shouldBe expectedIds
         }
     }
 
@@ -226,8 +227,8 @@ class DefaultWorkerTest {
             verify(worker.requestRepository, times(2)).query(any())
             verify(worker.requestRepository, times(2)).remove(any())
             verifyNoInteractions(worker.restClient)
-            Assert.assertTrue(worker.requestRepository.isEmpty())
-            Assert.assertFalse(worker.isLocked)
+            worker.requestRepository.isEmpty() shouldBe true
+            worker.isLocked shouldBe false
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.request.mapper
 
+
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
@@ -9,20 +10,16 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.util.RequestModelHelper
-import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
 class
-MobileEngageHeaderMapperTest {
+MobileEngageHeaderMapperTest : AnnotationSpec() {
     private companion object {
         const val CLIENT_STATE = "client-state"
         const val TIMESTAMP = 123456789L
@@ -39,10 +36,6 @@ MobileEngageHeaderMapperTest {
     private lateinit var mockDeviceInfo: DeviceInfo
     private lateinit var mockRequestModelHelper: RequestModelHelper
 
-
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     @Suppress("UNCHECKED_CAST")

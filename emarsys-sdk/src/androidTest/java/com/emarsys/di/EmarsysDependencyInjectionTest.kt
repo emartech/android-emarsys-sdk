@@ -1,13 +1,12 @@
 package com.emarsys.di
 
 import com.emarsys.geofence.Geofence
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.IntegrationTestUtils
-import io.kotlintest.shouldBe
-import org.junit.After
-import org.junit.Test
+import io.kotest.matchers.shouldBe
 import org.mockito.kotlin.mock
 
-class EmarsysDependencyInjectionTest {
+class EmarsysDependencyInjectionTest : AnnotationSpec() {
 
     @After
     fun tearDown() {

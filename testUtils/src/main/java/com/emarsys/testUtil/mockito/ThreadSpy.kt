@@ -1,7 +1,7 @@
 package com.emarsys.testUtil.mockito
 
 import android.os.Looper
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import java.util.concurrent.CountDownLatch

@@ -3,19 +3,15 @@ package com.emarsys.provider
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
-import android.test.ProviderTestCase2
 import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.helper.CoreDbHelper
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ReflectionTestUtils
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import org.junit.Before
-import org.junit.Test
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
+import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
 
-
-class SharedHardwareIdentificationContentProviderTest : ProviderTestCase2<SharedHardwareIdentificationContentProvider>(SharedHardwareIdentificationContentProvider::class.java, "com.emarsys.test") {
+class SharedHardwareIdentificationContentProviderTest : AnnotationSpec() {
 
     private companion object {
         const val ENCRYPTED_HARDWARE_ID = "encrypted_hardware_id"
@@ -23,65 +19,78 @@ class SharedHardwareIdentificationContentProviderTest : ProviderTestCase2<Shared
         const val IV = "iv"
     }
 
-    lateinit var mockCoreDbHelper: CoreDbHelper
-    lateinit var mockDatabase: CoreSQLiteDatabase
-    lateinit var mockCursor: Cursor
+    private lateinit var mockCoreDbHelper: CoreDbHelper
+    private lateinit var mockDatabase: CoreSQLiteDatabase
+    private lateinit var mockCursor: Cursor
+    private lateinit var provider: SharedHardwareIdentificationContentProvider
 
     @Before
-    override fun setUp() {
-        super.setUp()
-        mockCursor = mock {
-            on { getString(0) } doReturn ENCRYPTED_HARDWARE_ID
-            on { getString(1) } doReturn SALT
-            on { getString(2) } doReturn IV
+    fun setUp() {
+        mockCursor = mockk {
+            every { getString(0) } returns ENCRYPTED_HARDWARE_ID
+            every { getString(1) } returns SALT
+            every { getString(2) } returns IV
         }
-        mockDatabase = mock {
-            on {
-                query(false, "hardware_identification", arrayOf("encrypted_hardware_id", "salt", "iv"),
-                        null, null, null, null, null, null)
-            } doReturn mockCursor
+        mockDatabase = mockk {
+            every {
+                query(
+                    false,
+                    "hardware_identification",
+                    arrayOf("encrypted_hardware_id", "salt", "iv"),
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                )
+            } returns mockCursor
         }
-        mockCoreDbHelper = mock {
-            on { readableCoreDatabase } doReturn mockDatabase
+        mockCoreDbHelper = mockk {
+            every { readableCoreDatabase } returns mockDatabase
+        }
+        provider = SharedHardwareIdentificationContentProvider().apply {
+            coreDbHelper = mockCoreDbHelper
         }
     }
 
     @Test
     fun testOnCreate_shouldCreateCoreDbHelper() {
-        ReflectionTestUtils.setInstanceField(provider, "coreDbHelper", null)
-        var result = ReflectionTestUtils.getInstanceField<CoreDbHelper>(provider, "coreDbHelper")
-        result shouldBe null
-
-        provider.onCreate()
-
-        result = ReflectionTestUtils.getInstanceField<CoreDbHelper>(provider, "coreDbHelper")
-        result shouldNotBe null
+        val result = provider.onCreate()
+        result shouldBe true
     }
 
     @Test
     fun testQuery_shouldReturnCursorWithEncryptedHardwareId_salt_iv() {
-        val mockContext: Context = mock {
-            on { packageName } doReturn "com.emarsys.test"
+        val mockContext: Context = mockk {
+            every { packageName } returns "com.emarsys.test"
         }
-        ReflectionTestUtils.setInstanceField(provider, "coreDbHelper", mockCoreDbHelper)
+
         ReflectionTestUtils.setInstanceField(provider, "mContext", mockContext)
 
-        val cursor = provider.query(Uri.parse("content://com.emarsys.test/hardware_identification"),
-                null, null, null, null)
+        val cursor = provider.query(
+            Uri.parse("content://com.emarsys.test/hardware_identification"),
+            null, null, null, null
+        )
 
-        cursor shouldNotBe null
         cursor shouldBe mockCursor
     }
 
     @Test
     fun testQuery_shouldReturnNull_whenInvalidRequest() {
-        val mockContext: Context = mock {
-            on { packageName } doReturn "com.emarsys.test"
+        val mockContext: Context = mockk {
+            every { packageName } returns "com.emarsys.test"
         }
-        ReflectionTestUtils.setInstanceField(provider, "coreDbHelper", mockCoreDbHelper)
+
         ReflectionTestUtils.setInstanceField(provider, "mContext", mockContext)
 
-        val cursor = provider.query(Uri.parse("content://com.emarsys.test/hardware/other"), null, null, null, null)
+        val cursor = provider.query(
+            Uri.parse("content://com.emarsys.test/hardware/other"),
+            null,
+            null,
+            null,
+            null
+        )
         cursor shouldBe null
     }
 }

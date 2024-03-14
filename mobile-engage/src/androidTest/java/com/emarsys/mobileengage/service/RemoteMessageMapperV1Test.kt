@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.service
 
+
 import android.content.Context
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.resource.MetaDataReader
@@ -9,22 +10,15 @@ import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperV1
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.RetryUtils
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.json.JSONObject
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
-import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
-class RemoteMessageMapperV1Test {
+class RemoteMessageMapperV1Test : AnnotationSpec() {
     private companion object {
         const val TITLE = "title"
         const val BODY = "body"
@@ -44,16 +38,9 @@ class RemoteMessageMapperV1Test {
     private lateinit var mockMetaDataReader: MetaDataReader
     private lateinit var remoteMessageMapperV1: RemoteMessageMapperV1
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
-
-    @Rule
-    @JvmField
-    var retry: TestRule = RetryUtils.retryRule
 
     @Before
-    fun init() {
+    fun setUp() {
         context = InstrumentationRegistry.getTargetContext()
 
         setupMobileEngageComponent(FakeMobileEngageDependencyContainer())
@@ -123,7 +110,7 @@ class RemoteMessageMapperV1Test {
 
         val notificationData = remoteMessageMapperV1.map(input)
 
-        notificationData shouldNotBe eq(null)
+        notificationData shouldNotBe null
     }
 
     @Test

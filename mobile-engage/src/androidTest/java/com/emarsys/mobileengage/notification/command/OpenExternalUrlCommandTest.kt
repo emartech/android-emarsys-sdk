@@ -2,24 +2,20 @@ package com.emarsys.mobileengage.notification.command
 
 import android.content.Context
 import android.content.Intent
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+
+import com.emarsys.testUtil.AnnotationSpec
+
 import org.mockito.Mockito
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
-class OpenExternalUrlCommandTest {
+class OpenExternalUrlCommandTest : AnnotationSpec() {
     companion object {
         init {
             Mockito.mock(Context::class.java)
         }
     }
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Test
     fun testRun_startsActivity_withCorrectIntent() {

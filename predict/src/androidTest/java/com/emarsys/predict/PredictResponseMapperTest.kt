@@ -1,26 +1,20 @@
 package com.emarsys.predict
 
+
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.predict.api.model.Product
-import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.matchers.collections.shouldContainAll
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.shouldBe
 import org.mockito.Mockito
 
-class PredictResponseMapperTest {
+class PredictResponseMapperTest : AnnotationSpec() {
 
     private lateinit var predictResponseMapper: PredictResponseMapper
     private lateinit var mockResponseModel: ResponseModel
     private lateinit var expectedResult: List<Product>
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {

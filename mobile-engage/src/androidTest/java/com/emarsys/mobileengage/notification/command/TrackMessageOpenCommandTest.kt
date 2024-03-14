@@ -1,18 +1,14 @@
 package com.emarsys.mobileengage.notification.command
 
 import com.emarsys.mobileengage.push.PushInternal
-import com.emarsys.testUtil.TimeoutUtils
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+
+import com.emarsys.testUtil.AnnotationSpec
+
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 
-class TrackMessageOpenCommandTest {
+class TrackMessageOpenCommandTest : AnnotationSpec() {
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Test
     fun testRun_callsMobileEngageInternal() {

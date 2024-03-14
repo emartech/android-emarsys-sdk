@@ -1,26 +1,24 @@
 package com.emarsys.mobileengage.responsehandler
 
+
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.mobileengage.util.RequestModelHelper
-import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import io.kotest.matchers.shouldBe
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import java.net.URL
 
-class MobileEngageClientStateResponseHandlerTest {
+class MobileEngageClientStateResponseHandlerTest : AnnotationSpec() {
     private companion object {
-        const val X_CLIENT_STATE_VALUE = "TG9yZW0gSXBzdW0gaXMgc2ltcGx5IGR1bW15IHRleHQgb2YgdGhlIHByaW50aW5nIGFuZCB0"
+        const val X_CLIENT_STATE_VALUE =
+            "TG9yZW0gSXBzdW0gaXMgc2ltcGx5IGR1bW15IHRleHQgb2YgdGhlIHByaW50aW5nIGFuZCB0"
         const val APPLICATION_CODE = "applicationCode"
         const val CLIENT_HOST = "https://mobile-events.eservice.emarsys.net/v3"
     }
@@ -30,9 +28,6 @@ class MobileEngageClientStateResponseHandlerTest {
     private lateinit var clientStateResponseHandler: MobileEngageClientStateResponseHandler
     private lateinit var mockRequestModelHelper: RequestModelHelper
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {
@@ -44,7 +39,8 @@ class MobileEngageClientStateResponseHandlerTest {
             on { isMobileEngageRequest(any()) } doReturn true
         }
 
-        clientStateResponseHandler = MobileEngageClientStateResponseHandler(mockStorage, mockRequestModelHelper)
+        clientStateResponseHandler =
+            MobileEngageClientStateResponseHandler(mockStorage, mockRequestModelHelper)
     }
 
     @Test

@@ -4,15 +4,12 @@ package com.emarsys.core.util.log.entry
 import com.emarsys.core.di.FakeCoreDependencyContainer
 import com.emarsys.core.di.setupCoreComponent
 import com.emarsys.core.provider.uuid.UUIDProvider
-import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.shouldBe
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TestRule
+import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.matchers.shouldBe
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
-class InAppLogTest {
+class InAppLogTest : AnnotationSpec() {
     private companion object {
         const val endTime = 10L
         const val startTime = 5L
@@ -24,9 +21,6 @@ class InAppLogTest {
         const val endScreenTime = 10L
     }
 
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Test
     fun testTopic() {
