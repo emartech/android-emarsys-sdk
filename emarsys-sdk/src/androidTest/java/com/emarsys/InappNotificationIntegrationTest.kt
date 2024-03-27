@@ -22,6 +22,7 @@ import com.emarsys.testUtil.ConnectionTestUtils
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.IntegrationTestUtils
+import com.emarsys.testUtil.TestUrls.LARGE_IMAGE
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
@@ -110,9 +111,9 @@ class InappNotificationIntegrationTest : AnnotationSpec() {
     @Test
     fun testInappPresent() {
         val url =
-            FileDownloader(application).download("https://s3-eu-west-1.amazonaws.com/ems-mobileteam-artifacts/test-resources/Emarsys.png")
+            FileDownloader(application).download(LARGE_IMAGE)
         val inappPayload =
-            """{"campaignId": "222","url": "https://s3-eu-west-1.amazonaws.com/ems-mobileteam-artifacts/test-resources/Emarsys.png","fileUrl": "$url"}"""
+            """{"campaignId": "222","url": "$LARGE_IMAGE","fileUrl": "$url"}"""
         val notificationData = NotificationData(
             null,
             null,
