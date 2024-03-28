@@ -38,6 +38,9 @@ create-testing-apks: check-env ## create apks for testing
 create-sample-release-bundle: check-env ## create sample app release bundle
 	@./gradlew :sample:bundleRelease
 
+create-sample-release-apk: check-env ## create sample app release bundle
+	@./gradlew :sample:assembleRelease
+
 lint: check-env ## run lint
 	@./gradlew lint
 
