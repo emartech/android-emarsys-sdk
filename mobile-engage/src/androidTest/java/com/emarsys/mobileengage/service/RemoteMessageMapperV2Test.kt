@@ -219,7 +219,7 @@ class RemoteMessageMapperV2Test : AnnotationSpec() {
         val input: MutableMap<String, String> = createRemoteMessage()
         input["ems.tap_actions.default_action.name"] = "test name"
         input["ems.tap_actions.default_action.url"] = "test url"
-        input["ems.tap_actions.default_action.payload"] = " test payload"
+        input["ems.tap_actions.default_action.payload"] = """{"key":"test payload"}"""
 
         val notificationData = remoteMessageMapperV2.map(input)
 
@@ -232,10 +232,10 @@ class RemoteMessageMapperV2Test : AnnotationSpec() {
         input["ems.tap_actions.default_action.name"] = "test name"
         input["ems.tap_actions.default_action.type"] = "MECustomEvent"
         input["ems.tap_actions.default_action.url"] = "test url"
-        input["ems.tap_actions.default_action.payload"] = "test payload"
+        input["ems.tap_actions.default_action.payload"] = """{"key":"test payload"}"""
 
         val expectedDefaultAction =
-            """{"name":"test name","type":"MECustomEvent","url":"test url","payload":"test payload"}"""
+            """{"name":"test name","type":"MECustomEvent","url":"test url","payload":{"key":"test payload"}}"""
 
         val notificationData = remoteMessageMapperV2.map(input)
 

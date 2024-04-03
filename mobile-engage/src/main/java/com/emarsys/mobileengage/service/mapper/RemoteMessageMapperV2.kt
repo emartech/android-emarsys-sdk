@@ -96,13 +96,14 @@ class RemoteMessageMapperV2(
         val url = remoteMessageData.getOrDefault("ems.tap_actions.default_action.url", null)
         val payload =
             remoteMessageData.getOrDefault("ems.tap_actions.default_action.payload", null)
+        val payloadObject = payload?.let { JSONObject(payload) }
 
         val defaultAction = if (type != null) {
             JSONObject()
                 .put("name", name)
                 .put("type", type)
                 .put("url", url)
-                .put("payload", payload)
+                .put("payload", payloadObject)
         } else null
 
         return defaultAction?.toString()
