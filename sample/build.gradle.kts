@@ -56,7 +56,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get().toString()
+        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
 
     if (env.fetch("RELEASE_MODE", (System.getenv("RELEASE_MODE") ?: "false")) == "true") {
@@ -153,4 +153,10 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     coreLibraryDesugaring(libs.android.tools.desugar)
+}
+
+tasks {
+    withType(Javadoc::class.java).all {
+        exclude("**/*.kt")
+    }
 }
