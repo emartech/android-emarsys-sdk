@@ -83,8 +83,11 @@ tasks {
             }
         }
     }
-}
 
+    withType(Javadoc::class.java).all {
+        exclude("**/*.kt")
+    }
+}
 
 nexusPublishing {
     packageGroup = "com.emarsys"
