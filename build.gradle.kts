@@ -87,8 +87,8 @@ tasks {
 
 allprojects {
     // Exclude Kotlin files from Javadoc generation because Kotlin files are not supported by Dokka
-    tasks.withType(Javadoc::class.java).all {
-        exclude("**/*.kt")
+    tasks.withType(Javadoc::class).all {
+        enabled = false
     }
 }
 
