@@ -154,9 +154,3 @@ dependencies {
 
     coreLibraryDesugaring(libs.android.tools.desugar)
 }
-
-tasks {
-    withType(Javadoc::class.java).all {
-        exclude("**/*.kt")
-    }
-}
