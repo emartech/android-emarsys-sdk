@@ -18,15 +18,15 @@ class MerchantIdHeaderMapper(
 
     override fun createHeaders(requestModel: RequestModel): Map<String, String> {
         val headers: MutableMap<String, String> = requestModel.headers.toMutableMap()
-        if(!predictRequestContext.merchantId.isNullOrBlank()) {
+        if (!predictRequestContext.merchantId.isNullOrBlank()) {
             headers[MERCHANT_ID_HEADER] = predictRequestContext.merchantId!!
         }
-
         return headers
     }
 
     override fun shouldMapRequestModel(requestModel: RequestModel): Boolean {
-        return requestModelHelper.isMobileEngageSetContactRequest(requestModel) ||
-                        requestModelHelper.isRefreshContactTokenRequest(requestModel)
+        return (requestModelHelper.isMobileEngageSetContactRequest(requestModel)
+                || requestModelHelper.isRefreshContactTokenRequest(requestModel))
+                && !predictRequestContext.merchantId.isNullOrBlank()
     }
 }

@@ -5,9 +5,12 @@ import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.request.model.RequestModel
 
 @Mockable
-class RequestModelHelper(private val clientServiceEndpointProvider: ServiceEndpointProvider,
-                         private val eventServiceEndpointProvider: ServiceEndpointProvider,
-                         private val messageInboxServiceEndpointProvider: ServiceEndpointProvider) {
+class RequestModelHelper(
+    private val clientServiceEndpointProvider: ServiceEndpointProvider,
+    private val eventServiceEndpointProvider: ServiceEndpointProvider,
+    private val messageInboxServiceEndpointProvider: ServiceEndpointProvider,
+    private val predictServiceEndpointProvider: ServiceEndpointProvider
+) {
 
 
     fun isMobileEngageRequest(requestModel: RequestModel): Boolean {
@@ -53,7 +56,15 @@ class RequestModelHelper(private val clientServiceEndpointProvider: ServiceEndpo
         return url.startsWithOneOf(clientServiceUrl) && url.endsWith("client/contact")
     }
 
+    fun isPredictRequest(requestModel: RequestModel): Boolean {
+        val predictServiceUrl = predictServiceEndpointProvider.provideEndpointHost()
+
+        val url = requestModel.url.toString()
+        return url.startsWith(predictServiceUrl)
+    }
+
     private fun String.startsWithOneOf(vararg patterns: String): Boolean {
         return patterns.any { this.startsWith(it) }
     }
+
 }

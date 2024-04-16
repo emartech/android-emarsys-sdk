@@ -18,6 +18,7 @@ import io.kotest.matchers.shouldNotBe
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.stub
 
 class ContactTokenHeaderMapperTest : AnnotationSpec() {
     private companion object {
@@ -27,6 +28,7 @@ class ContactTokenHeaderMapperTest : AnnotationSpec() {
         const val REQUEST_ID = "request_id"
         const val HARDWARE_ID = "hwid"
         const val APPLICATION_CODE = "applicationCode"
+        const val MERCHANT_ID = "merchantId"
     }
 
     private lateinit var contactTokenHeaderMapper: ContactTokenHeaderMapper
@@ -40,7 +42,6 @@ class ContactTokenHeaderMapperTest : AnnotationSpec() {
 
 
     @Before
-    @Suppress("UNCHECKED_CAST")
     fun setUp() {
         mockContactTokenStorage = mock {
             on { get() } doReturn CONTACT_TOKEN
@@ -72,18 +73,22 @@ class ContactTokenHeaderMapperTest : AnnotationSpec() {
             on { isMobileEngageRequest(any()) } doReturn true
             on { isMobileEngageSetContactRequest(any()) } doReturn false
             on { isRefreshContactTokenRequest(any()) } doReturn false
+            on { isPredictRequest(any()) } doReturn false
         }
 
-        contactTokenHeaderMapper = ContactTokenHeaderMapper(mockRequestContext, mockRequestModelHelper)
+        contactTokenHeaderMapper =
+            ContactTokenHeaderMapper(mockRequestContext, mockRequestModelHelper)
     }
 
     @Test
     fun testMap_shouldAddHeaders_whenRequestIsForMobileEngage() {
         val originalRequestModels = createMobileEngageRequest()
 
-        val expectedRequestModels = createMobileEngageRequest(extraHeaders = mapOf(
+        val expectedRequestModels = createMobileEngageRequest(
+            extraHeaders = mapOf(
                 "X-Contact-Token" to CONTACT_TOKEN
-        ))
+            )
+        )
 
         val result = contactTokenHeaderMapper.map(originalRequestModels)
 
@@ -95,9 +100,11 @@ class ContactTokenHeaderMapperTest : AnnotationSpec() {
     fun testMap_shouldAddHeaders_whenCompositeRequestIsForMobileEngage() {
         val originalRequestModels = createCustomEventCompositeRequest()
 
-        val expectedRequestModels = createCustomEventCompositeRequest(extraHeaders = mapOf(
+        val expectedRequestModels = createCustomEventCompositeRequest(
+            extraHeaders = mapOf(
                 "X-Contact-Token" to CONTACT_TOKEN
-        ))
+            )
+        )
 
         val result = contactTokenHeaderMapper.map(originalRequestModels)
 
@@ -137,7 +144,27 @@ class ContactTokenHeaderMapperTest : AnnotationSpec() {
         result shouldBe originalRequestModels
     }
 
-    private fun createMobileEngageRequest(extraHeaders: Map<String, String> = mapOf()) = RequestModel(
+    @Test
+    fun testMap_shouldAddHeaders_whenRequestIsForPredict() {
+        val originalRequestModel = createPredictRequest()
+        val expectedRequestModel = createPredictRequest(
+            extraHeaders = mapOf(
+                "X-Contact-Token" to CONTACT_TOKEN
+            )
+        )
+        mockRequestModelHelper.stub {
+            on { isMobileEngageRequest(originalRequestModel) } doReturn false
+            on { isPredictRequest(originalRequestModel) } doReturn true
+        }
+
+        val result = contactTokenHeaderMapper.map(originalRequestModel)
+
+        result shouldBe expectedRequestModel
+        result shouldNotBe originalRequestModel
+    }
+
+    private fun createMobileEngageRequest(extraHeaders: Map<String, String> = mapOf()) =
+        RequestModel(
             "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client",
             RequestMethod.POST,
             null,
@@ -145,9 +172,10 @@ class ContactTokenHeaderMapperTest : AnnotationSpec() {
             TIMESTAMP,
             Long.MAX_VALUE,
             REQUEST_ID
-    )
+        )
 
-    private fun createCustomEventCompositeRequest(extraHeaders: Map<String, String> = mapOf()) = CompositeRequestModel(
+    private fun createCustomEventCompositeRequest(extraHeaders: Map<String, String> = mapOf()) =
+        CompositeRequestModel(
             "0",
             "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client",
             RequestMethod.POST,
@@ -156,9 +184,10 @@ class ContactTokenHeaderMapperTest : AnnotationSpec() {
             TIMESTAMP,
             Long.MAX_VALUE,
             arrayOf(REQUEST_ID)
-    )
+        )
 
-    private fun createRefreshContactTokenRequest(extraHeaders: Map<String, String> = mapOf()) = RequestModel(
+    private fun createRefreshContactTokenRequest(extraHeaders: Map<String, String> = mapOf()) =
+        RequestModel(
             "https://me-client.eservice.emarsys.net/v3/apps/${APPLICATION_CODE}/client/contact-token",
             RequestMethod.POST,
             RequestPayloadUtils.createRefreshContactTokenPayload(mockRequestContext),
@@ -166,16 +195,26 @@ class ContactTokenHeaderMapperTest : AnnotationSpec() {
             TIMESTAMP,
             Long.MAX_VALUE,
             REQUEST_ID
-    )
+        )
 
     private fun createNonMobileEngageRequest() = RequestModel(
-            "https://not-mobile-engage.com",
-            RequestMethod.POST,
-            null,
-            mapOf(),
-            TIMESTAMP,
-            Long.MAX_VALUE,
-            REQUEST_ID
+        "https://not-mobile-engage.com",
+        RequestMethod.POST,
+        null,
+        mapOf(),
+        TIMESTAMP,
+        Long.MAX_VALUE,
+        REQUEST_ID
+    )
+
+    private fun createPredictRequest(extraHeaders: Map<String, String> = mapOf()) = RequestModel(
+        "https://recommender.scarabresearch.com/merchants/$MERCHANT_ID",
+        RequestMethod.POST,
+        null,
+        extraHeaders,
+        TIMESTAMP,
+        Long.MAX_VALUE,
+        REQUEST_ID
     )
 
 }
