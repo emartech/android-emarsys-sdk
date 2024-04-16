@@ -91,6 +91,7 @@ import com.emarsys.inapp.InApp
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.MessageInbox
 import com.emarsys.inbox.MessageInboxApi
+import com.emarsys.mapper.MerchantIdHeaderMapper
 import com.emarsys.mobileengage.DefaultMobileEngageInternal
 import com.emarsys.mobileengage.LoggingMobileEngageInternal
 import com.emarsys.mobileengage.MobileEngage
@@ -1045,6 +1046,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             MobileEngageHeaderMapper(requestContext, requestModelHelper),
             OpenIdTokenRequestMapper(requestContext, requestModelHelper),
             ContactTokenHeaderMapper(requestContext, requestModelHelper),
+            MerchantIdHeaderMapper(requestContext, requestModelHelper, predictRequestContext),
             DefaultRequestHeaderMapper(requestContext),
             DeviceEventStateRequestMapper(
                 requestContext,
