@@ -591,7 +591,8 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         RequestModelHelper(
             clientServiceEndpointProvider,
             eventServiceEndpointProvider,
-            messageInboxServiceProvider
+            messageInboxServiceProvider,
+            predictServiceProvider
         )
     }
 
