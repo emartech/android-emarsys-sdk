@@ -45,7 +45,7 @@ class PredictRequestModelBuilder(private val requestContext: PredictRequestConte
     }
 
     fun withLimit(limit: Int?): PredictRequestModelBuilder {
-        require(limit ?: 1 > 0) { "Limit must be greater than zero, or can be Null!" }
+        require((limit ?: 1) > 0) { "Limit must be greater than zero, or can be Null!" }
         this.limit = limit
         return this
     }
@@ -85,11 +85,6 @@ class PredictRequestModelBuilder(private val requestContext: PredictRequestConte
             uriBuilder.appendQueryParameter("vi", visitorId)
         }
 
-        val contactId = keyValueStore.getString(DefaultPredictInternal.CONTACT_FIELD_VALUE_KEY)
-
-        if (contactId != null) {
-            uriBuilder.appendQueryParameter("ci", contactId)
-        }
         if (availabilityZone != null) {
             uriBuilder.appendQueryParameter("az", availabilityZone)
         }

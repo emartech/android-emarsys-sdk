@@ -140,7 +140,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
                     mapOf(
                         "f" to "f:SEARCH,l:5,o:0",
                         "vi" to "visitorId",
-                        "ci" to "contactId",
                         "q" to "searchTerm"
                     )
                 )
@@ -155,7 +154,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
                     mapOf(
                         "f" to "f:CART,l:5,o:0",
                         "vi" to "visitorId",
-                        "ci" to "contactId",
                         "cv" to "1",
                         "ca" to "i:1234,p:1.0,q:1.0|i:4321,p:2.0,q:2.0"
                     )
@@ -166,7 +164,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
                     mapOf(
                         "f" to "f:CATEGORY,l:5,o:0",
                         "vi" to "visitorId",
-                        "ci" to "contactId",
                         "vc" to "categoryPath"
                     )
                 )
@@ -176,7 +173,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
                     mapOf(
                         "f" to "f:POPULAR,l:5,o:0",
                         "vi" to "visitorId",
-                        "ci" to "contactId",
                         "vc" to "categoryPath"
                     )
                 )
@@ -186,7 +182,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
                     mapOf(
                         "f" to "f:ALSO_BOUGHT,l:5,o:0",
                         "vi" to "visitorId",
-                        "ci" to "contactId",
                         "v" to "i:itemId"
                     )
                 )
@@ -196,7 +191,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
                     mapOf(
                         "f" to "f:RELATED,l:5,o:0",
                         "vi" to "visitorId",
-                        "ci" to "contactId",
                         "v" to "i:itemId"
                     )
                 )
@@ -215,7 +209,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
         val expectedRequestModel = createRequestModelWithUrl(
             mapOf(
                 "f" to "f:RELATED,l:5,o:0",
-                "ci" to "contactId",
                 "v" to "i:itemId",
                 "az" to AVAILABILITY_ZONE
             )
@@ -273,7 +266,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
                 "f" to "f:RELATED,l:5,o:0",
                 "v" to "i:itemId",
                 "vi" to "visitorId",
-                "ci" to "contactId",
                 "az" to AVAILABILITY_ZONE,
                 "ex" to """[{"f":"field1","r":"HAS","v":"expectation1","n":false},{"f":"field2","r":"IS","v":"expectation2","n":false},{"f":"field3","r":"IN","v":"expectation31|expectation32","n":false},{"f":"field4","r":"OVERLAPS","v":"expectation41|expectation42","n":false},{"f":"field5","r":"HAS","v":"expectation5","n":true},{"f":"field6","r":"IS","v":"expectation6","n":true},{"f":"field7","r":"IN","v":"expectation71|expectation72","n":true},{"f":"field8","r":"OVERLAPS","v":"expectation81|expectation82","n":true}]"""
             )
@@ -331,7 +323,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
                 mapOf(
                     "f" to "f:${logic.logicName},l:5,o:0",
                     "vi" to "visitorId",
-                    "ci" to "contactId",
                     "az" to AVAILABILITY_ZONE,
                     "ex" to """[{"f":"field1","r":"HAS","v":"expectation1","n":false},{"f":"field2","r":"IS","v":"expectation2","n":false},{"f":"field3","r":"IN","v":"expectation31|expectation32","n":false},{"f":"field4","r":"OVERLAPS","v":"expectation41|expectation42","n":false},{"f":"field5","r":"HAS","v":"expectation5","n":true},{"f":"field6","r":"IS","v":"expectation6","n":true},{"f":"field7","r":"IN","v":"expectation71|expectation72","n":true},{"f":"field8","r":"OVERLAPS","v":"expectation81|expectation82","n":true}]"""
                 )
@@ -373,7 +364,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
                     mapOf(
                         "f" to "f:SEARCH,l:5,o:0",
                         "vi" to "visitorId",
-                        "ci" to "contactId",
                         "q" to SEARCH_TERM,
                         "az" to AVAILABILITY_ZONE
                     )
@@ -384,7 +374,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
                     mapOf(
                         "f" to "f:CART,l:5,o:0",
                         "vi" to "visitorId",
-                        "ci" to "contactId",
                         "cv" to "1",
                         "ca" to CART,
                         "az" to AVAILABILITY_ZONE
@@ -396,7 +385,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
                     mapOf(
                         "f" to "f:CATEGORY,l:5,o:0",
                         "vi" to "visitorId",
-                        "ci" to "contactId",
                         "vc" to CATEGORY_PATH,
                         "az" to AVAILABILITY_ZONE
                     )
@@ -407,7 +395,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
                     mapOf(
                         "f" to "f:POPULAR,l:5,o:0",
                         "vi" to "visitorId",
-                        "ci" to "contactId",
                         "vc" to CATEGORY_PATH,
                         "az" to AVAILABILITY_ZONE
                     )
@@ -418,7 +405,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
                     mapOf(
                         "f" to "f:ALSO_BOUGHT,l:5,o:0",
                         "vi" to "visitorId",
-                        "ci" to "contactId",
                         "v" to LAST_ITEM,
                         "az" to AVAILABILITY_ZONE
                     )
@@ -429,7 +415,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
                     mapOf(
                         "f" to "f:RELATED,l:5,o:0",
                         "vi" to "visitorId",
-                        "ci" to "contactId",
                         "v" to LAST_ITEM,
                         "az" to AVAILABILITY_ZONE
                     )
@@ -451,7 +436,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
                 RecommendationLogic.search(), createRequestModelWithUrl(
                     mapOf(
                         "vi" to "visitorId",
-                        "ci" to "contactId",
                         "f" to "f:SEARCH,l:5,o:0",
                         "az" to AVAILABILITY_ZONE
                     )
@@ -461,7 +445,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
                 RecommendationLogic.cart(), createRequestModelWithUrl(
                     mapOf(
                         "vi" to "visitorId",
-                        "ci" to "contactId",
                         "f" to "f:CART,l:5,o:0",
                         "az" to AVAILABILITY_ZONE
                     )
@@ -471,7 +454,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
                 RecommendationLogic.category(), createRequestModelWithUrl(
                     mapOf(
                         "vi" to "visitorId",
-                        "ci" to "contactId",
                         "f" to "f:CATEGORY,l:5,o:0",
                         "az" to AVAILABILITY_ZONE
                     )
@@ -481,7 +463,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
                 RecommendationLogic.popular(), createRequestModelWithUrl(
                     mapOf(
                         "vi" to "visitorId",
-                        "ci" to "contactId",
                         "f" to "f:POPULAR,l:5,o:0",
                         "az" to AVAILABILITY_ZONE
                     )
@@ -491,7 +472,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
                 RecommendationLogic.alsoBought(), createRequestModelWithUrl(
                     mapOf(
                         "vi" to "visitorId",
-                        "ci" to "contactId",
                         "f" to "f:ALSO_BOUGHT,l:5,o:0",
                         "az" to AVAILABILITY_ZONE
                     )
@@ -501,7 +481,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
                 RecommendationLogic.related(), createRequestModelWithUrl(
                     mapOf(
                         "vi" to "visitorId",
-                        "ci" to "contactId",
                         "f" to "f:RELATED,l:5,o:0",
                         "az" to AVAILABILITY_ZONE
                     )
@@ -511,7 +490,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
                 RecommendationLogic.personal(), createRequestModelWithUrl(
                     mapOf(
                         "vi" to "visitorId",
-                        "ci" to "contactId",
                         "f" to "f:PERSONAL,l:5,o:0",
                         "az" to AVAILABILITY_ZONE
                     )
@@ -521,7 +499,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
                 RecommendationLogic.personal(listOf("1", "2", "3")), createRequestModelWithUrl(
                     mapOf(
                         "vi" to "visitorId",
-                        "ci" to "contactId",
                         "f" to "f:PERSONAL_1,l:5,o:0|f:PERSONAL_2,l:5,o:0|f:PERSONAL_3,l:5,o:0",
                         "az" to AVAILABILITY_ZONE
                     )
@@ -531,7 +508,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
                 RecommendationLogic.home(), createRequestModelWithUrl(
                     mapOf(
                         "vi" to "visitorId",
-                        "ci" to "contactId",
                         "f" to "f:HOME,l:5,o:0",
                         "az" to AVAILABILITY_ZONE
                     )
@@ -541,7 +517,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
                 RecommendationLogic.home(listOf("1", "2", "3")), createRequestModelWithUrl(
                     mapOf(
                         "vi" to "visitorId",
-                        "ci" to "contactId",
                         "f" to "f:HOME_1,l:5,o:0|f:HOME_2,l:5,o:0|f:HOME_3,l:5,o:0",
                         "az" to AVAILABILITY_ZONE
                     )
@@ -561,7 +536,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
             mapOf(
                 "f" to "f:SEARCH,l:10,o:0",
                 "vi" to "visitorId",
-                "ci" to "contactId",
                 "q" to SEARCH_TERM
             )
         )
@@ -582,7 +556,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
             mapOf(
                 "f" to "f:SEARCH,l:10,o:0",
                 "vi" to "visitorId",
-                "ci" to "contactId",
                 "q" to SEARCH_TERM,
                 "az" to AVAILABILITY_ZONE
             )
@@ -604,7 +577,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
             mapOf(
                 "f" to "f:SEARCH,l:10,o:0",
                 "vi" to "visitorId",
-                "ci" to "contactId",
                 "q" to SEARCH_TERM
             )
         )
@@ -625,7 +597,6 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
             mapOf(
                 "f" to "f:SEARCH,l:5,o:0",
                 "vi" to "visitorId",
-                "ci" to "contactId",
                 "q" to SEARCH_TERM
             )
         )
