@@ -161,7 +161,7 @@ class RequestModelHelperTest : AnnotationSpec() {
     }
 
     @Test
-    fun testIsPredictMultiIdSetContactRequest_true_whenItIsPredictMultiIdSetContactRequest() {
+    fun testIsPredictMultiIdContactRequest_true_whenItIsPredictMultiIdSetContactRequest() {
         val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL("$CLIENT_HOST/contact-token"))
         }
@@ -171,11 +171,108 @@ class RequestModelHelperTest : AnnotationSpec() {
     }
 
     @Test
-    fun testIsPredictMultiIdSetContactRequest_false_whenItIsNotPredictMultiIdSetContactRequest() {
+    fun testIsPredictMultiIdContactRequest_false_whenItIsNotPredictMultiIdSetContactRequest() {
         val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL("$CLIENT_BASE/contact-token"))
         }
         val result = requestModelHelper.isPredictMultiIdContactRequest(mockRequestModel)
+
+        result shouldBe false
+    }
+
+    @Test
+    fun testIsPredictMultiIdSetContactRequest_true_whenItIsPredictMultiIdSetContactRequest() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL("$CLIENT_HOST/contact-token"))
+            whenever(payload).thenReturn(
+                mapOf(
+                    "contactFieldId" to 1,
+                    "contactFieldValue" to "test"
+                )
+            )
+        }
+        val result = requestModelHelper.isPredictMultiIdSetContactRequest(mockRequestModel)
+
+        result shouldBe true
+    }
+
+    @Test
+    fun testIsPredictMultiIdSetContactRequest_false_whenUrlIsNotPredictMultiIdSetContactRequest() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL("$CLIENT_BASE/contact-token"))
+            whenever(payload).thenReturn(
+                mapOf(
+                    "contactFieldId" to 1,
+                    "contactFieldValue" to "test"
+                )
+            )
+        }
+        val result = requestModelHelper.isPredictMultiIdSetContactRequest(mockRequestModel)
+
+        result shouldBe false
+    }
+
+    @Test
+    fun testIsPredictMultiIdSetContactRequest_false_whenPayloadDoesNotContainContactFieldId() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL("$CLIENT_HOST/contact-token"))
+            whenever(payload).thenReturn(
+                mapOf(
+                    "contactFieldValue" to "test"
+                )
+            )
+        }
+        val result = requestModelHelper.isPredictMultiIdSetContactRequest(mockRequestModel)
+
+        result shouldBe false
+    }
+
+    @Test
+    fun testIsPredictMultiIdSetContactRequest_false_whenPayloadDoesNotContainContactFieldValue() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL("$CLIENT_HOST/contact-token"))
+            whenever(payload).thenReturn(
+                mapOf(
+                    "contactFieldId" to 1
+                )
+            )
+        }
+        val result = requestModelHelper.isPredictMultiIdSetContactRequest(mockRequestModel)
+
+        result shouldBe false
+    }
+
+
+    @Test
+    fun testIsPredictMultiIdRefreshTokenRequest_true_whenItIsPredictMultiIdRefreshTokenRequest() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL("$CLIENT_HOST/contact-token"))
+            whenever(payload).thenReturn(mapOf("refreshToken" to "test"))
+        }
+        val result = requestModelHelper.isPredictMultiIdRefreshContactTokenRequest(mockRequestModel)
+
+        result shouldBe true
+    }
+
+    @Test
+    fun testIsPredictMultiIdRefreshTokenRequest_false_whenUrlIsNotPredictMultiIdSetContactRequest() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL("$CLIENT_BASE/contact-token"))
+            whenever(payload).thenReturn(mapOf("refreshToken" to "test"))
+        }
+
+        val result = requestModelHelper.isPredictMultiIdRefreshContactTokenRequest(mockRequestModel)
+
+        result shouldBe false
+    }
+
+    @Test
+    fun testIsPredictMultiIdSetContactRequest_false_whenPayloadDoesNotContainRefreshToken() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL("$CLIENT_HOST/contact-token"))
+            whenever(payload).thenReturn(mapOf())
+        }
+        val result = requestModelHelper.isPredictMultiIdRefreshContactTokenRequest(mockRequestModel)
 
         result shouldBe false
     }

@@ -12,6 +12,11 @@ class RequestModelHelper(
     private val predictServiceEndpointProvider: ServiceEndpointProvider
 ) {
 
+    companion object {
+        const val CONTACT_FIELD_ID_KEY = "contactFieldId"
+        const val CONTACT_FIELD_VALUE_KEY = "contactFieldValue"
+        const val REFRESH_TOKEN_KEY = "refreshToken"
+    }
 
     fun isMobileEngageRequest(requestModel: RequestModel): Boolean {
         val clientServiceUrl = clientServiceEndpointProvider.provideEndpointHost()
@@ -54,6 +59,23 @@ class RequestModelHelper(
 
         val url = requestModel.url.toString()
         return url.startsWith(clientServiceUrl) && !url.contains("apps") && url.endsWith("/contact-token")
+    }
+
+    fun isPredictMultiIdSetContactRequest(requestModel: RequestModel): Boolean {
+        val clientServiceUrl = clientServiceEndpointProvider.provideEndpointHost()
+
+        val url = requestModel.url.toString()
+        return url.startsWith(clientServiceUrl) && !url.contains("apps") && url.endsWith("/contact-token")
+                && (requestModel.payload?.containsKey(CONTACT_FIELD_ID_KEY) ?: false)
+                && (requestModel.payload?.containsKey(CONTACT_FIELD_VALUE_KEY) ?: false)
+    }
+
+    fun isPredictMultiIdRefreshContactTokenRequest(requestModel: RequestModel): Boolean {
+        val clientServiceUrl = clientServiceEndpointProvider.provideEndpointHost()
+
+        val url = requestModel.url.toString()
+        return url.startsWith(clientServiceUrl) && !url.contains("apps") && url.endsWith("/contact-token")
+                && (requestModel.payload?.containsKey(REFRESH_TOKEN_KEY) ?: false)
     }
 
     fun isMobileEngageSetContactRequest(requestModel: RequestModel): Boolean {
