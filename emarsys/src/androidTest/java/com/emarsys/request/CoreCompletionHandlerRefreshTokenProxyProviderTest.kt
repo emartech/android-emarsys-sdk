@@ -1,4 +1,4 @@
-package com.emarsys.mobileengage.request
+package com.emarsys.request
 
 
 import com.emarsys.core.CoreCompletionHandler
@@ -8,6 +8,7 @@ import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.worker.CoreCompletionHandlerMiddleware
 import com.emarsys.core.worker.Worker
+import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.testUtil.AnnotationSpec
@@ -53,7 +54,7 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest : AnnotationSpec() {
         mockRequestModelFactory = mock()
 
         coreCompletionHandlerRefreshTokenProxyProvider =
-            CoreCompletionHandlerRefreshTokenProxyProvider(
+            com.emarsys.request.CoreCompletionHandlerRefreshTokenProxyProvider(
                 mockCoreCompletionHandlerMiddlewareProvider,
                 mockRestClient,
                 mockContactTokenStorage,
@@ -74,7 +75,7 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest : AnnotationSpec() {
                 mockCoreCompletionHandler
             )
         ).thenReturn(mockCoreCompletionHandlerMiddleware)
-        val expectedProxy = CoreCompletionHandlerRefreshTokenProxy(
+        val expectedProxy = com.emarsys.request.CoreCompletionHandlerRefreshTokenProxy(
             mockCoreCompletionHandlerMiddleware,
             mockRestClient,
             mockContactTokenStorage,
@@ -100,7 +101,7 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest : AnnotationSpec() {
 
         val result = coreCompletionHandlerRefreshTokenProxyProvider.provideProxy(null, null)
 
-        result.javaClass shouldBe CoreCompletionHandlerRefreshTokenProxy::class.java
+        result.javaClass shouldBe com.emarsys.request.CoreCompletionHandlerRefreshTokenProxy::class.java
     }
 
     @Test
@@ -118,6 +119,6 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest : AnnotationSpec() {
             mockCoreCompletionHandler
         )
 
-        result.javaClass shouldBe CoreCompletionHandlerRefreshTokenProxy::class.java
+        result.javaClass shouldBe com.emarsys.request.CoreCompletionHandlerRefreshTokenProxy::class.java
     }
 }

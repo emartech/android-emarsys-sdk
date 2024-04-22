@@ -1,4 +1,4 @@
-package com.emarsys.mobileengage.request
+package com.emarsys.request
 
 
 import com.emarsys.core.CoreCompletionHandler
@@ -7,6 +7,7 @@ import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
+import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.testUtil.AnnotationSpec

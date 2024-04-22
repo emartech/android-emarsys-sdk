@@ -57,7 +57,6 @@ import com.emarsys.mobileengage.push.NotificationInformationListenerProvider
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvider
-import com.emarsys.mobileengage.request.CoreCompletionHandlerRefreshTokenProxyProvider
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperFactory
@@ -122,7 +121,6 @@ class FakeEmarsysDependencyContainer(
     override val appLifecycleObserver: AppLifecycleObserver = mock(),
     override val requestModelHelper: RequestModelHelper = mock(),
     override val sessionIdHolder: SessionIdHolder = mock(),
-    override val coreCompletionHandlerRefreshTokenProxyProvider: CoreCompletionHandlerRefreshTokenProxyProvider = mock(),
     override val mobileEngageRequestModelFactory: MobileEngageRequestModelFactory = mock(),
     override val mobileEngageSession: MobileEngageSession = mock(),
     override val activityLifecycleWatchdog: ActivityLifecycleWatchdog = mock(),

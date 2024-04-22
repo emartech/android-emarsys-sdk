@@ -147,7 +147,7 @@ import com.emarsys.mobileengage.push.NotificationInformationListenerProvider
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvider
-import com.emarsys.mobileengage.request.CoreCompletionHandlerRefreshTokenProxyProvider
+import com.emarsys.request.CoreCompletionHandlerRefreshTokenProxyProvider
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.request.mapper.ContactTokenHeaderMapper
 import com.emarsys.mobileengage.request.mapper.DefaultRequestHeaderMapper

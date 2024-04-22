@@ -1,4 +1,4 @@
-package com.emarsys.mobileengage.request
+package com.emarsys.request
 
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Mockable
@@ -7,6 +7,7 @@ import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
 import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.worker.Worker
+import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.util.RequestModelHelper
 

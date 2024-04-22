@@ -16,6 +16,7 @@ import com.emarsys.predict.PredictApi
 import com.emarsys.predict.PredictRestrictedApi
 import com.emarsys.predict.di.PredictComponent
 import com.emarsys.push.PushApi
+import com.emarsys.request.CoreCompletionHandlerRefreshTokenProxyProvider
 
 fun emarsys() = EmarsysComponent.instance
         ?: throw IllegalStateException("DependencyContainer has to be setup first!")
@@ -92,4 +93,6 @@ interface EmarsysComponent : MobileEngageComponent, PredictComponent {
     val loggingEventService: EventServiceApi
 
     val isGooglePlayServiceAvailable: Boolean
+
+    val coreCompletionHandlerRefreshTokenProxyProvider: CoreCompletionHandlerRefreshTokenProxyProvider
 }
