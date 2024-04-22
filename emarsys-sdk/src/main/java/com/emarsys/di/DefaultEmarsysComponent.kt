@@ -177,8 +177,10 @@ import com.emarsys.predict.PredictInternal
 import com.emarsys.predict.PredictResponseMapper
 import com.emarsys.predict.PredictRestricted
 import com.emarsys.predict.PredictRestrictedApi
+import com.emarsys.predict.endpoint.Endpoint.PREDICT_BASE_URL
 import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
 import com.emarsys.predict.request.PredictHeaderFactory
+import com.emarsys.predict.request.PredictMultiIdRequestModelFactory
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.response.VisitorIdResponseHandler
 import com.emarsys.predict.response.XPResponseHandler
@@ -935,7 +937,6 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         )
     }
 
-
     override val coreSQLiteDatabase: CoreSQLiteDatabase by lazy {
         coreDbHelper.writableCoreDatabase
     }
@@ -983,6 +984,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         DefaultPredictInternal(
             predictRequestContext,
             requestManager,
+            predictMultiIdRequestModelFactory,
             concurrentHandlerHolder,
             predictRequestModelBuilderProvider,
             PredictResponseMapper()
@@ -1009,12 +1011,16 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     override val predictServiceProvider: ServiceEndpointProvider by lazy {
         ServiceEndpointProvider(
             predictServiceStorage,
-            com.emarsys.predict.endpoint.Endpoint.PREDICT_BASE_URL
+            PREDICT_BASE_URL
         )
     }
 
     override val predictServiceStorage: Storage<String?> by lazy {
         StringStorage(PredictStorageKey.PREDICT_SERVICE_URL, sharedPreferences)
+    }
+
+    private val predictMultiIdRequestModelFactory: PredictMultiIdRequestModelFactory by lazy {
+        PredictMultiIdRequestModelFactory(predictRequestContext, clientServiceEndpointProvider)
     }
 
     private fun createRequestModelRepository(

@@ -28,6 +28,7 @@ import com.emarsys.predict.fake.FakeRestClient
 import com.emarsys.predict.fake.FakeResultListener
 import com.emarsys.predict.model.LastTrackedItemContainer
 import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
+import com.emarsys.predict.request.PredictMultiIdRequestModelFactory
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.request.PredictRequestModelBuilder
 import com.emarsys.testUtil.AnnotationSpec
@@ -46,6 +47,7 @@ import org.mockito.kotlin.doReturnConsecutively
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import java.util.concurrent.CountDownLatch
 
 class DefaultPredictInternalTest : AnnotationSpec() {
@@ -61,12 +63,14 @@ class DefaultPredictInternalTest : AnnotationSpec() {
         const val TYPE = "INCLUDE_OR_EXCLUDE"
         val EXPECTATIONS = listOf<String>()
         const val CONTACT_FIELD_ID = 999
+        const val CONTACT_FIELD_VALUE = "testContactFieldValue"
     }
 
 
     private lateinit var mockKeyValueStore: KeyValueStore
     private lateinit var predictInternal: PredictInternal
     private lateinit var mockRequestManager: RequestManager
+    private lateinit var mockPredictMultiIdRequestModelFactory: PredictMultiIdRequestModelFactory
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockUuidProvider: UUIDProvider
     private lateinit var mockRequestContext: PredictRequestContext
@@ -82,6 +86,7 @@ class DefaultPredictInternalTest : AnnotationSpec() {
     private lateinit var latch: CountDownLatch
     private lateinit var mockResultListener: ResultListener<Try<List<Product>>>
     private lateinit var mockLastTrackedItemContainer: LastTrackedItemContainer
+    private lateinit var mockCompletionListener: CompletionListener
 
     @Before
     @Suppress("UNCHECKED_CAST")
@@ -94,6 +99,7 @@ class DefaultPredictInternalTest : AnnotationSpec() {
         mockResponseModel = mock()
         mockKeyValueStore = mock()
         mockRequestManager = mock()
+        mockPredictMultiIdRequestModelFactory = mock()
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockPredictResponseMapper = mock()
         mockLogic = mock()
@@ -135,9 +141,12 @@ class DefaultPredictInternalTest : AnnotationSpec() {
 
         mockLastTrackedItemContainer = mock()
 
+        mockCompletionListener = mock()
+
         predictInternal = DefaultPredictInternal(
             mockRequestContext,
             mockRequestManager,
+            mockPredictMultiIdRequestModelFactory,
             concurrentHandlerHolder,
             mockRequestModelBuilderProvider,
             mockPredictResponseMapper
@@ -151,12 +160,48 @@ class DefaultPredictInternalTest : AnnotationSpec() {
     }
 
     @Test
-    fun testSetContact_shouldPersistsWithKeyValueStore() {
-        val contactId = "contactId"
+    fun testSetContact_shouldCall_requestManager() {
+        whenever(
+            mockPredictMultiIdRequestModelFactory.createSetContactRequestModel(
+                CONTACT_FIELD_ID,
+                CONTACT_FIELD_VALUE
+            )
+        ).thenReturn(mockRequestModel)
 
-        predictInternal.setContact(CONTACT_FIELD_ID, contactId)
+        predictInternal.setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE, mockCompletionListener)
 
-        verify(mockKeyValueStore).putString("predict_contact_id", contactId)
+        verify(mockRequestManager).submit(mockRequestModel, mockCompletionListener)
+    }
+
+    @Test
+    fun testSetContact_shouldCall_completionListener_whenExceptionIsThrown() {
+        val testException = IllegalArgumentException()
+        whenever(
+            mockPredictMultiIdRequestModelFactory.createSetContactRequestModel(
+                CONTACT_FIELD_ID,
+                CONTACT_FIELD_VALUE
+            )
+        ).thenThrow(testException)
+
+        predictInternal.setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE, mockCompletionListener)
+
+        verify(mockCompletionListener).onCompleted(testException)
+        verifyNoInteractions(mockRequestManager)
+    }
+
+    @Test
+    fun testSetContact_shouldNotCrash_withException_whenCompletionListenerIsNull() {
+        val testException = IllegalArgumentException()
+        whenever(
+            mockPredictMultiIdRequestModelFactory.createSetContactRequestModel(
+                CONTACT_FIELD_ID,
+                CONTACT_FIELD_VALUE
+            )
+        ).thenThrow(testException)
+
+        predictInternal.setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE, null)
+
+        verifyNoInteractions(mockRequestManager)
     }
 
     @Test
@@ -484,6 +529,7 @@ class DefaultPredictInternalTest : AnnotationSpec() {
                     FakeRestClient.Mode.SUCCESS
                 )
             ),
+            mockPredictMultiIdRequestModelFactory,
             concurrentHandlerHolder,
             mockRequestModelBuilderProvider,
             mockPredictResponseMapper
@@ -521,6 +567,7 @@ class DefaultPredictInternalTest : AnnotationSpec() {
                     FakeRestClient.Mode.ERROR_RESPONSE_MODEL
                 )
             ),
+            mockPredictMultiIdRequestModelFactory,
             concurrentHandlerHolder,
             mockRequestModelBuilderProvider,
             mockPredictResponseMapper
@@ -547,6 +594,7 @@ class DefaultPredictInternalTest : AnnotationSpec() {
                     FakeRestClient.Mode.ERROR_RESPONSE_MODEL
                 )
             ),
+            mockPredictMultiIdRequestModelFactory,
             concurrentHandlerHolder,
             mockRequestModelBuilderProvider,
             mockPredictResponseMapper
@@ -574,6 +622,7 @@ class DefaultPredictInternalTest : AnnotationSpec() {
         predictInternal = DefaultPredictInternal(
             mockRequestContext,
             requestManagerWithRestClient(FakeRestClient(mockException)),
+            mockPredictMultiIdRequestModelFactory,
             concurrentHandlerHolder,
             mockRequestModelBuilderProvider,
             mockPredictResponseMapper
@@ -597,6 +646,7 @@ class DefaultPredictInternalTest : AnnotationSpec() {
         predictInternal = DefaultPredictInternal(
             mockRequestContext,
             requestManagerWithRestClient(FakeRestClient(mockException)),
+            mockPredictMultiIdRequestModelFactory,
             concurrentHandlerHolder,
             mockRequestModelBuilderProvider,
             mockPredictResponseMapper

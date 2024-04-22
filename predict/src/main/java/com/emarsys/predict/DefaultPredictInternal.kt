@@ -2,6 +2,7 @@ package com.emarsys.predict
 
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.ResponseErrorException
+import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.api.result.Try.Companion.failure
@@ -21,12 +22,14 @@ import com.emarsys.predict.api.model.Product
 import com.emarsys.predict.api.model.RecommendationFilter
 import com.emarsys.predict.model.LastTrackedItemContainer
 import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
+import com.emarsys.predict.request.PredictMultiIdRequestModelFactory
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.util.CartItemUtils
 
 class DefaultPredictInternal(
     requestContext: PredictRequestContext,
     private val requestManager: RequestManager,
+    private val predictMultiIdRequestModelFactory: PredictMultiIdRequestModelFactory,
     private val concurrentHandlerHolder: ConcurrentHandlerHolder,
     private val requestModelBuilderProvider: PredictRequestModelBuilderProvider,
     private val responseMapper: PredictResponseMapper,
@@ -50,10 +53,21 @@ class DefaultPredictInternal(
     private val timestampProvider: TimestampProvider = requestContext.timestampProvider
     private val keyValueStore: KeyValueStore = requestContext.keyValueStore
 
-
-    override fun setContact(contactFieldId: Int, contactFieldValue: String) {
-        keyValueStore.putString(CONTACT_FIELD_VALUE_KEY, contactFieldValue)
-        keyValueStore.putInt(CONTACT_FIELD_ID_KEY, contactFieldId)
+    override fun setContact(
+        contactFieldId: Int,
+        contactFieldValue: String,
+        completionListener: CompletionListener?
+    ) {
+        try {
+            val requestModel =
+                predictMultiIdRequestModelFactory.createSetContactRequestModel(
+                    contactFieldId,
+                    contactFieldValue
+                )
+            requestManager.submit(requestModel, completionListener)
+        } catch (e: Exception) {
+            completionListener?.onCompleted(e)
+        }
     }
 
     override fun clearContact() {

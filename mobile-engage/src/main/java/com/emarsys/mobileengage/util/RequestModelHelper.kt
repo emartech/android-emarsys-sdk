@@ -46,7 +46,14 @@ class RequestModelHelper(
         val clientServiceUrl = clientServiceEndpointProvider.provideEndpointHost()
 
         val url = requestModel.url.toString()
-        return url.startsWithOneOf(clientServiceUrl) && url.endsWith("/contact-token")
+        return url.startsWithOneOf(clientServiceUrl) && url.endsWith("/client/contact-token")
+    }
+
+    fun isPredictMultiIdContactRequest(requestModel: RequestModel): Boolean {
+        val clientServiceUrl = clientServiceEndpointProvider.provideEndpointHost()
+
+        val url = requestModel.url.toString()
+        return url.startsWith(clientServiceUrl) && !url.contains("apps") && url.endsWith("/contact-token")
     }
 
     fun isMobileEngageSetContactRequest(requestModel: RequestModel): Boolean {

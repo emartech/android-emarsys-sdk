@@ -43,8 +43,8 @@ class PredictRestrictedTest : AnnotationSpec() {
 
     @Test
     fun testPredict_setContact_delegatesTo_Predict_Internal() {
-        predictRestricted.setContact(CONTACT_FIELD_ID, "contactId")
-        Mockito.verify(mockPredictInternal).setContact(CONTACT_FIELD_ID, "contactId")
+        predictRestricted.setContact(CONTACT_FIELD_ID, "contactId", null)
+        Mockito.verify(mockPredictInternal).setContact(CONTACT_FIELD_ID, "contactId", null)
     }
 
     @Test

@@ -161,6 +161,26 @@ class RequestModelHelperTest : AnnotationSpec() {
     }
 
     @Test
+    fun testIsPredictMultiIdSetContactRequest_true_whenItIsPredictMultiIdSetContactRequest() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL("$CLIENT_HOST/contact-token"))
+        }
+        val result = requestModelHelper.isPredictMultiIdContactRequest(mockRequestModel)
+
+        result shouldBe true
+    }
+
+    @Test
+    fun testIsPredictMultiIdSetContactRequest_false_whenItIsNotPredictMultiIdSetContactRequest() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL("$CLIENT_BASE/contact-token"))
+        }
+        val result = requestModelHelper.isPredictMultiIdContactRequest(mockRequestModel)
+
+        result shouldBe false
+    }
+
+    @Test
     fun testIsMobileEngageClientRequest_false_whenIsNotClientEndpoint() {
 
         val mockRequestModel = mock(RequestModel::class.java).apply {

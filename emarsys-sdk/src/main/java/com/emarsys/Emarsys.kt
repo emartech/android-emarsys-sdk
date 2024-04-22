@@ -139,11 +139,10 @@ object Emarsys {
             EmarsysDependencyInjection.mobileEngageApi()
                 .proxyApi(mobileEngage().concurrentHandlerHolder)
                 .setContact(contactFieldId, contactFieldValue, completionListener)
-        }
-        if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
+        } else if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
             EmarsysDependencyInjection.predictRestrictedApi()
                 .proxyApi(mobileEngage().concurrentHandlerHolder)
-                .setContact(contactFieldId, contactFieldValue)
+                .setContact(contactFieldId, contactFieldValue, completionListener)
         }
     }
 

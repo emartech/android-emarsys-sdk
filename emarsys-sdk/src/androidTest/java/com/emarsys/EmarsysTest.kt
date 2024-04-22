@@ -654,7 +654,7 @@ class EmarsysTest : AnnotationSpec() {
         runBlockingOnCoreSdkThread()
 
         runBlockingOnCoreSdkThread {
-            verify(mockPredictRestricted).setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE)
+            verify(mockPredictRestricted).setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE, null)
             verifyNoInteractions(mockMobileEngageApi)
         }
     }
@@ -760,7 +760,7 @@ class EmarsysTest : AnnotationSpec() {
         setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE, completionListener)
 
         runBlockingOnCoreSdkThread {
-            verify(mockPredictRestricted).setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE)
+            verify(mockPredictRestricted).setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE, null)
             verify(mockMobileEngageApi).setContact(
                 CONTACT_FIELD_ID,
                 CONTACT_FIELD_VALUE,

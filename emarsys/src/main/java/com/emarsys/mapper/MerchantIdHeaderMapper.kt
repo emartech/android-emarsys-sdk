@@ -26,7 +26,8 @@ class MerchantIdHeaderMapper(
 
     override fun shouldMapRequestModel(requestModel: RequestModel): Boolean {
         return (requestModelHelper.isMobileEngageSetContactRequest(requestModel)
-                || requestModelHelper.isRefreshContactTokenRequest(requestModel))
+                || requestModelHelper.isRefreshContactTokenRequest(requestModel)
+                || requestModelHelper.isPredictMultiIdContactRequest(requestModel))
                 && !predictRequestContext.merchantId.isNullOrBlank()
     }
 }
