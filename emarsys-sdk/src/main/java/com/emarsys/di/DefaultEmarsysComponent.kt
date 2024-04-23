@@ -180,7 +180,6 @@ import com.emarsys.predict.PredictRestrictedApi
 import com.emarsys.predict.endpoint.Endpoint.PREDICT_BASE_URL
 import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
 import com.emarsys.predict.request.PredictHeaderFactory
-import com.emarsys.predict.request.PredictMultiIdRequestModelFactory
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.response.VisitorIdResponseHandler
 import com.emarsys.predict.response.XPResponseHandler
@@ -188,6 +187,7 @@ import com.emarsys.predict.shard.PredictShardListMerger
 import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.push.Push
 import com.emarsys.push.PushApi
+import com.emarsys.predict.request.PredictMultiIdRequestModelFactory
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailabilityLight
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -607,11 +607,13 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             coreCompletionHandlerMiddlewareProvider,
             restClient,
             contactTokenStorage,
+            refreshTokenStorage,
             pushTokenStorage,
             coreCompletionHandler,
             requestModelHelper,
             contactTokenResponseHandler,
-            mobileEngageRequestModelFactory
+            mobileEngageRequestModelFactory,
+            predictMultiIdRequestModelFactory
         )
     }
 
@@ -1019,8 +1021,11 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         StringStorage(PredictStorageKey.PREDICT_SERVICE_URL, sharedPreferences)
     }
 
-    private val predictMultiIdRequestModelFactory: PredictMultiIdRequestModelFactory by lazy {
-        PredictMultiIdRequestModelFactory(predictRequestContext, clientServiceEndpointProvider)
+    override val predictMultiIdRequestModelFactory: PredictMultiIdRequestModelFactory by lazy {
+        PredictMultiIdRequestModelFactory(
+            predictRequestContext,
+            clientServiceEndpointProvider
+        )
     }
 
     private fun createRequestModelRepository(

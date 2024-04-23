@@ -2,21 +2,23 @@ package com.emarsys.request
 
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.request.RestClient
-import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.util.RequestModelHelper
+import com.emarsys.predict.request.PredictMultiIdRequestModelFactory
 
 class CoreCompletionHandlerRefreshTokenProxy(
     private val coreCompletionHandler: CoreCompletionHandler,
     private val restClient: RestClient,
     private val contactTokenStorage: Storage<String?>,
+    private val refreshTokenStorage: Storage<String?>,
     private val pushTokenStorage: Storage<String?>,
     private var tokenResponseHandler: MobileEngageTokenResponseHandler,
     private val requestModelHelper: RequestModelHelper,
-    private val requestModelFactory: MobileEngageRequestModelFactory
+    private val requestModelFactory: MobileEngageRequestModelFactory,
+    private val predictMultiIdRequestModelFactory: PredictMultiIdRequestModelFactory
 ) : CoreCompletionHandler {
     private var originalResponseModel: ResponseModel? = null
     private var retryCount = 0
@@ -26,7 +28,9 @@ class CoreCompletionHandlerRefreshTokenProxy(
             val response = originalResponseModel
             reset()
             coreCompletionHandler.onError(id, response!!.copy(statusCode = 418))
-        } else if (isRefreshContactTokenRequest(responseModel.requestModel)) {
+        } else if (requestModelHelper.isRefreshContactTokenRequest(responseModel.requestModel)
+            || requestModelHelper.isPredictMultiIdRefreshContactTokenRequest(responseModel.requestModel)
+        ) {
             tokenResponseHandler.processResponse(responseModel)
             Thread.sleep(500)
             retryCount += 1
@@ -39,30 +43,58 @@ class CoreCompletionHandlerRefreshTokenProxy(
 
     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
     override fun onError(id: String, responseModel: ResponseModel) {
-        if (retryCount >= 3 || isRefreshContactTokenRequest(responseModel.requestModel)) {
+        if (retryCount >= 3
+            || requestModelHelper.isRefreshContactTokenRequest(responseModel.requestModel)
+            || requestModelHelper.isPredictMultiIdRefreshContactTokenRequest(responseModel.requestModel)
+        ) {
             val response = originalResponseModel
             reset()
             coreCompletionHandler.onError(id, response!!.copy(statusCode = 418))
-        } else if (responseModel.statusCode == 401
-            && requestModelHelper.isMobileEngageRequest(responseModel.requestModel)
-        ) {
-            pushTokenStorage.remove()
-            originalResponseModel = responseModel
-            val refreshTokenRequestModel = requestModelFactory.createRefreshContactTokenRequest()
-            restClient.execute(refreshTokenRequestModel, this)
+        } else if (isPredictSetContactTokenRequestUnauthorized(responseModel)) {
+            refreshPredictContactToken(id, responseModel)
+        } else if (isMobileEngageRequestUnauthorized(responseModel)) {
+            refreshMobileEngageContactToken(responseModel)
         } else {
-            reset()
-            coreCompletionHandler.onError(id, responseModel)
+            callCompletionHandlerOnError(id, responseModel)
         }
+    }
+
+    private fun isPredictSetContactTokenRequestUnauthorized(responseModel: ResponseModel) =
+        (responseModel.statusCode == 401
+                && requestModelHelper.isPredictMultiIdSetContactRequest(responseModel.requestModel))
+
+    private fun isMobileEngageRequestUnauthorized(responseModel: ResponseModel) =
+        (responseModel.statusCode == 401
+                && requestModelHelper.isMobileEngageRequest(responseModel.requestModel))
+
+    private fun refreshMobileEngageContactToken(responseModel: ResponseModel) {
+        pushTokenStorage.remove()
+        originalResponseModel = responseModel
+        val refreshTokenRequestModel = requestModelFactory.createRefreshContactTokenRequest()
+        restClient.execute(refreshTokenRequestModel, this)
+    }
+
+    private fun refreshPredictContactToken(id: String, responseModel: ResponseModel) {
+        refreshTokenStorage.get()?.let { refreshToken ->
+            originalResponseModel = responseModel
+            val refreshTokenRequestModel =
+                predictMultiIdRequestModelFactory.createRefreshContactTokenRequestModel(
+                    refreshToken
+                )
+            restClient.execute(refreshTokenRequestModel, this)
+        } ?: run {
+            callCompletionHandlerOnError(id, responseModel)
+        }
+    }
+
+    private fun callCompletionHandlerOnError(id: String, responseModel: ResponseModel) {
+        reset()
+        coreCompletionHandler.onError(id, responseModel)
     }
 
     override fun onError(id: String, cause: Exception) {
         reset()
         coreCompletionHandler.onError(id, cause)
-    }
-
-    private fun isRefreshContactTokenRequest(requestModel: RequestModel): Boolean {
-        return requestModel.url.path.endsWith("contact-token")
     }
 
     private fun reset() {

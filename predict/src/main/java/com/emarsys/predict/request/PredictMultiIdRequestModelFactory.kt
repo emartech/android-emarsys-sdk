@@ -8,13 +8,13 @@ import com.emarsys.predict.endpoint.Endpoint
 
 @Mockable
 class PredictMultiIdRequestModelFactory(
-    private val requestContext: PredictRequestContext,
+    private val predictRequestContext: PredictRequestContext,
     private val clientServiceEndpointProvider: ServiceEndpointProvider,
 ) {
 
     fun createSetContactRequestModel(contactFieldId: Int, contactFieldValue: String): RequestModel {
         validateMerchantId()
-        return RequestModel.Builder(requestContext.timestampProvider, requestContext.uuidProvider)
+        return RequestModel.Builder(predictRequestContext.timestampProvider, predictRequestContext.uuidProvider)
             .url(
                 "${clientServiceEndpointProvider.provideEndpointHost()}${Endpoint.CLIENT_MULTI_ID_BASE}/contact-token"
             )
@@ -28,8 +28,23 @@ class PredictMultiIdRequestModelFactory(
             .build()
     }
 
+    fun createRefreshContactTokenRequestModel(refreshToken: String): RequestModel {
+        validateMerchantId()
+        return RequestModel.Builder(predictRequestContext.timestampProvider, predictRequestContext.uuidProvider)
+            .url(
+                "${clientServiceEndpointProvider.provideEndpointHost()}${Endpoint.CLIENT_MULTI_ID_BASE}/contact-token"
+            )
+            .method(RequestMethod.POST)
+            .payload(
+                mapOf(
+                    "refreshToken" to refreshToken
+                )
+            )
+            .build()
+    }
+
     private fun validateMerchantId() {
-        if (requestContext.merchantId.isNullOrBlank()) {
+        if (predictRequestContext.merchantId.isNullOrBlank()) {
             throw IllegalArgumentException("Merchant Id must not be null!")
         }
     }

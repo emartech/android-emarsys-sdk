@@ -21,6 +21,7 @@ class PredictMultiIdRequestModelFactoryTest {
         const val CLIENT_HOST = "https://me-client.eservice.emarsys.net"
         const val CONTACT_FIELD_ID = 3
         const val CONTACT_FIELD_VALUE = "contactFieldValue"
+        const val REFRESH_TOKEN = "refreshToken"
     }
 
     private lateinit var mockTimestampProvider: TimestampProvider
@@ -52,7 +53,10 @@ class PredictMultiIdRequestModelFactoryTest {
         }
 
         factory =
-            PredictMultiIdRequestModelFactory(testPredictRequestContext, mockClientServiceProvider)
+            PredictMultiIdRequestModelFactory(
+                testPredictRequestContext,
+                mockClientServiceProvider
+            )
     }
 
     @Test
@@ -85,6 +89,35 @@ class PredictMultiIdRequestModelFactoryTest {
                 CONTACT_FIELD_ID,
                 CONTACT_FIELD_VALUE
             )
+        }
+    }
+
+    @Test
+    fun testCreateRefreshContactTokenRequestModel_whenMerchantId_isPresentOnContext() {
+        val expected = RequestModel(
+            "https://me-client.eservice.emarsys.net/v3/contact-token",
+            RequestMethod.POST,
+            mapOf(
+                "refreshToken" to REFRESH_TOKEN
+            ),
+            mapOf(),
+            TIMESTAMP,
+            Long.MAX_VALUE,
+            REQUEST_ID
+        )
+
+        val requestModel =
+            factory.createRefreshContactTokenRequestModel(REFRESH_TOKEN)
+
+        requestModel shouldBe expected
+    }
+
+    @Test
+    fun testCreateRefreshContactTokenRequestModel_whenMerchantId_isMissingFromContext_throws_IllegalArgumentException() {
+        testPredictRequestContext.merchantId = null
+
+        shouldThrow<IllegalArgumentException> {
+            factory.createRefreshContactTokenRequestModel(REFRESH_TOKEN)
         }
     }
 }

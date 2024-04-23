@@ -8,9 +8,11 @@ import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.worker.CoreCompletionHandlerMiddleware
 import com.emarsys.core.worker.Worker
+import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.util.RequestModelHelper
+import com.emarsys.predict.request.PredictMultiIdRequestModelFactory
 import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
@@ -22,6 +24,7 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest : AnnotationSpec() {
     private lateinit var mockCoreCompletionHandlerMiddleware: CoreCompletionHandlerMiddleware
     private lateinit var mockRestClient: RestClient
     private lateinit var mockContactTokenStorage: StringStorage
+    private lateinit var mcokRefreshTokenStorage: StringStorage
     private lateinit var mockPushTokenStorage: StringStorage
     private lateinit var coreCompletionHandlerRefreshTokenProxyProvider: CoreCompletionHandlerRefreshTokenProxyProvider
     private lateinit var mockClientServiceProvider: ServiceEndpointProvider
@@ -31,8 +34,10 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest : AnnotationSpec() {
     private lateinit var mockCoreCompletionHandler: CoreCompletionHandler
     private lateinit var mockDefaultCoreCompletionHandler: CoreCompletionHandler
     private lateinit var mockRequestModelHelper: RequestModelHelper
+    private lateinit var mockMobileEngageRequestContext: MobileEngageRequestContext
     private lateinit var mockTokenResponseHandler: MobileEngageTokenResponseHandler
     private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
+    private lateinit var mockPredictMultiIdRequestModelFactory: PredictMultiIdRequestModelFactory
 
 
     @Before
@@ -42,6 +47,7 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest : AnnotationSpec() {
         mockCoreCompletionHandlerMiddleware = mock()
         mockRestClient = mock()
         mockContactTokenStorage = mock()
+        mcokRefreshTokenStorage = mock()
         mockPushTokenStorage = mock()
         mockClientServiceProvider = mock()
         mockEventServiceProvider = mock()
@@ -51,18 +57,22 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest : AnnotationSpec() {
         mockDefaultCoreCompletionHandler = mock()
         mockRequestModelHelper = mock()
         mockTokenResponseHandler = mock()
+        mockMobileEngageRequestContext = mock()
         mockRequestModelFactory = mock()
+        mockPredictMultiIdRequestModelFactory = mock()
 
         coreCompletionHandlerRefreshTokenProxyProvider =
-            com.emarsys.request.CoreCompletionHandlerRefreshTokenProxyProvider(
+            CoreCompletionHandlerRefreshTokenProxyProvider(
                 mockCoreCompletionHandlerMiddlewareProvider,
                 mockRestClient,
                 mockContactTokenStorage,
+                mcokRefreshTokenStorage,
                 mockPushTokenStorage,
                 mockDefaultCoreCompletionHandler,
                 mockRequestModelHelper,
                 mockTokenResponseHandler,
-                mockRequestModelFactory
+                mockRequestModelFactory,
+                mockPredictMultiIdRequestModelFactory
             )
     }
 
@@ -75,14 +85,16 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest : AnnotationSpec() {
                 mockCoreCompletionHandler
             )
         ).thenReturn(mockCoreCompletionHandlerMiddleware)
-        val expectedProxy = com.emarsys.request.CoreCompletionHandlerRefreshTokenProxy(
+        val expectedProxy = CoreCompletionHandlerRefreshTokenProxy(
             mockCoreCompletionHandlerMiddleware,
             mockRestClient,
             mockContactTokenStorage,
+            mcokRefreshTokenStorage,
             mockPushTokenStorage,
             mockTokenResponseHandler,
             mockRequestModelHelper,
-            mockRequestModelFactory
+            mockRequestModelFactory,
+            mockPredictMultiIdRequestModelFactory
         )
 
         val result = coreCompletionHandlerRefreshTokenProxyProvider.provideProxy(
@@ -101,7 +113,7 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest : AnnotationSpec() {
 
         val result = coreCompletionHandlerRefreshTokenProxyProvider.provideProxy(null, null)
 
-        result.javaClass shouldBe com.emarsys.request.CoreCompletionHandlerRefreshTokenProxy::class.java
+        result.javaClass shouldBe CoreCompletionHandlerRefreshTokenProxy::class.java
     }
 
     @Test
@@ -119,6 +131,6 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest : AnnotationSpec() {
             mockCoreCompletionHandler
         )
 
-        result.javaClass shouldBe com.emarsys.request.CoreCompletionHandlerRefreshTokenProxy::class.java
+        result.javaClass shouldBe CoreCompletionHandlerRefreshTokenProxy::class.java
     }
 }

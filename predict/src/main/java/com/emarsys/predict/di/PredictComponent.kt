@@ -5,6 +5,7 @@ import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.storage.Storage
 import com.emarsys.predict.PredictInternal
 import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
+import com.emarsys.predict.request.PredictMultiIdRequestModelFactory
 import com.emarsys.predict.request.PredictRequestContext
 
 fun predict() = PredictComponent.instance
@@ -43,4 +44,6 @@ interface PredictComponent : CoreComponent {
     val predictRequestContext: PredictRequestContext
 
     val predictRequestModelBuilderProvider: PredictRequestModelBuilderProvider
+
+    val predictMultiIdRequestModelFactory: PredictMultiIdRequestModelFactory
 }
