@@ -205,15 +205,54 @@ class DefaultPredictInternalTest : AnnotationSpec() {
     }
 
     @Test
-    fun testClearContact_shouldRemove_contactIdFromKeyValueStore() {
+    fun testClearContact_shouldRemove_visitorIdFromKeyValueStore() {
         predictInternal.clearContact()
 
-        verify(mockKeyValueStore).remove("predict_contact_id")
+        verify(mockKeyValueStore).remove("predict_visitor_id")
     }
 
     @Test
-    fun testClearContact_shouldRemove_visitorIdFromKeyValueStore() {
-        predictInternal.clearContact()
+    fun testClearPredictOnlyContact_shouldCall_requestManager() {
+        whenever(
+            mockPredictMultiIdRequestModelFactory.createClearContactRequestModel()
+        ).thenReturn(mockRequestModel)
+
+        predictInternal.clearPredictOnlyContact(mockCompletionListener)
+
+        verify(mockRequestManager).submit(mockRequestModel, mockCompletionListener)
+    }
+
+    @Test
+    fun testClearPredictOnlyContact_shouldCall_completionListener_whenExceptionIsThrown_andShouldNotRemoveVisitorId() {
+        val testException = IllegalArgumentException()
+        whenever(
+            mockPredictMultiIdRequestModelFactory.createClearContactRequestModel()
+        ).thenThrow(testException)
+
+        predictInternal.clearPredictOnlyContact(mockCompletionListener)
+
+        verify(mockCompletionListener).onCompleted(testException)
+        verifyNoInteractions(mockRequestManager)
+        verifyNoInteractions(mockKeyValueStore)
+    }
+
+    @Test
+    fun testClearPredictOnlyContact_shouldNotCrash_withException_whenCompletionListenerIsNull_andShouldNotRemoveVisitorId() {
+        val testException = IllegalArgumentException()
+        whenever(
+            mockPredictMultiIdRequestModelFactory.createClearContactRequestModel()
+        ).thenThrow(testException)
+
+        predictInternal.clearPredictOnlyContact(null)
+
+        verifyNoInteractions(mockRequestManager)
+        verifyNoInteractions(mockKeyValueStore)
+        verifyNoInteractions(mockCompletionListener)
+    }
+
+    @Test
+    fun testClearPredictOnlyContact_shouldRemove_visitorIdFromKeyValueStore() {
+        predictInternal.clearPredictOnlyContact(mockCompletionListener)
 
         verify(mockKeyValueStore).remove("predict_visitor_id")
     }

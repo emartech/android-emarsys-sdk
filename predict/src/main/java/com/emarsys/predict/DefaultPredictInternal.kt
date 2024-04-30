@@ -39,8 +39,6 @@ class DefaultPredictInternal(
     companion object {
         const val VISITOR_ID_KEY = "predict_visitor_id"
         const val XP_KEY = "xp"
-        const val CONTACT_FIELD_VALUE_KEY = "predict_contact_id"
-        const val CONTACT_FIELD_ID_KEY = "predict_contact_field_id"
         private const val TYPE_CART = "predict_cart"
         private const val TYPE_PURCHASE = "predict_purchase"
         private const val TYPE_ITEM_VIEW = "predict_item_view"
@@ -70,9 +68,18 @@ class DefaultPredictInternal(
         }
     }
 
+    override fun clearPredictOnlyContact(completionListener: CompletionListener?) {
+        try {
+            val requestModel = predictMultiIdRequestModelFactory.createClearContactRequestModel()
+            requestManager.submit(requestModel, completionListener)
+
+            keyValueStore.remove(VISITOR_ID_KEY)
+        } catch (e: Exception) {
+            completionListener?.onCompleted(e)
+        }
+    }
+
     override fun clearContact() {
-        keyValueStore.remove(CONTACT_FIELD_VALUE_KEY)
-        keyValueStore.remove(CONTACT_FIELD_ID_KEY)
         keyValueStore.remove(VISITOR_ID_KEY)
     }
 

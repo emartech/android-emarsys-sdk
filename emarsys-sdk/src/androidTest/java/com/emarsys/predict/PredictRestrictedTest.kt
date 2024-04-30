@@ -1,6 +1,7 @@
 package com.emarsys.predict
 
 
+import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.emarsys
 import com.emarsys.di.setupEmarsysComponent
@@ -51,5 +52,12 @@ class PredictRestrictedTest : AnnotationSpec() {
     fun testPredict_clearContact_delegatesTo_Predict_Internal() {
         predictRestricted.clearContact()
         Mockito.verify(mockPredictInternal).clearContact()
+    }
+
+    @Test
+    fun testPredict_clearPredictOnlyContact_delegatesTo_Predict_Internal() {
+        val mockCompletionListener = mock<CompletionListener>()
+        predictRestricted.clearPredictOnlyContact(mockCompletionListener)
+        Mockito.verify(mockPredictInternal).clearPredictOnlyContact(mockCompletionListener)
     }
 }

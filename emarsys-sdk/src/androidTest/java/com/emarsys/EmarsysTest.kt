@@ -135,6 +135,7 @@ class EmarsysTest : AnnotationSpec() {
     private lateinit var mockPush: PushApi
     private lateinit var mockPredict: PredictApi
     private lateinit var mockPredictRestricted: PredictRestrictedApi
+    private lateinit var mockLoggingPredictRestricted: PredictRestrictedApi
     private lateinit var mockMobileEngageApi: MobileEngageApi
     private lateinit var mockLoggingMobileEngageApi: MobileEngageApi
     private lateinit var mockLoggingPredict: PredictApi
@@ -207,6 +208,7 @@ class EmarsysTest : AnnotationSpec() {
         mockPredict = mock()
         mockLoggingPredict = mock()
         mockPredictRestricted = mock()
+        mockLoggingPredictRestricted = mock()
         mockConfig = mock()
         mockConfigInternal = mock()
         mockMessageInbox = mock()
@@ -269,7 +271,7 @@ class EmarsysTest : AnnotationSpec() {
                 predict = mockPredict,
                 loggingPredict = mockLoggingPredict,
                 predictRestricted = mockPredictRestricted,
-                loggingPredictRestricted = mockPredictRestricted,
+                loggingPredictRestricted = mockLoggingPredictRestricted,
                 config = mockConfig,
                 configInternal = mockConfigInternal,
                 eventService = mockEventServiceApi,
@@ -654,7 +656,7 @@ class EmarsysTest : AnnotationSpec() {
         runBlockingOnCoreSdkThread()
 
         runBlockingOnCoreSdkThread {
-            verify(mockPredictRestricted).setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE, null)
+            verify(mockPredictRestricted).setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE, completionListener)
             verifyNoInteractions(mockMobileEngageApi)
         }
     }
@@ -754,19 +756,19 @@ class EmarsysTest : AnnotationSpec() {
     }
 
     @Test
-    fun testSetContactWithCompletionListener_delegatesToInternals_whenBothFeaturesEnabled() {
+    fun testSetContactWithCompletionListener_delegatesToMobileEngageOnly_whenBothFeaturesEnabled() {
         setup(mobileEngageAndPredictConfig)
 
         setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE, completionListener)
 
         runBlockingOnCoreSdkThread {
-            verify(mockPredictRestricted).setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE, null)
             verify(mockMobileEngageApi).setContact(
                 CONTACT_FIELD_ID,
                 CONTACT_FIELD_VALUE,
                 completionListener
             )
         }
+        verifyNoInteractions(mockPredictRestricted)
     }
 
     @Test
@@ -786,20 +788,19 @@ class EmarsysTest : AnnotationSpec() {
     }
 
     @Test
-    fun testClearContactWithCompletionListener_delegatesToPredictInternal_whenPredictIsEnabled() {
+    fun testClearContactWithCompletionListener_delegatesToPredictInternal_whenOnlyPredictIsEnabled() {
         setup(predictConfig)
 
         clearContact(completionListener)
-        runBlockingOnCoreSdkThread()
 
         runBlockingOnCoreSdkThread {
             verifyNoInteractions(mockMobileEngageApi)
-            verify(mockPredictRestricted).clearContact()
+            verify(mockPredictRestricted).clearPredictOnlyContact(completionListener)
         }
     }
 
     @Test
-    fun testClearContactWithCompletionListener_delegatesToMobileApi_whenMobileEngageIsEnabled() {
+    fun testClearContactWithCompletionListener_delegatesToMobileApi_whenOnlyMobileEngageIsEnabled() {
         setup(mobileEngageConfig)
 
         clearContact(completionListener)
@@ -811,35 +812,15 @@ class EmarsysTest : AnnotationSpec() {
     }
 
     @Test
-    fun testClearContactWithCompletionListener_doNotDelegatesToPredictInternal_whenPredictIsDisabled() {
-        setup(mobileEngageConfig)
-
-        clearContact(completionListener)
-        runBlockingOnCoreSdkThread {
-            verifyNoInteractions(mockPredictRestricted)
-        }
-    }
-
-    @Test
-    fun testClearContactWithCompletionListener_doNotDelegatesToMobileEngageApi_whenMobileEngageIsDisabled() {
-        setup(predictConfig)
-
-        clearContact(completionListener)
-
-        verifyNoInteractions(mockMobileEngageApi)
-    }
-
-    @Test
     fun testClearContactWithCompletionListener_delegatesToInternals_whenBothEnabled() {
         setup(mobileEngageAndPredictConfig)
 
         clearContact(completionListener)
 
         runBlockingOnCoreSdkThread {
+            verify(mockMobileEngageApi).clearContact(completionListener)
             verify(mockPredictRestricted).clearContact()
         }
-
-        verify(mockMobileEngageApi).clearContact(completionListener)
     }
 
     @Test
@@ -851,6 +832,7 @@ class EmarsysTest : AnnotationSpec() {
             verifyNoInteractions(mockPredictRestricted)
         }
         verify(mockLoggingMobileEngageApi).clearContact(completionListener)
+        verify(mockLoggingPredictRestricted).clearContact()
     }
 
     @Test

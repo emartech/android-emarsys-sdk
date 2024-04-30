@@ -11,6 +11,11 @@ class PredictRestricted(private val loggingInstance: Boolean = false) : PredictR
             .setContact(contactFieldId, contactFieldValue, completionListener)
     }
 
+    override fun clearPredictOnlyContact(completionListener: CompletionListener?) {
+        (if (loggingInstance) predict().loggingPredictInternal else predict().predictInternal)
+            .clearPredictOnlyContact(completionListener)
+    }
+
     override fun clearContact() {
         (if (loggingInstance) predict().loggingPredictInternal else predict().predictInternal)
             .clearContact()

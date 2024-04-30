@@ -43,6 +43,16 @@ class PredictMultiIdRequestModelFactory(
             .build()
     }
 
+    fun createClearContactRequestModel(): RequestModel {
+        validateMerchantId()
+        return RequestModel.Builder(predictRequestContext.timestampProvider, predictRequestContext.uuidProvider)
+            .url(
+                "${clientServiceEndpointProvider.provideEndpointHost()}${Endpoint.CLIENT_MULTI_ID_BASE}/contact-token"
+            )
+            .method(RequestMethod.DELETE)
+            .build()
+    }
+
     private fun validateMerchantId() {
         if (predictRequestContext.merchantId.isNullOrBlank()) {
             throw IllegalArgumentException("Merchant Id must not be null!")

@@ -132,35 +132,79 @@ object Emarsys {
         contactFieldValue: String,
         completionListener: CompletionListener? = null
     ) {
-        if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
-            || (!FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
-                    && !FeatureRegistry.isFeatureEnabled(PREDICT))
-        ) {
-            EmarsysDependencyInjection.mobileEngageApi()
-                .proxyApi(mobileEngage().concurrentHandlerHolder)
-                .setContact(contactFieldId, contactFieldValue, completionListener)
-        } else if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
-            EmarsysDependencyInjection.predictRestrictedApi()
-                .proxyApi(mobileEngage().concurrentHandlerHolder)
-                .setContact(contactFieldId, contactFieldValue, completionListener)
-        }
+        executeMobileEngageOrPredictOnlyLogic(
+            mobileEngageLogic = {
+                setMobileEngageContact(
+                    contactFieldId,
+                    contactFieldValue,
+                    completionListener
+                )
+            },
+            predictOnlyLogic = {
+                setPredictOnlyContact(
+                    contactFieldId,
+                    contactFieldValue,
+                    completionListener
+                )
+            }
+        )
+    }
+
+    private fun setMobileEngageContact(
+        contactFieldId: Int,
+        contactFieldValue: String,
+        completionListener: CompletionListener?
+    ) {
+        EmarsysDependencyInjection.mobileEngageApi()
+            .proxyApi(mobileEngage().concurrentHandlerHolder)
+            .setContact(contactFieldId, contactFieldValue, completionListener)
+    }
+
+    private fun setPredictOnlyContact(
+        contactFieldId: Int,
+        contactFieldValue: String,
+        completionListener: CompletionListener?
+    ) {
+        EmarsysDependencyInjection.predictRestrictedApi()
+            .proxyApi(mobileEngage().concurrentHandlerHolder)
+            .setContact(contactFieldId, contactFieldValue, completionListener)
     }
 
     @JvmStatic
     @JvmOverloads
     fun clearContact(completionListener: CompletionListener? = null) {
+        executeMobileEngageOrPredictOnlyLogic(
+            mobileEngageLogic = { clearMobileEngageContact(completionListener) },
+            predictOnlyLogic = { clearPredictOnlyContact(completionListener) }
+        )
+    }
+
+    private fun clearMobileEngageContact(completionListener: CompletionListener?) {
+        EmarsysDependencyInjection.mobileEngageApi()
+            .proxyApi(mobileEngage().concurrentHandlerHolder)
+            .clearContact(completionListener)
+        EmarsysDependencyInjection.predictRestrictedApi()
+            .proxyApi(mobileEngage().concurrentHandlerHolder)
+            .clearContact()
+    }
+
+    private fun clearPredictOnlyContact(completionListener: CompletionListener?) {
+        EmarsysDependencyInjection.predictRestrictedApi()
+            .proxyApi(mobileEngage().concurrentHandlerHolder)
+            .clearPredictOnlyContact(completionListener)
+    }
+
+    private fun executeMobileEngageOrPredictOnlyLogic(
+        mobileEngageLogic: () -> Unit,
+        predictOnlyLogic: () -> Unit
+    ) {
         if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
             || (!FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
                     && !FeatureRegistry.isFeatureEnabled(PREDICT))
         ) {
-            EmarsysDependencyInjection.mobileEngageApi()
-                .proxyApi(mobileEngage().concurrentHandlerHolder)
-                .clearContact(completionListener)
-        }
-        if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
-            EmarsysDependencyInjection.predictRestrictedApi()
-                .proxyApi(mobileEngage().concurrentHandlerHolder)
-                .clearContact()
+            mobileEngageLogic()
+        } else if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
+            predictOnlyLogic()
         }
     }
 
@@ -233,17 +277,31 @@ object Emarsys {
     }
 
     private fun refreshRemoteConfig(applicationCode: String?) {
-        if (!listOf("", "null", "nil", "0").contains(applicationCode?.lowercase()) && applicationCode != null) {
+        if (!listOf(
+                "",
+                "null",
+                "nil",
+                "0"
+            ).contains(applicationCode?.lowercase()) && applicationCode != null
+        ) {
             emarsys().configInternal.proxyApi(mobileEngage().concurrentHandlerHolder)
                 .refreshRemoteConfig {
                     it?.let {
-                        val logEntry = StatusLog(Emarsys::class.java, "refreshRemoteConfig", mapOf("applicationCode" to applicationCode, "exception" to it.message))
+                        val logEntry = StatusLog(
+                            Emarsys::class.java,
+                            "refreshRemoteConfig",
+                            mapOf("applicationCode" to applicationCode, "exception" to it.message)
+                        )
                         Logger.log(logEntry)
                     }
                 }
         } else {
             Log.w("EmarsysSdk", "Invalid applicationCode: $applicationCode")
-            val logEntry = StatusLog(Emarsys::class.java, "refreshRemoteConfig", mapOf("applicationCode" to applicationCode))
+            val logEntry = StatusLog(
+                Emarsys::class.java,
+                "refreshRemoteConfig",
+                mapOf("applicationCode" to applicationCode)
+            )
             Logger.log(logEntry)
         }
     }

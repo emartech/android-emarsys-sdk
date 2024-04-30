@@ -26,6 +26,14 @@ class LoggingPredictInternal(private val klass: Class<*>) : PredictInternal {
         debug(MethodNotAllowed(klass, callerMethodName, parameters))
     }
 
+    override fun clearPredictOnlyContact(completionListener: CompletionListener?) {
+        val parameters: Map<String, Any?> = mapOf(
+            "completion_listener" to (completionListener != null)
+        )
+        val callerMethodName = SystemUtils.getCallerMethodName()
+        debug(MethodNotAllowed(klass, callerMethodName, parameters))
+    }
+
     override fun clearContact() {
         val callerMethodName = SystemUtils.getCallerMethodName()
         debug(MethodNotAllowed(klass, callerMethodName, null))

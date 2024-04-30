@@ -76,6 +76,7 @@ import com.emarsys.predict.PredictApi
 import com.emarsys.predict.PredictInternal
 import com.emarsys.predict.PredictRestrictedApi
 import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
+import com.emarsys.predict.request.PredictMultiIdRequestModelFactory
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.push.PushApi
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -200,5 +201,6 @@ class FakeDependencyContainer(
     override val jsCommandFactoryProvider: JSCommandFactoryProvider = mock(),
     override val jsOnCloseListener: OnCloseListener = mock(),
     override val jsOnAppEventListener: OnAppEventListener = mock(),
-    override val remoteMessageMapperFactory: RemoteMessageMapperFactory = mock()
+    override val remoteMessageMapperFactory: RemoteMessageMapperFactory = mock(),
+    override val predictMultiIdRequestModelFactory: PredictMultiIdRequestModelFactory = mock(),
 ) : EmarsysComponent

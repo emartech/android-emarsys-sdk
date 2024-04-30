@@ -120,4 +120,31 @@ class PredictMultiIdRequestModelFactoryTest {
             factory.createRefreshContactTokenRequestModel(REFRESH_TOKEN)
         }
     }
+
+    @Test
+    fun testCreateClearContactRequestModel_whenMerchantId_isPresentOnContext() {
+        val expected = RequestModel(
+            "https://me-client.eservice.emarsys.net/v3/contact-token",
+            RequestMethod.DELETE,
+            null,
+            mapOf(),
+            TIMESTAMP,
+            Long.MAX_VALUE,
+            REQUEST_ID
+        )
+
+        val requestModel =
+            factory.createClearContactRequestModel()
+
+        requestModel shouldBe expected
+    }
+
+    @Test
+    fun testCreateClearContactRequestModel_whenMerchantId_isMissingFromContext_throws_IllegalArgumentException() {
+        testPredictRequestContext.merchantId = null
+
+        shouldThrow<IllegalArgumentException> {
+            factory.createClearContactRequestModel()
+        }
+    }
 }
