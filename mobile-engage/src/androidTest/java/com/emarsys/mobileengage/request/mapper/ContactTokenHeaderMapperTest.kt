@@ -72,7 +72,7 @@ class ContactTokenHeaderMapperTest : AnnotationSpec() {
         mockRequestModelHelper = mock {
             on { isMobileEngageRequest(any()) } doReturn true
             on { isMobileEngageSetContactRequest(any()) } doReturn false
-            on { isRefreshContactTokenRequest(any()) } doReturn false
+            on { isMobileEngageRefreshContactTokenRequest(any()) } doReturn false
             on { isPredictRequest(any()) } doReturn false
         }
 

@@ -145,7 +145,7 @@ class RequestModelHelperTest : AnnotationSpec() {
         val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL("$CLIENT_BASE/contact-token"))
         }
-        val result = requestModelHelper.isRefreshContactTokenRequest(mockRequestModel)
+        val result = requestModelHelper.isMobileEngageRefreshContactTokenRequest(mockRequestModel)
 
         result shouldBe true
     }
@@ -155,7 +155,7 @@ class RequestModelHelperTest : AnnotationSpec() {
         val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL("$CLIENT_BASE/contact"))
         }
-        val result = requestModelHelper.isRefreshContactTokenRequest(mockRequestModel)
+        val result = requestModelHelper.isMobileEngageRefreshContactTokenRequest(mockRequestModel)
 
         result shouldBe false
     }

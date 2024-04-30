@@ -47,7 +47,7 @@ class RequestModelHelper(
         return url.startsWithOneOf(eventServiceUrl) && url.endsWith("/inline-messages")
     }
 
-    fun isRefreshContactTokenRequest(requestModel: RequestModel): Boolean {
+    fun isMobileEngageRefreshContactTokenRequest(requestModel: RequestModel): Boolean {
         val clientServiceUrl = clientServiceEndpointProvider.provideEndpointHost()
 
         val url = requestModel.url.toString()

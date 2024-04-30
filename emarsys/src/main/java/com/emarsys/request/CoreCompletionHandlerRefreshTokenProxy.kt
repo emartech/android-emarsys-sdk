@@ -28,7 +28,7 @@ class CoreCompletionHandlerRefreshTokenProxy(
             val response = originalResponseModel
             reset()
             coreCompletionHandler.onError(id, response!!.copy(statusCode = 418))
-        } else if (requestModelHelper.isRefreshContactTokenRequest(responseModel.requestModel)
+        } else if (requestModelHelper.isMobileEngageRefreshContactTokenRequest(responseModel.requestModel)
             || requestModelHelper.isPredictMultiIdRefreshContactTokenRequest(responseModel.requestModel)
         ) {
             tokenResponseHandler.processResponse(responseModel)
@@ -44,7 +44,7 @@ class CoreCompletionHandlerRefreshTokenProxy(
     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
     override fun onError(id: String, responseModel: ResponseModel) {
         if (retryCount >= 3
-            || requestModelHelper.isRefreshContactTokenRequest(responseModel.requestModel)
+            || requestModelHelper.isMobileEngageRefreshContactTokenRequest(responseModel.requestModel)
             || requestModelHelper.isPredictMultiIdRefreshContactTokenRequest(responseModel.requestModel)
         ) {
             val response = originalResponseModel

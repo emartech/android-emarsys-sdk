@@ -34,7 +34,7 @@ class MerchantIdHeaderMapperTest : AnnotationSpec() {
         }
         mockRequestModelHelper = mock {
             on { isMobileEngageSetContactRequest(any()) } doReturn false
-            on { isRefreshContactTokenRequest(any()) } doReturn false
+            on { isMobileEngageRefreshContactTokenRequest(any()) } doReturn false
         }
 
         mockPredictRequestContext = mock()
@@ -55,7 +55,7 @@ class MerchantIdHeaderMapperTest : AnnotationSpec() {
         }
         mockRequestModelHelper.stub {
             on { isMobileEngageSetContactRequest(originalRequestModel) } doReturn true
-            on { isRefreshContactTokenRequest(originalRequestModel) } doReturn false
+            on { isMobileEngageRefreshContactTokenRequest(originalRequestModel) } doReturn false
         }
 
         val updatedRequestModel = merchantIdHeaderMapper.map(originalRequestModel)
@@ -75,7 +75,7 @@ class MerchantIdHeaderMapperTest : AnnotationSpec() {
         }
         mockRequestModelHelper.stub {
             on { isMobileEngageSetContactRequest(originalRequestModel) } doReturn false
-            on { isRefreshContactTokenRequest(originalRequestModel) } doReturn true
+            on { isMobileEngageRefreshContactTokenRequest(originalRequestModel) } doReturn true
         }
 
         val updatedRequestModel = merchantIdHeaderMapper.map(originalRequestModel)
@@ -100,7 +100,7 @@ class MerchantIdHeaderMapperTest : AnnotationSpec() {
         )
         mockRequestModelHelper.stub {
             on { isMobileEngageSetContactRequest(originalRequestModel) } doReturn false
-            on { isRefreshContactTokenRequest(originalRequestModel) } doReturn false
+            on { isMobileEngageRefreshContactTokenRequest(originalRequestModel) } doReturn false
         }
 
         val updatedRequestModel = merchantIdHeaderMapper.map(originalRequestModel)
@@ -117,7 +117,7 @@ class MerchantIdHeaderMapperTest : AnnotationSpec() {
         }
         mockRequestModelHelper.stub {
             on { isMobileEngageSetContactRequest(originalRequestModel) } doReturn true
-            on { isRefreshContactTokenRequest(originalRequestModel) } doReturn false
+            on { isMobileEngageRefreshContactTokenRequest(originalRequestModel) } doReturn false
         }
 
         val updatedRequestModel = merchantIdHeaderMapper.map(originalRequestModel)
@@ -133,7 +133,7 @@ class MerchantIdHeaderMapperTest : AnnotationSpec() {
         }
         mockRequestModelHelper.stub {
             on { isMobileEngageSetContactRequest(originalRequestModel) } doReturn false
-            on { isRefreshContactTokenRequest(originalRequestModel) } doReturn true
+            on { isMobileEngageRefreshContactTokenRequest(originalRequestModel) } doReturn true
         }
 
         val updatedRequestModel = merchantIdHeaderMapper.map(originalRequestModel)
@@ -149,7 +149,7 @@ class MerchantIdHeaderMapperTest : AnnotationSpec() {
         }
         mockRequestModelHelper.stub {
             on { isMobileEngageSetContactRequest(originalRequestModel) } doReturn true
-            on { isRefreshContactTokenRequest(originalRequestModel) } doReturn false
+            on { isMobileEngageRefreshContactTokenRequest(originalRequestModel) } doReturn false
         }
 
         val updatedRequestModel = merchantIdHeaderMapper.map(originalRequestModel)

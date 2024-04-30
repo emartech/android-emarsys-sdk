@@ -25,7 +25,7 @@ class ContactTokenHeaderMapper(
 
     private fun isNotSetContactAndNotRefreshContactTokenMobileEngageRequest(requestModel: RequestModel) =
         (requestModelHelper.isMobileEngageRequest(requestModel)
-                && !requestModelHelper.isRefreshContactTokenRequest(requestModel)
+                && !requestModelHelper.isMobileEngageRefreshContactTokenRequest(requestModel)
                 && !requestModelHelper.isMobileEngageSetContactRequest(requestModel))
 
     private fun isPredictRequest(requestModel: RequestModel) =

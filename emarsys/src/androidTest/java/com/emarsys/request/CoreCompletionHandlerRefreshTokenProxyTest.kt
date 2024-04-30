@@ -99,7 +99,7 @@ class CoreCompletionHandlerRefreshTokenProxyTest : AnnotationSpec() {
             12345,
             mockRequestModel
         )
-        whenever(mockRequestModelHelper.isRefreshContactTokenRequest(mockRequestModel)).thenReturn(
+        whenever(mockRequestModelHelper.isMobileEngageRefreshContactTokenRequest(mockRequestModel)).thenReturn(
             true
         )
 
@@ -166,7 +166,7 @@ class CoreCompletionHandlerRefreshTokenProxyTest : AnnotationSpec() {
             12345,
             mockRequestModel
         )
-        whenever(mockRequestModelHelper.isRefreshContactTokenRequest(mockRequestModel)).thenReturn(
+        whenever(mockRequestModelHelper.isMobileEngageRefreshContactTokenRequest(mockRequestModel)).thenReturn(
             true
         )
 
