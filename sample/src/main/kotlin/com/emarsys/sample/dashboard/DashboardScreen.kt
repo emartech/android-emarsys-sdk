@@ -204,7 +204,7 @@ class DashboardScreen(
         } else {
             Emarsys.setAuthenticatedContact(
                 viewModel.getTfContactFieldIdValue().toInt(),
-                account.email!!
+                account.idToken!!
             ) {
                 if (verifyLogin(it, context)) {
                     setupInfoSetContact(context)

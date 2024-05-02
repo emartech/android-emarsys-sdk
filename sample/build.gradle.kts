@@ -37,6 +37,16 @@ android {
                 )
             }\""
         )
+        buildConfigField(
+            "String",
+            "FIREBASE_WEB_SERVER_CLIENT_ID",
+            "\"${
+                env.fetch(
+                    "FIREBASE_WEB_SERVER_CLIENT_ID",
+                    System.getenv("FIREBASE_WEB_SERVER_CLIENT_ID") ?: ""
+                )
+            }\""
+        )
     }
 
     buildFeatures {

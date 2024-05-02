@@ -33,6 +33,7 @@ env:
   SLACK_TITLE: Commit status
   SLACK_USERNAME: Emarsys SDK - Android
   SLACK_WEBHOOK: ${{ secrets.SLACK_MOBILE_TEAM_CI_CHANNEL_WEBHOOK }}
+  FIREBASE_WEB_SERVER_CLIENT_ID: ${{ secrets.FIREBASE_WEB_SERVER_CLIENT_ID }}
 
 jobs:
   Build:
