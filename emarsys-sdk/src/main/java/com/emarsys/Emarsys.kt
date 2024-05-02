@@ -121,8 +121,6 @@ object Emarsys {
                 .proxyApi(mobileEngage().concurrentHandlerHolder)
                 .setAuthenticatedContact(contactFieldId, openIdToken, completionListener)
         }
-
-        FeatureRegistry.disableFeature(PREDICT)
     }
 
     @JvmStatic

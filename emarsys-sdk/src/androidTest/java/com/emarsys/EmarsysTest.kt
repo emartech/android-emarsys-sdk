@@ -694,7 +694,7 @@ class EmarsysTest : AnnotationSpec() {
     }
 
     @Test
-    fun testSetAuthenticatedContactWithCompletionListener_doNotDelegatesToMobileEngageApi_whenMobileEngageDisabled() {
+    fun testSetAuthenticatedContactWithCompletionListener_doNotDelegatesToMobileEngageApi_whenMobileEngageDisabled_andPredictIsEnabled() {
         setup(predictConfig)
 
         setAuthenticatedContact(CONTACT_FIELD_ID, OPEN_ID_TOKEN, completionListener)
@@ -719,15 +719,23 @@ class EmarsysTest : AnnotationSpec() {
             OPEN_ID_TOKEN,
             completionListener
         )
-        FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe false
+        FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe true
         verifyNoInteractions(mockPredictRestricted)
     }
 
     @Test
-    fun testSetAuthenticatedContactWithCompletionListener_doNotDelegatesToMobileEngageApi_whenMobileEngageAndPredictDisabled() {
+    fun testSetAuthenticatedContactWithCompletionListener_delegatesToLoggingMobileEngageApi_whenMobileEngageAndPredictDisabled() {
         setup(baseConfig)
 
         setAuthenticatedContact(CONTACT_FIELD_ID, OPEN_ID_TOKEN, completionListener)
+
+        runBlockingOnCoreSdkThread()
+
+        verify(mockLoggingMobileEngageApi).setAuthenticatedContact(
+            CONTACT_FIELD_ID,
+            OPEN_ID_TOKEN,
+            completionListener
+        )
 
         runBlockingOnCoreSdkThread {
             verifyNoInteractions(mockPredictRestricted)
