@@ -11,7 +11,6 @@ import com.emarsys.core.util.log.entry.InAppLoadingTime
 import com.emarsys.mobileengage.iam.dialog.IamDialog
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider
 import com.emarsys.mobileengage.iam.model.InAppMetaData
-import com.emarsys.mobileengage.iam.webview.IamWebViewCreationFailedException
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 
 @Mockable
@@ -56,7 +55,7 @@ class OverlayInAppPresenter(
                             showingInProgress = false
                         }
                     }
-                } catch (e: IamWebViewCreationFailedException) {
+                } catch (e: Exception) {
                     concurrentHandlerHolder.coreHandler.post {
                         Logger.error(CrashLog(e))
                         messageLoadedListener?.onMessageLoaded()
