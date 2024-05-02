@@ -97,7 +97,7 @@ class ConfigTest : AnnotationSpec() {
     fun testChangeMerchantId_delegatesTo_internal() {
         config.changeMerchantId("testMerchantId")
 
-        verify(mockConfigInternal).changeMerchantId("testMerchantId")
+        verify(mockConfigInternal).changeMerchantId("testMerchantId", null)
     }
 
     @Test

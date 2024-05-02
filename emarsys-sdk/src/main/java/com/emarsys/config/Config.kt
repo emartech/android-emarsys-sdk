@@ -40,6 +40,6 @@ class Config : ConfigApi {
     }
 
     override fun changeMerchantId(merchantId: String?) {
-        emarsys().configInternal.changeMerchantId(merchantId)
+        emarsys().configInternal.changeMerchantId(merchantId, null)
     }
 }

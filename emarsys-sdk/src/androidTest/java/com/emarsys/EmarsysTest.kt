@@ -819,7 +819,7 @@ class EmarsysTest : AnnotationSpec() {
 
         runBlockingOnCoreSdkThread {
             verify(mockMobileEngageApi).clearContact(completionListener)
-            verify(mockPredictRestricted).clearContact()
+            verify(mockPredictRestricted).clearVisitorId()
         }
     }
 
@@ -832,7 +832,7 @@ class EmarsysTest : AnnotationSpec() {
             verifyNoInteractions(mockPredictRestricted)
         }
         verify(mockLoggingMobileEngageApi).clearContact(completionListener)
-        verify(mockLoggingPredictRestricted).clearContact()
+        verify(mockLoggingPredictRestricted).clearVisitorId()
     }
 
     @Test

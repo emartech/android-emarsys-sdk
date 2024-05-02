@@ -206,7 +206,7 @@ class DefaultPredictInternalTest : AnnotationSpec() {
 
     @Test
     fun testClearContact_shouldRemove_visitorIdFromKeyValueStore() {
-        predictInternal.clearContact()
+        predictInternal.clearVisitorId()
 
         verify(mockKeyValueStore).remove("predict_visitor_id")
     }

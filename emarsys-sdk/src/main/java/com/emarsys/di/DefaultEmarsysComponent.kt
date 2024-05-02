@@ -147,7 +147,6 @@ import com.emarsys.mobileengage.push.NotificationInformationListenerProvider
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvider
-import com.emarsys.request.CoreCompletionHandlerRefreshTokenProxyProvider
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.request.mapper.ContactTokenHeaderMapper
 import com.emarsys.mobileengage.request.mapper.DefaultRequestHeaderMapper
@@ -180,6 +179,7 @@ import com.emarsys.predict.PredictRestrictedApi
 import com.emarsys.predict.endpoint.Endpoint.PREDICT_BASE_URL
 import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
 import com.emarsys.predict.request.PredictHeaderFactory
+import com.emarsys.predict.request.PredictMultiIdRequestModelFactory
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.response.VisitorIdResponseHandler
 import com.emarsys.predict.response.XPResponseHandler
@@ -187,7 +187,7 @@ import com.emarsys.predict.shard.PredictShardListMerger
 import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.push.Push
 import com.emarsys.push.PushApi
-import com.emarsys.predict.request.PredictMultiIdRequestModelFactory
+import com.emarsys.request.CoreCompletionHandlerRefreshTokenProxyProvider
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailabilityLight
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -935,7 +935,8 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             logLevelStorage,
             crypto,
             clientServiceInternal,
-            concurrentHandlerHolder
+            concurrentHandlerHolder,
+            predictInternal
         )
     }
 

@@ -181,7 +181,8 @@ class DefaultConfigInternalTest : AnnotationSpec() {
                 mockLogLevelStorage,
                 mockCrypto,
                 mockClientServiceInternal,
-                concurrentHandlerHolder
+                concurrentHandlerHolder,
+                mockPredictInternal
             )
         )
     }
@@ -275,7 +276,8 @@ class DefaultConfigInternalTest : AnnotationSpec() {
             mockLogLevelStorage,
             mockCrypto,
             mockClientServiceInternal,
-            concurrentHandlerHolder
+            concurrentHandlerHolder,
+            mockPredictInternal
         )
         val latch = CountDownLatch(1)
         val completionListener = CompletionListener {
@@ -327,7 +329,8 @@ class DefaultConfigInternalTest : AnnotationSpec() {
             mockLogLevelStorage,
             mockCrypto,
             mockClientServiceInternal,
-            concurrentHandlerHolder
+            concurrentHandlerHolder,
+            mockPredictInternal
         )
 
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE) {
@@ -379,7 +382,8 @@ class DefaultConfigInternalTest : AnnotationSpec() {
             mockLogLevelStorage,
             mockCrypto,
             mockClientServiceInternal,
-            concurrentHandlerHolder
+            concurrentHandlerHolder,
+            mockPredictInternal
         )
 
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE) {
@@ -577,16 +581,39 @@ class DefaultConfigInternalTest : AnnotationSpec() {
 
     @Test
     fun testChangeMerchantId_shouldEnableFeature() {
-        configInternal.changeMerchantId(MERCHANT_ID)
+        configInternal.changeMerchantId(MERCHANT_ID, null)
 
         FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe true
+    }
+
+    @Test
+    fun testChangeMerchantId_whenMobileEngageDisabled_shouldClearContact() {
+        configInternal.changeMerchantId(MERCHANT_ID, null)
+
+        FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe true
+        verify(mockPredictInternal).clearPredictOnlyContact(null)
+        verifyNoInteractions(mockMobileEngageInternal)
+    }
+
+    @Test
+    fun testChangeMerchantId_whenMobileEngageEnabled_shouldClearContact() {
+        val latch = CountDownLatch(1)
+
+        FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
+        configInternal.changeMerchantId(MERCHANT_ID) { latch.countDown() }
+
+        latch.await()
+
+        FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe true
+        verify(mockMobileEngageInternal).clearContact(null)
+        verify(mockPredictInternal).clearVisitorId()
     }
 
     @Test
     fun testChangeMerchantId_shouldDisableFeature() {
         FeatureRegistry.enableFeature(InnerFeature.PREDICT)
 
-        configInternal.changeMerchantId(null)
+        configInternal.changeMerchantId(null, null)
 
         verify(mockPredictRequestContext).merchantId = null
         FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe false
@@ -594,7 +621,7 @@ class DefaultConfigInternalTest : AnnotationSpec() {
 
     @Test
     fun testChangeMerchantId_shouldSaveMerchantId() {
-        configInternal.changeMerchantId(MERCHANT_ID)
+        configInternal.changeMerchantId(MERCHANT_ID, null)
 
         verify(mockPredictRequestContext).merchantId = MERCHANT_ID
     }
@@ -700,7 +727,8 @@ class DefaultConfigInternalTest : AnnotationSpec() {
             mockLogLevelStorage,
             mockCrypto,
             mockClientServiceInternal,
-            concurrentHandlerHolder
+            concurrentHandlerHolder,
+            mockPredictInternal
         )
 
         configInternal.fetchRemoteConfig(resultListener)
@@ -735,7 +763,8 @@ class DefaultConfigInternalTest : AnnotationSpec() {
             mockLogLevelStorage,
             mockCrypto,
             mockClientServiceInternal,
-            concurrentHandlerHolder
+            concurrentHandlerHolder,
+            mockPredictInternal
         )
 
         val resultListener =
@@ -768,7 +797,8 @@ class DefaultConfigInternalTest : AnnotationSpec() {
             mockLogLevelStorage,
             mockCrypto,
             mockClientServiceInternal,
-            concurrentHandlerHolder
+            concurrentHandlerHolder,
+            mockPredictInternal
         )
 
         val resultListener =
@@ -809,7 +839,8 @@ class DefaultConfigInternalTest : AnnotationSpec() {
             mockLogLevelStorage,
             mockCrypto,
             mockClientServiceInternal,
-            concurrentHandlerHolder
+            concurrentHandlerHolder,
+            mockPredictInternal
         )
 
         configInternal.fetchRemoteConfigSignature(resultListener)
@@ -844,7 +875,8 @@ class DefaultConfigInternalTest : AnnotationSpec() {
             mockLogLevelStorage,
             mockCrypto,
             mockClientServiceInternal,
-            concurrentHandlerHolder
+            concurrentHandlerHolder,
+            mockPredictInternal
         )
 
         val resultListener = FakeResultListener<String>(latch, FakeResultListener.Mode.MAIN_THREAD)
@@ -876,7 +908,8 @@ class DefaultConfigInternalTest : AnnotationSpec() {
             mockLogLevelStorage,
             mockCrypto,
             mockClientServiceInternal,
-            concurrentHandlerHolder
+            concurrentHandlerHolder,
+            mockPredictInternal
         )
 
         val resultListener = FakeResultListener<String>(latch, FakeResultListener.Mode.MAIN_THREAD)

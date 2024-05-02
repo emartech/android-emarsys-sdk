@@ -8,5 +8,5 @@ interface PredictRestrictedApi {
 
     fun clearPredictOnlyContact(completionListener: CompletionListener?)
 
-    fun clearContact()
+    fun clearVisitorId()
 }

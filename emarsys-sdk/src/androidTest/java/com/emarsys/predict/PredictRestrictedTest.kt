@@ -50,8 +50,8 @@ class PredictRestrictedTest : AnnotationSpec() {
 
     @Test
     fun testPredict_clearContact_delegatesTo_Predict_Internal() {
-        predictRestricted.clearContact()
-        Mockito.verify(mockPredictInternal).clearContact()
+        predictRestricted.clearVisitorId()
+        Mockito.verify(mockPredictInternal).clearVisitorId()
     }
 
     @Test

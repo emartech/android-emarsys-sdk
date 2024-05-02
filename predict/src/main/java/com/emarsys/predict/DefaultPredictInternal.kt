@@ -79,7 +79,7 @@ class DefaultPredictInternal(
         }
     }
 
-    override fun clearContact() {
+    override fun clearVisitorId() {
         keyValueStore.remove(VISITOR_ID_KEY)
     }
 

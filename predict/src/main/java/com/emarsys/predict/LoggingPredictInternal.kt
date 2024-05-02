@@ -34,7 +34,7 @@ class LoggingPredictInternal(private val klass: Class<*>) : PredictInternal {
         debug(MethodNotAllowed(klass, callerMethodName, parameters))
     }
 
-    override fun clearContact() {
+    override fun clearVisitorId() {
         val callerMethodName = SystemUtils.getCallerMethodName()
         debug(MethodNotAllowed(klass, callerMethodName, null))
     }

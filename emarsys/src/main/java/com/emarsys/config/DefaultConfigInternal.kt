@@ -21,6 +21,7 @@ import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.client.ClientServiceInternal
 import com.emarsys.mobileengage.push.PushInternal
+import com.emarsys.predict.PredictInternal
 import com.emarsys.predict.request.PredictRequestContext
 import java.util.concurrent.CountDownLatch
 
@@ -42,7 +43,8 @@ class DefaultConfigInternal(
     private val logLevelStorage: Storage<String?>,
     private val crypto: Crypto,
     private val clientServiceInternal: ClientServiceInternal,
-    private val concurrentHandlerHolder: ConcurrentHandlerHolder
+    private val concurrentHandlerHolder: ConcurrentHandlerHolder,
+    private val predictInternal: PredictInternal
 ) : ConfigInternal {
 
     override val applicationCode: String?
@@ -154,12 +156,22 @@ class DefaultConfigInternal(
         }
     }
 
-    override fun changeMerchantId(merchantId: String?) {
+    override fun changeMerchantId(merchantId: String?, completionListener: CompletionListener?) {
         predictRequestContext.merchantId = merchantId
+        if (FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE)) {
+            mobileEngageInternal.clearContact(null)
+            predictInternal.clearVisitorId()
+        } else {
+            predictInternal.clearPredictOnlyContact(null)
+        }
         if (merchantId == null) {
             FeatureRegistry.disableFeature(InnerFeature.PREDICT)
         } else {
             FeatureRegistry.enableFeature(InnerFeature.PREDICT)
+        }
+
+        concurrentHandlerHolder.postOnMain {
+            completionListener?.onCompleted(null)
         }
     }
 

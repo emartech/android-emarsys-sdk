@@ -185,7 +185,7 @@ object Emarsys {
             .clearContact(completionListener)
         EmarsysDependencyInjection.predictRestrictedApi()
             .proxyApi(mobileEngage().concurrentHandlerHolder)
-            .clearContact()
+            .clearVisitorId()
     }
 
     private fun clearPredictOnlyContact(completionListener: CompletionListener?) {
