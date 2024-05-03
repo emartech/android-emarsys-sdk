@@ -1,6 +1,8 @@
 package com.emarsys.request
 
+import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.CoreCompletionHandler
+import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
@@ -50,18 +52,27 @@ class CoreCompletionHandlerRefreshTokenProxy(
             val response = originalResponseModel
             reset()
             coreCompletionHandler.onError(id, response!!.copy(statusCode = 418))
-        } else if (isPredictSetContactTokenRequestUnauthorized(responseModel)) {
-            refreshPredictContactToken(id, responseModel)
-        } else if (isMobileEngageRequestUnauthorized(responseModel)) {
+        } else if (isPredictOrMobileEngageRequestUnauthorized(responseModel)) {
             refreshMobileEngageContactToken(responseModel)
+        } else if (isPredictOnlyPredictRequestUnauthorized(responseModel)) {
+            refreshPredictContactToken(id, responseModel)
         } else {
             callCompletionHandlerOnError(id, responseModel)
         }
     }
 
-    private fun isPredictSetContactTokenRequestUnauthorized(responseModel: ResponseModel) =
+    private fun isPredictOnlyPredictRequestUnauthorized(responseModel: ResponseModel) =
+        FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT)
+                && !FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE)
+                && isPredictRequestUnauthorized(responseModel)
+
+    private fun isPredictOrMobileEngageRequestUnauthorized(responseModel: ResponseModel) =
+        FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE)
+                && (isPredictRequestUnauthorized(responseModel) || isMobileEngageRequestUnauthorized(responseModel))
+
+    private fun isPredictRequestUnauthorized(responseModel: ResponseModel) =
         (responseModel.statusCode == 401
-                && requestModelHelper.isPredictMultiIdSetContactRequest(responseModel.requestModel))
+                && requestModelHelper.isPredictRequest(responseModel.requestModel))
 
     private fun isMobileEngageRequestUnauthorized(responseModel: ResponseModel) =
         (responseModel.statusCode == 401

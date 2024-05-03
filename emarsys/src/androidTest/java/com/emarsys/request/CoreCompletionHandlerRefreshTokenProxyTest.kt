@@ -1,7 +1,9 @@
 package com.emarsys.request
 
 
+import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.CoreCompletionHandler
+import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
@@ -45,6 +47,8 @@ class CoreCompletionHandlerRefreshTokenProxyTest : AnnotationSpec() {
 
     @Before
     fun setUp() {
+        FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
+        FeatureRegistry.enableFeature(InnerFeature.PREDICT)
         mockRequestModel = mock {
             on { url } doReturn URL(CLIENT_HOST)
         }
@@ -110,7 +114,7 @@ class CoreCompletionHandlerRefreshTokenProxyTest : AnnotationSpec() {
 
     @Test
     fun testOnSuccess_shouldExecuteOriginalRequest_whenPredictMultiIdRefreshContactTokenRequest_isSuccessful() {
-        val testUnauthorizedResponseModel = executeUnauthorizedPredictMultiIdSetContactTokenRequest()
+        val testUnauthorizedResponseModel = executeUnauthorizedPredictRequest()
 
         val testResponseModel = ResponseModel(
             200,
@@ -180,7 +184,7 @@ class CoreCompletionHandlerRefreshTokenProxyTest : AnnotationSpec() {
 
     @Test
     fun testOnError_shouldCall_completionHandler_withStatusCode418_whenAfterUnauthorizedRequest_PredictMultiIdRefreshContactTokenRequestFails() {
-        val testUnauthorizedResponseModel = executeUnauthorizedPredictMultiIdSetContactTokenRequest()
+        val testUnauthorizedResponseModel = executeUnauthorizedPredictRequest()
 
         val testResponseModel = ResponseModel(
             400,
@@ -204,9 +208,30 @@ class CoreCompletionHandlerRefreshTokenProxyTest : AnnotationSpec() {
     }
 
     @Test
-    fun testOnError_createRefreshTokenRequest_whenStatusCodeIs401_andPredictMultiIdSetContactRequest_andRefreshTokenIsAvailable() {
+    fun testOnError_createRefreshTokenRequest_whenStatusCodeIs401_andPredictRequest_andRefreshTokenIsAvailable_andMobileEngageEnabled() {
+        FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
+        whenever(mockRequestModelHelper.isPredictRequest(mockRequestModel)).thenReturn(
+            true
+        )
+        whenever(mockRequestModel.url).thenReturn(URL(CLIENT_HOST))
+        whenever(mockResponseModel.statusCode).thenReturn(401)
+        whenever(
+            mockRequestModelFactory.createRefreshContactTokenRequest()
+        ).thenReturn(
+            mockRequestModel
+        )
+
+        proxy.onError(REQUEST_ID, mockResponseModel)
+
+        verify(mockRestClient).execute(mockRequestModel, proxy)
+    }
+
+    @Test
+    fun testOnError_createRefreshTokenRequest_whenStatusCodeIs401_andPredictRequest_andRefreshTokenIsAvailable_andMobileEngageDisabled() {
+        FeatureRegistry.disableFeature(InnerFeature.MOBILE_ENGAGE)
+        FeatureRegistry.enableFeature(InnerFeature.PREDICT)
         whenever(mockRefreshTokenStorage.get()).thenReturn(REFRESH_TOKEN)
-        whenever(mockRequestModelHelper.isPredictMultiIdSetContactRequest(mockRequestModel)).thenReturn(
+        whenever(mockRequestModelHelper.isPredictRequest(mockRequestModel)).thenReturn(
             true
         )
         whenever(mockRequestModel.url).thenReturn(URL(CLIENT_HOST))
@@ -226,6 +251,8 @@ class CoreCompletionHandlerRefreshTokenProxyTest : AnnotationSpec() {
 
     @Test
     fun testOnError_shouldCall_coreCompletionHandler_whenStatusCodeIs401_andPredictMultiIdSetContactRequest_andRefreshTokenIsNotAvailable() {
+        FeatureRegistry.disableFeature(InnerFeature.MOBILE_ENGAGE)
+        FeatureRegistry.enableFeature(InnerFeature.PREDICT)
         whenever(mockRefreshTokenStorage.get()).thenReturn(null)
         whenever(mockRequestModelHelper.isPredictMultiIdSetContactRequest(mockRequestModel)).thenReturn(
             true
@@ -239,9 +266,24 @@ class CoreCompletionHandlerRefreshTokenProxyTest : AnnotationSpec() {
     }
 
     @Test
-    fun testOnError_shouldCall_shouldGiveTheResponseToNextLevel_whenStatusCodeIs401_andNotMobileEngageRequest() {
+    fun testOnError_shouldGiveTheResponseToNextLevel_whenStatusCodeIs401_andNotMobileEngageRequest() {
         whenever(mockResponseModel.statusCode).thenReturn(401)
         whenever(mockRequestModelHelper.isMobileEngageRequest(any())).thenReturn(false)
+        whenever(mockRequestModelFactory.createRefreshContactTokenRequest()).thenReturn(
+            mockRequestModel
+        )
+        proxy.onError(REQUEST_ID, mockResponseModel)
+
+        verify(mockRestClient, times(0)).execute(mockRequestModel, proxy)
+        verify(mockCoreCompletionHandler).onError(REQUEST_ID, mockResponseModel)
+    }
+
+    @Test
+    fun testOnError_shouldGiveTheResponseToNextLevel_whenStatusCodeIs401_andMobileEngageAndPredictDisabled() {
+        FeatureRegistry.disableFeature(InnerFeature.MOBILE_ENGAGE)
+        FeatureRegistry.disableFeature(InnerFeature.PREDICT)
+        whenever(mockResponseModel.statusCode).thenReturn(401)
+        whenever(mockRequestModelHelper.isMobileEngageRequest(any())).thenReturn(true)
         whenever(mockRequestModelFactory.createRefreshContactTokenRequest()).thenReturn(
             mockRequestModel
         )
@@ -356,7 +398,7 @@ class CoreCompletionHandlerRefreshTokenProxyTest : AnnotationSpec() {
         return testUnauthorizedResponseModel
     }
 
-    private fun executeUnauthorizedPredictMultiIdSetContactTokenRequest(): ResponseModel {
+    private fun executeUnauthorizedPredictRequest(): ResponseModel {
         val mockUnauthorizedRequestModel = mock<RequestModel>()
         val testUnauthorizedResponseModel = ResponseModel(
             401,
@@ -369,7 +411,7 @@ class CoreCompletionHandlerRefreshTokenProxyTest : AnnotationSpec() {
         )
         whenever(mockRefreshTokenStorage.get()).thenReturn(REFRESH_TOKEN)
         whenever(
-            mockRequestModelHelper.isPredictMultiIdSetContactRequest(
+            mockRequestModelHelper.isPredictRequest(
                 testUnauthorizedResponseModel.requestModel
             )
         ).thenReturn(
