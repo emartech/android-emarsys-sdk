@@ -584,14 +584,28 @@ class DefaultConfigInternalTest : AnnotationSpec() {
         configInternal.changeMerchantId(MERCHANT_ID, null)
 
         FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe true
+        verify(mockPredictRequestContext).merchantId = MERCHANT_ID
     }
 
     @Test
-    fun testChangeMerchantId_whenMobileEngageDisabled_shouldClearContact() {
+    fun testChangeMerchantId_whenMobileEngageDisabled_andPredictEnabled_shouldEnablePredict_andShouldClearPredictOnlyContact() {
+        FeatureRegistry.enableFeature(InnerFeature.PREDICT)
+
         configInternal.changeMerchantId(MERCHANT_ID, null)
 
         FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe true
+        verify(mockPredictRequestContext).merchantId = MERCHANT_ID
         verify(mockPredictInternal).clearPredictOnlyContact(null)
+        verifyNoInteractions(mockMobileEngageInternal)
+    }
+
+    @Test
+    fun testChangeMerchantId_whenMobileEngageDisabled_andPredictDisabled_shouldEnablePredict_andShouldNotClearContact() {
+        configInternal.changeMerchantId(MERCHANT_ID, null)
+
+        FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe true
+        verify(mockPredictRequestContext).merchantId = MERCHANT_ID
+        verifyNoInteractions(mockPredictInternal)
         verifyNoInteractions(mockMobileEngageInternal)
     }
 

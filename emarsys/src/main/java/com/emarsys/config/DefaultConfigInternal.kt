@@ -157,13 +157,13 @@ class DefaultConfigInternal(
     }
 
     override fun changeMerchantId(merchantId: String?, completionListener: CompletionListener?) {
-        predictRequestContext.merchantId = merchantId
         if (FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE)) {
             mobileEngageInternal.clearContact(null)
             predictInternal.clearVisitorId()
-        } else {
+        } else if (FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT)) {
             predictInternal.clearPredictOnlyContact(null)
         }
+        predictRequestContext.merchantId = merchantId
         if (merchantId == null) {
             FeatureRegistry.disableFeature(InnerFeature.PREDICT)
         } else {
