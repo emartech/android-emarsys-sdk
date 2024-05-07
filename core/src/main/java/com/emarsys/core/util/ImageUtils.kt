@@ -4,6 +4,8 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.webkit.URLUtil
 import com.emarsys.core.device.DeviceInfo
+import com.emarsys.core.util.log.Logger
+import com.emarsys.core.util.log.entry.CrashLog
 import java.io.File
 
 object ImageUtils {
@@ -45,14 +47,17 @@ object ImageUtils {
         return URLUtil.isHttpsUrl(imageUrl)
     }
 
-    private fun loadBitmap(imageFileUrl: String, width: Int): Bitmap {
+    private fun loadBitmap(imageFileUrl: String, width: Int): Bitmap? = try {
         val options = BitmapFactory.Options().apply {
             inJustDecodeBounds = true
         }
         BitmapFactory.decodeFile(imageFileUrl, options)
         options.inSampleSize = calculateInSampleSize(options, width)
         options.inJustDecodeBounds = false
-        return BitmapFactory.decodeFile(imageFileUrl, options)
+        BitmapFactory.decodeFile(imageFileUrl, options)
+    } catch (exception:Exception) {
+        Logger.error(CrashLog(exception))
+        null
     }
 
     fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int): Int {

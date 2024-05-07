@@ -82,13 +82,11 @@ class ImageUtilsTest : AnnotationSpec() {
 
 
     @Test
-
     fun testLoadOptimizedBitmap_returnsNull_whenImageUrlIsNull() {
         ImageUtils.loadOptimizedBitmap(mockFileDownloader, null, deviceInfo) shouldBe null
     }
 
     @Test
-
     fun testLoadOptimizedBitmap_withRemoteUrl_CleansUpTempFile() {
         clearCache()
         getTargetContext().cacheDir.list()?.size shouldBe 0
@@ -97,7 +95,6 @@ class ImageUtilsTest : AnnotationSpec() {
     }
 
     @Test
-
     fun testLoadOptimizedBitmap_withLocalFile_ShouldNotCleanUpLocalFile() {
         clearCache()
         val fileUrl = mockFileDownloader.download(IMAGE_URL)
@@ -113,7 +110,6 @@ class ImageUtilsTest : AnnotationSpec() {
     }
 
     @Test
-
     fun testLoadOptimizedBitmap_withRemoteUrl() {
         val bitmap = ImageUtils.loadOptimizedBitmap(mockFileDownloader, IMAGE_URL, deviceInfo)
         bitmap shouldNotBe null
@@ -122,7 +118,6 @@ class ImageUtilsTest : AnnotationSpec() {
     }
 
     @Test
-
     fun testCalculateInSampleSize_returnedValueShouldBe4_whenRequestedWidthIs1080_widthIs2500() {
         val options = BitmapFactory.Options().apply {
             outWidth = 2500
