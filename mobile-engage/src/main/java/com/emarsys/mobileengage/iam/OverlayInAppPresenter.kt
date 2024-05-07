@@ -46,7 +46,7 @@ class OverlayInAppPresenter(
                                     )
                                 )
                                 if (!it.isStateSaved) {
-                                    iamDialog.show(it, IamDialog.TAG)
+                                    iamDialog.showNow(it, IamDialog.TAG)
                                 }
                             }
                         }

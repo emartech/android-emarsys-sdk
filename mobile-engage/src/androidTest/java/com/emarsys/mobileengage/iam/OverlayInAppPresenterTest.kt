@@ -112,7 +112,7 @@ class OverlayInAppPresenterTest : AnnotationSpec() {
         }.start()
         countDownLatch.await()
         scenario.close()
-        verify(mockIamDialog).show(any<FragmentManager>(), any())
+        verify(mockIamDialog).showNow(any<FragmentManager>(), any())
         callbackCalled shouldBe true
     }
 
@@ -138,7 +138,7 @@ class OverlayInAppPresenterTest : AnnotationSpec() {
         }.start()
         countDownLatch.await()
 
-        verify(mockIamDialog, times(0)).show(any<FragmentManager>(), any())
+        verify(mockIamDialog, times(0)).showNow(any<FragmentManager>(), any())
         callbackCalled shouldBe true
 
     }
@@ -164,7 +164,7 @@ class OverlayInAppPresenterTest : AnnotationSpec() {
         }.start()
         countDownLatch.await()
 
-        verify(mockIamDialog, times(0)).show(any<FragmentManager>(), any())
+        verify(mockIamDialog, times(0)).showNow(any<FragmentManager>(), any())
         callbackCalled shouldBe true
     }
 
@@ -206,7 +206,7 @@ class OverlayInAppPresenterTest : AnnotationSpec() {
         }.start()
         countDownLatch.await()
 
-        verify(mockIamDialog, times(0)).show(any<FragmentManager>(), any())
+        verify(mockIamDialog, times(0)).showNow(any<FragmentManager>(), any())
         callbackCalled shouldBe true
 
     }
@@ -249,7 +249,7 @@ class OverlayInAppPresenterTest : AnnotationSpec() {
         }.start()
         countDownLatch.await()
 
-        verify(mockIamDialog, times(0)).show(any<FragmentManager>(), any())
+        verify(mockIamDialog, times(0)).showNow(any<FragmentManager>(), any())
         callbackCalled shouldBe true
 
     }
