@@ -129,7 +129,9 @@ class InappNotificationIntegrationTest : AnnotationSpec() {
             operation = NotificationOperation.INIT.name,
             actions = null,
             defaultAction = null,
-            inapp = inappPayload
+            inapp = inappPayload,
+            u = "{\"customField\":\"customValue\"}",
+            message_id = "messageId"
         )
         val intent = IntentUtils.createNotificationHandlerServiceIntent(
             application,

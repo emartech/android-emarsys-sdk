@@ -180,6 +180,8 @@ class NotificationCommandFactory(private val context: Context) {
         json.put("actions", actions)
         json.put("defaultAction", notificationData.defaultAction)
         json.put("inapp", notificationData.inapp)
+        json.put("u", notificationData.u)
+        json.put("message_id", notificationData.message_id)
 
         return json
     }

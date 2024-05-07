@@ -36,7 +36,9 @@ class NotificationActionUtilsTest : AnnotationSpec() {
             collapseId = COLLAPSE_ID,
             operation = OPERATION,
             actions = null,
-            inapp = null
+            inapp = null,
+            u = "{\"customField\":\"customValue\"}",
+            message_id = "messageId"
         )
     }
 

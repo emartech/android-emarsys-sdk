@@ -20,11 +20,17 @@ class RemoteMessageMapperV1(
     private val context: Context,
     private val uuidProvider: UUIDProvider
 ) : RemoteMessageMapper {
+    companion object {
+        const val MISSING_SID = "Missing sid"
+        const val MISSING_MESSAGE_ID = "Missing messageId"
+        const val EMPTY_U = "{}"
+    }
 
     override fun map(remoteMessageData: Map<String, String?>): NotificationData {
         val resourceIds = getNotificationResourceIds()
         val messageDataCopy = remoteMessageData.toMutableMap()
 
+        val messageId = messageDataCopy.remove("message_id") ?: MISSING_MESSAGE_ID
         val image = messageDataCopy.remove("image_url")
         val iconImage = messageDataCopy.remove("icon_url")
         val title = messageDataCopy.remove("title")
@@ -33,8 +39,8 @@ class RemoteMessageMapperV1(
         val campaignId = ems.optString("multichannelId")
         val body = messageDataCopy.remove("body")
         val channelId = messageDataCopy.remove("channel_id")
-        val sid = messageDataCopy.remove("u")?.let { JSONObject(it).getNullableString("sid") }
-            ?: "Missing sid"
+        val u = messageDataCopy.remove("u") ?: EMPTY_U
+        val sid = JSONObject(u).getNullableString("sid") ?: MISSING_SID
         val notificationMethod: NotificationMethod = if (ems.has("notificationMethod")) {
             parseNotificationMethod(ems.optJSONObject("notificationMethod"))
         } else {
@@ -60,7 +66,9 @@ class RemoteMessageMapperV1(
             actions = actions,
             defaultAction = defaultAction,
             inapp = inapp,
-            rootParams = messageDataCopy
+            rootParams = messageDataCopy,
+            u = u,
+            message_id = messageId
         )
     }
 

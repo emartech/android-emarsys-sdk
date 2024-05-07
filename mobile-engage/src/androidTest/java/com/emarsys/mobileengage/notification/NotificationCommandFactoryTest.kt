@@ -54,6 +54,8 @@ class NotificationCommandFactoryTest : AnnotationSpec() {
         const val MULTICHANNEL_ID = "test multiChannel id"
         const val SMALL_RESOURCE_ID = 123
         const val COLOR_RESOURCE_ID = 456
+        const val MESSAGE_ID = "messageId"
+        const val U = "{\"customField\":\"customValue\"}"
         val notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.INIT)
         val notificationData = NotificationData(
             null,
@@ -74,11 +76,11 @@ class NotificationCommandFactoryTest : AnnotationSpec() {
             rootParams = mapOf(
                 "rootParamKey1" to "rootParamValue1",
                 "rootParamKey2" to "rootParamValue2"
-            )
+            ),
+            u = U,
+            message_id = MESSAGE_ID
         )
     }
-
-
 
     private lateinit var factory: NotificationCommandFactory
     private lateinit var context: Context
@@ -425,6 +427,7 @@ class NotificationCommandFactoryTest : AnnotationSpec() {
             mapOf(
                 "rootParamKey1" to "rootParamValue1",
                 "rootParamKey2" to "rootParamValue2",
+                "u" to U,
                 "title" to TITLE,
                 "body" to BODY,
                 "channelId" to CHANNEL_ID,
@@ -446,7 +449,9 @@ class NotificationCommandFactoryTest : AnnotationSpec() {
                             )
                         )
                     )
-                )
+                ),
+                "u" to U,
+                "message_id" to MESSAGE_ID
             )
         )
         JsonUtils.toFlatMap(payload!!) shouldBe JsonUtils.toFlatMap(expected)

@@ -20,7 +20,9 @@ data class NotificationData(
     val actions: String? = null,
     val defaultAction: String? = null,
     val inapp: String? = null,
-    val rootParams: Map<String, String?> = mapOf()
+    val rootParams: Map<String, String?> = mapOf(),
+    val u: String,
+    val message_id: String
 ) : Parcelable
 
 enum class NotificationOperation {

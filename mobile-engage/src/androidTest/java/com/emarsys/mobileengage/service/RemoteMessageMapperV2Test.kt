@@ -10,6 +10,8 @@ import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperV2
+import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperV2.Companion.MISSING_MESSAGE_ID
+import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperV2.Companion.MISSING_SID
 import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.shouldBe
@@ -83,7 +85,7 @@ class RemoteMessageMapperV2Test : AnnotationSpec() {
         )
             .thenReturn(COLOR_RESOURCE_ID)
 
-        val input: MutableMap<String, String> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage()
         input["notification.channel_id"] = CHANNEL_ID
         input["ems.style"] = "THUMBNAIL"
 
@@ -99,7 +101,7 @@ class RemoteMessageMapperV2Test : AnnotationSpec() {
 
     @Test
     fun testMap_whenTitleIsMissing() {
-        val input: MutableMap<String, String> = createRemoteMessage(title = null)
+        val input: MutableMap<String, String?> = createRemoteMessage(title = null)
         input["notification.channel_id"] = CHANNEL_ID
 
         val notificationData = remoteMessageMapperV2.map(input)
@@ -111,7 +113,7 @@ class RemoteMessageMapperV2Test : AnnotationSpec() {
 
     @Test
     fun testMap_whenMapIsEmpty() {
-        val input: MutableMap<String, String> = HashMap()
+        val input: MutableMap<String, String?> = HashMap()
 
         val notificationData = remoteMessageMapperV2.map(input)
 
@@ -120,7 +122,7 @@ class RemoteMessageMapperV2Test : AnnotationSpec() {
 
     @Test
     fun testMap_whenImageIsAvailable() {
-        val input: MutableMap<String, String> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage()
         input["notification.image"] = IMAGE_URL
 
         val notificationData = remoteMessageMapperV2.map(input)
@@ -131,7 +133,7 @@ class RemoteMessageMapperV2Test : AnnotationSpec() {
     @Test
     fun testMap_whenImageIsNotAvailable() {
         val testImageUrl = "https://fa.il/img.jpg"
-        val input: MutableMap<String, String> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage()
         input["notification.image"] = testImageUrl
 
         val notificationData = remoteMessageMapperV2.map(input)
@@ -142,7 +144,7 @@ class RemoteMessageMapperV2Test : AnnotationSpec() {
     @Test
     fun testMap_whenNotificationMethodIsSet() {
         val collapseId = "testNotificationId"
-        val input: MutableMap<String, String> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage()
         input["ems.notification_method.collapse_key"] = collapseId
         input["ems.notification_method.operation"] = "UPDATE"
 
@@ -154,7 +156,7 @@ class RemoteMessageMapperV2Test : AnnotationSpec() {
 
     @Test
     fun testMap_whenNotificationMethodIsMissing() {
-        val input: MutableMap<String, String> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage()
 
         val notificationData = remoteMessageMapperV2.map(input)
 
@@ -163,7 +165,7 @@ class RemoteMessageMapperV2Test : AnnotationSpec() {
 
     @Test
     fun testMap_whenNotificationMethodIsSet_withoutCollapseID_shouldReturnWithInitOperation() {
-        val input: MutableMap<String, String> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage()
         input["ems.notification_method.operation"] = "UPDATE"
 
         val notificationData = remoteMessageMapperV2.map(input)
@@ -174,7 +176,7 @@ class RemoteMessageMapperV2Test : AnnotationSpec() {
     @Test
     fun testMap_notificationData_shouldContain_campaignId() {
         val testCampaignId = "test campaign id"
-        val input: MutableMap<String, String> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage()
         input["ems.multichannel_id"] = testCampaignId
 
         val notificationData = remoteMessageMapperV2.map(input)
@@ -184,11 +186,20 @@ class RemoteMessageMapperV2Test : AnnotationSpec() {
 
     @Test
     fun testMap_notificationData_shouldContain_sid() {
-        val input: MutableMap<String, String> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage()
 
         val notificationData = remoteMessageMapperV2.map(input)
 
         notificationData.sid shouldBe SID
+    }
+
+    @Test
+    fun testMap_notificationData_shouldContain_sidDefaultValue() {
+        val input: MutableMap<String, String?> = createRemoteMessage(sid = null)
+
+        val notificationData = remoteMessageMapperV2.map(input)
+
+        notificationData.sid shouldBe MISSING_SID
     }
 
     @Test
@@ -206,7 +217,7 @@ class RemoteMessageMapperV2Test : AnnotationSpec() {
 
         val expectedActions =
             """[{"type":"MECustomEvent","id":"Testing","title":{"en":"Test title"},"name":"test action name"}]"""
-        val input: MutableMap<String, String> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage()
         input["ems.actions"] = testActions.toString()
 
         val notificationData = remoteMessageMapperV2.map(input)
@@ -216,7 +227,7 @@ class RemoteMessageMapperV2Test : AnnotationSpec() {
 
     @Test
     fun testMap_notificationData_shouldContain_null_ifDefaultActionTypeIsMissing() {
-        val input: MutableMap<String, String> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage()
         input["ems.tap_actions.default_action.name"] = "test name"
         input["ems.tap_actions.default_action.url"] = "test url"
         input["ems.tap_actions.default_action.payload"] = """{"key":"test payload"}"""
@@ -228,7 +239,7 @@ class RemoteMessageMapperV2Test : AnnotationSpec() {
 
     @Test
     fun testMap_notificationData_shouldContain_defaultAction() {
-        val input: MutableMap<String, String> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage()
         input["ems.tap_actions.default_action.name"] = "test name"
         input["ems.tap_actions.default_action.type"] = "MECustomEvent"
         input["ems.tap_actions.default_action.url"] = "test url"
@@ -244,7 +255,7 @@ class RemoteMessageMapperV2Test : AnnotationSpec() {
 
     @Test
     fun testMap_notificationData_shouldContain_null_ifActionsAreMissing() {
-        val input: MutableMap<String, String> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage()
 
         val notificationData = remoteMessageMapperV2.map(input)
 
@@ -254,7 +265,7 @@ class RemoteMessageMapperV2Test : AnnotationSpec() {
     @Test
     fun testMap_notificationData_shouldContain_inapp() {
         val testInapp = "test inapp"
-        val input: MutableMap<String, String> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage()
         input["ems.inapp"] = testInapp
 
         val notificationData = remoteMessageMapperV2.map(input)
@@ -264,7 +275,7 @@ class RemoteMessageMapperV2Test : AnnotationSpec() {
 
     @Test
     fun testMap_notificationData_shouldContain_null_ifInappIsMissing() {
-        val input: MutableMap<String, String> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage()
 
         val notificationData = remoteMessageMapperV2.map(input)
 
@@ -273,7 +284,7 @@ class RemoteMessageMapperV2Test : AnnotationSpec() {
 
     @Test
     fun testMap_rootParams_shouldContain_rootParams_as_map() {
-        val input: MutableMap<String, String> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage()
         input["ems.root_params"] = """{"key1":"value1","key2":"123"}"""
 
         val expectedRootParams = mapOf(
@@ -288,7 +299,7 @@ class RemoteMessageMapperV2Test : AnnotationSpec() {
 
     @Test
     fun testMap_rootParams_shouldContain_rootParams_as_map_even_if_the_value_is_a_json() {
-        val input: MutableMap<String, String> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage()
         input["ems.root_params"] = """{"key1":"value1","key2":"123","key3":{"test":"test"}}"""
 
         val expectedRootParams = mapOf(
@@ -303,8 +314,52 @@ class RemoteMessageMapperV2Test : AnnotationSpec() {
     }
 
     @Test
+    fun testMap_u_shouldContain_correctValue() {
+        val input: MutableMap<String, String?> = createRemoteMessage()
+        input["ems.root_params"] = """{"key1":"value1","key2":"123","key3":{"test":"test"}, "u":{"customField":"customValue"}}"""
+
+        val expectedU = """{"customField":"customValue"}"""
+
+        val notificationData = remoteMessageMapperV2.map(input)
+
+        notificationData.u shouldBe expectedU
+    }
+
+    @Test
+    fun testMap_u_shouldContain_emptyJsonAsString() {
+        val input: MutableMap<String, String?> = createRemoteMessage()
+        input["ems.root_params"] = """{"key1":"value1","key2":"123","key3":{"test":"test"}, "u":{}}"""
+
+        val expectedU = "{}"
+
+        val notificationData = remoteMessageMapperV2.map(input)
+
+        notificationData.u shouldBe expectedU
+    }
+
+    @Test
+    fun testMap_messageId_shouldContain_correctValue() {
+        val testMessageId = "testMessageId"
+        val input: MutableMap<String, String?> = createRemoteMessage()
+        input["ems.message_id"] = testMessageId
+
+        val notificationData = remoteMessageMapperV2.map(input)
+
+        notificationData.message_id shouldBe testMessageId
+    }
+
+    @Test
+    fun testMap_messageId_shouldContain_defaultValue() {
+        val input: MutableMap<String, String?> = createRemoteMessage()
+
+        val notificationData = remoteMessageMapperV2.map(input)
+
+        notificationData.message_id shouldBe MISSING_MESSAGE_ID
+    }
+
+    @Test
     fun testMap_rootParams_shouldContain_empty_map_if_rootParams_are_missing() {
-        val input: MutableMap<String, String> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage()
 
         val expectedRootParams = mapOf<String, String>()
 
@@ -317,9 +372,9 @@ class RemoteMessageMapperV2Test : AnnotationSpec() {
     private fun createRemoteMessage(
         title: String? = TITLE,
         body: String = BODY,
-        sid: String = SID
-    ): MutableMap<String, String> {
-        val payload = mutableMapOf<String, String>()
+        sid: String? = SID
+    ): MutableMap<String, String?> {
+        val payload = mutableMapOf<String, String?>()
         title?.let { payload["notification.title"] = it }
         payload["notification.body"] = body
         payload["ems.sid"] = sid
