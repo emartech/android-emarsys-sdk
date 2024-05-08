@@ -56,7 +56,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get().toString()
+        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
 
     if (env.fetch("RELEASE_MODE", (System.getenv("RELEASE_MODE") ?: "false")) == "true") {
