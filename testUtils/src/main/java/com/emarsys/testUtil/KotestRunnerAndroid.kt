@@ -1,5 +1,6 @@
 package com.emarsys.testUtil
 
+import io.kotest.common.KotestInternal
 import io.kotest.core.config.EmptyExtensionRegistry
 import io.kotest.core.config.ProjectConfiguration
 import io.kotest.core.spec.Spec
@@ -12,6 +13,7 @@ import org.junit.runner.Description
 import org.junit.runner.Runner
 import org.junit.runner.notification.RunNotifier
 
+@OptIn(KotestInternal::class)
 class KotestRunnerAndroid(
     private val kClass: Class<out Spec>
 ) : Runner() {
