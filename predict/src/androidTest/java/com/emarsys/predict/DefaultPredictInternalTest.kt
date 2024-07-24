@@ -204,7 +204,8 @@ class DefaultPredictInternalTest : AnnotationSpec() {
 
     @Test
     fun testTrackPurchase_returnsShardId() {
-        predictInternal.trackPurchase("orderId", listOf(mock())) shouldBe ID1
+        val testCartItem = PredictCartItem(ID1, 200.0, 100.0)
+        predictInternal.trackPurchase("orderId", listOf(testCartItem)) shouldBe ID1
     }
 
     @Test
