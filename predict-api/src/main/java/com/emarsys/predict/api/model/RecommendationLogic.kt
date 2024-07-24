@@ -1,5 +1,7 @@
 package com.emarsys.predict.api.model
 
+import java.net.URLEncoder
+
 class RecommendationLogic internal constructor(override val logicName: String, override val data: Map<String, String> = mapOf(), override val variants: List<String> = listOf()) : Logic {
 
     companion object {
@@ -47,7 +49,7 @@ class RecommendationLogic internal constructor(override val logicName: String, o
 
         @JvmStatic
         fun related(itemId: String): Logic {
-            val data = mapOf("v" to "i:$itemId")
+            val data = mapOf("v" to "i:${URLEncoder.encode(itemId, Charsets.UTF_8)}")
 
             return RecommendationLogic(RELATED, data, listOf())
         }
@@ -71,7 +73,7 @@ class RecommendationLogic internal constructor(override val logicName: String, o
 
         @JvmStatic
         fun alsoBought(itemId: String): Logic {
-            val data = mapOf("v" to "i:$itemId")
+            val data = mapOf("v" to "i:${URLEncoder.encode(itemId, Charsets.UTF_8)}")
             return RecommendationLogic(ALSO_BOUGHT, data, listOf())
         }
 
@@ -111,7 +113,7 @@ class RecommendationLogic internal constructor(override val logicName: String, o
         }
 
         private fun cartItemToQueryParam(cartItem: CartItem?): String {
-            return "i:" + cartItem!!.itemId + ",p:" + cartItem.price + ",q:" + cartItem.quantity
+            return "i:" + URLEncoder.encode(cartItem!!.itemId, Charsets.UTF_8) + ",p:" + cartItem.price + ",q:" + cartItem.quantity
         }
     }
 }

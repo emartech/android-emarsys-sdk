@@ -218,6 +218,18 @@ class PredictIntegrationTest : AnnotationSpec() {
     }
 
     @Test
+    fun testTrackItemView_withUrlEncodableCharacter() {
+        val itemId = "2508+"
+        responseModelMatches = {
+            it.requestModel.url.toString().contains("v=i%3A2508%252B")
+        }
+
+        Emarsys.predict.trackItemView(itemId)
+
+        eventuallyAssertSuccess()
+    }
+
+    @Test
     fun testTrackItemView_withProduct() {
         val product = Product(ITEM3, "TestTitle", "https://emarsys.com", "RELATED", "AAAA")
         responseModelMatches = {

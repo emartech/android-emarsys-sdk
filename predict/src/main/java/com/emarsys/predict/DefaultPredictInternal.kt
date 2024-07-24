@@ -23,6 +23,7 @@ import com.emarsys.predict.model.LastTrackedItemContainer
 import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.util.CartItemUtils
+import java.net.URLEncoder
 
 class DefaultPredictInternal(
     requestContext: PredictRequestContext,
@@ -89,7 +90,7 @@ class DefaultPredictInternal(
     override fun trackItemView(itemId: String): String {
         val shard = ShardModel.Builder(timestampProvider, uuidProvider)
             .type(TYPE_ITEM_VIEW)
-            .payloadEntry("v", "i:$itemId")
+            .payloadEntry("v", "i:${URLEncoder.encode(itemId, Charsets.UTF_8)}")
             .build()
         requestManager.submit(shard)
         lastTrackedContainer.lastItemView = itemId
@@ -178,7 +179,7 @@ class DefaultPredictInternal(
             .type(TYPE_ITEM_VIEW)
             .payloadEntry(
                 "v",
-                "i:" + product.productId + ",t:" + product.feature + ",c:" + product.cohort
+                "i:" + URLEncoder.encode(product.productId, Charsets.UTF_8) + ",t:" + product.feature + ",c:" + product.cohort
             )
             .build()
         requestManager.submit(shard)
