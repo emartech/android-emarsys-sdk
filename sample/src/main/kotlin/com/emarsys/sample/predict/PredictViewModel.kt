@@ -17,6 +17,7 @@ class PredictViewModel : ViewModel() {
     val categoryView = mutableStateOf("")
     val searchTerm = mutableStateOf("")
     val orderId = mutableStateOf("")
+    val product = mutableStateOf(Product("test+ID1", "testTitle", "https://emarsys.com", "RELATED", "AAAA"))
     val recommendedProducts = mutableStateListOf<Product>()
     val sampleCart = mutableStateListOf<SampleCartItem>()
     val recommendationLogic = mutableStateOf(RecommendationLogic.search(searchTerm.value))
@@ -82,7 +83,7 @@ class PredictViewModel : ViewModel() {
 
     private fun generateCartItem(): SampleCartItem {
         return SampleCartItem(
-            itemId = Random().nextInt().toString(),
+            itemId = Random().nextInt().toString()+"+testId",
             price = Random().nextDouble(),
             quantity = Random().nextDouble()
         )

@@ -60,7 +60,9 @@
     <string name="recommend_button_label">Recommend</string>
     <string name="recommendation_title">Recommendations</string>
     <string name="track_order_title">Track order</string>
+    <string name="track_recommendation_click">Track recommendation click</string>
     <string name="track_order_label">orderId</string>
+    <string name="track_recommendation_label">product</string>
     <string name="track_search_title">Track search</string>
     <string name="track_search_label">searchTerm</string>
     <string name="track_category_title">Track category</string>
