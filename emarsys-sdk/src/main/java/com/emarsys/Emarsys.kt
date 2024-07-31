@@ -196,7 +196,6 @@ object Emarsys {
     }
 
     private fun registerDatabaseTriggers() {
-        if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
             emarsys().coreSQLiteDatabase
                 .registerTrigger(
                     DatabaseContract.SHARD_TABLE_NAME,
@@ -204,7 +203,6 @@ object Emarsys {
                     TriggerEvent.INSERT,
                     emarsys().predictShardTrigger
                 )
-        }
 
         emarsys().coreSQLiteDatabase
             .registerTrigger(

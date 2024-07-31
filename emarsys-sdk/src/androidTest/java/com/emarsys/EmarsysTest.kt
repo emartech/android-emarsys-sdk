@@ -89,7 +89,6 @@ import org.mockito.kotlin.spy
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
-import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
@@ -442,14 +441,14 @@ class EmarsysTest : AnnotationSpec() {
 
         runBlockingOnCoreSdkThread {
             argumentCaptor<Runnable>().apply {
-                verify(mockCoreSQLiteDatabase, times(1)).registerTrigger(
+                verify(mockCoreSQLiteDatabase, times(2)).registerTrigger(
                     any(),
                     any(),
                     any(),
                     capture()
                 )
-                firstValue shouldBe mockLogShardTrigger
-                verifyNoMoreInteractions(mockCoreSQLiteDatabase)
+                firstValue shouldBe mockPredictShardTrigger
+                secondValue shouldBe mockLogShardTrigger
             }
         }
     }
