@@ -3,6 +3,7 @@ package com.emarsys.mobileengage.responsehandler
 
 import android.content.ClipboardManager
 import androidx.test.core.app.ActivityScenario
+import com.emarsys.core.activity.TransitionSafeCurrentActivityWatchdog
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
@@ -34,7 +35,7 @@ class InAppMessageResponseHandlerTest : AnnotationSpec() {
     private lateinit var mockJsBridgeFactory: IamJsBridgeFactory
     private lateinit var mockClipboardManager: ClipboardManager
     private lateinit var mockJsBridge: IamJsBridge
-    private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
+    private lateinit var mockCurrentActivityProvider: TransitionSafeCurrentActivityWatchdog
     private lateinit var scenario: ActivityScenario<FakeActivity>
 
     @Before
@@ -43,7 +44,7 @@ class InAppMessageResponseHandlerTest : AnnotationSpec() {
         scenario.onActivity { activity ->
             concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
             mockCurrentActivityProvider = mock {
-                on { get() } doReturn activity
+                on { activity() } doReturn activity
             }
             mockJsBridge = mock()
             mockClipboardManager = mock()

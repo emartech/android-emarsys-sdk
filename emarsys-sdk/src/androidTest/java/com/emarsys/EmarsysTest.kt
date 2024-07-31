@@ -505,7 +505,7 @@ class EmarsysTest : AnnotationSpec() {
             setup(mobileEngageConfig)
 
             runBlockingOnCoreSdkThread {
-                verify(application, times(2)).registerActivityLifecycleCallbacks(capture())
+                verify(application, times(3)).registerActivityLifecycleCallbacks(capture())
             }
         }
     }

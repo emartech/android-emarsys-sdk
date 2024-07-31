@@ -1,10 +1,10 @@
 package com.emarsys.mobileengage.iam.webview
 
 
+import android.app.Activity
 import androidx.test.core.app.ActivityScenario
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
-import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
 import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory
@@ -16,6 +16,7 @@ import io.kotest.matchers.shouldBe
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
+import java.lang.ref.WeakReference
 import java.util.concurrent.CountDownLatch
 
 class IamWebViewFactoryTest : AnnotationSpec() {
@@ -25,10 +26,11 @@ class IamWebViewFactoryTest : AnnotationSpec() {
     private lateinit var mockJsBridgeFactory: IamJsBridgeFactory
     private lateinit var mockJsBridge: IamJsBridge
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
-    private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
 
     private lateinit var webViewFactory: IamWebViewFactory
     private lateinit var scenario: ActivityScenario<FakeActivity>
+
+    private lateinit var activityReference: WeakReference<Activity>
 
     @Before
     fun setUp() {
@@ -46,14 +48,11 @@ class IamWebViewFactoryTest : AnnotationSpec() {
 
         scenario = ActivityScenario.launch(FakeActivity::class.java)
         scenario.onActivity { activity ->
-            mockCurrentActivityProvider = mock {
-                on { get() } doReturn activity
-            }
+            activityReference = WeakReference(activity)
             webViewFactory = IamWebViewFactory(
                 mockJsBridgeFactory,
                 mockJSCommandFactoryProvider,
-                concurrentHandlerHolder,
-                mockCurrentActivityProvider
+                concurrentHandlerHolder
             )
         }
     }
@@ -66,7 +65,7 @@ class IamWebViewFactoryTest : AnnotationSpec() {
     @Test
     fun testCreateWithNull() {
         val iamWebView = runOnMain {
-            webViewFactory.create(null)
+            webViewFactory.create(activityReference.get()!!)
         }
         iamWebView::class.java shouldBe IamWebView::class.java
     }

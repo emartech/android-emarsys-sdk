@@ -91,7 +91,7 @@ class IamDialogTest : AnnotationSpec() {
 
             val iamWebView = createWebView()
             mockWebViewFactory = mock {
-                on { create(null) } doReturn iamWebView
+                on { create(mock()) } doReturn iamWebView
             }
 
             setupMobileEngageComponent(
@@ -408,18 +408,23 @@ class IamDialogTest : AnnotationSpec() {
         val args = Bundle()
         args.putString(CAMPAIGN_ID_KEY, "123456789")
         val actions: List<OnDialogShownAction> = listOf(mock(), mock(), mock())
+
+        val fragmentLatch = CountDownLatch(1)
         val fragmentScenario = launchFragment(args) {
             iamDialog.apply {
                 setActions(actions)
             }
         }
-        fragmentScenario.onFragment {
-            displayDialog(fragmentScenario)
 
+        displayDialog(fragmentScenario)
+
+        fragmentScenario.onFragment {
             for (action in actions) {
                 verify(action).execute("123456789", null, null)
             }
+            fragmentLatch.countDown()
         }
+        fragmentLatch.await()
     }
 
     @Test
@@ -440,6 +445,14 @@ class IamDialogTest : AnnotationSpec() {
         fragmentScenario.moveToState(Lifecycle.State.CREATED)
         fragmentScenario.moveToState(Lifecycle.State.RESUMED)
         fragmentScenario.onFragment {
+            it.activity?.let { activity ->
+                iamDialog.loadInApp(
+                    "<html></html>",
+                    InAppMetaData("123456789", null, null),
+                    MessageLoadedListener {},
+                    activity
+                )
+            }
             for (action in actions) {
                 verify(action, times(1)).execute(any(), any(), any())
             }
@@ -458,6 +471,14 @@ class IamDialogTest : AnnotationSpec() {
         }
 
         fragmentScenario.onFragment {
+            it.activity?.let { activity ->
+                iamDialog.loadInApp(
+                    "<html></html>",
+                    InAppMetaData("123456789", null, null),
+                    MessageLoadedListener {},
+                    activity
+                )
+            }
             it.activity?.runOnUiThread {
                 it.onPause()
             }
@@ -481,6 +502,14 @@ class IamDialogTest : AnnotationSpec() {
             iamDialog
         }
         fragmentScenario.onFragment {
+            it.activity?.let { activity ->
+                iamDialog.loadInApp(
+                    "<html></html>",
+                    InAppMetaData("123456789", null, null),
+                    MessageLoadedListener {},
+                    activity
+                )
+            }
             it.activity?.runOnUiThread {
                 it.onPause()
             }
@@ -526,7 +555,7 @@ class IamDialogTest : AnnotationSpec() {
             val iamWebView = createWebView()
             iamWebView.webView = webView
 
-            whenever(mockWebViewFactory.create(null)).thenReturn(iamWebView)
+            whenever(mockWebViewFactory.create(mock())).thenReturn(iamWebView)
 
             val fragmentScenario = launchFragment {
                 IamDialog(
@@ -551,7 +580,7 @@ class IamDialogTest : AnnotationSpec() {
         val messageLoadedListener = MessageLoadedListener { }
 
         val mockIamWebView: IamWebView = mock()
-        whenever(mockWebViewFactory.create(null)).thenReturn(mockIamWebView)
+        whenever(mockWebViewFactory.create(mock())).thenReturn(mockIamWebView)
 
         val dialog = IamDialog(
             mobileEngage().timestampProvider,
@@ -560,7 +589,7 @@ class IamDialogTest : AnnotationSpec() {
 
         ReflectionTestUtils.setInstanceField(dialog, "iamWebView", mockIamWebView)
 
-        dialog.loadInApp(html, inAppMetaData, messageLoadedListener)
+        dialog.loadInApp(html, inAppMetaData, messageLoadedListener, mock())
 
         verify(mockIamWebView).load(html, inAppMetaData, messageLoadedListener)
     }

@@ -5,6 +5,7 @@ import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
+import com.emarsys.core.activity.TransitionSafeCurrentActivityWatchdog
 import com.emarsys.core.connection.ConnectionWatchDog
 import com.emarsys.core.crypto.Crypto
 import com.emarsys.core.database.CoreSQLiteDatabase
@@ -97,4 +98,6 @@ interface CoreComponent {
     val connectionWatchdog: ConnectionWatchDog
 
     val coreCompletionHandler: CoreCompletionHandler
+
+    val transitionSafeCurrentActivityWatchdog: TransitionSafeCurrentActivityWatchdog
 }
