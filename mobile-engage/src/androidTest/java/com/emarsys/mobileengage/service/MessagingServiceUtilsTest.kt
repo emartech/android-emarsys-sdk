@@ -5,6 +5,7 @@ import android.R
 import android.app.Notification
 import android.content.Context
 import android.content.res.Resources
+import android.graphics.Bitmap
 import android.os.Build.VERSION_CODES
 import android.util.DisplayMetrics
 import androidx.core.app.NotificationCompat
@@ -1082,7 +1083,7 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
     @Test
     fun testStyleNotification_whenStyleIsThumbnail() {
         val mockBuilder: NotificationCompat.Builder = mock {
-            on { setLargeIcon(any()) } doReturn it
+            on { setLargeIcon(any<Bitmap>()) } doReturn it
             on { setContentTitle(any()) } doReturn it
             on { setContentText(any()) } doReturn it
             on { setStyle(any()) } doReturn it
@@ -1157,7 +1158,7 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
         ignored: Class<T>
     ) {
         val mockBuilder: NotificationCompat.Builder = mock {
-            on { setLargeIcon(org.mockito.kotlin.any()) } doReturn it
+            on { setLargeIcon(any<Bitmap>()) } doReturn it
             on { setStyle(org.mockito.kotlin.any()) } doReturn it
         }
 

@@ -1,10 +1,8 @@
 package com.emarsys.mobileengage.iam.dialog
 
 
-import androidx.test.core.app.ActivityScenario
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.testUtil.AnnotationSpec
-import com.emarsys.testUtil.fake.FakeActivity
 import io.kotest.matchers.shouldBe
 import org.mockito.kotlin.mock
 import java.util.concurrent.CountDownLatch
@@ -13,25 +11,16 @@ import kotlin.concurrent.thread
 class IamDialogProviderTest : AnnotationSpec() {
 
     private lateinit var iamDialogProvider: IamDialogProvider
-    private lateinit var scenario: ActivityScenario<FakeActivity>
 
     @Before
     fun setUp() {
-        scenario = ActivityScenario.launch(FakeActivity::class.java)
-        scenario.onActivity { activity ->
-            iamDialogProvider = IamDialogProvider(
-                ConcurrentHandlerHolderFactory.create(),
-                mock(),
-                mock(),
-                mock(),
-                mock()
-            )
-        }
-    }
-
-    @After
-    fun tearDown() {
-        scenario.close()
+        iamDialogProvider = IamDialogProvider(
+            ConcurrentHandlerHolderFactory.create(),
+            mock(),
+            mock(),
+            mock(),
+            mock()
+        )
     }
 
     @Test

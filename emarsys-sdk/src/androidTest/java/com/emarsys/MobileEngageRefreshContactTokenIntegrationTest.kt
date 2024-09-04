@@ -21,14 +21,13 @@ import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.RetryUtils
-import com.emarsys.testUtil.mockito.whenever
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import com.emarsys.testUtil.rules.RetryRule
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Rule
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito
 import java.util.concurrent.CountDownLatch
 
 class MobileEngageRefreshContactTokenIntegrationTest : AnnotationSpec() {
@@ -68,16 +67,16 @@ class MobileEngageRefreshContactTokenIntegrationTest : AnnotationSpec() {
 
         val deviceInfo = DeviceInfo(
             application,
-            Mockito.mock(HardwareIdProvider::class.java).apply {
-                whenever(provideHardwareId()).thenReturn("mobileengage_integration_hwid")
+            mockk<HardwareIdProvider>(relaxed = true).apply {
+                every { provideHardwareId() } returns "mobileengage_integration_hwid"
             },
-            Mockito.mock(VersionProvider::class.java).apply {
-                whenever(provideSdkVersion()).thenReturn("0.0.0-mobileengage_integration_version")
+            mockk<VersionProvider>(relaxed = true).apply {
+                every { provideSdkVersion() } returns "0.0.0-mobileengage_integration_version"
             },
-            Mockito.mock(LanguageProvider::class.java).apply {
-                whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
+            mockk<LanguageProvider>(relaxed = true).apply {
+                every { provideLanguage(any()) } returns "en-US"
             },
-            Mockito.mock(NotificationManagerHelper::class.java),
+            mockk<NotificationManagerHelper>(relaxed = true),
             isAutomaticPushSendingEnabled = true,
             isGooglePlayAvailable = true
         )
@@ -91,7 +90,10 @@ class MobileEngageRefreshContactTokenIntegrationTest : AnnotationSpec() {
 
         ConnectionTestUtils.checkConnection(application)
 
-        sharedPreferences = application.getSharedPreferences("emarsys_secure_shared_preferences", Context.MODE_PRIVATE)
+        sharedPreferences = application.getSharedPreferences(
+            "emarsys_secure_shared_preferences",
+            Context.MODE_PRIVATE
+        )
 
         Emarsys.setup(baseConfig)
 
@@ -119,7 +121,11 @@ class MobileEngageRefreshContactTokenIntegrationTest : AnnotationSpec() {
 
         val eventServiceInternal = emarsys().eventServiceInternal
 
-        eventServiceInternal.trackInternalCustomEvent("integrationTest", emptyMap(), this::eventuallyStoreResult).apply { eventuallyAssertSuccess() }
+        eventServiceInternal.trackInternalCustomEvent(
+            "integrationTest",
+            emptyMap(),
+            this::eventuallyStoreResult
+        ).apply { eventuallyAssertSuccess() }
 
         contactTokenStorage.get() shouldNotBe "tokenForIntegrationTest"
     }

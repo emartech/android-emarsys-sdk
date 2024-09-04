@@ -27,15 +27,15 @@ import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.IntegrationTestUtils
-import com.emarsys.testUtil.mockito.whenever
 import com.emarsys.testUtil.rules.ConnectionRule
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Rule
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.mock
+
 import java.net.URLDecoder
 import java.util.concurrent.CountDownLatch
 import kotlin.reflect.KMutableProperty0
@@ -124,16 +124,16 @@ class PredictIntegrationTest : AnnotationSpec() {
 
         val deviceInfo = DeviceInfo(
             application,
-            mock(HardwareIdProvider::class.java).apply {
-                whenever(provideHardwareId()).thenReturn("mobileengage_integration_hwid")
+            mockk<HardwareIdProvider>(relaxed = true).apply {
+                every { provideHardwareId() } returns "mobileengage_integration_hwid"
             },
-            mock(VersionProvider::class.java).apply {
-                whenever(provideSdkVersion()).thenReturn("0.0.0-mobileengage_integration_version")
+            mockk<VersionProvider>(relaxed = true).apply {
+                every { provideSdkVersion() } returns "0.0.0-mobileengage_integration_version"
             },
-            mock(LanguageProvider::class.java).apply {
-                whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
+            mockk<LanguageProvider>(relaxed = true).apply {
+                every { provideLanguage(any()) } returns "en-US"
             },
-            mock(NotificationManagerHelper::class.java),
+            mockk<NotificationManagerHelper>(relaxed = true),
             isAutomaticPushSendingEnabled = true,
             isGooglePlayAvailable = true
         )

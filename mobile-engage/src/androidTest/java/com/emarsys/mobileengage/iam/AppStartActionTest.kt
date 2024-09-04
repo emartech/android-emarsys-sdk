@@ -8,10 +8,9 @@ import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.util.waitForTask
 import com.emarsys.testUtil.AnnotationSpec
-import com.emarsys.testUtil.mockito.whenever
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoInteractions
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 
 class AppStartActionTest : AnnotationSpec() {
 
@@ -22,8 +21,8 @@ class AppStartActionTest : AnnotationSpec() {
 
     @Before
     fun setUp() {
-        mockEventServiceInternal = mock()
-        mockContactTokenStorage = mock()
+        mockEventServiceInternal = mockk(relaxed = true)
+        mockContactTokenStorage = mockk(relaxed = true)
 
         setupMobileEngageComponent(FakeMobileEngageDependencyContainer())
 
@@ -37,21 +36,37 @@ class AppStartActionTest : AnnotationSpec() {
 
     @Test
     fun testExecute_callsEventServiceInternal_whenContactTokenIsPresent() {
-        whenever(mockContactTokenStorage.get()).thenReturn("contactToken")
+        every { mockContactTokenStorage.get() } returns "contactToken"
 
         startAction.execute(null)
         waitForTask()
 
-        verify(mockEventServiceInternal).trackInternalCustomEventAsync("app:start", null, null)
+        verify { (mockEventServiceInternal).trackInternalCustomEventAsync("app:start", null, null) }
     }
 
     @Test
     fun testExecute_EventServiceInternal_shouldNotBeCalled_whenContactTokenIsNotPresent() {
-        whenever(mockContactTokenStorage.get()).thenReturn(null)
+        every { mockContactTokenStorage.get() } returns null
 
         startAction.execute(null)
         waitForTask()
 
-        verifyNoInteractions(mockEventServiceInternal)
+        verify(exactly = 0) {
+            mockEventServiceInternal.trackInternalCustomEvent(
+                any(),
+                any(),
+                any()
+            )
+        }
+        verify(exactly = 0) {
+            mockEventServiceInternal.trackInternalCustomEventAsync(
+                any(),
+                any(),
+                any()
+            )
+        }
+        verify(exactly = 0) { mockEventServiceInternal.trackCustomEvent(any(), any(), any()) }
+        verify(exactly = 0) { mockEventServiceInternal.trackCustomEventAsync(any(), any(), any()) }
+
     }
 }

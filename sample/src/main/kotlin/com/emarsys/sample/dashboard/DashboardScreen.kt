@@ -134,6 +134,7 @@ class DashboardScreen(
                         if (!viewModel.isGeofenceEnabled()) {
                             Emarsys.geofence.enable {
                                 if (it != null) {
+                                    it.printStackTrace()
                                     customTextToast(
                                         context,
                                         context.getString(R.string.something_went_wrong)

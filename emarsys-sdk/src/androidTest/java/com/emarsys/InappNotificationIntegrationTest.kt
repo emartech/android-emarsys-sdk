@@ -23,11 +23,9 @@ import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.TestUrls.LARGE_IMAGE
-import org.mockito.kotlin.anyOrNull
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import java.util.concurrent.CountDownLatch
 
 class InappNotificationIntegrationTest : AnnotationSpec() {
@@ -62,38 +60,38 @@ class InappNotificationIntegrationTest : AnnotationSpec() {
             .applicationCode(APP_ID)
             .build()
 
-        mockInappPresenterOverlay = mock()
+        mockInappPresenterOverlay = mockk(relaxed = true)
 
-        whenever(
+        every {
             mockInappPresenterOverlay.present(
-                anyOrNull(),
-                eq(SID),
-                anyOrNull(),
-                eq(null),
-                anyOrNull(),
-                anyOrNull(),
-                eq(null)
+                any(),
+                SID,
+                any(),
+                null,
+                any(),
+                any(),
+                null
             )
-        ).thenAnswer {
+        } answers {
             completionListenerLatch.countDown()
         }
-        mockCurrentActivityProvider = mock()
-        val mockActivity = mock<Activity>()
-        whenever(mockCurrentActivityProvider.get()).thenReturn(mockActivity)
+        mockCurrentActivityProvider = mockk(relaxed = true)
+        val mockActivity = mockk<Activity>(relaxed = true)
+        every { mockCurrentActivityProvider.get() } returns mockActivity
 
         DefaultEmarsysDependencies(baseConfig, object : DefaultEmarsysComponent(baseConfig) {
             override val overlayInAppPresenter: OverlayInAppPresenter
                 get() = mockInappPresenterOverlay
             override val activityLifecycleWatchdog: ActivityLifecycleWatchdog
-                get() = mock()
+                get() = mockk(relaxed = true)
             override val currentActivityProvider: CurrentActivityProvider
                 get() = mockCurrentActivityProvider
             override val activityLifecycleActionRegistry: ActivityLifecycleActionRegistry
-                get() = mock()
+                get() = mockk(relaxed = true)
             override val appLifecycleObserver: AppLifecycleObserver
-                get() = mock()
+                get() = mockk(relaxed = true)
             override val eventServiceInternal: EventServiceInternal
-                get() = mock()
+                get() = mockk(relaxed = true)
         })
 
         ConnectionTestUtils.checkConnection(application)
@@ -143,15 +141,16 @@ class InappNotificationIntegrationTest : AnnotationSpec() {
         application.startActivity(intent)
 
         completionListenerLatch.await()
-        verify(mockInappPresenterOverlay).present(
-            anyOrNull(),
-            anyOrNull(),
-            anyOrNull(),
-            anyOrNull(),
-            anyOrNull(),
-            anyOrNull(),
-            anyOrNull()
-        )
+        verify {
+            mockInappPresenterOverlay.present(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        }
     }
-
 }
