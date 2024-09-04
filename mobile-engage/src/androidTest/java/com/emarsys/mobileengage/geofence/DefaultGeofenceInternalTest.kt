@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Build
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.emarsys.core.api.MissingPermissionException
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
@@ -263,15 +264,36 @@ class DefaultGeofenceInternalTest : AnnotationSpec() {
     }
 
     @Test
-    fun testEnable_registersGeofenceBroadcastReceiver() {
-        geofenceInternalWithMockContext.enable(null)
-        geofenceInternalWithMockContext.enable(null)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    fun testEnable_registersGeofenceBroadcastReceiverAboveTiramisu() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            geofenceInternalWithMockContext.enable(null)
+            geofenceInternalWithMockContext.enable(null)
 
-        verify(
-            mockContext,
-            timeout(100).times(1)
-        ).registerReceiver(any<GeofenceBroadcastReceiver>(), any())
+            verify(
+                mockContext,
+                timeout(100).times(1)
+            ).registerReceiver(
+                any<GeofenceBroadcastReceiver>(),
+                any(),
+                eq(Context.RECEIVER_EXPORTED)
+            )
 
+        }
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = 32)
+    fun testEnable_registersGeofenceBroadcastReceiverBelowTiramisu() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            geofenceInternalWithMockContext.enable(null)
+            geofenceInternalWithMockContext.enable(null)
+
+            verify(
+                mockContext,
+                timeout(100).times(1)
+            ).registerReceiver(any<GeofenceBroadcastReceiver>(), any())
+        }
     }
 
     @Test
@@ -309,15 +331,35 @@ class DefaultGeofenceInternalTest : AnnotationSpec() {
     }
 
     @Test
-    fun testDisable() {
-        geofenceInternalWithMockContext.enable(null)
-        geofenceInternalWithMockContext.disable()
-        geofenceInternalWithMockContext.enable(null)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    fun testDisableAboveTiramisu() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            geofenceInternalWithMockContext.enable(null)
+            geofenceInternalWithMockContext.disable()
+            geofenceInternalWithMockContext.enable(null)
 
-        verify(
-            mockContext, timeout(100).times(2)
-        ).registerReceiver(any<GeofenceBroadcastReceiver>(), any())
+            verify(
+                mockContext, timeout(100).times(2)
+            ).registerReceiver(
+                any<GeofenceBroadcastReceiver>(),
+                any(),
+                eq(Context.RECEIVER_EXPORTED)
+            )
+        }
+    }
 
+    @Test
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.S_V2)
+    fun testDisableBelowTiramisu() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            geofenceInternalWithMockContext.enable(null)
+            geofenceInternalWithMockContext.disable()
+            geofenceInternalWithMockContext.enable(null)
+
+            verify(
+                mockContext, timeout(100).times(2)
+            ).registerReceiver(any<GeofenceBroadcastReceiver>(), any())
+        }
     }
 
     @Test

@@ -8,8 +8,8 @@ import com.emarsys.mobileengage.util.waitForTask
 
 
 import com.emarsys.testUtil.AnnotationSpec
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
+import io.mockk.mockk
+import io.mockk.verify
 
 class FetchGeofencesActionTest : AnnotationSpec() {
 
@@ -20,8 +20,8 @@ class FetchGeofencesActionTest : AnnotationSpec() {
 
     @Before
     fun setUp() {
-        mockGeofenceInternal = mock()
-        mockActivity = mock()
+        mockGeofenceInternal = mockk(relaxed = true)
+        mockActivity = mockk(relaxed = true)
 
         setupMobileEngageComponent(FakeMobileEngageDependencyContainer())
 
@@ -39,7 +39,7 @@ class FetchGeofencesActionTest : AnnotationSpec() {
         fetchGeofencesAction.execute(mockActivity)
         waitForTask()
 
-        verify(mockGeofenceInternal).fetchGeofences(null)
+        verify { mockGeofenceInternal.fetchGeofences(null) }
     }
 
 
