@@ -1,3 +1,3 @@
-# What's fixed
-### [Push](https://github.com/emartech/android-emarsys-sdk/wiki#2-push)
-* Fixed issue where the Default Tap Actions' payload was not mapped correctly.
+# What's changed
+### [Emarsys](https://github.com/emartech/android-emarsys-sdk/wiki#contents)
+* Changed error handling in database operations to receive more detailed information.

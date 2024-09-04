@@ -1,6 +1,5 @@
 package com.emarsys.core.provider.hardwareid
 
-import android.database.CursorIndexOutOfBoundsException
 import com.emarsys.core.Mockable
 import com.emarsys.core.contentresolver.hardwareid.HardwareIdContentResolver
 import com.emarsys.core.crypto.HardwareIdentificationCrypto
@@ -26,7 +25,7 @@ class HardwareIdProvider(
     fun provideHardwareId(): String {
         val hardware: HardwareIdentification? = try {
             repository.query(Everything()).firstOrNull()
-        } catch (error: CursorIndexOutOfBoundsException) {
+        } catch (error: Exception) {
             val status = mutableMapOf<String, Any>()
             status["message"] = error.message ?: ""
             status["stackTrace"] = error.stackTrace.map { it.toString() }

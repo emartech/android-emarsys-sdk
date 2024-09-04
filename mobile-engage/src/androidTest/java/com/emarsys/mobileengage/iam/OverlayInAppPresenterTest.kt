@@ -5,9 +5,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.test.core.app.ActivityScenario
+import com.emarsys.core.activity.TransitionSafeCurrentActivityWatchdog
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
-import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.mobileengage.iam.dialog.IamDialog
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider
@@ -33,7 +33,7 @@ class OverlayInAppPresenterTest : AnnotationSpec() {
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var mockIamDialogProvider: IamDialogProvider
     private lateinit var mockTimestampProvider: TimestampProvider
-    private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
+    private lateinit var mockCurrentActivityProvider: TransitionSafeCurrentActivityWatchdog
     private lateinit var mockIamDialog: IamDialog
 
     private lateinit var inAppPresenter: OverlayInAppPresenter
@@ -48,7 +48,7 @@ class OverlayInAppPresenterTest : AnnotationSpec() {
         mockTimestampProvider = mock()
         mockCurrentActivityProvider = mock()
 
-        whenever(mockIamDialog.loadInApp(any(), any(), any())).thenAnswer {
+        whenever(mockIamDialog.loadInApp(any(), any(), any(), any())).thenAnswer {
             (it.getArgument(2) as MessageLoadedListener).onMessageLoaded()
         }
 
@@ -56,7 +56,7 @@ class OverlayInAppPresenterTest : AnnotationSpec() {
             concurrentHandlerHolder,
             mockIamDialogProvider,
             mockTimestampProvider,
-            mockCurrentActivityProvider
+            mockCurrentActivityProvider,
         )
     }
 
@@ -67,7 +67,7 @@ class OverlayInAppPresenterTest : AnnotationSpec() {
         var callbackCalled = false
         Thread {
             scenario.onActivity { activity ->
-                whenever(mockCurrentActivityProvider.get()).thenReturn(activity)
+                whenever(mockCurrentActivityProvider.activity()).thenReturn(activity)
 
                 inAppPresenter.present(
                     "1",
@@ -95,7 +95,7 @@ class OverlayInAppPresenterTest : AnnotationSpec() {
         var callbackCalled = false
         Thread {
             scenario.onActivity { activity ->
-                whenever(mockCurrentActivityProvider.get()).thenReturn(activity)
+                whenever(mockCurrentActivityProvider.activity()).thenReturn(activity)
 
                 inAppPresenter.present(
                     "1",
@@ -112,7 +112,7 @@ class OverlayInAppPresenterTest : AnnotationSpec() {
         }.start()
         countDownLatch.await()
         scenario.close()
-        verify(mockIamDialog).show(any<FragmentManager>(), any())
+        verify(mockIamDialog).showNow(any<FragmentManager>(), any())
         callbackCalled shouldBe true
     }
 
@@ -122,7 +122,7 @@ class OverlayInAppPresenterTest : AnnotationSpec() {
         val countDownLatch = CountDownLatch(1)
         var callbackCalled = false
         Thread {
-            whenever(mockCurrentActivityProvider.get()).thenReturn(activity)
+            whenever(mockCurrentActivityProvider.activity()).thenReturn(activity)
 
             inAppPresenter.present(
                 "1",
@@ -138,34 +138,9 @@ class OverlayInAppPresenterTest : AnnotationSpec() {
         }.start()
         countDownLatch.await()
 
-        verify(mockIamDialog, times(0)).show(any<FragmentManager>(), any())
+        verify(mockIamDialog, times(0)).showNow(any<FragmentManager>(), any())
         callbackCalled shouldBe true
 
-    }
-
-    @Test
-    fun testPresent_shouldNotShowDialog_whenActivity_isNull() {
-        val countDownLatch = CountDownLatch(1)
-        var callbackCalled = false
-        Thread {
-            whenever(mockCurrentActivityProvider.get()).thenReturn(null)
-
-            inAppPresenter.present(
-                "1",
-                SID,
-                URL,
-                "requestId",
-                0L,
-                "<html><body><p>Hello</p></body></html>"
-            ) {
-                callbackCalled = true
-                countDownLatch.countDown()
-            }
-        }.start()
-        countDownLatch.await()
-
-        verify(mockIamDialog, times(0)).show(any<FragmentManager>(), any())
-        callbackCalled shouldBe true
     }
 
     @Test
@@ -186,7 +161,7 @@ class OverlayInAppPresenterTest : AnnotationSpec() {
             ).thenReturn(
                 mockIamDialog
             )
-            whenever(mockCurrentActivityProvider.get()).thenReturn(activity)
+            whenever(mockCurrentActivityProvider.activity()).thenReturn(activity)
             whenever(activity.supportFragmentManager).thenReturn(fragmentManager)
             whenever(fragmentManager.findFragmentByTag("MOBILE_ENGAGE_IAM_DIALOG_TAG")).thenReturn(
                 fragment
@@ -206,7 +181,7 @@ class OverlayInAppPresenterTest : AnnotationSpec() {
         }.start()
         countDownLatch.await()
 
-        verify(mockIamDialog, times(0)).show(any<FragmentManager>(), any())
+        verify(mockIamDialog, times(0)).showNow(any<FragmentManager>(), any())
         callbackCalled shouldBe true
 
     }
@@ -228,7 +203,7 @@ class OverlayInAppPresenterTest : AnnotationSpec() {
             ).thenReturn(
                 mockIamDialog
             )
-            whenever(mockCurrentActivityProvider.get()).thenReturn(activity)
+            whenever(mockCurrentActivityProvider.activity()).thenReturn(activity)
             whenever(activity.supportFragmentManager).thenReturn(fragmentManager)
             whenever(fragmentManager.isStateSaved).thenReturn(true)
             whenever(fragmentManager.findFragmentByTag("MOBILE_ENGAGE_IAM_DIALOG_TAG")).thenReturn(
@@ -249,7 +224,7 @@ class OverlayInAppPresenterTest : AnnotationSpec() {
         }.start()
         countDownLatch.await()
 
-        verify(mockIamDialog, times(0)).show(any<FragmentManager>(), any())
+        verify(mockIamDialog, times(0)).showNow(any<FragmentManager>(), any())
         callbackCalled shouldBe true
 
     }

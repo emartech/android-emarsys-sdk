@@ -14,6 +14,7 @@ android {
     namespace = "com.emarsys.sample"
     defaultConfig {
         applicationId = "com.emarsys.sample"
+        targetSdk = libs.versions.android.targetSdk.get().toInt()
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
         multiDexEnabled = true
@@ -66,7 +67,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get().toString()
+        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
 
     if (env.fetch("RELEASE_MODE", (System.getenv("RELEASE_MODE") ?: "false")) == "true") {

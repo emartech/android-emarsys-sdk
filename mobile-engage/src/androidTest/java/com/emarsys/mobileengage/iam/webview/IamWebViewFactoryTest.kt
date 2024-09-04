@@ -1,22 +1,18 @@
 package com.emarsys.mobileengage.iam.webview
 
 
-import androidx.test.core.app.ActivityScenario
+import android.app.Activity
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
-import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
 import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory
 import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactoryProvider
 import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ExtensionTestUtils.runOnMain
-import com.emarsys.testUtil.fake.FakeActivity
 import io.kotest.matchers.shouldBe
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
-import java.util.concurrent.CountDownLatch
+import io.mockk.every
+import io.mockk.mockk
 
 class IamWebViewFactoryTest : AnnotationSpec() {
 
@@ -25,64 +21,45 @@ class IamWebViewFactoryTest : AnnotationSpec() {
     private lateinit var mockJsBridgeFactory: IamJsBridgeFactory
     private lateinit var mockJsBridge: IamJsBridge
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
-    private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
 
     private lateinit var webViewFactory: IamWebViewFactory
-    private lateinit var scenario: ActivityScenario<FakeActivity>
+    private lateinit var mockActivity: Activity
 
     @Before
     fun setUp() {
-        mockJsBridge = mock()
-        mockJsBridgeFactory = mock {
-            on { createJsBridge(any()) } doReturn mockJsBridge
+        mockJsBridge = mockk(relaxed = true)
+        mockJsBridgeFactory = mockk {
+            every { createJsBridge(any()) } returns mockJsBridge
         }
 
-        mockJSCommandFactory = mock()
-        mockJSCommandFactoryProvider = mock {
-            on { provide() } doReturn mockJSCommandFactory
+        mockJSCommandFactory = mockk()
+        mockJSCommandFactoryProvider = mockk {
+            every { provide() } returns mockJSCommandFactory
         }
 
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
 
-        scenario = ActivityScenario.launch(FakeActivity::class.java)
-        scenario.onActivity { activity ->
-            mockCurrentActivityProvider = mock {
-                on { get() } doReturn activity
-            }
-            webViewFactory = IamWebViewFactory(
-                mockJsBridgeFactory,
-                mockJSCommandFactoryProvider,
-                concurrentHandlerHolder,
-                mockCurrentActivityProvider
-            )
-        }
-    }
-
-    @After
-    fun tearDown() {
-        scenario.close()
+        mockActivity = mockk(relaxed = true)
+        webViewFactory = IamWebViewFactory(
+            mockJsBridgeFactory,
+            mockJSCommandFactoryProvider,
+            concurrentHandlerHolder
+        )
     }
 
     @Test
     fun testCreateWithNull() {
         val iamWebView = runOnMain {
-            webViewFactory.create(null)
+            webViewFactory.create(mockActivity)
         }
         iamWebView::class.java shouldBe IamWebView::class.java
     }
 
     @Test
     fun testCreateWithActivity() {
-        val scenario = ActivityScenario.launch(FakeActivity::class.java)
-        val countDownLatch = CountDownLatch(1)
-        scenario.onActivity { activity ->
-            val iamWebView = runOnMain {
-                webViewFactory.create(activity)
-            }
-            iamWebView::class.java shouldBe IamWebView::class.java
-            countDownLatch.countDown()
+        val iamWebView = runOnMain {
+            webViewFactory.create(mockActivity)
         }
-        countDownLatch.await()
-        scenario.close()
+        iamWebView::class.java shouldBe IamWebView::class.java
     }
 }

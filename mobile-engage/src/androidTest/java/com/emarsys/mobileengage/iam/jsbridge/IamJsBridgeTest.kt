@@ -1,29 +1,19 @@
 package com.emarsys.mobileengage.iam.jsbridge
 
-
-import androidx.test.core.app.ActivityScenario
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.iam.model.InAppMetaData
 import com.emarsys.mobileengage.iam.webview.IamWebView
 import com.emarsys.testUtil.AnnotationSpec
-import com.emarsys.testUtil.fake.FakeActivity
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.mockk.Called
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.verify
 import org.json.JSONObject
-import org.mockito.ArgumentCaptor
-import org.mockito.kotlin.any
-import org.mockito.kotlin.anyOrNull
-import org.mockito.kotlin.capture
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.isNull
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.timeout
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoInteractions
-import org.mockito.kotlin.verifyNoMoreInteractions
-
 
 class IamJsBridgeTest : AnnotationSpec() {
 
@@ -47,81 +37,73 @@ class IamJsBridgeTest : AnnotationSpec() {
     private lateinit var mockOnOpenExternalUrlListener: JSCommand
     private lateinit var mockCopyToClipboardListener: JSCommand
     private lateinit var mockOnMEEventListener: JSCommand
-    private lateinit var captor: ArgumentCaptor<JSONObject>
-    private lateinit var scenario: ActivityScenario<FakeActivity>
+    private val slot = slot<JSONObject>()
 
     @Before
     fun setUp() {
-        scenario = ActivityScenario.launch(FakeActivity::class.java)
-        scenario.onActivity { activity ->
-            inAppMetaData = InAppMetaData("campaignId", "sid", "url")
-            concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
-            mockIamWebView = mock()
-            mockOnCloseListener = mock()
-            mockOnAppEventListener = mock()
-            mockOnButtonClickedListener = mock()
-            mockOnOpenExternalUrlListener = mock()
-            mockOnMEEventListener = mock()
-            mockCopyToClipboardListener = mock()
-            mockJsCommandFactory = mock {
-                on { create(JSCommandFactory.CommandType.ON_CLOSE) } doReturn (mockOnCloseListener)
-                on { create(JSCommandFactory.CommandType.ON_ME_EVENT) } doReturn (mockOnMEEventListener)
-                on { create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL) } doReturn (mockOnOpenExternalUrlListener)
-                on { create(JSCommandFactory.CommandType.ON_APP_EVENT) } doReturn (mockOnAppEventListener)
-                on {
-                    create(
-                        JSCommandFactory.CommandType.ON_BUTTON_CLICKED
-                    )
-                } doReturn (mockOnButtonClickedListener)
-                on { create(JSCommandFactory.CommandType.ON_COPY_TO_CLIPBOARD) } doReturn mockCopyToClipboardListener
-            }
-            mockEventHandler = mock()
-            jsBridge = IamJsBridge(
-                concurrentHandlerHolder,
-                mockJsCommandFactory
-            )
-            jsBridge.iamWebView = mockIamWebView
-            captor = ArgumentCaptor.forClass(JSONObject::class.java)
+        inAppMetaData = InAppMetaData("campaignId", "sid", "url")
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
+        mockIamWebView = mockk(relaxed = true)
+        mockOnCloseListener = mockk(relaxed = true)
+        mockOnAppEventListener = mockk(relaxed = true)
+        mockOnButtonClickedListener = mockk(relaxed = true)
+        mockOnOpenExternalUrlListener = mockk(relaxed = true)
+        mockOnMEEventListener = mockk(relaxed = true)
+        mockCopyToClipboardListener = mockk(relaxed = true)
+        mockJsCommandFactory = mockk {
+            every { create(JSCommandFactory.CommandType.ON_CLOSE) } returns mockOnCloseListener
+            every { create(JSCommandFactory.CommandType.ON_ME_EVENT) } returns mockOnMEEventListener
+            every { create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL) } returns mockOnOpenExternalUrlListener
+            every { create(JSCommandFactory.CommandType.ON_APP_EVENT) } returns mockOnAppEventListener
+            every { create(JSCommandFactory.CommandType.ON_BUTTON_CLICKED) } returns mockOnButtonClickedListener
+            every { create(JSCommandFactory.CommandType.ON_COPY_TO_CLIPBOARD) } returns mockCopyToClipboardListener
         }
-    }
-
-    @After
-    fun tearDown() {
-        scenario.close()
+        mockEventHandler = mockk(relaxed = true)
+        jsBridge = IamJsBridge(
+            concurrentHandlerHolder,
+            mockJsCommandFactory
+        )
+        jsBridge.iamWebView = mockIamWebView
     }
 
     @Test
     fun testClose_shouldInvokeOnCloseListener_createdByFactory() {
         jsBridge.close(jsonObject.toString())
 
-        verify(mockJsCommandFactory).create(JSCommandFactory.CommandType.ON_CLOSE)
-        verify(mockOnCloseListener).invoke(anyOrNull(), any())
+        verify {
+            mockJsCommandFactory.create(JSCommandFactory.CommandType.ON_CLOSE)
+            mockOnCloseListener.invoke(null, any())
+        }
     }
 
     @Test
     fun testOnAppEvent_shouldInvokeOnAppEventListener_createdByFactory() {
         jsBridge.triggerAppEvent(jsonObject.toString())
 
-        verify(mockJsCommandFactory).create(JSCommandFactory.CommandType.ON_APP_EVENT)
-        verify(mockOnAppEventListener).invoke(anyOrNull(), any())
+        verify {
+            mockJsCommandFactory.create(JSCommandFactory.CommandType.ON_APP_EVENT)
+            mockOnAppEventListener.invoke("testName", any())
+        }
     }
 
     @Test
     fun testOnButtonClickedEvent_shouldInvokeOnAppEventListener_createdByFactory() {
         jsBridge.buttonClicked(jsonObject.toString())
 
-        verify(mockJsCommandFactory).create(
-            JSCommandFactory.CommandType.ON_BUTTON_CLICKED
-        )
-        verify(mockOnButtonClickedListener, timeout(2500)).invoke(anyOrNull(), any())
+        verify(timeout = 2500) {
+            mockJsCommandFactory.create(JSCommandFactory.CommandType.ON_BUTTON_CLICKED)
+            mockOnButtonClickedListener.invoke("testButtonId", any())
+        }
     }
 
     @Test
     fun testOnMEEvent_shouldInvokeOnAppEventListener_createdByFactory() {
         jsBridge.triggerMEEvent(jsonObject.toString())
 
-        verify(mockJsCommandFactory).create(JSCommandFactory.CommandType.ON_ME_EVENT)
-        verify(mockOnMEEventListener).invoke(anyOrNull(), any())
+        verify {
+            mockJsCommandFactory.create(JSCommandFactory.CommandType.ON_ME_EVENT)
+            mockOnMEEventListener.invoke("testName", any())
+        }
     }
 
     @Test
@@ -137,10 +119,12 @@ class IamJsBridgeTest : AnnotationSpec() {
         )
         jsBridge.openExternalLink(json.toString())
 
-        verify(mockJsCommandFactory).create(JSCommandFactory.CommandType.ON_CLOSE)
-        verify(mockJsCommandFactory).create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL)
-        verify(mockOnCloseListener).invoke(isNull(), any())
-        verify(mockOnOpenExternalUrlListener).invoke(anyOrNull(), any())
+        verify {
+            mockJsCommandFactory.create(JSCommandFactory.CommandType.ON_CLOSE)
+            mockJsCommandFactory.create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL)
+            mockOnCloseListener.invoke(null, any())
+            mockOnOpenExternalUrlListener.invoke("https://emarsys.com", any())
+        }
     }
 
     @Test
@@ -155,10 +139,12 @@ class IamJsBridgeTest : AnnotationSpec() {
         )
         jsBridge.openExternalLink(json.toString())
 
-        verify(mockJsCommandFactory).create(JSCommandFactory.CommandType.ON_CLOSE)
-        verify(mockJsCommandFactory).create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL)
-        verify(mockOnCloseListener).invoke(isNull(), any())
-        verify(mockOnOpenExternalUrlListener).invoke(anyOrNull(), any())
+        verify {
+            mockJsCommandFactory.create(JSCommandFactory.CommandType.ON_CLOSE)
+            mockJsCommandFactory.create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL)
+            mockOnCloseListener.invoke(null, any())
+            mockOnOpenExternalUrlListener.invoke("https://emarsys.com", any())
+        }
     }
 
     @Test
@@ -174,10 +160,11 @@ class IamJsBridgeTest : AnnotationSpec() {
         )
         jsBridge.openExternalLink(json.toString())
 
-        verify(mockJsCommandFactory).create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL)
-        verifyNoMoreInteractions(mockJsCommandFactory)
-        verifyNoInteractions(mockOnCloseListener)
-        verify(mockOnOpenExternalUrlListener).invoke(anyOrNull(), any())
+        verify {
+            mockJsCommandFactory.create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL)
+        }
+        verify { mockOnCloseListener wasNot Called }
+        verify { mockOnOpenExternalUrlListener.invoke("https://emarsys.com", any()) }
     }
 
     @Test
@@ -187,13 +174,12 @@ class IamJsBridgeTest : AnnotationSpec() {
 
         jsBridge.triggerAppEvent(json.toString())
 
-        verify(
-            mockIamWebView,
-            timeout(1000)
-        ).respondToJS(capture(captor))
+        verify(timeout = 1000) {
+            mockIamWebView.respondToJS(capture(slot))
+        }
 
-        captor.value["id"] shouldBe id
-        captor.value["success"] shouldBe true
+        slot.captured["id"] shouldBe id
+        slot.captured["success"] shouldBe true
     }
 
     @Test
@@ -203,13 +189,12 @@ class IamJsBridgeTest : AnnotationSpec() {
 
         jsBridge.triggerMEEvent(json.toString())
 
-        verify(
-            mockIamWebView,
-            timeout(1000)
-        ).respondToJS(capture(captor))
+        verify(timeout = 1000) {
+            mockIamWebView.respondToJS(capture(slot))
+        }
 
-        captor.value["id"] shouldBe id
-        captor.value["success"] shouldBe true
+        slot.captured["id"] shouldBe id
+        slot.captured["success"] shouldBe true
     }
 
     @Test
@@ -219,13 +204,12 @@ class IamJsBridgeTest : AnnotationSpec() {
         val json = JSONObject().put("id", id).put("buttonId", buttonId)
         jsBridge.buttonClicked(json.toString())
 
-        verify(
-            mockIamWebView,
-            timeout(1000)
-        ).respondToJS(capture(captor))
+        verify(timeout = 1000) {
+            mockIamWebView.respondToJS(capture(slot))
+        }
 
-        captor.value["id"] shouldBe id
-        captor.value["success"] shouldBe true
+        slot.captured["id"] shouldBe id
+        slot.captured["success"] shouldBe true
     }
 
     @Test
@@ -235,13 +219,12 @@ class IamJsBridgeTest : AnnotationSpec() {
         val json = JSONObject().put("id", id).put("url", url).put("keepInAppOpen", false)
         jsBridge.openExternalLink(json.toString())
 
-        verify(
-            mockIamWebView,
-            timeout(1000)
-        ).respondToJS(capture(captor))
+        verify(timeout = 1000) {
+            mockIamWebView.respondToJS(capture(slot))
+        }
 
-        captor.value["id"] shouldBe id
-        captor.value["success"] shouldBe true
+        slot.captured["id"] shouldBe id
+        slot.captured["success"] shouldBe true
     }
 
     @Test
@@ -250,14 +233,13 @@ class IamJsBridgeTest : AnnotationSpec() {
         val json = JSONObject().put("id", id)
         jsBridge.triggerAppEvent(json.toString())
 
-        verify(
-            mockIamWebView,
-            timeout(1000)
-        ).respondToJS(capture(captor))
+        verify(timeout = 1000) {
+            mockIamWebView.respondToJS(capture(slot))
+        }
 
-        captor.value["id"] shouldBe id
-        captor.value["success"] shouldBe false
-        captor.value["error"] shouldBe "Missing name!"
+        slot.captured["id"] shouldBe id
+        slot.captured["success"] shouldBe false
+        slot.captured["error"] shouldBe "Missing name!"
     }
 
     @Test
@@ -267,14 +249,13 @@ class IamJsBridgeTest : AnnotationSpec() {
 
         jsBridge.triggerMEEvent(json.toString())
 
-        verify(
-            mockIamWebView,
-            timeout(1000)
-        ).respondToJS(capture(captor))
+        verify(timeout = 1000) {
+            mockIamWebView.respondToJS(capture(slot))
+        }
 
-        captor.value["id"] shouldBe id
-        captor.value["success"] shouldBe false
-        captor.value["error"] shouldBe "Missing name!"
+        slot.captured["id"] shouldBe id
+        slot.captured["success"] shouldBe false
+        slot.captured["error"] shouldBe "Missing name!"
     }
 
     @Test
@@ -283,16 +264,14 @@ class IamJsBridgeTest : AnnotationSpec() {
         val json = JSONObject().put("id", id)
         jsBridge.buttonClicked(json.toString())
 
-        verify(
-            mockIamWebView,
-            timeout(1000)
-        ).respondToJS(capture(captor))
+        verify(timeout = 1000) {
+            mockIamWebView.respondToJS(capture(slot))
+        }
 
-        captor.value["id"] shouldBe id
-        captor.value["success"] shouldBe false
-        captor.value["error"] shouldBe "Missing buttonId!"
+        slot.captured["id"] shouldBe id
+        slot.captured["success"] shouldBe false
+        slot.captured["error"] shouldBe "Missing buttonId!"
     }
-
 
     @Test
     fun testOpenExternalLink_shouldInvokeCallback_whenUrlIsMissing() {
@@ -300,14 +279,13 @@ class IamJsBridgeTest : AnnotationSpec() {
         val json = JSONObject().put("id", id).put("keepInAppOpen", false)
         jsBridge.openExternalLink(json.toString())
 
-        verify(
-            mockIamWebView,
-            timeout(1000)
-        ).respondToJS(capture(captor))
+        verify(timeout = 1000) {
+            mockIamWebView.respondToJS(capture(slot))
+        }
 
-        captor.value["id"] shouldBe id
-        captor.value["success"] shouldBe false
-        captor.value["error"] shouldBe "Missing url!"
+        slot.captured["id"] shouldBe id
+        slot.captured["success"] shouldBe false
+        slot.captured["error"] shouldBe "Missing url!"
     }
 
     @Test
@@ -316,13 +294,12 @@ class IamJsBridgeTest : AnnotationSpec() {
         val json = JSONObject().put("id", id).put("text", "testText")
         jsBridge.copyToClipboard(json.toString())
 
-        verify(
-            mockIamWebView,
-            timeout(1000)
-        ).respondToJS(capture(captor))
+        verify(timeout = 1000) {
+            mockIamWebView.respondToJS(capture(slot))
+        }
 
-        captor.value["id"] shouldBe id
-        captor.value["success"] shouldBe true
+        slot.captured["id"] shouldBe id
+        slot.captured["success"] shouldBe true
     }
 
     @Test
@@ -331,13 +308,12 @@ class IamJsBridgeTest : AnnotationSpec() {
         val json = JSONObject().put("id", id)
         jsBridge.copyToClipboard(json.toString())
 
-        verify(
-            mockIamWebView,
-            timeout(1000)
-        ).respondToJS(capture(captor))
+        verify(timeout = 1000) {
+            mockIamWebView.respondToJS(capture(slot))
+        }
 
-        captor.value["id"] shouldBe id
-        captor.value["success"] shouldBe false
+        slot.captured["id"] shouldBe id
+        slot.captured["success"] shouldBe false
     }
 
     @Test
@@ -352,9 +328,8 @@ class IamJsBridgeTest : AnnotationSpec() {
         val json = JSONObject().put("id", "123456789").put("key", "value")
         jsBridge.sendResult(json)
 
-        verify(
-            mockIamWebView,
-            timeout(1000)
-        ).respondToJS(json)
+        verify(timeout = 1000) {
+            mockIamWebView.respondToJS(json)
+        }
     }
 }

@@ -3,7 +3,10 @@ package com.emarsys.predict.util;
 import com.emarsys.core.util.Assert;
 import com.emarsys.predict.api.model.CartItem;
 
+import java.net.URLEncoder;
 import java.util.List;
+
+import kotlin.text.Charsets;
 
 public class CartItemUtils {
 
@@ -24,7 +27,7 @@ public class CartItemUtils {
     }
 
     private static String cartItemToQueryParam(CartItem cartItem) {
-        return "i:" + cartItem.getItemId() + ",p:" + cartItem.getPrice() + ",q:" + cartItem.getQuantity();
+        return "i:" + URLEncoder.encode(cartItem.getItemId(), Charsets.UTF_8) + ",p:" + cartItem.getPrice() + ",q:" + cartItem.getQuantity();
     }
 
 }

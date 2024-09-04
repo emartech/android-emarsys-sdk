@@ -8,6 +8,7 @@ import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
+import com.emarsys.core.activity.TransitionSafeCurrentActivityWatchdog
 import com.emarsys.core.app.AppLifecycleObserver
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.connection.ConnectionWatchDog
@@ -154,4 +155,5 @@ class FakeEmarsysDependencyContainer(
     override val jsOnCloseListener: OnCloseListener = mock(),
     override val jsOnAppEventListener: OnAppEventListener = mock(),
     override val remoteMessageMapperFactory: RemoteMessageMapperFactory = mock(),
+    override val transitionSafeCurrentActivityWatchdog: TransitionSafeCurrentActivityWatchdog   = mock(),
 ) : MobileEngageComponent

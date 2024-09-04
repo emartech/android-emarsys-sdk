@@ -9,21 +9,12 @@ import com.emarsys.mobileengage.util.waitForTask
 
 
 import com.emarsys.testUtil.AnnotationSpec
-import org.mockito.Mockito
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoInteractions
-import org.mockito.kotlin.whenever
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 
 class DeepLinkActionTest : AnnotationSpec() {
-    companion object {
-        init {
-            Mockito.mock(Intent::class.java)
-            Mockito.mock(Activity::class.java)
-        }
-    }
-
-    private lateinit var deepLinkInternal: DeepLinkInternal
+    private lateinit var mockDeepLinkInternal: DeepLinkInternal
     private lateinit var action: DeepLinkAction
 
 
@@ -32,8 +23,8 @@ class DeepLinkActionTest : AnnotationSpec() {
 
         setupMobileEngageComponent(FakeMobileEngageDependencyContainer())
 
-        deepLinkInternal = mock()
-        action = DeepLinkAction(deepLinkInternal)
+        mockDeepLinkInternal = mockk(relaxed = true)
+        action = DeepLinkAction(mockDeepLinkInternal)
     }
 
     @After
@@ -43,23 +34,30 @@ class DeepLinkActionTest : AnnotationSpec() {
 
     @Test
     fun testExecute_callsMobileEngageInternal() {
-        val intent: Intent = mock()
-        val activity: Activity = mock()
-        whenever(activity.intent).thenReturn(intent)
+        val intent: Intent = mockk(relaxed = true)
+        val mockActivity: Activity = mockk(relaxed = true)
+        every { mockActivity.intent } returns intent
 
-        action.execute(activity)
-        waitForTask()
+        action.execute(mockActivity)
 
-        verify(deepLinkInternal).trackDeepLinkOpen(activity, intent, null)
+        verify { mockDeepLinkInternal.trackDeepLinkOpen(mockActivity, intent, null) }
     }
 
     @Test
     fun testExecute_neverCallsMobileEngageInternal_whenIntentFromActivityIsNull() {
-        val activity: Activity = mock()
-        action.execute(activity)
+        val mockActivity: Activity = mockk(relaxed = true)
+        every { mockActivity.intent } returns null
+
+        action.execute(mockActivity)
         waitForTask()
 
-        verifyNoInteractions(deepLinkInternal)
+        verify(exactly = 0) {
+            (mockDeepLinkInternal.trackDeepLinkOpen(
+                eq(mockActivity),
+                any(),
+                any()
+            ))
+        }
     }
 
     @Test
@@ -67,6 +65,6 @@ class DeepLinkActionTest : AnnotationSpec() {
         action.execute(null)
         waitForTask()
 
-        verifyNoInteractions(deepLinkInternal)
+        verify(exactly = 0) { (mockDeepLinkInternal.trackDeepLinkOpen(any(), any(), any())) }
     }
 }

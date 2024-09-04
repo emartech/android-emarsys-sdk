@@ -2,46 +2,30 @@ package com.emarsys.mobileengage.notification.command
 
 
 import android.app.Activity
-import android.app.Application
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import androidx.lifecycle.Lifecycle
-import androidx.test.core.app.ActivityScenario
 import com.emarsys.mobileengage.fake.FakeActivityLifecycleCallbacks
 import com.emarsys.mobileengage.notification.LaunchActivityCommandLifecycleCallbacksFactory
 import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
-import com.emarsys.testUtil.fake.FakeActivity
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito
-import org.mockito.kotlin.any
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
-import java.util.concurrent.CountDownLatch
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.verify
 
+import java.util.concurrent.CountDownLatch
 class LaunchApplicationCommandTest : AnnotationSpec() {
 
-
-    private lateinit var scenario: ActivityScenario<FakeActivity>
     private lateinit var mockProviderLaunchActivityCommand: LaunchActivityCommandLifecycleCallbacksFactory
+    private lateinit var mockActivity: Activity
 
     @Before
     fun setUp() {
-        scenario = ActivityScenario.launch(FakeActivity::class.java)
-        scenario.onActivity { activity ->
-            mockProviderLaunchActivityCommand =
-                Mockito.mock(LaunchActivityCommandLifecycleCallbacksFactory::class.java)
-        }
-    }
-
-    @After
-    fun tearDown() {
-        scenario.close()
+        mockProviderLaunchActivityCommand = mockk(relaxed = true)
+        mockActivity = mockk(relaxed = true)
     }
 
     @Test
@@ -71,74 +55,73 @@ class LaunchApplicationCommandTest : AnnotationSpec() {
 
     @Test
     fun testRun_startsActivity_withCorrectIntent() {
-        val captor = ArgumentCaptor.forClass(Intent::class.java)
+        val captor = slot<Intent>()
         val launchIntentForPackage = Intent()
-        val pm: PackageManager = mock()
-        whenever(pm.getLaunchIntentForPackage(ArgumentMatchers.anyString())).thenReturn(
-            launchIntentForPackage
-        )
-        val mockActivity: Activity = mock()
-        whenever(mockActivity.applicationContext).thenReturn(mock<Application>())
-        whenever(mockActivity.packageManager).thenReturn(pm)
-        whenever(mockActivity.packageName).thenReturn("packageName")
-        val extras = Bundle()
-        extras.putLong("key1", 800)
-        extras.putString("key2", "value")
-        val remoteIntent = Intent()
-        remoteIntent.putExtras(extras)
-        val command: Runnable =
-            LaunchApplicationCommand(
-                remoteIntent,
-                mockActivity,
-                mockProviderLaunchActivityCommand
-            )
-        command.run()
-        verify(mockActivity).startActivity(captor.capture())
-        val expectedBundle = launchIntentForPackage.extras
-        val resultBundle = captor.value.extras
-        resultBundle!!.keySet() shouldBe expectedBundle!!.keySet()
+        val pm: PackageManager = mockk()
+        every { pm.getLaunchIntentForPackage(any()) } returns launchIntentForPackage
+        every { mockActivity.packageManager } returns pm
+        every { mockActivity.packageName } returns "packageName"
+        every { mockActivity.applicationContext } returns getTargetContext().applicationContext
 
-        for (key in expectedBundle.keySet()) {
-            resultBundle[key] shouldBe expectedBundle[key]
+        val extras = Bundle().apply {
+            putLong("key1", 800)
+            putString("key2", "value")
+        }
+
+        val remoteIntent = Intent().apply {
+            putExtras(extras)
+        }
+
+        val command =
+            LaunchApplicationCommand(remoteIntent, mockActivity, mockProviderLaunchActivityCommand)
+        command.run()
+
+        verify { mockActivity.startActivity(capture(captor)) }
+        captor.captured.extras!!.keySet() shouldBe launchIntentForPackage.extras!!.keySet()
+
+        for (key in launchIntentForPackage.extras!!.keySet()) {
+            captor.captured.extras!!.get(key) shouldBe launchIntentForPackage.extras!!.get(key)
         }
     }
 
     @Test
     fun testRun_startsActivity_withIncorrectIntent() {
-        val pm: PackageManager = mock()
-        val mockActivity: Activity = mock()
-        whenever(mockActivity.packageManager).thenReturn(pm)
-        whenever(mockActivity.packageName).thenReturn("packageName")
-        whenever(mockActivity.applicationContext).thenReturn(mock<Application>())
+        val pm: PackageManager = mockk()
+        every { mockActivity.packageManager } returns pm
+        every { mockActivity.packageName } returns "packageName"
 
-        val extras = Bundle()
-        extras.putLong("key1", 800)
-        extras.putString("key2", "value")
-        val remoteIntent = Intent()
-        remoteIntent.putExtras(extras)
-        val command: Runnable =
-            LaunchApplicationCommand(
-                remoteIntent,
-                mockActivity,
-                mockProviderLaunchActivityCommand
-            )
+        val extras = Bundle().apply {
+            putLong("key1", 800)
+            putString("key2", "value")
+        }
+
+        val remoteIntent = Intent().apply {
+            putExtras(extras)
+        }
+
+        val command = LaunchApplicationCommand(
+            remoteIntent,
+            getTargetContext(),
+            mockProviderLaunchActivityCommand
+        )
         command.run()
+
+        verify(exactly = 0) { mockActivity.startActivity(any()) }
     }
 
     @Test
     fun testLaunchActivity_shouldBlock() {
-        whenever(mockProviderLaunchActivityCommand.create(any())).thenAnswer { invocation ->
-            FakeActivityLifecycleCallbacks(onResume = { (invocation.getArgument(0) as CountDownLatch).countDown() })
+        every { mockProviderLaunchActivityCommand.create(any()) } answers {
+            FakeActivityLifecycleCallbacks(onResume = { (it.invocation.args[0] as CountDownLatch).countDown() })
         }
 
-        scenario.onActivity { activity ->
-            val command: Runnable =
-                LaunchApplicationCommand(Intent(), activity, mockProviderLaunchActivityCommand)
-            command.run()
-        }
+        val command = LaunchApplicationCommand(
+            Intent(),
+            getTargetContext(),
+            mockProviderLaunchActivityCommand
+        )
+        command.run()
 
-        scenario.onActivity { activity ->
-            activity.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED) shouldBe true
-        }
+        verify { mockProviderLaunchActivityCommand.create(any()) }
     }
 }

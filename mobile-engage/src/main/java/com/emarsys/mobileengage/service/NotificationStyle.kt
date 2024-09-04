@@ -85,7 +85,7 @@ object DefaultStyle : NotificationStyle() {
             builder.setLargeIcon(image)
                     .setStyle(NotificationCompat.BigPictureStyle()
                             .bigPicture(image)
-                            .bigLargeIcon(null)
+                        .bigLargeIcon(null as Bitmap?)
                             .setBigContentTitle(notificationData.title)
                             .setSummaryText(notificationData.body))
         } else {

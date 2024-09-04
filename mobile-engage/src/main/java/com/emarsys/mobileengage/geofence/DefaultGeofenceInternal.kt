@@ -149,10 +149,18 @@ class DefaultGeofenceInternal(
     private fun registerBroadcastReceiver() {
         if (!receiverRegistered) {
             concurrentHandlerHolder.postOnMain {
-                context.registerReceiver(
-                    geofenceBroadcastReceiver,
-                    IntentFilter("com.emarsys.sdk.GEOFENCE_ACTION")
-                )
+                if (AndroidVersionUtils.isTiramisuOrAbove) {
+                    context.registerReceiver(
+                        geofenceBroadcastReceiver,
+                        IntentFilter("com.emarsys.sdk.GEOFENCE_ACTION"),
+                        Context.RECEIVER_EXPORTED
+                    )
+                } else {
+                    context.registerReceiver(
+                        geofenceBroadcastReceiver,
+                        IntentFilter("com.emarsys.sdk.GEOFENCE_ACTION"),
+                    )
+                }
             }
             receiverRegistered = true
         }

@@ -50,7 +50,9 @@ class PreloadedInappHandlerCommandTest : AnnotationSpec() {
             collapseId = COLLAPSE_ID,
             operation = NotificationOperation.INIT.name,
             actions = null,
-            inapp = null
+            inapp = null,
+            u = "{\"customField\":\"customValue\"}",
+            message_id = "messageId"
         )
     }
 

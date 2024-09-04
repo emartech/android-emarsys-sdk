@@ -9,6 +9,7 @@ import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
+
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
@@ -27,15 +28,11 @@ import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.fake.FakeActivity
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.spyk
+import io.mockk.verify
 import org.json.JSONObject
-import org.mockito.Mockito.spy
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
 class InlineInAppViewTest : AnnotationSpec() {
@@ -63,12 +60,13 @@ class InlineInAppViewTest : AnnotationSpec() {
     fun setUp() {
 
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
-        mockJsBridge = mock()
-        mockIamJsBridgeFactory = mock { on { createJsBridge(any()) } doReturn mockJsBridge }
-        mockJsCommandFactory = mock()
+        mockJsBridge = mockk(relaxed = true)
+        mockIamJsBridgeFactory =
+            mockk(relaxed = true) { every { createJsBridge(any()) } returns mockJsBridge }
+        mockJsCommandFactory = mockk(relaxed = true)
         scenario = ActivityScenario.launch(FakeActivity::class.java)
         scenario.onActivity { activity ->
-            mockIamWebView = spy(runOnMain {
+            mockIamWebView = spyk(runOnMain {
                 IamWebView(
                     concurrentHandlerHolder,
                     mockIamJsBridgeFactory,
@@ -77,18 +75,20 @@ class InlineInAppViewTest : AnnotationSpec() {
                 )
             })
 
-            mockWebViewFactory = mock {
-                on { create(activity) }.thenReturn(mockIamWebView)
+            mockWebViewFactory = mockk(relaxed = true) {
+                every { create(activity) } returns (mockIamWebView)
             }
-            mockRequestModel = mock {
-                on { id } doReturn REQUEST_ID
+            mockRequestModel = mockk(relaxed = true) {
+                every { id } returns REQUEST_ID
             }
-            mockResponseModel = mock {
-                on { requestModel } doReturn mockRequestModel
+            mockResponseModel = mockk(relaxed = true) {
+                every { requestModel } returns mockRequestModel
             }
-            mockRequestManager = mock()
-            mockRequestModelFactory = mock {
-                on { createFetchInlineInAppMessagesRequest("testViewId") }.doReturn(mockRequestModel)
+            mockRequestManager = mockk(relaxed = true)
+            mockRequestModelFactory = mockk(relaxed = true) {
+                every { createFetchInlineInAppMessagesRequest("testViewId") }.returns(
+                    mockRequestModel
+                )
             }
 
             setupEmarsysComponent(
@@ -127,11 +127,13 @@ class InlineInAppViewTest : AnnotationSpec() {
 
         val expectedHtml = "<html>Hello World</html>"
 
-        verify(mockIamWebView).load(
-            eq(expectedHtml),
-            eq(InAppMetaData("765", null, null)),
-            any()
-        )
+        verify {
+            mockIamWebView.load(
+                (expectedHtml),
+                (InAppMetaData("765", null, null)),
+                any()
+            )
+        }
     }
 
     @Test
@@ -148,11 +150,13 @@ class InlineInAppViewTest : AnnotationSpec() {
         inlineInAppView.loadInApp(VIEW_ID)
         latch.await()
 
-        verify(mockIamWebView, times(0)).load(
-            any(),
-            any(),
-            any()
-        )
+        verify(exactly = 0) {
+            mockIamWebView.load(
+                any(),
+                any(),
+                any()
+            )
+        }
     }
 
     @Test
@@ -173,11 +177,13 @@ class InlineInAppViewTest : AnnotationSpec() {
 
         error shouldNotBe null
         error!!.message shouldBe "Inline In-App HTML content must not be empty, please check your viewId!"
-        verify(mockIamWebView, times(0)).load(
-            any(),
-            any(),
-            any()
-        )
+        verify(exactly = 0) {
+            mockIamWebView.load(
+                any(),
+                any(),
+                any()
+            )
+        }
     }
 
     @Test
@@ -190,11 +196,13 @@ class InlineInAppViewTest : AnnotationSpec() {
         inlineInAppView.loadInApp(VIEW_ID)
         latch.await()
 
-        verify(mockIamWebView, times(0)).load(
-            any(),
-            any(),
-            any()
-        )
+        verify(exactly = 0) {
+            mockIamWebView.load(
+                any(),
+                any(),
+                any()
+            )
+        }
     }
 
     @Test
@@ -203,9 +211,9 @@ class InlineInAppViewTest : AnnotationSpec() {
         val expectedStatusCode = 500
         val expectedMessage = "Error message"
         requestManagerRespond(false, responseBody = JSONObject())
-        whenever(mockResponseModel.body).thenReturn(expectedBody)
-        whenever(mockResponseModel.statusCode).thenReturn(expectedStatusCode)
-        whenever(mockResponseModel.message).thenReturn(expectedMessage)
+        every { mockResponseModel.body } returns expectedBody
+        every { mockResponseModel.statusCode } returns expectedStatusCode
+        every { mockResponseModel.message } returns expectedMessage
 
         var error: Throwable? = null
 
@@ -222,11 +230,13 @@ class InlineInAppViewTest : AnnotationSpec() {
         (error as ResponseErrorException).statusCode shouldBe expectedStatusCode
         (error as ResponseErrorException).statusMessage shouldBe expectedMessage
 
-        verify(mockIamWebView, times(0)).load(
-            any(),
-            any(),
-            any()
-        )
+        verify(exactly = 0) {
+            mockIamWebView.load(
+                any(),
+                any(),
+                any()
+            )
+        }
     }
 
     @Test
@@ -242,11 +252,13 @@ class InlineInAppViewTest : AnnotationSpec() {
         inlineInAppView.loadInApp(VIEW_ID)
         latch.await()
 
-        verify(mockIamWebView, times(0)).load(
-            any(),
-            any(),
-            any()
-        )
+        verify(exactly = 0) {
+            mockIamWebView.load(
+                any(),
+                any(),
+                any()
+            )
+        }
     }
 
     @Test
@@ -257,7 +269,7 @@ class InlineInAppViewTest : AnnotationSpec() {
                                 |{"campaignId":"7625","html":"<html>Hello World2</html>","viewId":"$OTHER_VIEW_ID"}],"oldCampaigns":[]}""".trimMargin()
         )
         requestManagerRespond(responseBody = expectedBody)
-        val mockOnCloseListener: OnCloseListener = mock()
+        val mockOnCloseListener: OnCloseListener = mockk(relaxed = true)
 
         val latch = CountDownLatch(1)
         inlineInAppView.onCloseListener = mockOnCloseListener
@@ -267,9 +279,12 @@ class InlineInAppViewTest : AnnotationSpec() {
         inlineInAppView.loadInApp(VIEW_ID)
         latch.await()
 
-        whenever(mockIamWebView.onCloseTriggered).thenAnswer {
-            val closeListener = it.arguments[0]
+        every {
+            mockIamWebView.onCloseTriggered
+        } answers {
+            val closeListener = it.invocation.args[0]
             closeListener shouldBe mockOnCloseListener
+            null
         }
 
     }
@@ -282,7 +297,7 @@ class InlineInAppViewTest : AnnotationSpec() {
                                 |{"campaignId":"7625","html":"<html>Hello World2</html>","viewId":"$OTHER_VIEW_ID"}],"oldCampaigns":[]}""".trimMargin()
         )
         requestManagerRespond(responseBody = expectedBody)
-        val mockAppEventListener: OnAppEventListener = mock()
+        val mockAppEventListener: OnAppEventListener = mockk(relaxed = true)
 
         val latch = CountDownLatch(1)
         inlineInAppView.onAppEventListener = mockAppEventListener
@@ -292,9 +307,12 @@ class InlineInAppViewTest : AnnotationSpec() {
         inlineInAppView.loadInApp(VIEW_ID)
         latch.await()
 
-        whenever(mockIamWebView.onAppEventTriggered).thenAnswer {
-            val appEventListener = it.arguments[0]
+        every {
+            mockIamWebView.onAppEventTriggered
+        } answers {
+            val appEventListener = it.invocation.args[0]
             appEventListener shouldBe mockAppEventListener
+            null
         }
     }
 
@@ -303,11 +321,13 @@ class InlineInAppViewTest : AnnotationSpec() {
         responseBody: JSONObject? = null,
         exception: Exception? = null
     ) {
-        whenever(mockRequestManager.submitNow(any(), any())).thenAnswer {
+        every {
+            mockRequestManager.submitNow(any(), any())
+        } answers {
             val coreCompletionHandler: CoreCompletionHandler =
-                (it.arguments[1] as CoreCompletionHandler)
+                (it.invocation.args[1] as CoreCompletionHandler)
             if (responseBody != null) {
-                whenever(mockResponseModel.parsedBody).thenReturn(responseBody)
+                every { mockResponseModel.parsedBody } returns responseBody
                 if (success) {
                     coreCompletionHandler.onSuccess(REQUEST_ID, mockResponseModel)
                 } else {

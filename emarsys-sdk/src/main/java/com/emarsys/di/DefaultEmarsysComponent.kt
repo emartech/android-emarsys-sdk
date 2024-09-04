@@ -25,6 +25,7 @@ import com.emarsys.core.Mapper
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
+import com.emarsys.core.activity.TransitionSafeCurrentActivityWatchdog
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.proxyApi
 import com.emarsys.core.app.AppLifecycleObserver
@@ -315,6 +316,12 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         ) as ClipboardManager
     }
 
+    override val transitionSafeCurrentActivityWatchdog: TransitionSafeCurrentActivityWatchdog by lazy {
+        TransitionSafeCurrentActivityWatchdog(
+            concurrentHandlerHolder.coreHandler
+        )
+    }
+
     override val overlayInAppPresenter: OverlayInAppPresenter by lazy {
         OverlayInAppPresenter(
             concurrentHandlerHolder,
@@ -326,7 +333,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
                 webViewFactory
             ),
             timestampProvider,
-            currentActivityProvider
+            transitionSafeCurrentActivityWatchdog
         )
     }
 
@@ -755,8 +762,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         IamWebViewFactory(
             iamJsBridgeFactory,
             jsCommandFactoryProvider,
-            concurrentHandlerHolder,
-            currentActivityProvider
+            concurrentHandlerHolder
         )
     }
 

@@ -13,4 +13,8 @@ class SdkHandler(val handler: Handler) {
         handler.postDelayed(runnable, delay)
     }
 
+    fun remove(runnable: Runnable) {
+        handler.removeCallbacks(runnable)
+    }
+
 }

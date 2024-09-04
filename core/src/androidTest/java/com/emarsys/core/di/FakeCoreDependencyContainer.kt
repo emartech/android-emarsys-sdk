@@ -5,6 +5,7 @@ import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
+import com.emarsys.core.activity.TransitionSafeCurrentActivityWatchdog
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.connection.ConnectionWatchDog
 import com.emarsys.core.crypto.Crypto
@@ -54,4 +55,5 @@ class FakeCoreDependencyContainer(
     override val coreCompletionHandler: CoreCompletionHandler = mock(),
     override val logLevelStorage: Storage<String?> = mock(),
     override val activityLifecycleActionRegistry: ActivityLifecycleActionRegistry = mock(),
+    override val transitionSafeCurrentActivityWatchdog: TransitionSafeCurrentActivityWatchdog = mock(),
 ) : CoreComponent

@@ -1,9 +1,11 @@
 package com.emarsys.mobileengage.iam.dialog
 
+import android.app.Activity
 import android.content.DialogInterface
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +27,7 @@ import com.emarsys.mobileengage.iam.model.InAppMetaData
 import com.emarsys.mobileengage.iam.webview.IamWebView
 import com.emarsys.mobileengage.iam.webview.IamWebViewFactory
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
+import java.lang.ref.WeakReference
 
 @Mockable
 class IamDialog(
@@ -50,15 +53,19 @@ class IamDialog(
     private var startTime: Long = 0
     private var dismissed = false
 
+    private var activityReference: WeakReference<Activity>? = null
+
     private var iamWebView: IamWebView? = null
 
     fun loadInApp(
         html: String,
         inAppMetaData: InAppMetaData,
-        messageLoadedListener: MessageLoadedListener
+        messageLoadedListener: MessageLoadedListener,
+        activity: Activity
     ) {
+        this.activityReference = WeakReference(activity)
         if (iamWebView == null) {
-            iamWebView = webViewFactory.create(activity ?: context)
+            iamWebView = webViewFactory.create(activity)
         }
         this.iamWebView?.load(html, inAppMetaData, messageLoadedListener)
     }
@@ -75,8 +82,9 @@ class IamDialog(
         super.onCreate(savedInstanceState)
         retainInstance = true
         setStyle(STYLE_NO_FRAME, android.R.style.Theme_Dialog)
-        if (iamWebView == null) {
-            iamWebView = webViewFactory.create(activity ?: context)
+        val activity = activityReference?.get()
+        if (iamWebView == null && activity != null) {
+            iamWebView = webViewFactory.create(activity)
         }
     }
 

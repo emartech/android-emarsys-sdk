@@ -10,10 +10,11 @@ import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.util.waitForTask
 import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.SharedPrefsUtils
-import com.emarsys.testUtil.mockito.whenever
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoInteractions
+import io.mockk.every
+
+import io.mockk.mockk
+import io.mockk.verify
+
 
 class DeviceInfoStartActionTest : AnnotationSpec() {
 
@@ -26,9 +27,9 @@ class DeviceInfoStartActionTest : AnnotationSpec() {
     @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
-        deviceInfoPayloadStorage = mock()
-        mockClientServiceInternal = mock()
-        mockDeviceInfo = mock()
+        deviceInfoPayloadStorage = mockk(relaxed = true)
+        mockClientServiceInternal = mockk(relaxed = true)
+        mockDeviceInfo = mockk(relaxed = true)
 
         setupMobileEngageComponent(FakeMobileEngageDependencyContainer())
 
@@ -48,35 +49,35 @@ class DeviceInfoStartActionTest : AnnotationSpec() {
 
     @Test
     fun testExecute_callsMobileEngageInternal_whenStorageIsEmpty() {
-        whenever(deviceInfoPayloadStorage.get()).thenReturn(null)
+        every { deviceInfoPayloadStorage.get() } returns null
 
         startAction.execute(null)
 
         waitForTask()
-        verify(mockClientServiceInternal).trackDeviceInfo(null)
+        verify { (mockClientServiceInternal).trackDeviceInfo(null) }
     }
 
     @Test
     fun testExecute_callsMobileEngageInternal_whenStorageHasChanged() {
-        whenever(deviceInfoPayloadStorage.get()).thenReturn(createDeviceInfoPayload())
-        whenever(mockDeviceInfo.deviceInfoPayload).thenReturn(createOtherDeviceInfoPayload())
+        every { deviceInfoPayloadStorage.get() } returns createDeviceInfoPayload()
+        every { mockDeviceInfo.deviceInfoPayload } returns createOtherDeviceInfoPayload()
 
         startAction.execute(null)
 
         waitForTask()
-        verify(mockClientServiceInternal).trackDeviceInfo(null)
+        verify { mockClientServiceInternal.trackDeviceInfo(null) }
     }
 
     @Test
     fun testExecute_shouldNotCallsMobileEngageInternal_whenStorageHasNotChangedAndExists() {
-        whenever(deviceInfoPayloadStorage.get()).thenReturn(createDeviceInfoPayload())
+        every { deviceInfoPayloadStorage.get() } returns createDeviceInfoPayload()
 
-        whenever(mockDeviceInfo.deviceInfoPayload).thenReturn(createDeviceInfoPayload())
+        every { mockDeviceInfo.deviceInfoPayload } returns createDeviceInfoPayload()
 
         startAction.execute(null)
 
         waitForTask()
-        verifyNoInteractions(mockClientServiceInternal)
+        verify(exactly = 0) { mockClientServiceInternal.trackDeviceInfo(any()) }
     }
 
     private fun createDeviceInfoPayload(): String {

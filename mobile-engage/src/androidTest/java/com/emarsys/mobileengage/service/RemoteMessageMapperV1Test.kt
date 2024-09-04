@@ -10,6 +10,8 @@ import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperV1
+import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperV1.Companion.MISSING_MESSAGE_ID
+import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperV1.Companion.MISSING_SID
 import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.shouldBe
@@ -78,7 +80,7 @@ class RemoteMessageMapperV1Test : AnnotationSpec() {
 
         val ems = JSONObject()
         ems.put("style", "THUMBNAIL")
-        val input: MutableMap<String, String?> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage(u = "{}")
         input["channel_id"] = CHANNEL_ID
         input["ems"] = ems.toString()
 
@@ -94,7 +96,7 @@ class RemoteMessageMapperV1Test : AnnotationSpec() {
 
     @Test
     fun testMap_whenTitleIsMissing() {
-        val input: MutableMap<String, String?> = createRemoteMessage(title = null)
+        val input: MutableMap<String, String?> = createRemoteMessage(title = null, u = "{}")
         input["channel_id"] = CHANNEL_ID
 
         val notificationData = remoteMessageMapperV1.map(input)
@@ -115,7 +117,7 @@ class RemoteMessageMapperV1Test : AnnotationSpec() {
 
     @Test
     fun testMap_whenImageIsAvailable() {
-        val input: MutableMap<String, String?> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage(u = "{}")
         input["image_url"] = IMAGE_URL
         input["channel_id"] = CHANNEL_ID
 
@@ -127,7 +129,7 @@ class RemoteMessageMapperV1Test : AnnotationSpec() {
     @Test
     fun testMap_whenImageIsNotAvailable() {
         val testImageUrl = "https://fa.il/img.jpg"
-        val input: MutableMap<String, String?> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage(u = "{}")
         input["image_url"] = testImageUrl
         input["channel_id"] = CHANNEL_ID
 
@@ -140,7 +142,7 @@ class RemoteMessageMapperV1Test : AnnotationSpec() {
     fun testMap_whenNotificationMethodIsSet() {
         val collapseId = "testNotificationId"
 
-        val input: MutableMap<String, String?> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage(u = "{}")
         input["image_url"] = IMAGE_URL
         input["channel_id"] = CHANNEL_ID
         val notificationMethodJson = JSONObject()
@@ -158,7 +160,7 @@ class RemoteMessageMapperV1Test : AnnotationSpec() {
 
     @Test
     fun testMap_whenNotificationMethodIsMissing() {
-        val input: MutableMap<String, String?> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage(u = "{}")
         input["image_url"] = IMAGE_URL
         input["channel_id"] = CHANNEL_ID
         val ems = JSONObject()
@@ -171,7 +173,7 @@ class RemoteMessageMapperV1Test : AnnotationSpec() {
 
     @Test
     fun testMap_whenNotificationMethodIsSet_withoutCollapseID_shouldReturnWithInitOperation() {
-        val input: MutableMap<String, String?> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage(u = "{}")
         input["image_url"] = IMAGE_URL
         input["channel_id"] = CHANNEL_ID
         val ems = JSONObject()
@@ -187,7 +189,7 @@ class RemoteMessageMapperV1Test : AnnotationSpec() {
 
     @Test
     fun testMap_whenNotificationMethodIsSet_withCollapseID_shouldReturnWithSetOperation() {
-        val input: MutableMap<String, String?> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage(u = "{}")
         input["image_url"] = IMAGE_URL
         input["channel_id"] = CHANNEL_ID
         val ems = JSONObject()
@@ -204,7 +206,7 @@ class RemoteMessageMapperV1Test : AnnotationSpec() {
 
     @Test
     fun testMap_whenNotificationMethodIsSet_withCollapseID_shouldReturnWithInitOperation_whenOperationIsMissing() {
-        val input: MutableMap<String, String?> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage(u = "{}")
         input["image_url"] = IMAGE_URL
         input["channel_id"] = CHANNEL_ID
         val ems = JSONObject()
@@ -221,7 +223,7 @@ class RemoteMessageMapperV1Test : AnnotationSpec() {
     @Test
     fun testMap_notificationData_shouldContain_campaignId() {
         val testCampaignId = "test campaign id"
-        val input: MutableMap<String, String?> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage(u = "{}")
         val ems = JSONObject()
         ems.put("multichannelId", testCampaignId)
         input["ems"] = ems.toString()
@@ -233,7 +235,7 @@ class RemoteMessageMapperV1Test : AnnotationSpec() {
 
     @Test
     fun testMap_notificationData_shouldContain_sid() {
-        val input: MutableMap<String, String?> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage(u = """{"sid":"$SID"}""")
 
         val notificationData = remoteMessageMapperV1.map(input)
 
@@ -241,9 +243,18 @@ class RemoteMessageMapperV1Test : AnnotationSpec() {
     }
 
     @Test
+    fun testMap_notificationData_shouldContain_missingSid() {
+        val input: MutableMap<String, String?> = createRemoteMessage(u = """{}""")
+
+        val notificationData = remoteMessageMapperV1.map(input)
+
+        notificationData.sid shouldBe MISSING_SID
+    }
+
+    @Test
     fun testMap_notificationData_shouldContain_actions() {
         val testActions = "test actions"
-        val input: MutableMap<String, String?> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage(u = "{}")
         val ems = JSONObject()
         ems.put("actions", testActions)
         input["ems"] = ems.toString()
@@ -255,7 +266,7 @@ class RemoteMessageMapperV1Test : AnnotationSpec() {
 
     @Test
     fun testMap_notificationData_shouldContain_null_ifActionsAreMissing() {
-        val input: MutableMap<String, String?> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage(u = "{}")
 
         val notificationData = remoteMessageMapperV1.map(input)
 
@@ -265,7 +276,7 @@ class RemoteMessageMapperV1Test : AnnotationSpec() {
     @Test
     fun testMap_notificationData_shouldContain_defaultAction() {
         val testDefaultAction = "test default action"
-        val input: MutableMap<String, String?> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage(u = "{}")
         val ems = JSONObject()
         ems.put("default_action", testDefaultAction)
         input["ems"] = ems.toString()
@@ -277,7 +288,7 @@ class RemoteMessageMapperV1Test : AnnotationSpec() {
 
     @Test
     fun testMap_notificationData_shouldContain_null_ifDefaultActionIsMissing() {
-        val input: MutableMap<String, String?> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage(u = "{}")
         val ems = JSONObject()
         input["ems"] = ems.toString()
         val notificationData = remoteMessageMapperV1.map(input)
@@ -288,7 +299,7 @@ class RemoteMessageMapperV1Test : AnnotationSpec() {
     @Test
     fun testMap_notificationData_shouldContain_inapp() {
         val testInapp = "test inapp"
-        val input: MutableMap<String, String?> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage(u = "{}")
         val ems = JSONObject()
         ems.put("inapp", testInapp)
         input["ems"] = ems.toString()
@@ -300,7 +311,7 @@ class RemoteMessageMapperV1Test : AnnotationSpec() {
 
     @Test
     fun testMap_notificationData_shouldContain_null_ifInappIsMissing() {
-        val input: MutableMap<String, String?> = createRemoteMessage()
+        val input: MutableMap<String, String?> = createRemoteMessage(u = "{}")
 
         val notificationData = remoteMessageMapperV1.map(input)
 
@@ -313,25 +324,58 @@ class RemoteMessageMapperV1Test : AnnotationSpec() {
             "key1" to "value1",
             "key2" to "value2",
         )
-        val input: MutableMap<String, String?> = createRemoteMessage(rootParam = rootParam)
+        val input: MutableMap<String, String?> = createRemoteMessage(
+            rootParam = rootParam,
+            u = "{}"
+        )
 
         val notificationData = remoteMessageMapperV1.map(input)
 
         notificationData.rootParams shouldBe rootParam
     }
 
+    @Test
+    fun testMap_notificationData_should_map_u_param() {
+        val u = """{"sid":"$SID", "key1":"value1"}"""
+
+        val input: MutableMap<String, String?> = createRemoteMessage(u = u)
+
+        val notificationData = remoteMessageMapperV1.map(input)
+
+        notificationData.u shouldBe u
+    }
+
+    @Test
+    fun testMap_notificationData_should_map_message_id() {
+        val testMessageId = "testMessageId"
+        val input: MutableMap<String, String?> = createRemoteMessage(u = "{}")
+        input["message_id"] = testMessageId
+
+        val notificationData = remoteMessageMapperV1.map(input)
+
+        notificationData.message_id shouldBe testMessageId
+    }
+
+    @Test
+    fun testMap_notificationData_should_contain_MissingMessageId() {
+        val input: MutableMap<String, String?> = createRemoteMessage(u = "{}")
+
+        val notificationData = remoteMessageMapperV1.map(input)
+
+        notificationData.message_id shouldBe MISSING_MESSAGE_ID
+    }
+
     private fun createRemoteMessage(
         title: String? = TITLE,
         body: String = BODY,
-        sid: String = SID,
-        rootParam: Map<String, String?> = mapOf()
+        rootParam: Map<String, String?> = mapOf(),
+        u: String? = null
     ): MutableMap<String, String?> {
         val payload = mutableMapOf<String, String?>()
         title?.let { payload["title"] = it }
         payload["body"] = body
 
-        val uObject = """{"sid":"$sid"}"""
-        payload["u"] = uObject
+        payload["u"] = u
 
         return (payload + rootParam).toMutableMap()
     }

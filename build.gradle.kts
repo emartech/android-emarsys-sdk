@@ -49,7 +49,7 @@ fun versionData() {
     } catch (ignored: Exception) {
         GitVersion(
             versionName = "0.0.0",
-            versionCode = 0,
+            versionCode = 1,
             versionCodeTime = 0
         )
     }
@@ -85,6 +85,12 @@ tasks {
     }
 }
 
+allprojects {
+    // Exclude Kotlin files from Javadoc generation because Kotlin files are not supported by Dokka
+    tasks.withType(Javadoc::class).all {
+        enabled = false
+    }
+}
 
 nexusPublishing {
     packageGroup = "com.emarsys"

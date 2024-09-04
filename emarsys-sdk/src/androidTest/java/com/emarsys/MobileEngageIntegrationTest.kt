@@ -25,15 +25,14 @@ import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.RetryUtils
-import com.emarsys.testUtil.mockito.whenever
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import com.emarsys.testUtil.rules.RetryRule
 import io.kotest.matchers.ints.shouldBeInRange
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Rule
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.mock
 import java.util.concurrent.CountDownLatch
 
 class MobileEngageIntegrationTest : AnnotationSpec() {
@@ -81,21 +80,21 @@ class MobileEngageIntegrationTest : AnnotationSpec() {
         completionHandler = createDefaultCoreCompletionHandler()
 
 
-        val mockPushTokenProvider = mock(PushTokenProvider::class.java).apply {
-            whenever(providePushToken()).thenReturn("integration_test_push_token")
+        val mockPushTokenProvider = mockk<PushTokenProvider>(relaxed = true).apply {
+            every { providePushToken() } returns "integration_test_push_token"
         }
         val deviceInfo = DeviceInfo(
             application,
-            mock(HardwareIdProvider::class.java).apply {
-                whenever(provideHardwareId()).thenReturn("mobileengage_integration_hwid")
+            mockk<HardwareIdProvider>(relaxed = true).apply {
+                every { provideHardwareId() } returns "mobileengage_integration_hwid"
             },
-            mock(VersionProvider::class.java).apply {
-                whenever(provideSdkVersion()).thenReturn("0.0.0-mobileengage_integration_version")
+            mockk<VersionProvider>(relaxed = true).apply {
+                every { provideSdkVersion() } returns "0.0.0-mobileengage_integration_version"
             },
-            mock(LanguageProvider::class.java).apply {
-                whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
+            mockk<LanguageProvider>(relaxed = true).apply {
+                every { provideLanguage(any()) } returns "en-US"
             },
-            mock(NotificationManagerHelper::class.java),
+            mockk<NotificationManagerHelper>(relaxed = true),
             isAutomaticPushSendingEnabled = true,
             isGooglePlayAvailable = true
         )
@@ -219,8 +218,8 @@ class MobileEngageIntegrationTest : AnnotationSpec() {
 
     fun testDeepLinkOpen() {
         Thread.sleep(1000)
-        val activity = mock(Activity::class.java)
-        whenever(activity.intent).thenReturn(Intent())
+        val activity = mockk<Activity>(relaxed = true)
+        every { activity.intent } returns Intent()
 
         val intent = Intent(
             Intent.ACTION_VIEW,

@@ -15,15 +15,14 @@ import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.KotestRunnerAndroid
-import com.emarsys.testUtil.mockito.whenever
 import com.emarsys.testUtil.rules.ConnectionRule
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Rule
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.mock
 import java.util.concurrent.CountDownLatch
 
 
@@ -66,16 +65,16 @@ class DefaultInboxIntegrationTest : AnnotationSpec() {
         latch = CountDownLatch(1)
         val deviceInfo = DeviceInfo(
             application,
-            mock(HardwareIdProvider::class.java).apply {
-                whenever(provideHardwareId()).thenReturn("inboxv1_integration_hwid")
+            mockk<HardwareIdProvider>(relaxed = true).apply {
+                every { provideHardwareId() } returns "inboxv1_integration_hwid"
             },
-            mock(VersionProvider::class.java).apply {
-                whenever(provideSdkVersion()).thenReturn(SDK_VERSION)
+            mockk<VersionProvider>(relaxed = true).apply {
+                every { provideSdkVersion() } returns SDK_VERSION
             },
-            mock(LanguageProvider::class.java).apply {
-                whenever(provideLanguage(any())).thenReturn(LANGUAGE)
+            mockk<LanguageProvider>(relaxed = true).apply {
+                every { provideLanguage(any()) } returns LANGUAGE
             },
-            mock(NotificationManagerHelper::class.java),
+            mockk<NotificationManagerHelper>(relaxed = true),
             isAutomaticPushSendingEnabled = true,
             isGooglePlayAvailable = true
         )

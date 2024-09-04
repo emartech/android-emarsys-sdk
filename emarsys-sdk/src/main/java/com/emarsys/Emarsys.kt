@@ -233,10 +233,10 @@ object Emarsys {
     private fun registerWatchDogs(config: EmarsysConfig) {
         config.application.registerActivityLifecycleCallbacks(emarsys().currentActivityWatchdog)
         config.application.registerActivityLifecycleCallbacks(emarsys().activityLifecycleWatchdog)
+        config.application.registerActivityLifecycleCallbacks(emarsys().transitionSafeCurrentActivityWatchdog)
     }
 
     private fun registerDatabaseTriggers() {
-        if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
             emarsys().coreSQLiteDatabase
                 .registerTrigger(
                     DatabaseContract.SHARD_TABLE_NAME,
@@ -244,7 +244,6 @@ object Emarsys {
                     TriggerEvent.INSERT,
                     emarsys().predictShardTrigger
                 )
-        }
 
         emarsys().coreSQLiteDatabase
             .registerTrigger(

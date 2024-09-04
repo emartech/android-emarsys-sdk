@@ -5,6 +5,7 @@ import android.R
 import android.app.Notification
 import android.content.Context
 import android.content.res.Resources
+import android.graphics.Bitmap
 import android.os.Build.VERSION_CODES
 import android.util.DisplayMetrics
 import androidx.core.app.NotificationCompat
@@ -77,7 +78,9 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
             collapseId = COLLAPSE_ID,
             operation = OPERATION,
             actions = null,
-            inapp = null
+            inapp = null,
+            u = "{\"customField\":\"customValue\"}",
+            message_id = "messageId"
         )
     }
 
@@ -221,6 +224,8 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
             operation = OPERATION,
             actions = null,
             inapp = null,
+            u = "{\"customField\":\"customValue\"}",
+            message_id = "messageId"
         )
 
         val ems = JSONObject()
@@ -289,7 +294,9 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
             collapseId = COLLAPSE_ID,
             operation = OPERATION,
             actions = null,
-            inapp = null
+            inapp = null,
+            u = "{\"customField\":\"customValue\"}",
+            message_id = "messageId"
         )
 
         MessagingServiceUtils.createNotification(
@@ -317,6 +324,8 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
             operation = OPERATION,
             actions = null,
             inapp = null,
+            u = "{\"customField\":\"customValue\"}",
+            message_id = "messageId"
         )
 
         val input: MutableMap<String, String> = HashMap()
@@ -353,7 +362,9 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
             collapseId = COLLAPSE_ID,
             operation = OPERATION,
             actions = null,
-            inapp = null
+            inapp = null,
+            u = "{\"customField\":\"customValue\"}",
+            message_id = "messageId"
         )
 
         val input: MutableMap<String, String> = HashMap()
@@ -389,7 +400,9 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
             collapseId = COLLAPSE_ID,
             operation = OPERATION,
             actions = null,
-            inapp = null
+            inapp = null,
+            u = "{\"customField\":\"customValue\"}",
+            message_id = "messageId"
         )
 
         val result = MessagingServiceUtils.createNotification(
@@ -420,7 +433,9 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
             collapseId = COLLAPSE_ID,
             operation = OPERATION,
             actions = null,
-            inapp = null
+            inapp = null,
+            u = "{\"customField\":\"customValue\"}",
+            message_id = "messageId"
         )
 
         val result = MessagingServiceUtils.createNotification(
@@ -454,7 +469,9 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
             collapseId = COLLAPSE_ID,
             operation = OPERATION,
             actions = null,
-            inapp = null
+            inapp = null,
+            u = "{\"customField\":\"customValue\"}",
+            message_id = "messageId"
         )
 
         val result = MessagingServiceUtils.createNotification(
@@ -488,7 +505,9 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
             collapseId = COLLAPSE_ID,
             operation = OPERATION,
             actions = null,
-            inapp = null
+            inapp = null,
+            u = "{\"customField\":\"customValue\"}",
+            message_id = "messageId"
         )
 
         val expectedColor = ContextCompat.getColor(context, colorResourceId)
@@ -520,7 +539,9 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
             collapseId = COLLAPSE_ID,
             operation = OPERATION,
             actions = null,
-            inapp = null
+            inapp = null,
+            u = "{\"customField\":\"customValue\"}",
+            message_id = "messageId"
         )
 
         val result = MessagingServiceUtils.createNotification(
@@ -550,7 +571,9 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
             collapseId = COLLAPSE_ID,
             operation = OPERATION,
             actions = null,
-            inapp = null
+            inapp = null,
+            u = "{\"customField\":\"customValue\"}",
+            message_id = "messageId"
         )
 
         val result = MessagingServiceUtils.createNotification(
@@ -580,7 +603,9 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
             collapseId = COLLAPSE_ID,
             operation = OPERATION,
             actions = null,
-            inapp = null
+            inapp = null,
+            u = "{\"customField\":\"customValue\"}",
+            message_id = "messageId"
         )
 
         val notificationSettings: NotificationSettings = mock()
@@ -617,7 +642,9 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
             collapseId = COLLAPSE_ID,
             operation = OPERATION,
             actions = null,
-            inapp = null
+            inapp = null,
+            u = "{\"customField\":\"customValue\"}",
+            message_id = "messageId"
         )
 
         val notificationSettings: NotificationSettings = mock()
@@ -672,7 +699,9 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
             collapseId = COLLAPSE_ID,
             operation = OPERATION,
             actions = actions.toString(),
-            inapp = null
+            inapp = null,
+            u = "{\"customField\":\"customValue\"}",
+            message_id = "messageId"
         )
 
         val result = MessagingServiceUtils.createNotification(
@@ -715,7 +744,9 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
             collapseId = COLLAPSE_ID,
             operation = OPERATION,
             actions = null,
-            inapp = null
+            inapp = null,
+            u = "{\"customField\":\"customValue\"}",
+            message_id = "messageId"
         )
 
         val notificationSettings: NotificationSettings = mock()
@@ -750,7 +781,9 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
             collapseId = COLLAPSE_ID,
             operation = OPERATION,
             actions = null,
-            inapp = null
+            inapp = null,
+            u = "{\"customField\":\"customValue\"}",
+            message_id = "messageId"
         )
 
         val notificationSettings: NotificationSettings = mock()
@@ -872,7 +905,9 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
             collapseId = COLLAPSE_ID,
             operation = OPERATION,
             actions = null,
-            inapp = null
+            inapp = null,
+            u = "{\"customField\":\"customValue\"}",
+            message_id = "messageId"
         )
 
         MessagingServiceUtils.createSilentPushCommands(
@@ -897,7 +932,9 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
             collapseId = COLLAPSE_ID,
             operation = OPERATION,
             actions = null,
-            inapp = null
+            inapp = null,
+            u = "{\"customField\":\"customValue\"}",
+            message_id = "messageId"
         )
 
         MessagingServiceUtils.createSilentPushCommands(
@@ -958,7 +995,9 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
             collapseId = COLLAPSE_ID,
             operation = OPERATION,
             actions = actions,
-            inapp = null
+            inapp = null,
+            u = "{\"customField\":\"customValue\"}",
+            message_id = "messageId"
         )
 
         MessagingServiceUtils.createSilentPushCommands(
@@ -1017,7 +1056,9 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
             collapseId = COLLAPSE_ID,
             operation = OPERATION,
             actions = actions,
-            inapp = null
+            inapp = null,
+            u = "{\"customField\":\"customValue\"}",
+            message_id = "messageId"
         )
 
         MessagingServiceUtils.createSilentPushCommands(
@@ -1042,7 +1083,7 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
     @Test
     fun testStyleNotification_whenStyleIsThumbnail() {
         val mockBuilder: NotificationCompat.Builder = mock {
-            on { setLargeIcon(any()) } doReturn it
+            on { setLargeIcon(any<Bitmap>()) } doReturn it
             on { setContentTitle(any()) } doReturn it
             on { setContentText(any()) } doReturn it
             on { setStyle(any()) } doReturn it
@@ -1062,7 +1103,9 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
                 collapseId = COLLAPSE_ID,
                 operation = OPERATION,
                 actions = null,
-                inapp = null
+                inapp = null,
+                u = "{\"customField\":\"customValue\"}",
+                message_id = "messageId"
             ),
             mockFileDownloader,
             deviceInfo
@@ -1095,7 +1138,9 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
                 collapseId = COLLAPSE_ID,
                 operation = OPERATION,
                 actions = null,
-                inapp = null
+                inapp = null,
+                u = "{\"customField\":\"customValue\"}",
+                message_id = "messageId"
             ),
             mockFileDownloader,
             deviceInfo
@@ -1113,7 +1158,7 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
         ignored: Class<T>
     ) {
         val mockBuilder: NotificationCompat.Builder = mock {
-            on { setLargeIcon(org.mockito.kotlin.any()) } doReturn it
+            on { setLargeIcon(any<Bitmap>()) } doReturn it
             on { setStyle(org.mockito.kotlin.any()) } doReturn it
         }
 
@@ -1132,7 +1177,9 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
                 collapseId = COLLAPSE_ID,
                 operation = OPERATION,
                 actions = null,
-                inapp = null
+                inapp = null,
+                u = "{\"customField\":\"customValue\"}",
+                message_id = "messageId"
             ),
             mockFileDownloader,
             deviceInfo
