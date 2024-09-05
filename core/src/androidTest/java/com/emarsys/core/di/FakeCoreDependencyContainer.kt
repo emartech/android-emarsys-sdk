@@ -4,7 +4,6 @@ import android.content.SharedPreferences
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
-import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.activity.TransitionSafeCurrentActivityWatchdog
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.connection.ConnectionWatchDog
@@ -32,7 +31,6 @@ import org.mockito.kotlin.mock
 class FakeCoreDependencyContainer(
     override val concurrentHandlerHolder: ConcurrentHandlerHolder = ConcurrentHandlerHolderFactory.create(),
     override val activityLifecycleWatchdog: ActivityLifecycleWatchdog = mock(),
-    override val currentActivityWatchdog: CurrentActivityWatchdog = mock(),
     override val coreSQLiteDatabase: CoreSQLiteDatabase = mock(),
     override val deviceInfo: DeviceInfo = mock(),
     override val shardRepository: Repository<ShardModel, SqlSpecification> = mock(),

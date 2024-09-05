@@ -190,19 +190,18 @@ object Emarsys {
     }
 
     private fun registerWatchDogs(config: EmarsysConfig) {
-        config.application.registerActivityLifecycleCallbacks(emarsys().currentActivityWatchdog)
         config.application.registerActivityLifecycleCallbacks(emarsys().activityLifecycleWatchdog)
         config.application.registerActivityLifecycleCallbacks(emarsys().transitionSafeCurrentActivityWatchdog)
     }
 
     private fun registerDatabaseTriggers() {
-            emarsys().coreSQLiteDatabase
-                .registerTrigger(
-                    DatabaseContract.SHARD_TABLE_NAME,
-                    TriggerType.AFTER,
-                    TriggerEvent.INSERT,
-                    emarsys().predictShardTrigger
-                )
+        emarsys().coreSQLiteDatabase
+            .registerTrigger(
+                DatabaseContract.SHARD_TABLE_NAME,
+                TriggerType.AFTER,
+                TriggerEvent.INSERT,
+                emarsys().predictShardTrigger
+            )
 
         emarsys().coreSQLiteDatabase
             .registerTrigger(
@@ -233,17 +232,31 @@ object Emarsys {
     }
 
     private fun refreshRemoteConfig(applicationCode: String?) {
-        if (!listOf("", "null", "nil", "0").contains(applicationCode?.lowercase()) && applicationCode != null) {
+        if (!listOf(
+                "",
+                "null",
+                "nil",
+                "0"
+            ).contains(applicationCode?.lowercase()) && applicationCode != null
+        ) {
             emarsys().configInternal.proxyApi(mobileEngage().concurrentHandlerHolder)
                 .refreshRemoteConfig {
                     it?.let {
-                        val logEntry = StatusLog(Emarsys::class.java, "refreshRemoteConfig", mapOf("applicationCode" to applicationCode, "exception" to it.message))
+                        val logEntry = StatusLog(
+                            Emarsys::class.java,
+                            "refreshRemoteConfig",
+                            mapOf("applicationCode" to applicationCode, "exception" to it.message)
+                        )
                         Logger.log(logEntry)
                     }
                 }
         } else {
             Log.w("EmarsysSdk", "Invalid applicationCode: $applicationCode")
-            val logEntry = StatusLog(Emarsys::class.java, "refreshRemoteConfig", mapOf("applicationCode" to applicationCode))
+            val logEntry = StatusLog(
+                Emarsys::class.java,
+                "refreshRemoteConfig",
+                mapOf("applicationCode" to applicationCode)
+            )
             Logger.log(logEntry)
         }
     }

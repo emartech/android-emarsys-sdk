@@ -6,7 +6,6 @@ import android.content.SharedPreferences
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
-import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.activity.TransitionSafeCurrentActivityWatchdog
 import com.emarsys.core.app.AppLifecycleObserver
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
@@ -126,7 +125,6 @@ class FakeHuaweiDependencyContainer(
     override val mobileEngageRequestModelFactory: MobileEngageRequestModelFactory = mock(),
     override val mobileEngageSession: MobileEngageSession = mock(),
     override val activityLifecycleWatchdog: ActivityLifecycleWatchdog = mock(),
-    override val currentActivityWatchdog: CurrentActivityWatchdog = mock(),
     override val coreSQLiteDatabase: CoreSQLiteDatabase = mock(),
     override val deviceInfo: DeviceInfo = mock(),
     override val shardRepository: Repository<ShardModel, SqlSpecification> = mock(),

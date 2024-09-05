@@ -15,7 +15,7 @@ import com.emarsys.config.ConfigApi
 import com.emarsys.config.ConfigInternal
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
-import com.emarsys.core.activity.CurrentActivityWatchdog
+import com.emarsys.core.activity.TransitionSafeCurrentActivityWatchdog
 import com.emarsys.core.api.experimental.FlipperFeature
 import com.emarsys.core.api.notification.ChannelSettings
 import com.emarsys.core.api.notification.NotificationSettings
@@ -110,7 +110,7 @@ class EmarsysTest : AnnotationSpec() {
     }
 
     private lateinit var mockActivityLifecycleWatchdog: ActivityLifecycleWatchdog
-    private lateinit var mockCurrentActivityWatchdog: CurrentActivityWatchdog
+    private lateinit var mockCurrentActivityWatchdog: TransitionSafeCurrentActivityWatchdog
     private lateinit var mockCoreSQLiteDatabase: CoreSQLiteDatabase
     private lateinit var mockLogShardTrigger: Runnable
     private lateinit var mockMobileEngageInternal: MobileEngageInternal
@@ -241,7 +241,6 @@ class EmarsysTest : AnnotationSpec() {
         setupEmarsysComponent(
             FakeDependencyContainer(
                 activityLifecycleWatchdog = mockActivityLifecycleWatchdog,
-                currentActivityWatchdog = mockCurrentActivityWatchdog,
                 coreSQLiteDatabase = mockCoreSQLiteDatabase,
                 deviceInfo = deviceInfo,
                 logShardTrigger = mockLogShardTrigger,
@@ -488,7 +487,7 @@ class EmarsysTest : AnnotationSpec() {
                 ActivityLifecycleWatchdog::class.java
             ) shouldNotBe null
         }
-        val currentActivityWatchdogSlot = slot<CurrentActivityWatchdog>()
+        val currentActivityWatchdogSlot = slot<TransitionSafeCurrentActivityWatchdog>()
         verify(exactly = 1) {
             application
                 .registerActivityLifecycleCallbacks(capture(currentActivityWatchdogSlot))
@@ -496,7 +495,7 @@ class EmarsysTest : AnnotationSpec() {
         val allRegisteredWatchdogs = listOf(currentActivityWatchdogSlot.captured)
         getElementByType(
             allRegisteredWatchdogs,
-            CurrentActivityWatchdog::class.java
+            TransitionSafeCurrentActivityWatchdog::class.java
         ) shouldNotBe null
     }
 
@@ -507,7 +506,7 @@ class EmarsysTest : AnnotationSpec() {
         setup(mobileEngageConfig)
 
         runBlockingOnCoreSdkThread {
-            verify(exactly = 3) { application.registerActivityLifecycleCallbacks(any<ActivityLifecycleWatchdog>()) }
+            verify(exactly = 2) { application.registerActivityLifecycleCallbacks(any<ActivityLifecycleWatchdog>()) }
 
         }
     }
@@ -531,12 +530,9 @@ class EmarsysTest : AnnotationSpec() {
     fun testSetup_registers_currentActivityWatchDog() {
         setup(mobileEngageConfig)
 
-        runBlockingOnCoreSdkThread {
-            verifyOrder {
-                application.registerActivityLifecycleCallbacks(mockCurrentActivityWatchdog)
-                application.registerActivityLifecycleCallbacks(mockActivityLifecycleWatchdog)
-            }
-        }
+        runBlockingOnCoreSdkThread()
+        application.registerActivityLifecycleCallbacks(mockActivityLifecycleWatchdog)
+        application.registerActivityLifecycleCallbacks(mockCurrentActivityWatchdog)
     }
 
     @Test

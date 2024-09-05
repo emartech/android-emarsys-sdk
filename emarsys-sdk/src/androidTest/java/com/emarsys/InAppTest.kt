@@ -38,7 +38,7 @@ class InAppTest : AnnotationSpec() {
     fun tearDown() {
         application.unregisterActivityLifecycleCallbacks(
                 mobileEngage().activityLifecycleWatchdog)
-        application.unregisterActivityLifecycleCallbacks(emarsys().currentActivityWatchdog)
+        application.unregisterActivityLifecycleCallbacks(emarsys().transitionSafeCurrentActivityWatchdog)
         try {
             val looper: Looper = emarsys().concurrentHandlerHolder.coreLooper
             looper.quitSafely()
