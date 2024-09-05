@@ -41,7 +41,7 @@ object IntegrationTestUtils {
         emarsys().concurrentHandlerHolder.coreHandler.post {
             if (application != null) {
                 application.unregisterActivityLifecycleCallbacks(emarsys().activityLifecycleWatchdog)
-                application.unregisterActivityLifecycleCallbacks(emarsys().currentActivityWatchdog)
+                application.unregisterActivityLifecycleCallbacks(emarsys().transitionSafeCurrentActivityWatchdog)
             }
 
             emarsys().clientStateStorage.remove()

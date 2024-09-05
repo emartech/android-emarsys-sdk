@@ -15,8 +15,10 @@ class IamWebViewFactory(
 
     fun create(context: Context): IamWebView {
         return IamWebView(
-            concurrentHandlerHolder, jsBridgeFactory,
-            jsCommandFactoryProvider.provide(), context
+            concurrentHandlerHolder,
+            jsBridgeFactory,
+            jsCommandFactoryProvider.provide(),
+            context
         )
     }
 

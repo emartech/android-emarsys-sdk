@@ -24,7 +24,6 @@ import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.Mapper
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
-import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.activity.TransitionSafeCurrentActivityWatchdog
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.proxyApi
@@ -318,7 +317,8 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val transitionSafeCurrentActivityWatchdog: TransitionSafeCurrentActivityWatchdog by lazy {
         TransitionSafeCurrentActivityWatchdog(
-            concurrentHandlerHolder.coreHandler
+            concurrentHandlerHolder.coreHandler,
+            currentActivityProvider
         )
     }
 
@@ -768,10 +768,6 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val currentActivityProvider: CurrentActivityProvider by lazy {
         CurrentActivityProvider(fallbackActivityProvider = FallbackActivityProvider())
-    }
-
-    override val currentActivityWatchdog: CurrentActivityWatchdog by lazy {
-        CurrentActivityWatchdog(currentActivityProvider)
     }
 
     override val iamJsBridgeFactory: IamJsBridgeFactory by lazy {

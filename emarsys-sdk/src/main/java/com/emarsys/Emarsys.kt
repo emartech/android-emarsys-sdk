@@ -231,19 +231,18 @@ object Emarsys {
     }
 
     private fun registerWatchDogs(config: EmarsysConfig) {
-        config.application.registerActivityLifecycleCallbacks(emarsys().currentActivityWatchdog)
         config.application.registerActivityLifecycleCallbacks(emarsys().activityLifecycleWatchdog)
         config.application.registerActivityLifecycleCallbacks(emarsys().transitionSafeCurrentActivityWatchdog)
     }
 
     private fun registerDatabaseTriggers() {
-            emarsys().coreSQLiteDatabase
-                .registerTrigger(
-                    DatabaseContract.SHARD_TABLE_NAME,
-                    TriggerType.AFTER,
-                    TriggerEvent.INSERT,
-                    emarsys().predictShardTrigger
-                )
+        emarsys().coreSQLiteDatabase
+            .registerTrigger(
+                DatabaseContract.SHARD_TABLE_NAME,
+                TriggerType.AFTER,
+                TriggerEvent.INSERT,
+                emarsys().predictShardTrigger
+            )
 
         emarsys().coreSQLiteDatabase
             .registerTrigger(

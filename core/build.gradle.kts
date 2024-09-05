@@ -13,7 +13,7 @@ dependencies {
     implementation(libs.google.tink)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.androidx.activity)
-
+    implementation(libs.startup.runtime)
     androidTestImplementation(project(":testUtils"))
 
     coreLibraryDesugaring(libs.android.tools.desugar)

@@ -4,7 +4,6 @@ import android.content.SharedPreferences
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
-import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.activity.TransitionSafeCurrentActivityWatchdog
 import com.emarsys.core.connection.ConnectionWatchDog
 import com.emarsys.core.crypto.Crypto
@@ -52,8 +51,6 @@ interface CoreComponent {
     val concurrentHandlerHolder: ConcurrentHandlerHolder
 
     val activityLifecycleWatchdog: ActivityLifecycleWatchdog
-
-    val currentActivityWatchdog: CurrentActivityWatchdog
 
     val activityLifecycleActionRegistry: ActivityLifecycleActionRegistry
 
