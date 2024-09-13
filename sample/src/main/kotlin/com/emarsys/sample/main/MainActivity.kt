@@ -31,7 +31,7 @@ class MainActivity : FragmentActivity() {
         setContent {
             val navHostController = navControllerProvider.provide()
             AndroidSampleAppTheme {
-                Scaffold(
+                Scaffold(modifier = Modifier.imePadding(),
                     topBar = {
                         TopExpandableCard(this.applicationContext, dashboardViewModel)
                     },
