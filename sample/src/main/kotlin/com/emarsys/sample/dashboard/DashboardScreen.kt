@@ -1,6 +1,5 @@
 package com.emarsys.sample.dashboard
 
-import android.app.Application
 import android.content.Context
 import android.os.Build
 import android.util.Log
@@ -22,12 +21,10 @@ import androidx.compose.ui.res.stringResource
 import coil.annotation.ExperimentalCoilApi
 import com.emarsys.Emarsys
 import com.emarsys.sample.R
-import com.emarsys.sample.SampleApplication
 import com.emarsys.sample.dashboard.button.CheckLocationPermissionsButton
 import com.emarsys.sample.dashboard.button.CopyPushTokenButton
 import com.emarsys.sample.dashboard.button.TrackPushTokenButton
 import com.emarsys.sample.dashboard.button.trackPushToken
-import com.emarsys.sample.main.sdkinfo.SetupInfo
 import com.emarsys.sample.ui.component.ColumnWithTapGesture
 import com.emarsys.sample.ui.component.button.GoogleSignInButton
 import com.emarsys.sample.ui.component.button.StyledTextButton
@@ -46,9 +43,8 @@ import kotlin.system.exitProcess
 
 class DashboardScreen(
     override val context: Context,
-    override val application: Application
+    private val viewModel: DashboardViewModel
 ) : DetailScreen() {
-    private val viewModel = DashboardViewModel()
 
     @OptIn(ExperimentalMaterialApi::class)
     @ExperimentalCoilApi
@@ -104,8 +100,6 @@ class DashboardScreen(
                         Emarsys.config.changeMerchantId(
                             merchantId = viewModel.getTfMerchantIdValue(),
                         )
-                        SetupInfo.merchantId = viewModel.getTfMerchantIdValue()
-                        SetupInfo.notifyObservers()
                         customTextToast(
                             context,
                             context.getString(R.string.merchant_id_change_success)
@@ -130,7 +124,7 @@ class DashboardScreen(
                 Text(text = stringResource(id = R.string.enable))
                 Switch(
                     checked = viewModel.isGeofenceEnabled(),
-                    onCheckedChange = { enabled ->
+                    onCheckedChange = { isEnabled ->
                         if (!viewModel.isGeofenceEnabled()) {
                             Emarsys.geofence.enable {
                                 if (it != null) {
@@ -140,7 +134,7 @@ class DashboardScreen(
                                         context.getString(R.string.something_went_wrong)
                                     )
                                 } else {
-                                    viewModel.geofenceEnabled.value = enabled
+                                    viewModel.geofenceEnabled.value = isEnabled
                                     customTextToast(
                                         context,
                                         context.getString(R.string.geofence_enabled)
@@ -149,7 +143,7 @@ class DashboardScreen(
                             }
                         } else {
                             Emarsys.geofence.disable()
-                            viewModel.geofenceEnabled.value = enabled
+                            viewModel.geofenceEnabled.value = isEnabled
                             customTextToast(context, context.getString(R.string.geofence_disabled))
                         }
                     }
@@ -208,7 +202,7 @@ class DashboardScreen(
                 account.email!!
             ) {
                 if (verifyLogin(it, context)) {
-                    setupInfoSetContact(context)
+                    setContact(context)
                 }
             }
         }
@@ -216,42 +210,28 @@ class DashboardScreen(
 
     private fun onChangeAppCodeClicked(somethingWentWrong: String, appCodeChangeSuccess: String) {
         Emarsys.config.changeApplicationCode(
-            applicationCode = viewModel.getTfAppCodeValue(),
-            completionListener = { changeError ->
-                if (viewModel.shouldChangeEnv()) {
-                    if (changeError != null) {
-                        customTextToast(context, somethingWentWrong)
-                    }
-                    exitProcess(0)
-                } else if (changeError != null) {
-                    customTextToast(context, somethingWentWrong)
-                } else {
-                    if (viewModel.hasLogin()) {
-                        setupInfoClearContact()
-                        customTextToast(context, appCodeChangeSuccess)
-                    } else {
-                        (application as SampleApplication).setupEventHandlers()
-                        customTextToast(context, appCodeChangeSuccess)
-                    }
-                    viewModel.resetContactInfo()
-                }
+            applicationCode = viewModel.getTfAppCodeValue()
+        ) { changeError ->
+            if (changeError != null) {
+                customTextToast(context, somethingWentWrong)
+            } else {
+                viewModel.clearContact()
+                customTextToast(context, appCodeChangeSuccess)
             }
-        )
-        SetupInfo.applicationCode = viewModel.getTfAppCodeValue()
-        SetupInfo.notifyObservers()
+            if (viewModel.shouldChangeEnv()) {
+                exitProcess(0)
+            }
+        }
     }
 
     private fun onLoginClicked() {
-        if (!viewModel.hasLogin()) {
-            if (viewModel.isContactDataPresent()
+        if (!viewModel.hasLogin() && viewModel.isContactDataPresent()) {
+            Emarsys.setContact(
+                contactFieldId = viewModel.getTfContactFieldIdValue().toInt(),
+                contactFieldValue = viewModel.getTfContactFieldValue()
             ) {
-                Emarsys.setContact(
-                    contactFieldId = viewModel.getTfContactFieldIdValue().toInt(),
-                    contactFieldValue = viewModel.getTfContactFieldValue()
-                ) {
-                    if (verifyLogin(it, context)) {
-                        setupInfoSetContact(context)
-                    }
+                if (verifyLogin(it, context)) {
+                    setContact(context)
                 }
             }
         } else {
@@ -259,8 +239,7 @@ class DashboardScreen(
                 if (it != null) {
                     customTextToast(context, context.getString(R.string.log_out_fail))
                 } else {
-                    setupInfoClearContact()
-                    viewModel.resetContactInfo()
+                    viewModel.clearContact()
                     customTextToast(context, context.getString(R.string.log_out_success))
                 }
             }
@@ -281,18 +260,11 @@ class DashboardScreen(
         }
     }
 
-    private fun setupInfoClearContact() {
-        SetupInfo.contactFieldId = 0.toString()
-        SetupInfo.contactFieldValue = ""
-        SetupInfo.loggedIn = false
-        SetupInfo.notifyObservers()
-    }
-
-    private fun setupInfoSetContact(context: Context) {
-        SetupInfo.contactFieldValue = viewModel.getTfContactFieldValue()
-        SetupInfo.contactFieldId = viewModel.getTfContactFieldIdValue()
-        SetupInfo.loggedIn = true
-        SetupInfo.notifyObservers()
+    private fun setContact(context: Context) {
+        viewModel.setContact(
+            fieldId = viewModel.getTfContactFieldIdValue(),
+            fieldValue = viewModel.getTfContactFieldValue()
+        )
         viewModel.isLoggedIn.value = true
         trackPushToken(context)
     }

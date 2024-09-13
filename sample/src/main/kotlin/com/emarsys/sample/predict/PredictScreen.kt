@@ -1,6 +1,5 @@
 package com.emarsys.sample.predict
 
-import android.app.Application
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -23,20 +22,19 @@ import androidx.compose.ui.res.stringResource
 import coil.annotation.ExperimentalCoilApi
 import com.emarsys.Emarsys
 import com.emarsys.sample.R
-import com.emarsys.sample.ui.component.button.StyledTextButton
 import com.emarsys.sample.predict.cart.SampleCartItemCard
+import com.emarsys.sample.ui.component.button.StyledTextButton
 import com.emarsys.sample.ui.component.divider.GreyLine
+import com.emarsys.sample.ui.component.screen.DetailScreen
 import com.emarsys.sample.ui.component.text.TitleText
+import com.emarsys.sample.ui.component.toast.ErrorDialog
+import com.emarsys.sample.ui.component.toast.customTextToast
 import com.emarsys.sample.ui.style.columnWithMaxWidth
 import com.emarsys.sample.ui.style.rowWithMaxWidth
 import com.emarsys.sample.ui.style.rowWithPointEightWidth
-import com.emarsys.sample.ui.component.screen.DetailScreen
-import com.emarsys.sample.ui.component.toast.ErrorDialog
-import com.emarsys.sample.ui.component.toast.customTextToast
 
 class PredictScreen(
-    override val context: Context,
-    override val application: Application
+    override val context: Context
 ) : DetailScreen() {
     private val viewModel = PredictViewModel()
 

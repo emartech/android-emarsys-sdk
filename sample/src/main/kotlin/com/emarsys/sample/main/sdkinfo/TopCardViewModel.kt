@@ -2,10 +2,8 @@ package com.emarsys.sample.main.sdkinfo
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import java.util.*
 
-object TopCardViewModel : ViewModel(), Observer {
-    val setupInfo = mutableStateOf(SetupInfo.provideInfoMap())
+object TopCardViewModel : ViewModel() {
     val expanded = mutableStateOf(false)
 
     fun getMoreLessText(): String {
@@ -14,9 +12,5 @@ object TopCardViewModel : ViewModel(), Observer {
 
     fun toggleCardExpansion() {
         expanded.value = !expanded.value
-    }
-
-    override fun update(o: Observable?, arg: Any?) {
-        setupInfo.value = arg as MutableMap<String, String>
     }
 }

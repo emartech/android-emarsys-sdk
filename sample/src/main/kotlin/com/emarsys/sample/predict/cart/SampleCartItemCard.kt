@@ -8,7 +8,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.emarsys.sample.ui.style.cardWithPointEightWidth
+import com.emarsys.sample.ui.cardWithPointEightWidth
 import com.emarsys.sample.ui.style.rowWithPointEightWidth
 
 @Composable

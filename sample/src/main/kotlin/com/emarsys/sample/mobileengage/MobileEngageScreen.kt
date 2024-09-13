@@ -1,6 +1,5 @@
 package com.emarsys.sample.mobileengage
 
-import android.app.Application
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
@@ -19,19 +18,18 @@ import coil.annotation.ExperimentalCoilApi
 import com.emarsys.Emarsys
 import com.emarsys.sample.R
 import com.emarsys.sample.ui.component.ColumnWithTapGesture
-import com.emarsys.sample.ui.component.screen.DetailScreen
 import com.emarsys.sample.ui.component.button.StyledTextButton
 import com.emarsys.sample.ui.component.divider.DividerWithBackgroundColor
 import com.emarsys.sample.ui.component.divider.GreyLine
+import com.emarsys.sample.ui.component.screen.DetailScreen
 import com.emarsys.sample.ui.component.text.TitleText
 import com.emarsys.sample.ui.component.textfield.EventPayloadTextArea
 import com.emarsys.sample.ui.component.textfield.StyledTextField
-import com.emarsys.sample.ui.style.rowWithPointEightWidth
 import com.emarsys.sample.ui.component.toast.ErrorDialog
+import com.emarsys.sample.ui.style.rowWithPointEightWidth
 
 class MobileEngageScreen(
-    override val context: Context,
-    override val application: Application
+    override val context: Context
 ) : DetailScreen() {
     private val viewModel = MobileEngageViewModel()
     private val trackCustomEvent = {

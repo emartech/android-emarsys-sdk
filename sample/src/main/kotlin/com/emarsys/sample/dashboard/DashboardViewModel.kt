@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.emarsys.Emarsys
 import com.emarsys.sample.pref.Prefs
+import com.emarsys.sample.pref.update
 
 class DashboardViewModel : ViewModel() {
 
@@ -30,16 +31,8 @@ class DashboardViewModel : ViewModel() {
         return this.tfContactFieldId.value
     }
 
-    fun setTfContactFieldId(value: String) {
-        this.tfContactFieldId.value = value
-    }
-
     fun getTfContactFieldValue(): String {
         return this.tfContactFieldValue.value
-    }
-
-    fun setTfContactField(value: String) {
-        this.tfContactFieldValue.value = value
     }
 
     fun hasLogin(): Boolean {
@@ -66,12 +59,6 @@ class DashboardViewModel : ViewModel() {
         return this.geofenceEnabled.value
     }
 
-    fun resetContactInfo() {
-        this.setTfContactField("")
-        this.setTfContactFieldId("0")
-        this.isLoggedIn.value = false
-    }
-
     fun isContactDataPresent(): Boolean {
         return if (
             this.getTfContactFieldValue().isNotEmpty() &&
@@ -96,5 +83,32 @@ class DashboardViewModel : ViewModel() {
 
     fun isErrorVisible(): Boolean {
         return this.errorVisible.value
+    }
+
+    fun getInfoMap(): Map<String, String> {
+        return mapOf(
+            "loggedIn" to isLoggedIn.value.toString(),
+            "applicationCode" to tfAppCode.value,
+            "merchantId" to tfMerchantId.value,
+            "hardwareId" to Prefs.hardwareId,
+            "languageCode" to Prefs.languageCode,
+            "sdkVersion" to Prefs.sdkVersion,
+            "contactFieldValue" to tfContactFieldValue.value,
+            "contactFieldId" to tfContactFieldId.value
+        )
+    }
+
+    fun clearContact() {
+        tfContactFieldId.value = "0"
+        tfContactFieldValue.value = ""
+        isLoggedIn.value = false
+        Prefs.update(getInfoMap())
+    }
+
+    fun setContact(fieldId: String, fieldValue: String) {
+        tfContactFieldId.value = fieldId
+        tfContactFieldValue.value = fieldValue
+        isLoggedIn.value = true
+        Prefs.update(getInfoMap())
     }
 }

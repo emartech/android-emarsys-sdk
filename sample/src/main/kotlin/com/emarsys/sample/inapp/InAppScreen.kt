@@ -1,11 +1,9 @@
 package com.emarsys.sample.inapp
 
-import android.app.Application
 import android.content.Context
 import android.util.Log
 import android.view.View
 import android.widget.Toast
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -46,8 +44,7 @@ import com.emarsys.sample.ui.style.rowWithPointEightWidth
 import java.util.UUID
 
 class InAppScreen(
-    override val context: Context,
-    override val application: Application
+    override val context: Context
 ) : DetailScreen() {
     private val trackCustomEvent = {
         if (viewModel.isEventPresent()) {
@@ -71,7 +68,6 @@ class InAppScreen(
 
     private val viewModel = InAppViewModel()
 
-    @OptIn(ExperimentalAnimationApi::class)
     @ExperimentalCoilApi
     @ExperimentalComposeUiApi
     @Composable
