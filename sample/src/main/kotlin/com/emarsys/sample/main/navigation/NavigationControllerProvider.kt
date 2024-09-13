@@ -12,12 +12,12 @@ class NavigationControllerProvider(private val mainViewModel: MainViewModel) {
     @Composable
     fun provide(): NavHostController {
         val navHostController = rememberNavController()
-        NavHost(navHostController, startDestination = "bottom-dashboard") {
-            composable("bottom-dashboard") {  mainViewModel.detailScreen.value = mainViewModel.dashBoardScreen }
-            composable("bottom-mobile-engage") { mainViewModel.detailScreen.value = mainViewModel.mobileEngageScreen }
-            composable("bottom-inbox") { mainViewModel.detailScreen.value = mainViewModel.inboxScreen }
-            composable("bottom-predict") { mainViewModel.detailScreen.value = mainViewModel.predictScreen }
-            composable("bottom-inapp") { mainViewModel.detailScreen.value = mainViewModel.inAppScreen }
+        NavHost(navHostController, startDestination = "dashboard") {
+            composable("dashboard") {  mainViewModel.detailScreen.value = mainViewModel.dashBoardScreen }
+            composable("mobile-engage") { mainViewModel.detailScreen.value = mainViewModel.mobileEngageScreen }
+            composable("inbox") { mainViewModel.detailScreen.value = mainViewModel.inboxScreen }
+            composable("predict") { mainViewModel.detailScreen.value = mainViewModel.predictScreen }
+            composable("inapp") { mainViewModel.detailScreen.value = mainViewModel.inAppScreen }
         }
         return navHostController
     }
