@@ -9,6 +9,14 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+        <receiver
+            android:name="com.emarsys.mobileengage.geofence.GeofenceBroadcastReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.emarsys.sdk.GEOFENCE_ACTION" />
+            </intent-filter>
+        </receiver>
         <activity
             android:name="com.emarsys.NotificationOpenedActivity"
             android:exported="false"

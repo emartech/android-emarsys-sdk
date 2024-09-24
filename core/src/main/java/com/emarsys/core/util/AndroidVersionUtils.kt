@@ -22,7 +22,11 @@ object AndroidVersionUtils {
         @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.TIRAMISU)
         get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
 
-    val isUOrAbove: Boolean
+    val isSOrAbove: Boolean
+        @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.S)
+        get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+
+   val isUOrAbove: Boolean
         @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 
