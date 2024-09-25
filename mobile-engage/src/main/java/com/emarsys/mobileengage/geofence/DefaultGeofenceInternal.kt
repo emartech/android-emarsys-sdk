@@ -2,8 +2,6 @@ package com.emarsys.mobileengage.geofence
 
 import android.Manifest
 import android.app.PendingIntent
-import android.content.Context
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.Location
 import androidx.annotation.RequiresPermission
@@ -43,7 +41,6 @@ class DefaultGeofenceInternal(
     private val fusedLocationProviderClient: FusedLocationProviderClient,
     private val geofenceFilter: GeofenceFilter,
     private val geofencingClient: GeofencingClient,
-    private val context: Context,
     private val actionCommandFactory: ActionCommandFactory,
     private val geofenceCacheableEventHandler: CacheableEventHandler,
     private val geofenceEnabledStorage: Storage<Boolean>,
@@ -57,7 +54,6 @@ class DefaultGeofenceInternal(
         const val MAX_WAIT_TIME: Long = 60_000
     }
 
-    private val geofenceBroadcastReceiver = GeofenceBroadcastReceiver(concurrentHandlerHolder)
     private var geofenceResponse: GeofenceResponse? = null
     private var nearestGeofences: MutableList<MEGeofence> = mutableListOf()
     override val registeredGeofences: List<MEGeofence>
@@ -68,7 +64,6 @@ class DefaultGeofenceInternal(
     private val geofencePendingIntent: PendingIntent by lazy {
         geofencePendingIntentProvider.providePendingIntent()
     }
-    private var receiverRegistered = false
     private var initialEnterTriggerEnabled = initialEnterTriggerEnabledStorage.get() ?: false
     private var initialDwellingTriggerEnabled = false
     private var initialExitTriggerEnabled = false
@@ -115,7 +110,6 @@ class DefaultGeofenceInternal(
                 }
             }
             registerNearestGeofences(completionListener)
-            registerBroadcastReceiver()
         } else {
             completionListener?.onCompleted(MissingPermissionException("Couldn't acquire permission for $missingPermissions"))
         }
@@ -123,13 +117,9 @@ class DefaultGeofenceInternal(
 
     override fun disable() {
         if (geofenceEnabledStorage.get()) {
-            if (receiverRegistered) {
-                try {
-                    context.unregisterReceiver(geofenceBroadcastReceiver)
-                    receiverRegistered = false
-                    fusedLocationProviderClient.removeLocationUpdates(geofencePendingIntent)
-                } catch (ignored: IllegalArgumentException) {
-                }
+            try {
+                fusedLocationProviderClient.removeLocationUpdates(geofencePendingIntent)
+            } catch (ignored: IllegalArgumentException) {
             }
 
             geofenceEnabledStorage.set(false)
@@ -144,26 +134,6 @@ class DefaultGeofenceInternal(
 
     override fun isEnabled(): Boolean {
         return geofenceEnabledStorage.get()
-    }
-
-    private fun registerBroadcastReceiver() {
-        if (!receiverRegistered) {
-            concurrentHandlerHolder.postOnMain {
-                if (AndroidVersionUtils.isTiramisuOrAbove) {
-                    context.registerReceiver(
-                        geofenceBroadcastReceiver,
-                        IntentFilter("com.emarsys.sdk.GEOFENCE_ACTION"),
-                        Context.RECEIVER_EXPORTED
-                    )
-                } else {
-                    context.registerReceiver(
-                        geofenceBroadcastReceiver,
-                        IntentFilter("com.emarsys.sdk.GEOFENCE_ACTION"),
-                    )
-                }
-            }
-            receiverRegistered = true
-        }
     }
 
     @RequiresPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
@@ -299,6 +269,18 @@ class DefaultGeofenceInternal(
     }
 
     override fun onGeofenceTriggered(triggeringEmarsysGeofences: List<TriggeringEmarsysGeofence>) {
+        if (isEnabled()) {
+            if (nearestGeofences.isEmpty()) {
+                fetchGeofences {
+                    handleActions(triggeringEmarsysGeofences)
+                }
+            } else {
+                handleActions(triggeringEmarsysGeofences)
+            }
+        }
+    }
+
+    private fun handleActions(triggeringEmarsysGeofences: List<TriggeringEmarsysGeofence>) {
         extractActions(triggeringEmarsysGeofences).run {
             executeActions(this)
         }

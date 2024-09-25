@@ -1,4 +1,4 @@
-package com.emarsys.sample.ui.style
+package com.emarsys.sample.ui
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding

@@ -1,9 +1,9 @@
 package com.emarsys.sample.pref
 
 import com.chibatching.kotpref.KotprefModel
-import java.util.*
 
-object Prefs : KotprefModel(), Observer {
+object Prefs : KotprefModel() {
+    override val commitAllPropertiesByDefault: Boolean = true
 
     var sdkVersion by stringPref("")
     var languageCode by stringPref("")
@@ -13,17 +13,15 @@ object Prefs : KotprefModel(), Observer {
     var contactFieldValue by stringPref("")
     var contactFieldId by intPref(0)
     var loggedIn by booleanPref(false)
+}
 
-    override fun update(o: Observable?, arg: Any?) {
-        val newSettings = arg as MutableMap<String, String>
-
-        loggedIn = newSettings["LoggedIn"]!!.toBoolean()
-        applicationCode = newSettings["ApplicationCode"]!!
-        merchantId = newSettings["MerchantId"]!!
-        hardwareId = newSettings["HardwareId"]!!
-        languageCode = newSettings["LanguageCode"]!!
-        sdkVersion = newSettings["SdkVersion"]!!
-        contactFieldValue = newSettings["ContactFieldValue"]!!
-        contactFieldId = newSettings["ContactFieldId"]!!.toInt()
-    }
+fun Prefs.update(sdkInfo: Map<String, String>) {
+    sdkVersion = sdkInfo.getOrDefault("sdkVersion", "")
+    languageCode = sdkInfo.getOrDefault("languageCode", "")
+    hardwareId = sdkInfo.getOrDefault("hardwareId", "")
+    applicationCode = sdkInfo.getOrDefault("applicationCode", "")
+    merchantId = sdkInfo.getOrDefault("merchantId", "")
+    contactFieldValue = sdkInfo.getOrDefault("contactFieldValue", "")
+    contactFieldId = sdkInfo.getOrDefault("contactFieldId", "0").toInt()
+    loggedIn = sdkInfo.getOrDefault("loggedIn", "false").toBoolean()
 }

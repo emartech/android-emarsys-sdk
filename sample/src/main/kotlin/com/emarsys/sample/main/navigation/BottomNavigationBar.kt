@@ -1,4 +1,4 @@
-package com.emarsys.sample.ui.component.navbar
+package com.emarsys.sample.main.navigation
 
 
 import androidx.compose.material.BottomNavigation
@@ -12,17 +12,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.emarsys.sample.main.navigation.NavigationbarItem
 import com.emarsys.sample.ui.style.rowWithMaxWidth
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {
     val navItems = listOf(
-        NavigationbarItem.BottomDashBoard,
-        NavigationbarItem.BottomMobileEngage,
-        NavigationbarItem.BottomInbox,
-        NavigationbarItem.BottomPredict,
-        NavigationbarItem.BottomInApp
+        NavigationBarItem.BottomDashBoard,
+        NavigationBarItem.BottomMobileEngage,
+        NavigationBarItem.BottomInbox,
+        NavigationBarItem.BottomPredict,
+        NavigationBarItem.BottomInApp
     )
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route

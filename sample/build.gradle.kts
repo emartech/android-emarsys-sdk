@@ -159,7 +159,6 @@ dependencies {
     implementation(libs.google.firebase.common)
     implementation(libs.google.firebase.messaging)
     implementation(libs.play.services.auth)
-    implementation(libs.google.accompanist.swipetorefresh)
     implementation(libs.google.gson)
     debugImplementation(libs.androidx.compose.ui.tooling)
 

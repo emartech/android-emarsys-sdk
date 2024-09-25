@@ -45,7 +45,6 @@ hms_push = "6.12.0.300"
 googleServices = "4.4.2"
 google-play-services-location = "21.3.0"
 google-play-services-auth = "20.7.0"
-google-accompanist-swipetorefresh = "0.34.0"
 webkit = "1.11.0"
 mockito-android = "5.10.0"
 mockito-core = "5.10.0"
@@ -90,7 +89,6 @@ google-play-services-location = { module = "com.google.android.gms:play-services
 google-play-services-auth = { module = "androidx.core:core-ktx", version.ref = "google-play-services-auth" }
 google-firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "fcm" }
 google-firebase-common = { group = "com.google.firebase", name = "firebase-common", version.ref = "firebase-common" }
-google-accompanist-swipetorefresh = { module = "com.google.accompanist:accompanist-swiperefresh", version.ref = "google-accompanist-swipetorefresh" }
 google-gson = { module = "com.google.code.gson:gson", version.ref = "google-gson" }
 huawei-hms-push = { group = "com.huawei.hms", name = "push", version.ref = "hms_push" }
 huawei-agconnect-core = { group = "com.huawei.agconnect", name = "agconnect-core", version.ref = "agconnect_core" }

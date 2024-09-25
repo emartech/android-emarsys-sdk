@@ -1,13 +1,14 @@
 package com.emarsys.sample.inbox
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.emarsys.Emarsys
 import com.emarsys.inbox.InboxTag
 import com.emarsys.mobileengage.api.inbox.Message
 
 class InboxViewModel : ViewModel() {
-
+    val refreshing = mutableStateOf(false)
     val fetchedMessages = mutableSetOf<Message>()
 
     fun isFetchedMessagesEmpty(): Boolean {
@@ -19,6 +20,7 @@ class InboxViewModel : ViewModel() {
     }
 
     fun onSwipeFetchMessages() {
+        refreshing.value = true
         Emarsys.messageInbox.fetchMessages {
             if (it.errorCause != null) {
                 Log.e("INBOX", "Inbox Error" + it.errorCause)
@@ -32,9 +34,10 @@ class InboxViewModel : ViewModel() {
                                 messageId = message.id
                             )
                         }
-                        this.addMessageToFetched(message)
+                        addMessageToFetched(message)
                     }
                 }
+                refreshing.value = false
             }
         }
     }

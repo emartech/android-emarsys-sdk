@@ -10,7 +10,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.emarsys.predict.api.model.Product
 import com.emarsys.sample.R
-import com.emarsys.sample.ui.style.cardWithPointEightWidth
+import com.emarsys.sample.ui.cardWithPointEightWidth
 import com.emarsys.sample.ui.style.columnWithPointEightWidth
 import com.emarsys.sample.ui.style.rowWithPointEightWidth
 

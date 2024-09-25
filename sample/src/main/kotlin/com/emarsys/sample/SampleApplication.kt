@@ -28,7 +28,7 @@ class SampleApplication : Application(), EventHandler, NotificationInformationLi
 
         val config = EmarsysConfig(
             application = this,
-            applicationCode = if (Prefs.applicationCode.isEmpty()) null else Prefs.applicationCode,
+            applicationCode = Prefs.applicationCode.ifEmpty { null },
             merchantId = Prefs.merchantId,
             verboseConsoleLoggingEnabled = true
         )
@@ -37,7 +37,10 @@ class SampleApplication : Application(), EventHandler, NotificationInformationLi
         Emarsys.setup(config)
         createNotificationChannels()
         setupEventHandlers()
+        setContactIfPresent(context)
+    }
 
+    private fun setContactIfPresent(context: Context) {
         if (Prefs.contactFieldId != 0 && Prefs.contactFieldValue.isNotEmpty()) {
             Emarsys.setContact(
                 contactFieldValue = Prefs.contactFieldValue,
@@ -51,7 +54,7 @@ class SampleApplication : Application(), EventHandler, NotificationInformationLi
         }
     }
 
-    fun setupEventHandlers() {
+    private fun setupEventHandlers() {
         if (Prefs.applicationCode.isNotEmpty()) {
             Emarsys.push.setNotificationEventHandler(this)
             Emarsys.push.setSilentMessageEventHandler(this)

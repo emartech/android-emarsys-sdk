@@ -15,6 +15,7 @@ import com.google.android.gms.location.GeofencingEvent
 
 class GeofenceBroadcastReceiver(val concurrentHandlerHolder: ConcurrentHandlerHolder) :
     BroadcastReceiver() {
+    constructor() : this(mobileEngage().concurrentHandlerHolder)
 
     override fun onReceive(context: Context, intent: Intent) {
         val geofencingEvent = GeofencingEvent.fromIntent(intent)
@@ -52,10 +53,17 @@ class GeofenceBroadcastReceiver(val concurrentHandlerHolder: ConcurrentHandlerHo
     private fun logTriggeringGeofences(triggeringEmarsysGeofences: List<TriggeringEmarsysGeofence>) {
         triggeringEmarsysGeofences.forEach {
             val status = mapOf(
-                    "triggerType" to it.triggerType,
-                    "geofenceId" to it.geofenceId
+                "triggerType" to it.triggerType,
+                "geofenceId" to it.geofenceId
             )
-            Logger.debug(StatusLog(GeofenceBroadcastReceiver::class.java, SystemUtils.getCallerMethodName(), mapOf(), status))
+            Logger.debug(
+                StatusLog(
+                    GeofenceBroadcastReceiver::class.java,
+                    SystemUtils.getCallerMethodName(),
+                    mapOf(),
+                    status
+                )
+            )
         }
     }
 

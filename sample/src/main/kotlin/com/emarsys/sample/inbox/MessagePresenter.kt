@@ -6,7 +6,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.Card
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -18,6 +22,7 @@ import com.emarsys.mobileengage.api.inbox.Message
 import com.emarsys.sample.R
 import com.emarsys.sample.inbox.component.InboxButton
 import com.emarsys.sample.inbox.event.InboxAppEventHandler
+import com.emarsys.sample.ui.cardWithFullWidth
 import com.emarsys.sample.ui.component.button.StyledTextButton
 import com.emarsys.sample.ui.component.divider.DividerWithBackgroundColor
 import com.emarsys.sample.ui.component.row.RowWithCenteredContent
@@ -26,11 +31,10 @@ import com.emarsys.sample.ui.component.text.TextWithFullWidthLine
 import com.emarsys.sample.ui.component.text.TitleText
 import com.emarsys.sample.ui.component.textfield.StyledTextField
 import com.emarsys.sample.ui.component.toast.customTextToast
-import com.emarsys.sample.ui.style.cardWithFullWidth
 import com.emarsys.sample.ui.style.columnWithMaxWidth
 import com.emarsys.sample.ui.style.rowWithMaxWidth
 
-class MessagePresenter(private val context: Context, private val viewModel: InboxViewModel) {
+class MessagePresenter(private val context: Context) {
 
     private val inboxAppEventHandler = InboxAppEventHandler()
 

@@ -869,7 +869,6 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             fusedLocationProviderClient,
             GeofenceFilter(GEOFENCE_LIMIT),
             LocationServices.getGeofencingClient(config.application),
-            config.application,
             geofenceActionCommandFactory,
             geofenceCacheableEventHandler,
             BooleanStorage(MobileEngageStorageKey.GEOFENCE_ENABLED, sharedPreferences),
