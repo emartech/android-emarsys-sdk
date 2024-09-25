@@ -415,17 +415,17 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         )
     }
 
-    override val sharedPreferences: SharedPreferences by lazy {
-        val oldPrefs = config.application.getSharedPreferences(
-            EMARSYS_SHARED_PREFERENCES_NAME,
-            Context.MODE_PRIVATE
-        )
+    private val oldSharedPrefs = config.application.getSharedPreferences(
+        EMARSYS_SHARED_PREFERENCES_NAME,
+        Context.MODE_PRIVATE
+    )
+
+    override val sharedPreferences: SharedPreferences =
         SecureSharedPreferencesProvider(
             config.application,
             EMARSYS_SECURE_SHARED_PREFERENCES_NAME,
-            oldPrefs
+            oldSharedPrefs
         ).provide()
-    }
 
     override val contactTokenStorage: Storage<String?> by lazy {
         StringStorage(MobileEngageStorageKey.CONTACT_TOKEN, sharedPreferences)

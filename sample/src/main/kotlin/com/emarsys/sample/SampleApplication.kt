@@ -33,8 +33,11 @@ class SampleApplication : Application(), EventHandler, NotificationInformationLi
             verboseConsoleLoggingEnabled = true
         )
 
-        Prefs.loggedIn = false
         Emarsys.setup(config)
+        Prefs.loggedIn = false
+        Prefs.hardwareId = Emarsys.config.hardwareId
+        Prefs.languageCode = Emarsys.config.languageCode
+        Prefs.sdkVersion = Emarsys.config.sdkVersion
         createNotificationChannels()
         setupEventHandlers()
         setContactIfPresent(context)
