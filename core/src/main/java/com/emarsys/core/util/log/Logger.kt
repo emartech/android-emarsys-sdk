@@ -15,8 +15,18 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.provider.wrapper.WrapperInfoContainer
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.Storage
-import com.emarsys.core.util.log.LogLevel.*
-import com.emarsys.core.util.log.entry.*
+import com.emarsys.core.util.log.LogLevel.DEBUG
+import com.emarsys.core.util.log.LogLevel.ERROR
+import com.emarsys.core.util.log.LogLevel.INFO
+import com.emarsys.core.util.log.LogLevel.METRIC
+import com.emarsys.core.util.log.LogLevel.TRACE
+import com.emarsys.core.util.log.LogLevel.WARN
+import com.emarsys.core.util.log.LogLevel.valueOf
+import com.emarsys.core.util.log.entry.CrashLog
+import com.emarsys.core.util.log.entry.LogEntry
+import com.emarsys.core.util.log.entry.MethodNotAllowed
+import com.emarsys.core.util.log.entry.asString
+import com.emarsys.core.util.log.entry.toData
 
 @Mockable
 class Logger(
@@ -80,13 +90,15 @@ class Logger(
 
     fun handleLog(logLevel: LogLevel, logEntry: LogEntry, onCompleted: (() -> Unit)? = null) {
         val currentThreadName = Thread.currentThread().name
-        core().concurrentHandlerHolder.coreHandler.post {
+        concurrentHandlerHolder.coreHandler.post {
             val isDebugMode: Boolean =
                 0 != context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE
             if ((verboseConsoleLoggingEnabled || logEntry is MethodNotAllowed) && isDebugMode) {
                 logToConsole(logLevel, logEntry)
             }
-            persistLog(logLevel, logEntry, currentThreadName, onCompleted)
+            if (logEntry !is MethodNotAllowed) {
+                persistLog(logLevel, logEntry, currentThreadName, onCompleted)
+            }
         }
     }
 
