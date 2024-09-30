@@ -14,6 +14,7 @@ import com.emarsys.mobileengage.session.MobileEngageSession
 import com.emarsys.mobileengage.session.SessionIdHolder
 
 import com.emarsys.testUtil.AnnotationSpec
+import io.kotest.matchers.shouldBe
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.eq
@@ -23,6 +24,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.spy
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
@@ -128,41 +130,60 @@ class DefaultMobileEngageInternalTest : AnnotationSpec() {
 
         mockRequestModelFactory = mock {
             on { createSetContactRequest(CONTACT_FIELD_ID, null) }.thenReturn(
-                    mockRequestModelWithNullContactFieldValue
+                mockRequestModelWithNullContactFieldValue
             )
             on { createSetContactRequest(null, null) }.thenReturn(
-                    mockRequestModelWithNullContactFieldValueAndNullContactFieldId
+                mockRequestModelWithNullContactFieldValueAndNullContactFieldId
             )
             on { createSetContactRequest(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE) }.thenReturn(
-                    mockRequestModel
+                mockRequestModel
             )
             on { createSetPushTokenRequest(PUSH_TOKEN) }.thenReturn(mockRequestModel)
-            on { createCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES) }.thenReturn(mockRequestModel)
+            on { createCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES) }.thenReturn(
+                mockRequestModel
+            )
             on { createTrackDeviceInfoRequest() }.thenReturn(mockRequestModel)
-            on { createInternalCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES) }.thenReturn(mockRequestModel)
+            on { createInternalCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES) }.thenReturn(
+                mockRequestModel
+            )
             on { createRemovePushTokenRequest() }.thenReturn(mockRequestModel)
         }
 
         mockCompletionListener = mock()
 
         mobileEngageInternal = DefaultMobileEngageInternal(
-                mockRequestManager,
-                mockRequestModelFactory,
-                mockRequestContext,
-                mockSession,
-                mockSessionIdHolder
+            mockRequestManager,
+            mockRequestModelFactory,
+            mockRequestContext,
+            mockSession,
+            mockSessionIdHolder
         )
     }
 
     @Test
-    fun testSetContact() {
+    fun testSetContact_shouldCallRequestManager_whenNewSessionIsNeeded() {
+        whenever(mockRequestContext.contactFieldValue).thenReturn(OTHER_CONTACT_FIELD_VALUE)
+
         mobileEngageInternal.setContact(
-                CONTACT_FIELD_ID,
-                CONTACT_FIELD_VALUE,
-                mockCompletionListener
+            CONTACT_FIELD_ID,
+            CONTACT_FIELD_VALUE,
+            mockCompletionListener
         )
 
         verify(mockRequestManager).submit(mockRequestModel, mockCompletionListener)
+    }
+
+    @Test
+    fun testSetContact_shouldNotCallRequestManager_whenSessionIsNotChanging() {
+        whenever(mockRequestContext.contactFieldValue).thenReturn(CONTACT_FIELD_VALUE)
+
+        mobileEngageInternal.setContact(
+            CONTACT_FIELD_ID,
+            CONTACT_FIELD_VALUE,
+            mockCompletionListener
+        )
+
+        verifyNoInteractions(mockRequestManager)
     }
 
     @Test
@@ -257,10 +278,15 @@ class DefaultMobileEngageInternalTest : AnnotationSpec() {
             verify(mockSession).endSession(any())
             verify(mobileEngageInternal).doClearContact(any())
             verify(mobileEngageInternal).resetContext()
-            verify(mobileEngageInternal).doSetContact(isNull(), isNull(), isNull(), any<CompletionListener>())
+            verify(mobileEngageInternal).doSetContact(
+                isNull(),
+                isNull(),
+                isNull(),
+                any<CompletionListener>()
+            )
             verify(mockRequestManager).submit(
-                    eq(mockRequestModelWithNullContactFieldValueAndNullContactFieldId),
-                    any()
+                eq(mockRequestModelWithNullContactFieldValueAndNullContactFieldId),
+                any()
             )
             verifyNoMoreInteractions(mobileEngageInternal)
             verify(mockSession).startSession(any())
@@ -270,9 +296,26 @@ class DefaultMobileEngageInternalTest : AnnotationSpec() {
     @Test
     fun testClearContact_shouldEndCurrentSession() {
         whenever(mockSessionIdHolder.sessionId).thenReturn("testSessionId")
+        whenever(mockRequestContext.hasContactIdentification()).thenReturn(true)
+        whenever(mockRequestContext.contactTokenStorage.get()).thenReturn("contactToken")
         mobileEngageInternal.clearContact(null)
 
         verify(mockSession).endSession(any())
+    }
+
+    @Test
+    fun testClearContact_shouldCallOnCompleted_whenContactWasAlreadyAnonymous() {
+        whenever(mockRequestContext.hasContactIdentification()).thenReturn(false)
+        whenever(mockRequestContext.contactTokenStorage.get()).thenReturn("contactToken")
+        whenever(mockSessionIdHolder.sessionId).thenReturn("testSessionId")
+
+        var result = false
+        mobileEngageInternal.clearContact {
+            result = true
+        }
+        result shouldBe true
+        verifyNoInteractions(mockSession)
+        verifyNoInteractions(mockRequestManager)
     }
 
     @Test
