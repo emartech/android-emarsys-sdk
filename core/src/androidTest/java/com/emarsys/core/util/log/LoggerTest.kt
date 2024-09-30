@@ -1,5 +1,6 @@
 package com.emarsys.core.util.log
 
+import android.content.Context
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
@@ -14,7 +15,9 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.log.entry.LogEntry
+import com.emarsys.core.util.log.entry.MethodNotAllowed
 import com.emarsys.testUtil.AnnotationSpec
+import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.mockito.ThreadSpy
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
@@ -41,19 +44,20 @@ class LoggerTest : AnnotationSpec() {
 
 
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
-    private lateinit var shardRepositoryMock: Repository<ShardModel, SqlSpecification>
+    private lateinit var mockShardRepository: Repository<ShardModel, SqlSpecification>
     private lateinit var timestampProviderMock: TimestampProvider
     private lateinit var uuidProviderMock: UUIDProvider
     private lateinit var dependencyContainer: CoreComponent
     private lateinit var loggerInstance: Logger
     private lateinit var loggerMock: Logger
     private lateinit var mockLogLevelStorage: StringStorage
+    private lateinit var context: Context
 
     @Before
     @Suppress("UNCHECKED_CAST")
     fun init() {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
-        shardRepositoryMock = mock()
+        mockShardRepository = mock()
         timestampProviderMock = mock<TimestampProvider>().apply {
             whenever(provideTimestamp()).thenReturn(TIMESTAMP)
         }
@@ -62,20 +66,21 @@ class LoggerTest : AnnotationSpec() {
         }
         mockLogLevelStorage = mock()
 
+        context = InstrumentationRegistry.getTargetContext()
         loggerInstance = Logger(
             concurrentHandlerHolder,
-            shardRepositoryMock,
+            mockShardRepository,
             timestampProviderMock,
             uuidProviderMock,
             mockLogLevelStorage,
             false,
-            mock()
+            context
         )
         loggerMock = mock()
 
         dependencyContainer = FakeCoreDependencyContainer(
             concurrentHandlerHolder = concurrentHandlerHolder,
-            shardRepository = shardRepositoryMock,
+            shardRepository = mockShardRepository,
             timestampProvider = timestampProviderMock,
             uuidProvider = uuidProviderMock,
             logger = loggerMock
@@ -106,7 +111,7 @@ class LoggerTest : AnnotationSpec() {
         val captor = ArgumentCaptor.forClass(ShardModel::class.java)
 
         runBlocking {
-            verify(shardRepositoryMock, timeout(100)).add(capture<ShardModel>(captor))
+            verify(mockShardRepository, timeout(100)).add(capture<ShardModel>(captor))
         }
 
         captor.value shouldBe ShardModel(
@@ -125,6 +130,17 @@ class LoggerTest : AnnotationSpec() {
     }
 
     @Test
+    fun testPersistLog_shouldNotAddLog_toShardRepository_whenLogEntryIsMethodNotAllowed() {
+        val methodNotAllowedLog = MethodNotAllowed(this::class.java, "testMethodName", mapOf())
+
+        loggerInstance.handleLog(LogLevel.ERROR, methodNotAllowedLog, null)
+
+        waitForTask()
+
+        verify(mockShardRepository, times(0)).add(any())
+    }
+
+    @Test
     fun testPersistLog_addsOtherLog_toShardRepository() {
         loggerInstance.persistLog(
             LogLevel.ERROR,
@@ -135,7 +151,7 @@ class LoggerTest : AnnotationSpec() {
 
         val captor = ArgumentCaptor.forClass(ShardModel::class.java)
         runBlocking {
-            verify(shardRepositoryMock, timeout(100)).add(capture<ShardModel>(captor))
+            verify(mockShardRepository, timeout(100)).add(capture<ShardModel>(captor))
         }
         captor.value shouldBe ShardModel(
             UUID,
@@ -153,7 +169,7 @@ class LoggerTest : AnnotationSpec() {
     fun testPersistLog_addsLog_toShardRepository_viaCoreSdkHandler() {
         val threadSpy = ThreadSpy<Unit>()
         runBlocking {
-            org.mockito.Mockito.doAnswer(threadSpy).`when`(shardRepositoryMock).add(any())
+            org.mockito.Mockito.doAnswer(threadSpy).`when`(mockShardRepository).add(any())
         }
         loggerInstance.persistLog(LogLevel.ERROR, logEntryMock(), "testThreadName", null)
 
@@ -208,7 +224,7 @@ class LoggerTest : AnnotationSpec() {
         ) { latch.countDown() }
         latch.await()
         runBlocking {
-            verify(shardRepositoryMock, timeout(100).times(0)).add(any())
+            verify(mockShardRepository, timeout(100).times(0)).add(any())
         }
     }
 
@@ -225,7 +241,7 @@ class LoggerTest : AnnotationSpec() {
         ) { latch.countDown() }
         latch.await()
         runBlocking {
-            verify(shardRepositoryMock, times(0)).add(any())
+            verify(mockShardRepository, times(0)).add(any())
         }
     }
 
@@ -243,7 +259,7 @@ class LoggerTest : AnnotationSpec() {
         ) { latch.countDown() }
         latch.await()
         runBlocking {
-            verify(shardRepositoryMock, times(1)).add(any())
+            verify(mockShardRepository, times(1)).add(any())
         }
     }
 
