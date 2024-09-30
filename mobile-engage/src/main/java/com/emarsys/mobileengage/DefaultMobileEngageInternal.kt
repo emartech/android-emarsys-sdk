@@ -24,9 +24,9 @@ class DefaultMobileEngageInternal(
         completionListener: CompletionListener?
     ) {
         val shouldRestartSession = requestContext.contactFieldValue != contactFieldValue
-        doSetContact(contactFieldId, contactFieldValue, completionListener = completionListener)
 
         if (shouldRestartSession) {
+            doSetContact(contactFieldId, contactFieldValue, completionListener = completionListener)
             if (!sessionIdHolder.sessionId.isNullOrEmpty()) {
                 session.endSession {
                     if (it != null) {
@@ -85,16 +85,24 @@ class DefaultMobileEngageInternal(
     }
 
     override fun clearContact(completionListener: CompletionListener?) {
-        if (!sessionIdHolder.sessionId.isNullOrEmpty()) {
-            session.endSession {
-                if (it != null) {
-                    Logger.error(CrashLog(it))
+        if (hasContactToken() && !requestContext.hasContactIdentification()) {
+            completionListener?.onCompleted(null)
+        } else {
+            if (!sessionIdHolder.sessionId.isNullOrEmpty()) {
+                session.endSession {
+                    if (it != null) {
+                        Logger.error(CrashLog(it))
+                    }
+                    doClearContact(completionListener)
                 }
+            } else {
                 doClearContact(completionListener)
             }
-        } else {
-            doClearContact(completionListener)
         }
+    }
+
+    private fun hasContactToken(): Boolean {
+        return !requestContext.contactTokenStorage.get().isNullOrEmpty()
     }
 
     internal fun doClearContact(completionListener: CompletionListener?) {
