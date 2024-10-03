@@ -88,7 +88,6 @@ import io.mockk.spyk
 import io.mockk.verify
 import io.mockk.verifyOrder
 import org.junit.Rule
-import org.mockito.kotlin.mock
 import java.util.concurrent.CountDownLatch
 
 class EmarsysTest : AnnotationSpec() {
@@ -876,7 +875,6 @@ class EmarsysTest : AnnotationSpec() {
         runBlockingOnCoreSdkThread {
             verify {
                 mockMobileEngageApi.clearContact(completionListener)
-                mockPredictRestricted.clearVisitorId()
             }
         }
     }
@@ -891,7 +889,6 @@ class EmarsysTest : AnnotationSpec() {
         }
         verify {
             mockLoggingMobileEngageApi.clearContact(completionListener)
-            mockLoggingPredictRestricted.clearVisitorId()
         }
     }
 

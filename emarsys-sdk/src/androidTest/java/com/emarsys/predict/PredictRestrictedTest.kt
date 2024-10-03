@@ -49,12 +49,6 @@ class PredictRestrictedTest : AnnotationSpec() {
     }
 
     @Test
-    fun testPredict_clearContact_delegatesTo_Predict_Internal() {
-        predictRestricted.clearVisitorId()
-        Mockito.verify(mockPredictInternal).clearVisitorId()
-    }
-
-    @Test
     fun testPredict_clearPredictOnlyContact_delegatesTo_Predict_Internal() {
         val mockCompletionListener = mock<CompletionListener>()
         predictRestricted.clearPredictOnlyContact(mockCompletionListener)

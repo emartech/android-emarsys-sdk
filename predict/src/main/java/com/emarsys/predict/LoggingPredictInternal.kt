@@ -34,11 +34,6 @@ class LoggingPredictInternal(private val klass: Class<*>) : PredictInternal {
         debug(MethodNotAllowed(klass, callerMethodName, parameters))
     }
 
-    override fun clearVisitorId() {
-        val callerMethodName = SystemUtils.getCallerMethodName()
-        debug(MethodNotAllowed(klass, callerMethodName, null))
-    }
-
     override fun trackCart(items: List<CartItem>): String {
         val parameters: Map<String, Any?> = mapOf(
             "items" to items.toString()

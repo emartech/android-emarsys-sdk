@@ -7,6 +7,4 @@ interface PredictRestrictedApi {
     fun setContact(contactFieldId: Int, contactFieldValue: String, completionListener: CompletionListener?)
 
     fun clearPredictOnlyContact(completionListener: CompletionListener?)
-
-    fun clearVisitorId()
 }

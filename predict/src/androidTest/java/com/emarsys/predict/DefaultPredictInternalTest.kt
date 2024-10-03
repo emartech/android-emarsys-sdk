@@ -205,14 +205,7 @@ class DefaultPredictInternalTest : AnnotationSpec() {
     }
 
     @Test
-    fun testClearContact_shouldRemove_visitorIdFromKeyValueStore() {
-        predictInternal.clearVisitorId()
-
-        verify(mockKeyValueStore).remove("predict_visitor_id")
-    }
-
-    @Test
-    fun testClearPredictOnlyContact_shouldCall_requestManager() {
+    fun testClearPredictOnlyContact_shouldCall_requestManager_andShouldNotRemoveVisitorId() {
         whenever(
             mockPredictMultiIdRequestModelFactory.createClearContactRequestModel()
         ).thenReturn(mockRequestModel)
@@ -220,6 +213,7 @@ class DefaultPredictInternalTest : AnnotationSpec() {
         predictInternal.clearPredictOnlyContact(mockCompletionListener)
 
         verify(mockRequestManager).submit(mockRequestModel, mockCompletionListener)
+        verifyNoInteractions(mockKeyValueStore)
     }
 
     @Test
@@ -248,13 +242,6 @@ class DefaultPredictInternalTest : AnnotationSpec() {
         verifyNoInteractions(mockRequestManager)
         verifyNoInteractions(mockKeyValueStore)
         verifyNoInteractions(mockCompletionListener)
-    }
-
-    @Test
-    fun testClearPredictOnlyContact_shouldRemove_visitorIdFromKeyValueStore() {
-        predictInternal.clearPredictOnlyContact(mockCompletionListener)
-
-        verify(mockKeyValueStore).remove("predict_visitor_id")
     }
 
     @Test

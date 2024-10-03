@@ -620,7 +620,6 @@ class DefaultConfigInternalTest : AnnotationSpec() {
 
         FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe true
         verify(mockMobileEngageInternal).clearContact(null)
-        verify(mockPredictInternal).clearVisitorId()
     }
 
     @Test

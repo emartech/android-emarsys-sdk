@@ -15,9 +15,4 @@ class PredictRestricted(private val loggingInstance: Boolean = false) : PredictR
         (if (loggingInstance) predict().loggingPredictInternal else predict().predictInternal)
             .clearPredictOnlyContact(completionListener)
     }
-
-    override fun clearVisitorId() {
-        (if (loggingInstance) predict().loggingPredictInternal else predict().predictInternal)
-            .clearVisitorId()
-    }
 }

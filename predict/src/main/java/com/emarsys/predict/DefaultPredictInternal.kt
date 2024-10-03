@@ -13,7 +13,6 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.shard.ShardModel
-import com.emarsys.core.storage.KeyValueStore
 import com.emarsys.core.util.Assert
 import com.emarsys.core.util.JsonUtils.fromMap
 import com.emarsys.predict.api.model.CartItem
@@ -50,7 +49,6 @@ class DefaultPredictInternal(
 
     private val uuidProvider: UUIDProvider = requestContext.uuidProvider
     private val timestampProvider: TimestampProvider = requestContext.timestampProvider
-    private val keyValueStore: KeyValueStore = requestContext.keyValueStore
 
     override fun setContact(
         contactFieldId: Int,
@@ -73,15 +71,9 @@ class DefaultPredictInternal(
         try {
             val requestModel = predictMultiIdRequestModelFactory.createClearContactRequestModel()
             requestManager.submit(requestModel, completionListener)
-
-            keyValueStore.remove(VISITOR_ID_KEY)
         } catch (e: Exception) {
             completionListener?.onCompleted(e)
         }
-    }
-
-    override fun clearVisitorId() {
-        keyValueStore.remove(VISITOR_ID_KEY)
     }
 
     override fun trackCart(items: List<CartItem>): String {
