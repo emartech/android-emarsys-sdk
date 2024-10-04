@@ -11,7 +11,6 @@ import com.emarsys.mobileengage.session.SessionIdHolder
 data class MobileEngageRequestContext(
     var applicationCode: String?,
     var contactFieldId: Int?,
-    var contactFieldValue: String?,
     var openIdToken: String? = null,
     val deviceInfo: DeviceInfo,
     val timestampProvider: TimestampProvider,
@@ -20,8 +19,18 @@ data class MobileEngageRequestContext(
     val contactTokenStorage: Storage<String?>,
     val refreshTokenStorage: Storage<String?>,
     val pushTokenStorage: Storage<String?>,
+    val contactFieldValueStorage: Storage<String?>,
     val sessionIdHolder: SessionIdHolder
 ) {
+
+    var contactFieldValue: String?
+        get() {
+            return contactFieldValueStorage.get()
+        }
+        set(value) {
+            contactFieldValueStorage.set(value)
+        }
+
 
     fun hasContactIdentification(): Boolean {
         return openIdToken != null || contactFieldValue != null
