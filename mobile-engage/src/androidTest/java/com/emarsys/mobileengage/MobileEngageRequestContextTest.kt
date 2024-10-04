@@ -1,21 +1,25 @@
 package com.emarsys.mobileengage
 
+import com.emarsys.core.storage.Storage
 import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 class MobileEngageRequestContextTest : AnnotationSpec() {
+
+    private lateinit var mockContactFieldValueStorage: Storage<String?>
 
     private lateinit var requestContext: MobileEngageRequestContext
 
     @Before
     fun setUp() {
-
+        mockContactFieldValueStorage = mock<Storage<String?>>()
         requestContext = MobileEngageRequestContext(
             "appCode",
             1,
             null,
-            null,
             mock(),
             mock(),
             mock(),
@@ -23,6 +27,7 @@ class MobileEngageRequestContextTest : AnnotationSpec() {
             mock(),
             mock(),
             mock(),
+            mockContactFieldValueStorage,
             mock()
         )
     }
@@ -52,10 +57,28 @@ class MobileEngageRequestContextTest : AnnotationSpec() {
 
     @Test
     fun testHasContactIdentification_whenHasContactFieldValue_shouldBeTrue() {
-        requestContext.contactFieldValue = "contactFieldValue"
+        whenever(mockContactFieldValueStorage.get()).thenReturn("contactFieldValue")
 
         requestContext.openIdToken = null
 
         requestContext.hasContactIdentification() shouldBe true
+    }
+
+    @Test
+    fun testContactFieldValue_setter_shouldDelegateToStorage() {
+        val testContactFieldValue = "testContactFieldValue"
+
+        requestContext.contactFieldValue = "testContactFieldValue"
+
+        verify(mockContactFieldValueStorage).set(testContactFieldValue)
+    }
+
+    @Test
+    fun testContactFieldValue_getter_shouldDelegateToStorage() {
+        val testContactFieldValue = "testContactFieldValue"
+        whenever(mockContactFieldValueStorage.get()).thenReturn(testContactFieldValue)
+
+        requestContext.contactFieldValue shouldBe testContactFieldValue
+        verify(mockContactFieldValueStorage).get()
     }
 }

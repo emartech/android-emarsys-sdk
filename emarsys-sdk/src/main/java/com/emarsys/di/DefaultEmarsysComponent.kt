@@ -516,7 +516,6 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             config.applicationCode,
             null,
             null,
-            null,
             deviceInfo,
             timestampProvider,
             uuidProvider,
@@ -524,6 +523,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             contactTokenStorage,
             refreshTokenStorage,
             pushTokenStorage,
+            contactFieldValueStorage,
             sessionIdHolder
         )
     }

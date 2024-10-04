@@ -39,6 +39,8 @@ class DefaultMobileEngageInternal(
                     Logger.error(CrashLog(it))
                 }
             }
+        } else {
+            completionListener?.onCompleted(null)
         }
     }
 

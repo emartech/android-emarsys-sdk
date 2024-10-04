@@ -184,6 +184,7 @@ class DefaultMobileEngageInternalTest : AnnotationSpec() {
         )
 
         verifyNoInteractions(mockRequestManager)
+        verify(mockCompletionListener).onCompleted(null)
     }
 
     @Test
