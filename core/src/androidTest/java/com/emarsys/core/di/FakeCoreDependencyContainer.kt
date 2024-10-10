@@ -42,6 +42,7 @@ class FakeCoreDependencyContainer(
     override val fileDownloader: FileDownloader = mock(),
     override val keyValueStore: KeyValueStore = mock(),
     override val sharedPreferences: SharedPreferences = mock(),
+    override val sharedPreferencesV3: SharedPreferences = mock(),
     override val hardwareIdProvider: HardwareIdProvider = mock(),
     override val coreDbHelper: CoreDbHelper = mock(),
     override val hardwareIdStorage: Storage<String?> = mock(),

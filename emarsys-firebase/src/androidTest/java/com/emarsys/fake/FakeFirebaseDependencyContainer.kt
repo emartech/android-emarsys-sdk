@@ -155,4 +155,5 @@ class FakeFirebaseDependencyContainer(
     override val jsOnAppEventListener: OnAppEventListener = mock(),
     override val remoteMessageMapperFactory: RemoteMessageMapperFactory = mock(),
     override val transitionSafeCurrentActivityWatchdog: TransitionSafeCurrentActivityWatchdog = mock(),
+    override val sharedPreferencesV3: SharedPreferences = mock(),
 ) : MobileEngageComponent

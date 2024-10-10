@@ -35,6 +35,7 @@ import com.emarsys.core.contentresolver.EmarsysContentResolver
 import com.emarsys.core.contentresolver.hardwareid.HardwareIdContentResolver
 import com.emarsys.core.crypto.Crypto
 import com.emarsys.core.crypto.HardwareIdentificationCrypto
+import com.emarsys.core.crypto.SharedPreferenceCrypto
 import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.Repository
@@ -68,8 +69,10 @@ import com.emarsys.core.shard.specification.FilterByShardType
 import com.emarsys.core.storage.BooleanStorage
 import com.emarsys.core.storage.CoreStorageKey
 import com.emarsys.core.storage.DefaultKeyValueStore
+import com.emarsys.core.storage.EncryptedSharedPreferencesToSharedPreferencesMigration
 import com.emarsys.core.storage.KeyValueStore
 import com.emarsys.core.storage.SecureSharedPreferencesProvider
+import com.emarsys.core.storage.SharedPreferencesV3Provider
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.FileDownloader
@@ -200,6 +203,8 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         private const val EMARSYS_SHARED_PREFERENCES_NAME = "emarsys_shared_preferences"
         private const val EMARSYS_SECURE_SHARED_PREFERENCES_NAME =
             "emarsys_secure_shared_preferences"
+        private const val EMARSYS_SECURE_SHARED_PREFERENCES_V3_NAME =
+            "emarsys_secure_shared_preferences_v3"
         private const val GEOFENCE_LIMIT = 99
         private const val PUBLIC_KEY =
             "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAELjWEUIBX9zlm1OI4gF1hMCBLzpaBwgs9HlmSIBAqP4MDGy4ibOOV3FVDrnAY0Q34LZTbPBlp3gRNZJ19UoSy2Q=="
@@ -420,23 +425,31 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         Context.MODE_PRIVATE
     )
 
-    override val sharedPreferences: SharedPreferences =
+    final override val sharedPreferences: SharedPreferences =
         SecureSharedPreferencesProvider(
             config.application,
             EMARSYS_SECURE_SHARED_PREFERENCES_NAME,
             oldSharedPrefs
         ).provide()
 
+    override val sharedPreferencesV3: SharedPreferences =
+        SharedPreferencesV3Provider(
+            config.application, EMARSYS_SECURE_SHARED_PREFERENCES_V3_NAME, sharedPreferences,
+            SharedPreferenceCrypto(),
+            EncryptedSharedPreferencesToSharedPreferencesMigration()
+        ).provide()
+
+
     override val contactTokenStorage: Storage<String?> by lazy {
-        StringStorage(MobileEngageStorageKey.CONTACT_TOKEN, sharedPreferences)
+        StringStorage(MobileEngageStorageKey.CONTACT_TOKEN, sharedPreferencesV3)
     }
 
     override val clientStateStorage: Storage<String?> by lazy {
-        StringStorage(MobileEngageStorageKey.CLIENT_STATE, sharedPreferences)
+        StringStorage(MobileEngageStorageKey.CLIENT_STATE, sharedPreferencesV3)
     }
 
     override val pushTokenStorage: Storage<String?> by lazy {
-        StringStorage(MobileEngageStorageKey.PUSH_TOKEN, sharedPreferences)
+        StringStorage(MobileEngageStorageKey.PUSH_TOKEN, sharedPreferencesV3)
     }
 
     override val uuidProvider: UUIDProvider by lazy {
@@ -444,7 +457,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val hardwareIdStorage: Storage<String?> by lazy {
-        StringStorage(CoreStorageKey.HARDWARE_ID, sharedPreferences)
+        StringStorage(CoreStorageKey.HARDWARE_ID, sharedPreferencesV3)
     }
 
     override val coreDbHelper: CoreDbHelper by lazy {
@@ -497,11 +510,11 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val refreshTokenStorage: Storage<String?> by lazy {
-        StringStorage(MobileEngageStorageKey.REFRESH_TOKEN, sharedPreferences)
+        StringStorage(MobileEngageStorageKey.REFRESH_TOKEN, sharedPreferencesV3)
     }
 
     override val contactFieldValueStorage: Storage<String?> by lazy {
-        StringStorage(MobileEngageStorageKey.CONTACT_FIELD_VALUE, sharedPreferences)
+        StringStorage(MobileEngageStorageKey.CONTACT_FIELD_VALUE, sharedPreferencesV3)
     }
 
     override val sessionIdHolder: SessionIdHolder by lazy {
@@ -554,27 +567,27 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val clientServiceStorage: Storage<String?> by lazy {
-        StringStorage(MobileEngageStorageKey.CLIENT_SERVICE_URL, sharedPreferences)
+        StringStorage(MobileEngageStorageKey.CLIENT_SERVICE_URL, sharedPreferencesV3)
     }
 
     override val eventServiceStorage: Storage<String?> by lazy {
-        StringStorage(MobileEngageStorageKey.EVENT_SERVICE_URL, sharedPreferences)
+        StringStorage(MobileEngageStorageKey.EVENT_SERVICE_URL, sharedPreferencesV3)
     }
 
     override val deepLinkServiceStorage: Storage<String?> by lazy {
-        StringStorage(MobileEngageStorageKey.DEEPLINK_SERVICE_URL, sharedPreferences)
+        StringStorage(MobileEngageStorageKey.DEEPLINK_SERVICE_URL, sharedPreferencesV3)
     }
 
     override val messageInboxServiceStorage: Storage<String?> by lazy {
-        StringStorage(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL, sharedPreferences)
+        StringStorage(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL, sharedPreferencesV3)
     }
 
     override val deviceEventStateStorage: Storage<String?> by lazy {
-        StringStorage(MobileEngageStorageKey.DEVICE_EVENT_STATE, sharedPreferences)
+        StringStorage(MobileEngageStorageKey.DEVICE_EVENT_STATE, sharedPreferencesV3)
     }
 
     override val geofenceInitialEnterTriggerEnabledStorage: Storage<Boolean?> by lazy {
-        BooleanStorage(MobileEngageStorageKey.GEOFENCE_INITIAL_ENTER_TRIGGER, sharedPreferences)
+        BooleanStorage(MobileEngageStorageKey.GEOFENCE_INITIAL_ENTER_TRIGGER, sharedPreferencesV3)
     }
 
     override val clientServiceEndpointProvider: ServiceEndpointProvider by lazy {
@@ -808,11 +821,11 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val deviceInfoPayloadStorage: Storage<String?> by lazy {
-        StringStorage(MobileEngageStorageKey.DEVICE_INFO_HASH, sharedPreferences)
+        StringStorage(MobileEngageStorageKey.DEVICE_INFO_HASH, sharedPreferencesV3)
     }
 
     override val logLevelStorage: Storage<String?> by lazy {
-        StringStorage(CoreStorageKey.LOG_LEVEL, sharedPreferences)
+        StringStorage(CoreStorageKey.LOG_LEVEL, sharedPreferencesV3)
     }
 
     override val pushTokenProvider: PushTokenProvider by lazy {
@@ -865,7 +878,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             LocationServices.getGeofencingClient(config.application),
             geofenceActionCommandFactory,
             geofenceCacheableEventHandler,
-            BooleanStorage(MobileEngageStorageKey.GEOFENCE_ENABLED, sharedPreferences),
+            BooleanStorage(MobileEngageStorageKey.GEOFENCE_ENABLED, sharedPreferencesV3),
             GeofencePendingIntentProvider(config.application),
             concurrentHandlerHolder,
             geofenceInitialEnterTriggerEnabledStorage
@@ -897,7 +910,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val keyValueStore: KeyValueStore by lazy {
-        DefaultKeyValueStore(sharedPreferences)
+        DefaultKeyValueStore(sharedPreferencesV3)
     }
 
     override val predictRequestContext: PredictRequestContext by lazy {
@@ -1013,7 +1026,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val predictServiceStorage: Storage<String?> by lazy {
-        StringStorage(PredictStorageKey.PREDICT_SERVICE_URL, sharedPreferences)
+        StringStorage(PredictStorageKey.PREDICT_SERVICE_URL, sharedPreferencesV3)
     }
 
     private fun createRequestModelRepository(
@@ -1055,7 +1068,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         )
     }
 
-    private fun logInitialSetup(emarsysConfig: EmarsysConfig) {
+    override fun logInitialSetup(emarsysConfig: EmarsysConfig) {
         if (!emarsysConfig.verboseConsoleLoggingEnabled) {
             return
         }
@@ -1120,9 +1133,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         Log.d(
             "EMARSYS_SDK",
             "${MobileEngageStorageKey.DEVICE_INFO_HASH} : ${
-                JSONObject(deviceInfoPayloadStorage.get() ?: "{}").toString(
-                    4
-                )
+                deviceInfoPayloadStorage.get() ?: "-"
             }"
         )
         Log.d("EMARSYS_SDK", "${CoreStorageKey.LOG_LEVEL} : ${logLevelStorage.get()}")

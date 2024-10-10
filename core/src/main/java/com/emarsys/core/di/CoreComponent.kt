@@ -76,6 +76,8 @@ interface CoreComponent {
 
     val sharedPreferences: SharedPreferences
 
+    val sharedPreferencesV3: SharedPreferences
+
     val hardwareIdProvider: HardwareIdProvider
 
     val coreDbHelper: CoreDbHelper

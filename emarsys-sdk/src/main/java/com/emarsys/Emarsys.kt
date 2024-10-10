@@ -99,6 +99,7 @@ object Emarsys {
         }
 
         refreshRemoteConfig(emarsysConfig.applicationCode)
+        emarsys().logInitialSetup(emarsysConfig)
     }
 
     private fun registerLifecycleObservers() {
