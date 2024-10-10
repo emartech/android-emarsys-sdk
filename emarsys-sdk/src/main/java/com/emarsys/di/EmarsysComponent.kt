@@ -3,6 +3,7 @@ package com.emarsys.di
 import com.emarsys.clientservice.ClientServiceApi
 import com.emarsys.config.ConfigApi
 import com.emarsys.config.ConfigInternal
+import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.di.CoreComponent
 import com.emarsys.deeplink.DeepLinkApi
 import com.emarsys.eventservice.EventServiceApi
@@ -19,7 +20,7 @@ import com.emarsys.push.PushApi
 import com.emarsys.request.CoreCompletionHandlerRefreshTokenProxyProvider
 
 fun emarsys() = EmarsysComponent.instance
-        ?: throw IllegalStateException("DependencyContainer has to be setup first!")
+    ?: throw IllegalStateException("DependencyContainer has to be setup first!")
 
 fun setupEmarsysComponent(emarsysComponent: EmarsysComponent) {
     EmarsysComponent.instance = emarsysComponent
@@ -36,10 +37,10 @@ fun tearDownEmarsysComponent() {
 }
 
 fun isEmarsysComponentSetup() =
-        EmarsysComponent.instance != null &&
-                MobileEngageComponent.instance != null &&
-                PredictComponent.instance != null &&
-                CoreComponent.instance != null
+    EmarsysComponent.instance != null &&
+            MobileEngageComponent.instance != null &&
+            PredictComponent.instance != null &&
+            CoreComponent.instance != null
 
 interface EmarsysComponent : MobileEngageComponent, PredictComponent {
     companion object {
@@ -51,7 +52,7 @@ interface EmarsysComponent : MobileEngageComponent, PredictComponent {
     val loggingMessageInbox: MessageInboxApi
 
     val deepLink: DeepLinkApi
-    
+
     val inApp: InAppApi
 
     val loggingInApp: InAppApi
@@ -95,4 +96,6 @@ interface EmarsysComponent : MobileEngageComponent, PredictComponent {
     val isGooglePlayServiceAvailable: Boolean
 
     val coreCompletionHandlerRefreshTokenProxyProvider: CoreCompletionHandlerRefreshTokenProxyProvider
+
+    fun logInitialSetup(emarsysConfig: EmarsysConfig)
 }

@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import com.emarsys.clientservice.ClientServiceApi
 import com.emarsys.config.ConfigApi
 import com.emarsys.config.ConfigInternal
+import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
@@ -203,4 +204,9 @@ class FakeDependencyContainer(
     override val remoteMessageMapperFactory: RemoteMessageMapperFactory = mock(),
     override val transitionSafeCurrentActivityWatchdog: TransitionSafeCurrentActivityWatchdog = mock(),
     override val predictMultiIdRequestModelFactory: PredictMultiIdRequestModelFactory = mock(),
-) : EmarsysComponent
+    override val sharedPreferencesV3: SharedPreferences = mock(),
+) : EmarsysComponent {
+    override fun logInitialSetup(emarsysConfig: EmarsysConfig) {
+        // no-op
+    }
+}
