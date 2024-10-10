@@ -153,7 +153,7 @@ class Logger(
 
     private fun shouldLogBasedOnRemoteConfig(logLevel: LogLevel): Boolean {
         val savedLogLevel: LogLevel =
-            if (logLevelStorage.get() == null) ERROR else valueOf(logLevelStorage.get()!!)
+            if (logLevelStorage.get().isNullOrBlank()) ERROR else valueOf(logLevelStorage.get()!!)
 
         return logLevel.priority >= savedLogLevel.priority
     }
