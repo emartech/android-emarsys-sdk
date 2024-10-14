@@ -153,6 +153,19 @@ class EmarsysEncryptedSharedPreferencesV3Test : AnnotationSpec() {
     }
 
     @Test
+    fun testApplyShouldCallApplyOnTheEditor() {
+        every { mockRealPreferences.edit() } returns mockInternalEditor
+
+        val editor = emarsysEncryptedSharedPreferencesV3.edit()
+
+        editor.putBoolean("testBoolKey", true)
+
+        editor.apply()
+
+        verify(exactly = 1) { mockInternalEditor.apply() }
+    }
+
+    @Test
     fun testEdit() {
         every { mockRealPreferences.edit() } returns mockInternalEditor
 

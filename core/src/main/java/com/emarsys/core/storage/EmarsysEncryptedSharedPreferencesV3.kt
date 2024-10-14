@@ -140,7 +140,7 @@ class EmarsysEncryptedSharedPreferencesV3(
         }
 
         override fun apply() {
-            editor
+            editor.apply()
         }
 
         private fun encryptString(value: String?): String? {
