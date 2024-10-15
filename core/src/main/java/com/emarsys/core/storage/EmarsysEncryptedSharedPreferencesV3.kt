@@ -91,7 +91,7 @@ class EmarsysEncryptedSharedPreferencesV3(
         private val editor: SharedPreferences.Editor = realPreferences.edit()
 
         override fun putString(key: String, value: String?): SharedPreferences.Editor {
-            editor.putString(key, encryptString(value ?: ""))
+            editor.putString(key, encryptString(value))
             return this
         }
 
@@ -140,10 +140,11 @@ class EmarsysEncryptedSharedPreferencesV3(
         }
 
         override fun apply() {
-            editor
+            editor.apply()
         }
 
-        private fun encryptString(value: String): String {
+        private fun encryptString(value: String?): String? {
+            value ?: return null
             return sharedPreferenceCrypto.encrypt(value, secretKey)
         }
     }
