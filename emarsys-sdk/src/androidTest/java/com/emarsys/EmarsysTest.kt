@@ -587,7 +587,7 @@ class EmarsysTest : AnnotationSpec() {
     }
 
     @Test
-    fun testSetup_sendAnonymousContact() {
+    fun testSetup_shouldSetAnonymousContact_withClearContactCall() {
         every { mockContactTokenStorage.get() } returns null
         every { mockRequestContext.hasContactIdentification() } returns false
         every { mockClientStateStorage.get() } returns null
@@ -596,7 +596,7 @@ class EmarsysTest : AnnotationSpec() {
         setup(mobileEngageConfig)
 
         runBlockingOnCoreSdkThread()
-        verify { mockMobileEngageApi.setContact(null, null, null) }
+        verify { mockMobileEngageApi.clearContact(null) }
     }
 
     @Test
@@ -613,7 +613,7 @@ class EmarsysTest : AnnotationSpec() {
 
         verifyOrder {
             mockClientServiceApi.trackDeviceInfo(null)
-            mockMobileEngageApi.setContact(null, null, null)
+            mockMobileEngageApi.clearContact(null)
         }
         confirmVerified(mockMobileEngageApi, mockClientServiceApi)
     }
