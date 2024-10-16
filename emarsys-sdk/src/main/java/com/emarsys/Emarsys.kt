@@ -266,7 +266,7 @@ object Emarsys {
             }
             EmarsysDependencyInjection.mobileEngageApi()
                 .proxyWithLogExceptions()
-                .setContact()
+                .clearContact(null)
         }
     }
 
