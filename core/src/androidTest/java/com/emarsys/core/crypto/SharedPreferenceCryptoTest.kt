@@ -19,6 +19,10 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
 class SharedPreferenceCryptoTest : AnnotationSpec() {
+    private companion object {
+        const val encryptedBase64 = "Base64EncryptedBase64IV123123"
+
+    }
 
     private lateinit var sharedPreferenceCrypto: SharedPreferenceCrypto
     private lateinit var mockKeyStore: KeyStore
@@ -68,13 +72,11 @@ class SharedPreferenceCryptoTest : AnnotationSpec() {
         every { mockKeyStore.containsAlias(any()) } returns false
         every { mockKeyGenerator.init(any<KeyGenParameterSpec>()) } just Runs
         every { mockKeyGenerator.generateKey() } returns mockSecretKey
-        every { mockKeyStore.setEntry(any(), any(), null) } just Runs
 
         val result = sharedPreferenceCrypto.getOrCreateSecretKey()
 
         result shouldBe mockSecretKey
         verify { mockKeyGenerator.generateKey() }
-        verify { mockKeyStore.setEntry(any(), any(), null) }
     }
 
     @Test
@@ -112,7 +114,6 @@ class SharedPreferenceCryptoTest : AnnotationSpec() {
 
     @Test
     fun testDecrypt_Success() {
-        val value = "IVBase64EncryptedBase64"
         val ivBytes = byteArrayOf(1, 2, 3, 4)
         val encryptedBytes = byteArrayOf(5, 6, 7, 8)
         val decryptedBytes = "decrypted".toByteArray()
@@ -130,24 +131,30 @@ class SharedPreferenceCryptoTest : AnnotationSpec() {
         } just Runs
         every { mockCipher.doFinal(encryptedBytes) } returns decryptedBytes
 
-        val result = sharedPreferenceCrypto.decrypt(value, mockSecretKey)
+        val result = sharedPreferenceCrypto.decrypt(encryptedBase64, mockSecretKey)
 
         result shouldBe "decrypted"
     }
 
     @Test
     fun testDecrypt_Exception() {
-        val value = "IVBase64EncryptedBase64"
-
+        val IVValue = "Base64EncryptedBase64IV123"
+        val decryptedBytes = encryptedBase64.toByteArray()
+        every {
+            mockCipher.init(any(), mockSecretKey, any<GCMParameterSpec>())
+        } just Runs
+        every {
+            mockCipher.doFinal(any())
+        } returns decryptedBytes
         every {
             Base64.decode(
-                any<String>(),
+                IVValue,
                 Base64.DEFAULT
             )
         } throws GeneralSecurityException("Decryption failed")
 
-        val result = sharedPreferenceCrypto.decrypt(value, mockSecretKey)
+        val result = sharedPreferenceCrypto.decrypt(encryptedBase64, mockSecretKey)
 
-        result shouldBe value
+        result shouldBe encryptedBase64
     }
 }

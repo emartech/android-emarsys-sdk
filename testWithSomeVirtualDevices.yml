@@ -11,8 +11,8 @@ core-api:
       version: 30
       locale: 'en'
       orientation: portrait
-    - model: SmallPhone.arm
-      version: 33
+    - model: MediumPhone.arm
+      version: 34
       locale: 'en'
       orientation: portrait
 
@@ -29,8 +29,8 @@ core:
       version: 30
       locale: 'en'
       orientation: portrait
-    - model: SmallPhone.arm
-      version: 33
+    - model: MediumPhone.arm
+      version: 34
       locale: 'en'
       orientation: portrait
 
@@ -47,8 +47,8 @@ mobile-engage-api:
       version: 30
       locale: 'en'
       orientation: portrait
-    - model: SmallPhone.arm
-      version: 33
+    - model: MediumPhone.arm
+      version: 34
       locale: 'en'
       orientation: portrait
 
@@ -65,8 +65,8 @@ mobile-engage:
       version: 30
       locale: 'en'
       orientation: portrait
-    - model: SmallPhone.arm
-      version: 33
+    - model: MediumPhone.arm
+      version: 34
       locale: 'en'
       orientation: portrait
 
@@ -83,8 +83,8 @@ predict-api:
       version: 30
       locale: 'en'
       orientation: portrait
-    - model: SmallPhone.arm
-      version: 33
+    - model: MediumPhone.arm
+      version: 34
       locale: 'en'
       orientation: portrait
 
@@ -101,8 +101,8 @@ predict:
       version: 30
       locale: 'en'
       orientation: portrait
-    - model: SmallPhone.arm
-      version: 33
+    - model: MediumPhone.arm
+      version: 34
       locale: 'en'
       orientation: portrait
 
@@ -119,8 +119,8 @@ emarsys-sdk:
       version: 30
       locale: 'en'
       orientation: portrait
-    - model: SmallPhone.arm
-      version: 33
+    - model: MediumPhone.arm
+      version: 34
       locale: 'en'
       orientation: portrait
 
@@ -137,8 +137,8 @@ emarsys:
       version: 30
       locale: 'en'
       orientation: portrait
-    - model: SmallPhone.arm
-      version: 33
+    - model: MediumPhone.arm
+      version: 34
       locale: 'en'
       orientation: portrait
 
@@ -155,8 +155,8 @@ common:
       version: 30
       locale: 'en'
       orientation: portrait
-    - model: SmallPhone.arm
-      version: 33
+    - model: MediumPhone.arm
+      version: 34
       locale: 'en'
       orientation: portrait
 
@@ -173,8 +173,8 @@ emarsys-e2e-test:
       version: 30
       locale: 'en'
       orientation: portrait
-    - model: SmallPhone.arm
-      version: 33
+    - model: MediumPhone.arm
+      version: 34
       locale: 'en'
       orientation: portrait
 
@@ -191,8 +191,8 @@ emarsys-firebase:
       version: 30
       locale: 'en'
       orientation: portrait
-    - model: SmallPhone.arm
-      version: 33
+    - model: MediumPhone.arm
+      version: 34
       locale: 'en'
       orientation: portrait
 
@@ -209,7 +209,7 @@ emarsys-huawei:
       version: 30
       locale: 'en'
       orientation: portrait
-    - model: SmallPhone.arm
-      version: 33
+    - model: MediumPhone.arm
+      version: 34
       locale: 'en'
       orientation: portrait
