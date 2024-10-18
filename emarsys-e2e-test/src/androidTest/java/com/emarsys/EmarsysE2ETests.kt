@@ -64,7 +64,6 @@ class EmarsysE2ETests : AnnotationSpec() {
     }
 
     @Test
-
     fun testChangeApplicationCodeFromNull() {
         setup(null)
 
@@ -83,7 +82,6 @@ class EmarsysE2ETests : AnnotationSpec() {
     }
 
     @Test
-
     fun testChangeApplicationCodeToNull() {
         var disabled = true
         setup(APPLICATION_CODE)
@@ -107,7 +105,6 @@ class EmarsysE2ETests : AnnotationSpec() {
     }
 
     @Test
-
     fun testInbox_addTag_removeTag() {
         setup(APPLICATION_CODE)
 

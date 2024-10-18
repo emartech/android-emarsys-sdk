@@ -31,13 +31,7 @@ class SharedPreferenceCrypto {
                 .setKeySize(256)
                 .build()
             keyGenerator.init(keyGenParameterSpec)
-            val secretKey = keyGenerator.generateKey()
-            keyStore.setEntry(
-                KEYSTORE_ALIAS,
-                KeyStore.SecretKeyEntry(secretKey),
-                null
-            )
-            return secretKey
+            return keyGenerator.generateKey()
         }
 
         return keyStore.getKey(KEYSTORE_ALIAS, null) as SecretKey
@@ -60,15 +54,17 @@ class SharedPreferenceCrypto {
 
     fun decrypt(value: String, secretKey: SecretKey): String {
         return try {
-            val ivBase64 = value.substring(0, 16)
-            val encryptedBase64 = value.substring(16)
-            val ivBytes = Base64.decode(ivBase64, Base64.DEFAULT)
-            val encryptedBytes = Base64.decode(encryptedBase64, Base64.DEFAULT)
+            val ivBytes = Base64.decode(value.substring(0, 16), Base64.DEFAULT)
+            val encryptedBytes = Base64.decode(value.substring(16), Base64.DEFAULT)
+
             val cipher = Cipher.getInstance("AES/GCM/NoPadding")
             cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(128, ivBytes))
             val decrypted = cipher.doFinal(encryptedBytes)
             String(decrypted)
         } catch (e: GeneralSecurityException) {
+            e.printStackTrace()
+            value
+        } catch (e: IllegalArgumentException) {
             e.printStackTrace()
             value
         }
