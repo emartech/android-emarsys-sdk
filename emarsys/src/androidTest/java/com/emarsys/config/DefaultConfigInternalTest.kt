@@ -294,6 +294,7 @@ class DefaultConfigInternalTest : AnnotationSpec() {
         FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe false
         FeatureRegistry.isFeatureEnabled(InnerFeature.EVENT_SERVICE_V4) shouldBe false
         verify(mockMobileEngageRequestContext).applicationCode = null
+        verify(mockMobileEngageRequestContext).reset()
         verifyNoMoreInteractions(mockMobileEngageRequestContext)
     }
 
@@ -510,6 +511,7 @@ class DefaultConfigInternalTest : AnnotationSpec() {
         verify(mockMobileEngageRequestContext).applicationCode = null
         verify(mockPushInternal).clearPushToken(any())
         verify(mockMobileEngageInternal).clearContact(any())
+        verify(mockMobileEngageRequestContext).reset()
         verifyNoMoreInteractions(mockMobileEngageRequestContext)
         verifyNoMoreInteractions(mockMobileEngageInternal)
         FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe false

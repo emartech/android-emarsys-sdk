@@ -81,4 +81,18 @@ class MobileEngageRequestContextTest : AnnotationSpec() {
         requestContext.contactFieldValue shouldBe testContactFieldValue
         verify(mockContactFieldValueStorage).get()
     }
+
+    @Test
+    fun testReset() {
+        requestContext.reset()
+
+        requestContext.clientStateStorage.get() shouldBe null
+        requestContext.contactTokenStorage.get() shouldBe null
+        requestContext.refreshTokenStorage.get() shouldBe null
+        requestContext.contactFieldValueStorage.get() shouldBe null
+        requestContext.pushTokenStorage.get() shouldBe null
+        requestContext.sessionIdHolder.sessionId shouldBe null
+        requestContext.openIdToken shouldBe null
+        requestContext.applicationCode shouldBe null
+    }
 }

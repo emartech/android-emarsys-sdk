@@ -120,6 +120,7 @@ class DefaultConfigInternal(
     }
 
     private fun handleAppCodeChange(applicationCode: String?) {
+        mobileEngageRequestContext.reset()
         mobileEngageRequestContext.applicationCode = applicationCode
         if (applicationCode != null) {
             FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)

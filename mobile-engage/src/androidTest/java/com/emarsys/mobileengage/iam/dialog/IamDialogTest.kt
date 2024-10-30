@@ -351,8 +351,8 @@ class IamDialogTest : AnnotationSpec() {
                 it.activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
                 it.retainInstance shouldBe false
+                fragmentLatch.countDown()
             }
-            fragmentLatch.countDown()
         }
         fragmentLatch.await()
     }

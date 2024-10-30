@@ -31,8 +31,18 @@ data class MobileEngageRequestContext(
             contactFieldValueStorage.set(value)
         }
 
-
     fun hasContactIdentification(): Boolean {
         return openIdToken != null || contactFieldValue != null
+    }
+
+    fun reset() {
+        clientStateStorage.remove()
+        contactTokenStorage.remove()
+        refreshTokenStorage.remove()
+        contactFieldValueStorage.remove()
+        pushTokenStorage.remove()
+        sessionIdHolder.sessionId = null
+        openIdToken = null
+        applicationCode = null
     }
 }

@@ -59,7 +59,7 @@ class DefaultDeepLinkInternalTest : AnnotationSpec() {
             mock(StringStorage::class.java),
             mock(SessionIdHolder::class.java)
         )
-        mockDeepLinkServiceProvider = Mockito.mock(ServiceEndpointProvider::class.java)
+        mockDeepLinkServiceProvider = mock(ServiceEndpointProvider::class.java)
         Mockito.`when`(mockDeepLinkServiceProvider.provideEndpointHost()).thenReturn(DEEPLINK_BASE)
         deepLinkInternal =
             DefaultDeepLinkInternal(requestContext, mockDeepLinkServiceProvider, mockManager)
@@ -86,7 +86,7 @@ class DefaultDeepLinkInternalTest : AnnotationSpec() {
             Build.VERSION.SDK_INT
         )
         val expected = RequestModel.Builder(mockTimestampProvider, mockUuidProvider)
-            .url(DEEPLINK_BASE + "/api/clicks")
+            .url("$DEEPLINK_BASE/api/clicks")
             .headers(headers)
             .payload(payload)
             .build()
