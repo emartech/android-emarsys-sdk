@@ -37,7 +37,7 @@ class DefaultMobileEngageInternalTest : AnnotationSpec() {
         const val CONTACT_FIELD_ID = 999
         const val TIMESTAMP = 123456789L
         const val REQUEST_ID = "request_id"
-        const val HARDWARE_ID = "hardware_id"
+        const val CLIENT_ID = "clientId"
         const val APPLICATION_CODE = "app_code"
         const val PUSH_TOKEN = "kjhygtfdrtrtdtguyihoj3iurf8y7t6fqyua2gyi8fhu"
         const val PLATFORM = "android"
@@ -102,7 +102,7 @@ class DefaultMobileEngageInternalTest : AnnotationSpec() {
         }
 
         mockDeviceInfo = mock {
-            on { hardwareId }.thenReturn(HARDWARE_ID)
+            on { clientId }.thenReturn(CLIENT_ID)
             on { platform }.thenReturn(PLATFORM)
             on { applicationVersion }.thenReturn(APPLICATION_VERSION)
             on { model }.thenReturn(DEVICE_MODEL)

@@ -14,7 +14,7 @@ import com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_TTL
 import com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_URL
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.helper.DbHelper
-import com.emarsys.core.device.FilterByHardwareId
+import com.emarsys.core.device.FilterByClientId
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
@@ -119,7 +119,7 @@ class AbstractSqliteRepositoryTest : AnnotationSpec() {
             whenever(dbMock.update(any(), any(), any(), any())).thenReturn(1)
             val input = anyNotNull<Any>()
 
-            val result = repository.update(input, eq(FilterByHardwareId("id")))
+            val result = repository.update(input, eq(FilterByClientId("id")))
 
             verify(repository).contentValuesFromItem(input)
             verify(dbMock).beginTransaction()

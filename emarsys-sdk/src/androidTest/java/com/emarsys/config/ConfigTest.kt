@@ -133,14 +133,14 @@ class ConfigTest : AnnotationSpec() {
     }
 
     @Test
-    fun testGetHardwareId_delegatesTo_internal() {
-        val hardwareId = "testHardwareId"
-        whenever(mockConfigInternal.hardwareId).thenReturn(hardwareId)
+    fun testGetClientId_delegatesTo_internal() {
+        val clientId = "testClientId"
+        whenever(mockConfigInternal.clientId).thenReturn(clientId)
 
         val result = config.hardwareId
 
-        result shouldBe hardwareId
-        verify(mockConfigInternal).hardwareId
+        result shouldBe clientId
+        verify(mockConfigInternal).clientId
     }
 
     @Test

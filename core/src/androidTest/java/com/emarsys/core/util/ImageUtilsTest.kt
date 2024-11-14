@@ -4,7 +4,7 @@ import android.graphics.BitmapFactory
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.notification.NotificationManagerHelper
-import com.emarsys.core.provider.hardwareid.HardwareIdProvider
+import com.emarsys.core.provider.clientid.ClientIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
@@ -34,7 +34,7 @@ class ImageUtilsTest : AnnotationSpec() {
 
     private lateinit var mockFileDownloader: FileDownloader
     private lateinit var deviceInfo: DeviceInfo
-    private lateinit var mockHardwareIdProvider: HardwareIdProvider
+    private lateinit var mockClientIdProvider: ClientIdProvider
     private lateinit var mockLanguageProvider: LanguageProvider
     private lateinit var mockVersionProvider: VersionProvider
 
@@ -59,8 +59,8 @@ class ImageUtilsTest : AnnotationSpec() {
             }
 
         }
-        mockHardwareIdProvider = mock {
-            on { provideHardwareId() } doReturn "hardwareId"
+        mockClientIdProvider = mock {
+            on { provideClientId() } doReturn "clientId"
         }
         mockLanguageProvider = mock {
             on { provideLanguage(any()) } doReturn "language"
@@ -71,7 +71,7 @@ class ImageUtilsTest : AnnotationSpec() {
 
         deviceInfo = DeviceInfo(
             getTargetContext(),
-            mockHardwareIdProvider,
+            mockClientIdProvider,
             mockVersionProvider,
             mockLanguageProvider,
             Mockito.mock(NotificationManagerHelper::class.java),

@@ -21,7 +21,7 @@ class OpenIdTokenRequestMapperTest : AnnotationSpec() {
         const val OPEN_ID_TOKEN = "openIdToken"
         const val TIMESTAMP = 123456789L
         const val REQUEST_ID = "request_id"
-        const val HARDWARE_ID = "hwid"
+        const val CLIENT_ID = "hwid"
         const val APPLICATION_CODE = "applicationCode"
     }
 
@@ -36,7 +36,7 @@ class OpenIdTokenRequestMapperTest : AnnotationSpec() {
     @Before
     fun setUp() {
         mockDeviceInfo = mock {
-            on { hardwareId } doReturn HARDWARE_ID
+            on { clientId } doReturn CLIENT_ID
         }
 
         mockUuidProvider = mock {

@@ -54,8 +54,8 @@ class DefaultConfigInternal(
     override val contactFieldId: Int?
         get() = mobileEngageRequestContext.contactFieldId
 
-    override val hardwareId: String
-        get() = deviceInfo.hardwareId
+    override val clientId: String
+        get() = deviceInfo.clientId
 
     override val language: String
         get() = deviceInfo.language

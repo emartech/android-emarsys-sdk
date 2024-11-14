@@ -8,7 +8,7 @@ import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.notification.NotificationManagerHelper
-import com.emarsys.core.provider.hardwareid.HardwareIdProvider
+import com.emarsys.core.provider.clientid.ClientIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.storage.Storage
 import com.emarsys.di.DefaultEmarsysComponent
@@ -67,8 +67,8 @@ class MobileEngageRefreshContactTokenIntegrationTest : AnnotationSpec() {
 
         val deviceInfo = DeviceInfo(
             application,
-            mockk<HardwareIdProvider>(relaxed = true).apply {
-                every { provideHardwareId() } returns "mobileengage_integration_hwid"
+            mockk<ClientIdProvider>(relaxed = true).apply {
+                every { provideClientId() } returns "mobileengage_integration_hwid"
             },
             mockk<VersionProvider>(relaxed = true).apply {
                 every { provideSdkVersion() } returns "0.0.0-mobileengage_integration_version"

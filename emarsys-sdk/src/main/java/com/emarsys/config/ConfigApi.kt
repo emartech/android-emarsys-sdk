@@ -11,7 +11,10 @@ interface ConfigApi {
 
     val merchantId: String?
 
+    @Deprecated("Use clientId instead")
     val hardwareId: String
+
+    val clientId: String
 
     val languageCode: String
 

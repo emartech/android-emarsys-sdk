@@ -16,8 +16,12 @@ class Config : ConfigApi {
     override val merchantId: String?
         get() = emarsys().configInternal.merchantId
 
+    @Deprecated("Use clientId instead")
     override val hardwareId: String
-        get() = emarsys().configInternal.hardwareId
+        get() = emarsys().configInternal.clientId
+
+    override val clientId: String
+        get() = emarsys().configInternal.clientId
 
     override val languageCode: String
         get() = emarsys().configInternal.language
@@ -35,7 +39,10 @@ class Config : ConfigApi {
         emarsys().configInternal.changeApplicationCode(applicationCode, null)
     }
 
-    override fun changeApplicationCode(applicationCode: String?, completionListener: CompletionListener?) {
+    override fun changeApplicationCode(
+        applicationCode: String?,
+        completionListener: CompletionListener?
+    ) {
         emarsys().configInternal.changeApplicationCode(applicationCode, completionListener)
     }
 

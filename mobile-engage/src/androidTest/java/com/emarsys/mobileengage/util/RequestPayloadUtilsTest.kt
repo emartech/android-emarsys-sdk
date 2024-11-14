@@ -25,7 +25,7 @@ class RequestPayloadUtilsTest : AnnotationSpec() {
     private companion object {
         const val PUSH_TOKEN = "pushToken"
         const val APPLICATION_CODE = "applicationCode"
-        const val HARDWARE_ID = "hardwareId"
+        const val CLIENT_ID = "clientId"
         const val PLATFORM = "android"
         const val APPLICATION_VERSION = "1.0.2"
         const val DEVICE_MODEL = "GT-9100"
@@ -86,7 +86,7 @@ class RequestPayloadUtilsTest : AnnotationSpec() {
             on { sdkVersion } doReturn SDK_VERSION
             on { language } doReturn LANGUAGE
             on { timezone } doReturn TIMEZONE
-            on { hardwareId } doReturn HARDWARE_ID
+            on { clientId } doReturn CLIENT_ID
             on { notificationSettings } doReturn mockNotificationSettings
         }
 

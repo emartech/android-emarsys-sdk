@@ -35,7 +35,7 @@ class SampleApplication : Application(), EventHandler, NotificationInformationLi
 
         Emarsys.setup(config)
         Prefs.loggedIn = false
-        Prefs.hardwareId = Emarsys.config.hardwareId
+        Prefs.clientId = Emarsys.config.clientId
         Prefs.languageCode = Emarsys.config.languageCode
         Prefs.sdkVersion = Emarsys.config.sdkVersion
         createNotificationChannels()

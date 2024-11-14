@@ -11,10 +11,10 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 
-class SharedHardwareIdentificationContentProviderTest : AnnotationSpec() {
+class SharedClientIdentificationContentProviderTest : AnnotationSpec() {
 
     private companion object {
-        const val ENCRYPTED_HARDWARE_ID = "encrypted_hardware_id"
+        const val ENCRYPTED_CLIENT_ID = "encrypted_hardware_id"
         const val SALT = "salt"
         const val IV = "iv"
     }
@@ -27,7 +27,7 @@ class SharedHardwareIdentificationContentProviderTest : AnnotationSpec() {
     @Before
     fun setUp() {
         mockCursor = mockk {
-            every { getString(0) } returns ENCRYPTED_HARDWARE_ID
+            every { getString(0) } returns ENCRYPTED_CLIENT_ID
             every { getString(1) } returns SALT
             every { getString(2) } returns IV
         }
@@ -61,7 +61,7 @@ class SharedHardwareIdentificationContentProviderTest : AnnotationSpec() {
     }
 
     @Test
-    fun testQuery_shouldReturnCursorWithEncryptedHardwareId_salt_iv() {
+    fun testQuery_shouldReturnCursorWithEncryptedClientId_salt_iv() {
         val mockContext: Context = mockk {
             every { packageName } returns "com.emarsys.test"
         }

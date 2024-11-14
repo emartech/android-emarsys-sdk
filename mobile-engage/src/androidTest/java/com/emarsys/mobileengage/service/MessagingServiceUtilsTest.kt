@@ -15,7 +15,7 @@ import com.emarsys.core.api.notification.ChannelSettings
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
-import com.emarsys.core.provider.hardwareid.HardwareIdProvider
+import com.emarsys.core.provider.clientid.ClientIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.mobileengage.di.mobileEngage
@@ -50,7 +50,7 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
         const val TITLE = "title"
         const val BODY = "body"
         const val CHANNEL_ID = "channelId"
-        const val HARDWARE_ID = "hwid"
+        const val CLIENT_ID = "hwid"
         const val SDK_VERSION = "sdkVersion"
         const val LANGUAGE = "en-US"
         const val IMAGE_URL = "https://emarsys.com/image"
@@ -97,7 +97,7 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
     fun init() {
         context = getTargetContext()
         val mockNotificationSettings: NotificationSettings = mock()
-        val mockHardwareIdProvider: HardwareIdProvider = mock()
+        val mockClientIdProvider: ClientIdProvider = mock()
         val mockVersionProvider: VersionProvider = mock()
         val mockLanguageProvider: LanguageProvider = mock()
         val channelSettings = ChannelSettings(channelId = CHANNEL_ID)
@@ -124,7 +124,7 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
         mockSilentNotificationInformationListenerProvider = mock()
 
         whenever(mockNotificationSettings.channelSettings).thenReturn(listOf(channelSettings))
-        whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID)
+        whenever(mockClientIdProvider.provideClientId()).thenReturn(CLIENT_ID)
         whenever(
             mockLanguageProvider.provideLanguage(
                 ArgumentMatchers.any(
@@ -136,7 +136,7 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
         whenever(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION)
         deviceInfo = DeviceInfo(
             context,
-            mockHardwareIdProvider,
+            mockClientIdProvider,
             mockVersionProvider,
             mockLanguageProvider,
             mockNotificationSettings,

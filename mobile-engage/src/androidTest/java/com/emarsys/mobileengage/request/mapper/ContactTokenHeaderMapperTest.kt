@@ -25,7 +25,7 @@ class ContactTokenHeaderMapperTest : AnnotationSpec() {
         const val REFRESH_TOKEN = "refreshToken"
         const val TIMESTAMP = 123456789L
         const val REQUEST_ID = "request_id"
-        const val HARDWARE_ID = "hwid"
+        const val CLIENT_ID = "clientId"
         const val APPLICATION_CODE = "applicationCode"
     }
 
@@ -50,7 +50,7 @@ class ContactTokenHeaderMapperTest : AnnotationSpec() {
         }
 
         mockDeviceInfo = mock {
-            on { hardwareId } doReturn HARDWARE_ID
+            on { clientId } doReturn CLIENT_ID
         }
 
         mockUuidProvider = mock {

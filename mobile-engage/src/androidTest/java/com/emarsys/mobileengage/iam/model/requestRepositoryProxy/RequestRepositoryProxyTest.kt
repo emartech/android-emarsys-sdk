@@ -439,7 +439,7 @@ class RequestRepositoryProxyTest : AnnotationSpec() {
         payload["clicks"] = ArrayList<Any>()
         payload["viewed_messages"] = ArrayList<Any>()
         payload["events"] = listOf<Map<String, Any>>(event)
-        payload["hardware_id"] = "dummy_hardware_id"
+
         val headers: MutableMap<String, String> = HashMap()
         headers["custom_event_header1"] = "custom_event_value1"
         headers["custom_event_header2"] = "custom_event_value2"

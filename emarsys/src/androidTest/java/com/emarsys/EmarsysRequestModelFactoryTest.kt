@@ -15,7 +15,7 @@ import org.mockito.kotlin.mock
 class EmarsysRequestModelFactoryTest : AnnotationSpec() {
 
     companion object {
-        const val HARDWARE_ID = "hardware_id"
+        const val CLIENT_ID = "client_id"
         const val TIMESTAMP = 123456789L
         const val REQUEST_ID = "request_id"
         const val APPLICATION_CODE = "applicationCode"
@@ -39,7 +39,7 @@ class EmarsysRequestModelFactoryTest : AnnotationSpec() {
         }
 
         mockDeviceInfo = mock {
-            on { hardwareId } doReturn HARDWARE_ID
+            on { clientId } doReturn CLIENT_ID
         }
 
         mockMobileEngageRequestContext = mock {

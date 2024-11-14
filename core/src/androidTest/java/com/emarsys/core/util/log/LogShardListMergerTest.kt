@@ -45,7 +45,7 @@ class LogShardListMergerTest : AnnotationSpec() {
             on { applicationVersion } doReturn "1.0.0"
             on { osVersion } doReturn "8.0"
             on { model } doReturn "Pixel"
-            on { hardwareId } doReturn "hardwareId"
+            on { clientId } doReturn "clientId"
             on { sdkVersion } doReturn "1.6.1"
         }
 
@@ -156,7 +156,7 @@ class LogShardListMergerTest : AnnotationSpec() {
             "sdkVersion" to "1.6.1",
             "osVersion" to "8.0",
             "model" to "Pixel",
-            "hwId" to "hardwareId",
+            "hwId" to "clientId",
             "applicationCode" to APPLICATION_CODE,
             "merchantId" to MERCHANT_ID
         )

@@ -72,7 +72,7 @@ public class LogShardListMerger implements Mapper<List<ShardModel>, RequestModel
         data.put("sdkVersion", deviceInfo.getSdkVersion());
         data.put("osVersion", deviceInfo.getOsVersion());
         data.put("model", deviceInfo.getModel());
-        data.put("hwId", deviceInfo.getHardwareId());
+        data.put("hwId", deviceInfo.getClientId());
         data.put("applicationCode", applicationCode);
         data.put("merchantId", merchantId);
         return data;

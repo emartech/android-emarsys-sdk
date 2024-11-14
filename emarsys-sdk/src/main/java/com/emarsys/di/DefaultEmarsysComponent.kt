@@ -32,16 +32,16 @@ import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.connection.ConnectionProvider
 import com.emarsys.core.connection.ConnectionWatchDog
 import com.emarsys.core.contentresolver.EmarsysContentResolver
-import com.emarsys.core.contentresolver.hardwareid.HardwareIdContentResolver
+import com.emarsys.core.contentresolver.clientid.ClientIdContentResolver
+import com.emarsys.core.crypto.ClientIdentificationCrypto
 import com.emarsys.core.crypto.Crypto
-import com.emarsys.core.crypto.HardwareIdentificationCrypto
 import com.emarsys.core.crypto.SharedPreferenceCrypto
 import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
+import com.emarsys.core.device.ClientRepository
 import com.emarsys.core.device.DeviceInfo
-import com.emarsys.core.device.HardwareRepository
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.handler.ConcurrentHandlerHolder
@@ -50,7 +50,7 @@ import com.emarsys.core.notification.NotificationManagerProxy
 import com.emarsys.core.permission.PermissionChecker
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.activity.FallbackActivityProvider
-import com.emarsys.core.provider.hardwareid.HardwareIdProvider
+import com.emarsys.core.provider.clientid.ClientIdProvider
 import com.emarsys.core.provider.random.RandomProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
@@ -456,7 +456,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         UUIDProvider()
     }
 
-    override val hardwareIdStorage: Storage<String?> by lazy {
+    override val clientIdStorage: Storage<String?> by lazy {
         StringStorage(CoreStorageKey.HARDWARE_ID, sharedPreferencesV3)
     }
 
@@ -468,21 +468,21 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         Crypto(createPublicKey())
     }
 
-    override val hardwareIdProvider: HardwareIdProvider by lazy {
-        val hardwareRepository = HardwareRepository(coreDbHelper, concurrentHandlerHolder)
-        val hardwareIdentificationCrypto = HardwareIdentificationCrypto(config.sharedSecret, crypto)
+    override val clientIdProvider: ClientIdProvider by lazy {
+        val clientRepository = ClientRepository(coreDbHelper, concurrentHandlerHolder)
+        val clientIdentificationCrypto = ClientIdentificationCrypto(config.sharedSecret, crypto)
         val emarsysContentResolver = EmarsysContentResolver(config.application)
-        val hardwareIdContentResolver = HardwareIdContentResolver(
+        val clientIdContentResolver = ClientIdContentResolver(
             emarsysContentResolver,
-            hardwareIdentificationCrypto,
+            clientIdentificationCrypto,
             config.sharedPackageNames
         )
-        HardwareIdProvider(
+        ClientIdProvider(
             uuidProvider,
-            hardwareRepository,
-            hardwareIdStorage,
-            hardwareIdContentResolver,
-            hardwareIdentificationCrypto
+            clientRepository,
+            clientIdStorage,
+            clientIdContentResolver,
+            clientIdentificationCrypto
         )
     }
 
@@ -496,7 +496,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             NotificationManagerHelper(notificationManagerProxy)
         DeviceInfo(
             config.application,
-            hardwareIdProvider,
+            clientIdProvider,
             VersionProvider(),
             LanguageProvider(),
             notificationSettings,
@@ -934,7 +934,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             deviceInfo,
             requestManager,
             emarsysRequestModelFactory,
-            RemoteConfigResponseMapper(RandomProvider(), hardwareIdProvider),
+            RemoteConfigResponseMapper(RandomProvider(), clientIdProvider),
             clientServiceStorage,
             eventServiceStorage,
             deepLinkServiceStorage,
@@ -1080,7 +1080,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             "EMARSYS_SDK",
             "AutomaticPushSendingEnabled : ${emarsysConfig.automaticPushTokenSendingEnabled}"
         )
-        Log.d("EMARSYS_SDK", "HardwareId : ${hardwareIdProvider.provideHardwareId()}")
+        Log.d("EMARSYS_SDK", "ClientId : ${clientIdProvider.provideClientId()}")
 
         Log.d(
             "EMARSYS_SDK",

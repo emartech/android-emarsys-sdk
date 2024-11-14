@@ -4,7 +4,7 @@ import com.emarsys.common.feature.InnerFeature
 import com.emarsys.config.model.RemoteConfig
 import com.emarsys.core.Mapper
 import com.emarsys.core.Mockable
-import com.emarsys.core.provider.hardwareid.HardwareIdProvider
+import com.emarsys.core.provider.clientid.ClientIdProvider
 import com.emarsys.core.provider.random.RandomProvider
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.util.JsonUtils
@@ -17,12 +17,13 @@ import com.emarsys.core.util.log.entry.CrashLog
 import org.json.JSONException
 import org.json.JSONObject
 import java.net.URL
-import java.util.*
+import java.util.Locale
 
 @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
 @Mockable
 class RemoteConfigResponseMapper(private val randomProvider: RandomProvider,
-                                 private val hardwareIdProvider: HardwareIdProvider) : Mapper<ResponseModel, RemoteConfig> {
+                                 private val clientIdProvider: ClientIdProvider
+) : Mapper<ResponseModel, RemoteConfig> {
     override fun map(responseModel: ResponseModel): RemoteConfig {
         var remoteConfig = RemoteConfig()
         try {
@@ -52,7 +53,8 @@ class RemoteConfigResponseMapper(private val randomProvider: RandomProvider,
     }
 
     private fun extractOverrideJson(remoteConfigJson: JSONObject): JSONObject? {
-        return remoteConfigJson.optJSONObject("overrides")?.optJSONObject(hardwareIdProvider.provideHardwareId())
+        return remoteConfigJson.optJSONObject("overrides")
+            ?.optJSONObject(clientIdProvider.provideClientId())
     }
 
     private fun mapJsonToRemoteConfig(remoteConfigJson: JSONObject): RemoteConfig {

@@ -3,7 +3,7 @@ package com.emarsys.config
 
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.config.model.RemoteConfig
-import com.emarsys.core.provider.hardwareid.HardwareIdProvider
+import com.emarsys.core.provider.clientid.ClientIdProvider
 import com.emarsys.core.provider.random.RandomProvider
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.util.log.LogLevel
@@ -19,7 +19,7 @@ class RemoteConfigResponseMapperTest : AnnotationSpec() {
 
     private lateinit var mockResponseModel: ResponseModel
     private lateinit var mockRandomProvider: RandomProvider
-    private lateinit var mockHardwareIdProvider: HardwareIdProvider
+    private lateinit var mockClientIdProvider: ClientIdProvider
     private lateinit var remoteConfigResponseMapper: RemoteConfigResponseMapper
 
 
@@ -27,12 +27,12 @@ class RemoteConfigResponseMapperTest : AnnotationSpec() {
     fun setup() {
         mockResponseModel = mock(ResponseModel::class.java)
         mockRandomProvider = mock(RandomProvider::class.java)
-        mockHardwareIdProvider = mock {
-            on { provideHardwareId() } doReturn "testHardwareId"
+        mockClientIdProvider = mock {
+            on { provideClientId() } doReturn "testClientId"
         }
 
         remoteConfigResponseMapper =
-            RemoteConfigResponseMapper(mockRandomProvider, mockHardwareIdProvider)
+            RemoteConfigResponseMapper(mockRandomProvider, mockClientIdProvider)
     }
 
     @Test
@@ -64,7 +64,7 @@ class RemoteConfigResponseMapperTest : AnnotationSpec() {
     fun testMap_mapsResponseModel_to_RemoteConfig_withHwIdOverride() {
         whenever(mockRandomProvider.provideDouble(1.0)).thenReturn(0.6)
         whenever(mockResponseModel.body).thenReturn(fullRemoteConfigJson.trimIndent())
-        whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn("hardwareId1")
+        whenever(mockClientIdProvider.provideClientId()).thenReturn("clientId1")
 
         val expected = RemoteConfig(
                 "https://mobile-events-2.eservice.emarsys.net",
@@ -284,7 +284,7 @@ class RemoteConfigResponseMapperTest : AnnotationSpec() {
                           "experimentalFeature1":false
                        },
                       "overrides": {
-                        "hardwareId1": {
+                        "clientId1": {
                           "serviceUrls": {
                             "eventService": "https://mobile-events-2.eservice.emarsys.net"
                           },
@@ -299,7 +299,7 @@ class RemoteConfigResponseMapperTest : AnnotationSpec() {
                               "experimentalFeature1":false
                            }
                         },
-                        "hardwareId2": {
+                        "clientId2": {
                           "serviceUrls": {
                             "eventService": "https://mobile-events-2.eservice.emarsys.net",
                             "clientService": "https://me-client.eservice.emarsys.net "

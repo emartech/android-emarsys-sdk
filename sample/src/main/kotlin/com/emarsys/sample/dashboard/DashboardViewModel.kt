@@ -90,7 +90,7 @@ class DashboardViewModel : ViewModel() {
             "loggedIn" to isLoggedIn.value.toString(),
             "applicationCode" to tfAppCode.value,
             "merchantId" to tfMerchantId.value,
-            "hardwareId" to Prefs.hardwareId,
+            "clientId" to Prefs.clientId,
             "languageCode" to Prefs.languageCode,
             "sdkVersion" to Prefs.sdkVersion,
             "contactFieldValue" to tfContactFieldValue.value,

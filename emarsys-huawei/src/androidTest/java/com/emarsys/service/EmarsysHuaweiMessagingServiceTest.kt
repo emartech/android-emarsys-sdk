@@ -96,7 +96,7 @@ class EmarsysHuaweiMessagingServiceTest : AnnotationSpec() {
         val deviceInfo = DeviceInfo(
             application,
             mock {
-                on { provideHardwareId() } doReturn "hardwareId"
+                on { provideClientId() } doReturn "clientId"
             },
             mock {
                 on { provideSdkVersion() } doReturn "version"

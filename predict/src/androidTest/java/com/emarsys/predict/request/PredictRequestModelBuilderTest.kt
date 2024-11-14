@@ -30,7 +30,7 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
     private companion object {
         const val TIMESTAMP = 123456789L
         const val REQUEST_ID = "request_id"
-        const val HARDWARE_ID = "hardware_id"
+        const val CLIENT_ID = "clientId"
         const val MERCHANT_ID = "merchantId"
         const val OS_VERSION = "1.0.0"
         const val PLATFORM = "android"
@@ -77,7 +77,7 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
             whenever(provideTimestamp()).thenReturn(TIMESTAMP)
         }
         mockDeviceInfo = mock(DeviceInfo::class.java).apply {
-            whenever(hardwareId).thenReturn(HARDWARE_ID)
+            whenever(clientId).thenReturn(CLIENT_ID)
         }
 
         mockRequestContext = mock(PredictRequestContext::class.java).apply {

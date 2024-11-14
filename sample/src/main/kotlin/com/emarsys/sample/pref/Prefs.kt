@@ -7,7 +7,7 @@ object Prefs : KotprefModel() {
 
     var sdkVersion by stringPref("")
     var languageCode by stringPref("")
-    var hardwareId by stringPref("")
+    var clientId by stringPref("")
     var applicationCode by stringPref("")
     var merchantId by stringPref("")
     var contactFieldValue by stringPref("")
@@ -18,7 +18,7 @@ object Prefs : KotprefModel() {
 fun Prefs.update(sdkInfo: Map<String, String>) {
     sdkVersion = sdkInfo.getOrDefault("sdkVersion", "")
     languageCode = sdkInfo.getOrDefault("languageCode", "")
-    hardwareId = sdkInfo.getOrDefault("hardwareId", "")
+    clientId = sdkInfo.getOrDefault("clientId", "")
     applicationCode = sdkInfo.getOrDefault("applicationCode", "")
     merchantId = sdkInfo.getOrDefault("merchantId", "")
     contactFieldValue = sdkInfo.getOrDefault("contactFieldValue", "")

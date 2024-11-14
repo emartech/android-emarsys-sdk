@@ -28,7 +28,7 @@ import com.emarsys.core.database.trigger.TriggerType
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.feature.FeatureRegistry
-import com.emarsys.core.provider.hardwareid.HardwareIdProvider
+import com.emarsys.core.provider.clientid.ClientIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseHandlersProcessor
@@ -138,7 +138,7 @@ class EmarsysTest : AnnotationSpec() {
     private lateinit var mockConfig: ConfigApi
     private lateinit var mockConfigInternal: ConfigInternal
     private lateinit var mockMessageInbox: MessageInboxApi
-    private lateinit var mockHardwareIdProvider: HardwareIdProvider
+    private lateinit var mockClientIdProvider: ClientIdProvider
     private lateinit var mockLanguageProvider: LanguageProvider
     private lateinit var mockNotificationManagerHelper: NotificationSettings
     private lateinit var mockVersionProvider: VersionProvider
@@ -195,7 +195,7 @@ class EmarsysTest : AnnotationSpec() {
             .merchantId(MERCHANT_ID)
             .build()
         mockRequestContext = mockk(relaxed = true)
-        mockHardwareIdProvider = mockk(relaxed = true)
+        mockClientIdProvider = mockk(relaxed = true)
         mockMobileEngageApi = mockk(relaxed = true)
         mockLoggingMobileEngageApi = mockk(relaxed = true)
         mockInApp = mockk(relaxed = true)
@@ -217,7 +217,7 @@ class EmarsysTest : AnnotationSpec() {
 
         every { mockNotificationManagerHelper.importance } returns -1000
         every { mockNotificationManagerHelper.areNotificationsEnabled } returns false
-        every { mockHardwareIdProvider.provideHardwareId() } returns "hwid"
+        every { mockClientIdProvider.provideClientId() } returns "hwid"
         every {
             mockLanguageProvider.provideLanguage(any())
         } returns "language"
@@ -225,7 +225,7 @@ class EmarsysTest : AnnotationSpec() {
         every { mockVersionProvider.provideSdkVersion() } returns "version"
 
         deviceInfo = DeviceInfo(
-            application, mockHardwareIdProvider, mockVersionProvider,
+            application, mockClientIdProvider, mockVersionProvider,
             mockLanguageProvider, mockNotificationManagerHelper,
             isAutomaticPushSendingEnabled = true, isGooglePlayAvailable = true
         )

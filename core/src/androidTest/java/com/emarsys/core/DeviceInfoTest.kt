@@ -10,7 +10,7 @@ import com.emarsys.core.api.notification.ChannelSettings
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
-import com.emarsys.core.provider.hardwareid.HardwareIdProvider
+import com.emarsys.core.provider.clientid.ClientIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.util.AndroidVersionUtils
 import com.emarsys.testUtil.AnnotationSpec
@@ -32,7 +32,7 @@ import java.util.*
 class DeviceInfoTest : AnnotationSpec() {
 
     companion object {
-        private const val HARDWARE_ID = "hwid"
+        private const val CLIENT_ID = "hwid"
         private const val SDK_VERSION = "sdkVersion"
         private const val LANGUAGE = "en-US"
         private const val APP_VERSION = "2.0"
@@ -41,7 +41,7 @@ class DeviceInfoTest : AnnotationSpec() {
     private lateinit var deviceInfo: DeviceInfo
     private lateinit var tz: TimeZone
     private lateinit var context: Context
-    private lateinit var mockHardwareIdProvider: HardwareIdProvider
+    private lateinit var mockClientIdProvider: ClientIdProvider
     private lateinit var mockLanguageProvider: LanguageProvider
     private lateinit var mockVersionProvider: VersionProvider
     private lateinit var mockNotificationManagerHelper: NotificationSettings
@@ -52,8 +52,8 @@ class DeviceInfoTest : AnnotationSpec() {
         tz = TimeZone.getTimeZone("Asia/Tokyo")
         TimeZone.setDefault(tz)
         context = getTargetContext().applicationContext
-        mockHardwareIdProvider = mock {
-            on { provideHardwareId() } doReturn HARDWARE_ID
+        mockClientIdProvider = mock {
+            on { provideClientId() } doReturn CLIENT_ID
         }
         mockLanguageProvider = mock {
             on { provideLanguage(any()) } doReturn LANGUAGE
@@ -64,7 +64,7 @@ class DeviceInfoTest : AnnotationSpec() {
         mockNotificationManagerHelper = mock()
 
         deviceInfo = DeviceInfo(
-                context, mockHardwareIdProvider, mockVersionProvider,
+            context, mockClientIdProvider, mockVersionProvider,
                 mockLanguageProvider, mockNotificationManagerHelper,
                 isAutomaticPushSendingEnabled = true, isGooglePlayAvailable = true
         )
@@ -78,7 +78,7 @@ class DeviceInfoTest : AnnotationSpec() {
     @Test
     fun testConstructor_initializesFields() {
         with(deviceInfo) {
-            hardwareId shouldNotBe null
+            clientId shouldNotBe null
             platform shouldNotBe null
             language shouldNotBe null
             timezone shouldNotBe null
@@ -106,7 +106,7 @@ class DeviceInfoTest : AnnotationSpec() {
         whenever(packageManager.getPackageInfo(packageName, 0)).thenReturn(packageInfo)
         whenever(mockContext.applicationInfo).thenReturn(Mockito.mock(ApplicationInfo::class.java))
         val info = DeviceInfo(
-                mockContext, mockHardwareIdProvider, mockVersionProvider,
+            mockContext, mockClientIdProvider, mockVersionProvider,
                 mockLanguageProvider, mockNotificationManagerHelper,
                 isAutomaticPushSendingEnabled = true, isGooglePlayAvailable = true
         )
@@ -140,7 +140,7 @@ class DeviceInfoTest : AnnotationSpec() {
     fun testIsDebugMode_withDebugApplication() {
         val mockDebugContext = applicationDebug
         val debugDeviceInfo = DeviceInfo(
-                mockDebugContext, mockHardwareIdProvider,
+            mockDebugContext, mockClientIdProvider,
                 mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper,
                 isAutomaticPushSendingEnabled = true, isGooglePlayAvailable = true
         )
@@ -152,7 +152,7 @@ class DeviceInfoTest : AnnotationSpec() {
         val mockReleaseContext = applicationRelease
         val releaseDeviceInfo = DeviceInfo(
                 mockReleaseContext,
-                mockHardwareIdProvider,
+            mockClientIdProvider,
                 mockVersionProvider,
                 mockLanguageProvider,
                 mockNotificationManagerHelper,
@@ -163,9 +163,9 @@ class DeviceInfoTest : AnnotationSpec() {
     }
 
     @Test
-    fun testHardwareId_isAcquiredFromHardwareIdProvider() {
-        Mockito.verify(mockHardwareIdProvider).provideHardwareId()
-        HARDWARE_ID shouldBe deviceInfo.hardwareId
+    fun testClientId_isAcquiredFromClientIdProvider() {
+        Mockito.verify(mockClientIdProvider).provideClientId()
+        CLIENT_ID shouldBe deviceInfo.clientId
     }
 
     @Test
@@ -189,7 +189,7 @@ class DeviceInfoTest : AnnotationSpec() {
         whenever(mockContext.applicationInfo).thenReturn(Mockito.mock(ApplicationInfo::class.java))
 
         deviceInfo = DeviceInfo(
-                mockContext, mockHardwareIdProvider, mockVersionProvider,
+            mockContext, mockClientIdProvider, mockVersionProvider,
                 mockLanguageProvider, mockNotificationManagerHelper,
                 isAutomaticPushSendingEnabled = true, isGooglePlayAvailable = true
         )
@@ -250,7 +250,7 @@ class DeviceInfoTest : AnnotationSpec() {
         whenever(mockContext.applicationInfo).thenReturn(Mockito.mock(ApplicationInfo::class.java))
 
         deviceInfo = DeviceInfo(
-                mockContext, mockHardwareIdProvider, mockVersionProvider,
+            mockContext, mockClientIdProvider, mockVersionProvider,
                 mockLanguageProvider, mockNotificationManagerHelper,
                 isAutomaticPushSendingEnabled = true, isGooglePlayAvailable = false
         )

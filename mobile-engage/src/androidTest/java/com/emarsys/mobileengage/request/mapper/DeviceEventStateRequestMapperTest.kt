@@ -35,7 +35,7 @@ class DeviceEventStateRequestMapperTest : AnnotationSpec() {
     fun setUp() {
         FeatureRegistry.enableFeature(InnerFeature.EVENT_SERVICE_V4)
         val mockDeviceInfo: DeviceInfo = mock {
-            on { hardwareId } doReturn "TEST_HARDWARE_ID"
+            on { clientId } doReturn "TEST_CLIENT_ID"
         }
         mockRequestContext = mock {
             on { deviceInfo } doReturn mockDeviceInfo

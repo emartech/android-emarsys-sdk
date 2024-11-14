@@ -6,7 +6,7 @@ import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.notification.NotificationManagerHelper
-import com.emarsys.core.provider.hardwareid.HardwareIdProvider
+import com.emarsys.core.provider.clientid.ClientIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.di.DefaultEmarsysComponent
 import com.emarsys.di.DefaultEmarsysDependencies
@@ -65,8 +65,8 @@ class DefaultInboxIntegrationTest : AnnotationSpec() {
         latch = CountDownLatch(1)
         val deviceInfo = DeviceInfo(
             application,
-            mockk<HardwareIdProvider>(relaxed = true).apply {
-                every { provideHardwareId() } returns "inboxv1_integration_hwid"
+            mockk<ClientIdProvider>(relaxed = true).apply {
+                every { provideClientId() } returns "inboxv1_integration_hwid"
             },
             mockk<VersionProvider>(relaxed = true).apply {
                 every { provideSdkVersion() } returns SDK_VERSION

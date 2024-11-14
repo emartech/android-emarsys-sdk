@@ -602,14 +602,14 @@ class DefaultConfigInternalTest : AnnotationSpec() {
     }
 
     @Test
-    fun testGetHardwareId_shouldReturnHWIDFromDeviceInfo() {
-        whenever(mockDeviceInfo.hardwareId).thenReturn("testHardwareId")
-        val result = configInternal.hardwareId
-        result shouldBe "testHardwareId"
+    fun testGetClientId_shouldReturnHWIDFromDeviceInfo() {
+        whenever(mockDeviceInfo.clientId).thenReturn("testClientId")
+        val result = configInternal.clientId
+        result shouldBe "testClientId"
     }
 
     @Test
-    fun testGetHardwareId_shouldReturnLanguageCodeFromDeviceInfo() {
+    fun testGetLanguage_shouldReturnLanguageCodeFromDeviceInfo() {
         whenever(mockDeviceInfo.language).thenReturn("testLanguage")
         val result = configInternal.language
 
@@ -617,7 +617,7 @@ class DefaultConfigInternalTest : AnnotationSpec() {
     }
 
     @Test
-    fun testGetHardwareId_shouldReturnNotificationSettingsFromDeviceInfo() {
+    fun testGetNotificationSettings_shouldReturnNotificationSettingsFromDeviceInfo() {
         val notificationSettings: NotificationSettings = mock()
         whenever(mockDeviceInfo.notificationSettings).thenReturn(notificationSettings)
         val result = configInternal.notificationSettings

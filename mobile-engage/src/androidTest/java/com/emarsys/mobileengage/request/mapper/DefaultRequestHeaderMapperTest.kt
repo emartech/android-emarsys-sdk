@@ -17,7 +17,7 @@ class DefaultRequestHeaderMapperTest : AnnotationSpec() {
     private companion object {
         const val TIMESTAMP = 234123L
         const val REQUEST_ID = "request_id"
-        const val HARDWARE_ID = "hwid"
+        const val CLIENT_ID = "hwid"
         const val APPLICATION_CODE = "applicationCode"
         const val SDK_VERSION = "sdkVersion"
     }
@@ -31,7 +31,7 @@ class DefaultRequestHeaderMapperTest : AnnotationSpec() {
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
         mockDeviceInfo = mock {
-            on { hardwareId } doReturn HARDWARE_ID
+            on { clientId } doReturn CLIENT_ID
             on { sdkVersion } doReturn SDK_VERSION
             on { isDebugMode } doReturn true
         }
