@@ -1,48 +1,39 @@
-package com.emarsys.mobileengage.notification.command;
+package com.emarsys.mobileengage.notification.command
 
-import android.app.Application;
-import android.content.Context;
-import android.content.Intent;
+import android.app.Application
+import android.app.PendingIntent.CanceledException
+import android.content.Context
+import android.content.Intent
+import com.emarsys.core.util.log.Logger.Companion.error
+import com.emarsys.core.util.log.entry.CrashLog
+import com.emarsys.mobileengage.notification.LaunchActivityCommandLifecycleCallbacksFactory
+import com.emarsys.mobileengage.service.IntentUtils.createLaunchPendingIntent
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
-import com.emarsys.core.util.Assert;
-import com.emarsys.core.util.log.Logger;
-import com.emarsys.core.util.log.entry.CrashLog;
-import com.emarsys.mobileengage.notification.LaunchActivityCommandLifecycleCallbacksFactory;
-import com.emarsys.mobileengage.service.IntentUtils;
+class LaunchApplicationCommand(
+    private val intent: Intent,
+    private val context: Context,
+    private val launchActivityCommandLifecycleCallbacksFactory: LaunchActivityCommandLifecycleCallbacksFactory
+) : Runnable {
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+    override fun run() {
+        val latch = CountDownLatch(1)
+        val callback = launchActivityCommandLifecycleCallbacksFactory.create(latch)
+        (context.applicationContext as Application).registerActivityLifecycleCallbacks(callback)
+        val launchPendingIntent = createLaunchPendingIntent(intent, context)
 
-public class LaunchApplicationCommand implements Runnable {
-
-    Intent intent;
-    Context context;
-    LaunchActivityCommandLifecycleCallbacksFactory provider;
-
-    public LaunchApplicationCommand(Intent intent, Context context, LaunchActivityCommandLifecycleCallbacksFactory provider) {
-        Assert.notNull(intent, "Intent must not be null!");
-        Assert.notNull(context, "Context must not be null!");
-        Assert.notNull(provider, "LifecycleCallbackProvider must not be null!");
-        this.intent = intent;
-        this.context = context;
-        this.provider = provider;
-    }
-
-    @Override
-    public void run() {
-        final Intent launchIntent = IntentUtils.createLaunchIntent(intent, context);
-        final CountDownLatch latch = new CountDownLatch(1);
-        Application.ActivityLifecycleCallbacks callback = provider.create(latch);
-        ((Application) context.getApplicationContext()).registerActivityLifecycleCallbacks(callback);
-
-        if (launchIntent != null) {
-            context.startActivity(launchIntent);
+        launchPendingIntent?.let {
+            try {
+                launchPendingIntent.send()
+                latch.await(5, TimeUnit.SECONDS)
+            } catch (e: CanceledException) {
+                error(CrashLog(e, null))
+            } catch (e: InterruptedException) {
+                error(CrashLog(e, null))
+            }
         }
-        try {
-            latch.await(5, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            Logger.error(new CrashLog(e, null));
-        }
-        ((Application) context.getApplicationContext()).unregisterActivityLifecycleCallbacks(callback);
+
+        (context.applicationContext as Application).unregisterActivityLifecycleCallbacks(callback)
     }
 }
