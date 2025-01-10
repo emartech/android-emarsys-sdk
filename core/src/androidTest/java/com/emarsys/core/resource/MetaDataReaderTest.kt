@@ -3,19 +3,32 @@ package com.emarsys.core.resource
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.os.Bundle
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
+import com.emarsys.testUtil.KotestRunnerAndroid
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito
+import io.mockk.every
+import io.mockk.mockk
+import org.junit.runner.RunWith
 
+@RunWith(KotestRunnerAndroid::class)
 class MetaDataReaderTest : AnnotationSpec() {
     private var reader: MetaDataReader? = null
+    private lateinit var mockContext: Context
+    private lateinit var applicationInfo: ApplicationInfo
 
     @Before
     @Throws(Exception::class)
     fun setUp() {
+        applicationInfo = ApplicationInfo()
+        mockContext = mockk(relaxed = true)
+        every {
+            mockContext.packageManager.getApplicationInfo(
+                any(), any<Int>()
+            )
+        } returns applicationInfo
+
         reader = MetaDataReader()
     }
 
@@ -35,35 +48,18 @@ class MetaDataReaderTest : AnnotationSpec() {
 
     @Test
     fun testGetIntOrNull_returnsValue_ifExists() {
-        val applicationInfo = ApplicationInfo()
         val bundle = Bundle()
         bundle.putInt("something", 42)
         applicationInfo.metaData = bundle
-        val context = Mockito.mock(Context::class.java, Mockito.RETURNS_DEEP_STUBS)
-        Mockito.`when`(
-            context.packageManager.getApplicationInfo(
-                ArgumentMatchers.nullable(
-                    String::class.java
-                ), ArgumentMatchers.anyInt()
-            )
-        ).thenReturn(applicationInfo)
-        reader!!.getInt(context, "something").toLong() shouldBe 42
+
+        reader!!.getInt(mockContext, "something").toLong() shouldBe 42
     }
 
     @Test
     fun intOrNull_shouldReturnNull_ifThereIsNoValue() {
-
-        val applicationInfo = ApplicationInfo()
         applicationInfo.metaData = Bundle()
-        val context = Mockito.mock(Context::class.java, Mockito.RETURNS_DEEP_STUBS)
-        Mockito.`when`(
-            context.packageManager.getApplicationInfo(
-                ArgumentMatchers.nullable(
-                    String::class.java
-                ), ArgumentMatchers.anyInt()
-            )
-        ).thenReturn(applicationInfo)
-        reader!!.getInt(context, "something").toLong() shouldBe 0
+
+        reader!!.getInt(mockContext, "something").toLong() shouldBe 0
     }
 
     @Test
@@ -82,34 +78,17 @@ class MetaDataReaderTest : AnnotationSpec() {
 
     @Test
     fun testGetInt_returnsValue_ifExists() {
-        val applicationInfo = ApplicationInfo()
         val bundle = Bundle()
         bundle.putInt("something", 43)
         applicationInfo.metaData = bundle
-        val context = Mockito.mock(Context::class.java, Mockito.RETURNS_DEEP_STUBS)
-        Mockito.`when`(
-            context.packageManager.getApplicationInfo(
-                ArgumentMatchers.nullable(
-                    String::class.java
-                ), ArgumentMatchers.anyInt()
-            )
-        ).thenReturn(applicationInfo)
-        reader!!.getInt(context, "something", -1).toLong() shouldBe 43
+
+        reader!!.getInt(mockContext, "something", -1).toLong() shouldBe 43
     }
 
     @Test
     fun int_shouldReturnDefaultValue_ifThereIsNoValue() {
-        val applicationInfo = ApplicationInfo()
         applicationInfo.metaData = Bundle()
-        val context = Mockito.mock(Context::class.java, Mockito.RETURNS_DEEP_STUBS)
-        Mockito.`when`(
-            context.packageManager.getApplicationInfo(
-                ArgumentMatchers.nullable(
-                    String::class.java
-                ), ArgumentMatchers.anyInt()
-            )
-        ).thenReturn(applicationInfo)
-        reader!!.getInt(context, "something").toLong() shouldBe 0
-        reader!!.getInt(context, "something", 200).toLong() shouldBe 200
+        reader!!.getInt(mockContext, "something").toLong() shouldBe 0
+        reader!!.getInt(mockContext, "something", 200).toLong() shouldBe 200
     }
 }
