@@ -4,6 +4,7 @@ import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.webkit.WebView
 import android.widget.LinearLayout
+import androidx.fragment.app.testing.EmptyFragmentActivity
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragment
 import androidx.lifecycle.Lifecycle
@@ -26,19 +27,21 @@ import com.emarsys.mobileengage.iam.model.InAppMetaData
 import com.emarsys.mobileengage.iam.webview.IamWebView
 import com.emarsys.mobileengage.iam.webview.IamWebViewFactory
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ExtensionTestUtils.runOnMain
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
+import com.emarsys.testUtil.KotestRunnerAndroid
 import com.emarsys.testUtil.ReflectionTestUtils
-import com.emarsys.testUtil.fake.FakeActivity
+import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
 
-class IamDialogTest : AnnotationSpec() {
+@RunWith(KotestRunnerAndroid::class)
+class IamDialogTest: AnnotationSpec() {
     private companion object {
         const val CAMPAIGN_ID = "id_value"
         private const val SID = "testSid"
@@ -58,10 +61,10 @@ class IamDialogTest : AnnotationSpec() {
     private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
 
     private lateinit var iamDialog: IamDialog
-    private var scenario: ActivityScenario<FakeActivity>? = null
+    private var scenario: ActivityScenario<EmptyFragmentActivity>? = null
     private lateinit var iamWebView: IamWebView
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockTimestampProvider = mockk(relaxed = true)
         val mockUuidProvider: UUIDProvider = mockk(relaxed = true)
@@ -98,15 +101,15 @@ class IamDialogTest : AnnotationSpec() {
         iamDialog = IamDialog(mockTimestampProvider, mockWebViewFactory)
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         tearDownMobileEngageComponent()
         scenario?.close()
     }
 
-    private fun launchFakeActivityIfNeeded() {
+    private fun launchActivityIfNeeded() {
         if (scenario == null) {
-            scenario = ActivityScenario.launch(FakeActivity::class.java)
+            scenario = ActivityScenario.launch(EmptyFragmentActivity::class.java)
             val countDownLatch = CountDownLatch(1)
             scenario!!.onActivity { activity ->
                 every {
@@ -242,8 +245,6 @@ class IamDialogTest : AnnotationSpec() {
 
     @Test
     fun testInitialization_setsDimAmountToZero() {
-        launchFakeActivityIfNeeded()
-
         val bundle = Bundle()
         bundle.putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
         bundle.putString(IamDialog.SID, SID)
@@ -263,8 +264,6 @@ class IamDialogTest : AnnotationSpec() {
 
     @Test
     fun testInitialization_setsDialogToFullscreen() {
-        launchFakeActivityIfNeeded()
-
         val bundle = Bundle()
         bundle.putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
         bundle.putString(IamDialog.SID, SID)
@@ -290,8 +289,6 @@ class IamDialogTest : AnnotationSpec() {
 
     @Test
     fun testDialog_stillVisible_afterOrientationChange() {
-        launchFakeActivityIfNeeded()
-
         val bundle = Bundle()
         bundle.putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
         bundle.putString(IamDialog.SID, SID)
@@ -326,8 +323,6 @@ class IamDialogTest : AnnotationSpec() {
 
     @Test
     fun testDialog_cancel_turnsRetainInstanceOff() {
-        launchFakeActivityIfNeeded()
-
         val bundle = Bundle()
         bundle.putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
         bundle.putString(IamDialog.SID, SID)
@@ -359,8 +354,6 @@ class IamDialogTest : AnnotationSpec() {
 
     @Test
     fun testDialog_dismiss_turnsRetainInstanceOff() {
-        launchFakeActivityIfNeeded()
-
         val bundle = Bundle()
         bundle.putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
         bundle.putString(IamDialog.SID, SID)
@@ -406,7 +399,6 @@ class IamDialogTest : AnnotationSpec() {
         for (action in actions) {
             verify { (action).execute("123456789", null, null) }
         }
-
     }
 
     @Test
@@ -501,7 +493,7 @@ class IamDialogTest : AnnotationSpec() {
 
     @Test
     fun testOnStart_shouldNotThrowTheSpecifiedChildAlreadyHasAParent_exception() {
-        launchFakeActivityIfNeeded()
+        launchActivityIfNeeded()
 
         var result: Exception? = null
         try {
@@ -521,7 +513,7 @@ class IamDialogTest : AnnotationSpec() {
 
     @Test
     fun testOnStart_shouldNotThrowTheSpecifiedWebViewAlreadyHasAParent_exception() {
-        launchFakeActivityIfNeeded()
+        launchActivityIfNeeded()
 
         var result: Exception? = null
         try {
@@ -550,8 +542,6 @@ class IamDialogTest : AnnotationSpec() {
 
     @Test
     fun testLoadInApp() {
-        launchFakeActivityIfNeeded()
-
         val html = "<html></html>"
         val inAppMetaData = InAppMetaData(CAMPAIGN_ID, null, null)
         val messageLoadedListener = MessageLoadedListener { }
