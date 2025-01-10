@@ -1,7 +1,6 @@
 package com.emarsys.core
 
 import android.content.Context
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.res.Resources
@@ -17,16 +16,14 @@ import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ApplicationTestUtils.applicationDebug
 import com.emarsys.testUtil.ApplicationTestUtils.applicationRelease
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
-import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.json.JSONObject
-import org.mockito.Mockito
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
 import java.util.*
 
 class DeviceInfoTest : AnnotationSpec() {
@@ -36,6 +33,7 @@ class DeviceInfoTest : AnnotationSpec() {
         private const val SDK_VERSION = "sdkVersion"
         private const val LANGUAGE = "en-US"
         private const val APP_VERSION = "2.0"
+        private const val PACKAGE_NAME = "packageName"
     }
 
     private lateinit var deviceInfo: DeviceInfo
@@ -45,6 +43,8 @@ class DeviceInfoTest : AnnotationSpec() {
     private lateinit var mockLanguageProvider: LanguageProvider
     private lateinit var mockVersionProvider: VersionProvider
     private lateinit var mockNotificationManagerHelper: NotificationSettings
+    private lateinit var mockContext: Context
+    private lateinit var mockPackageManager: PackageManager
 
 
     @Before
@@ -52,21 +52,27 @@ class DeviceInfoTest : AnnotationSpec() {
         tz = TimeZone.getTimeZone("Asia/Tokyo")
         TimeZone.setDefault(tz)
         context = getTargetContext().applicationContext
-        mockClientIdProvider = mock {
-            on { provideClientId() } doReturn CLIENT_ID
-        }
-        mockLanguageProvider = mock {
-            on { provideLanguage(any()) } doReturn LANGUAGE
-        }
-        mockVersionProvider = mock {
-            on { provideSdkVersion() } doReturn SDK_VERSION
-        }
-        mockNotificationManagerHelper = mock()
+        mockClientIdProvider = mockk(relaxed = true)
+        every { mockClientIdProvider.provideClientId() } returns CLIENT_ID
+
+        mockLanguageProvider = mockk(relaxed = true)
+        every { mockLanguageProvider.provideLanguage(any()) } returns LANGUAGE
+
+        mockVersionProvider = mockk(relaxed = true)
+        every { mockVersionProvider.provideSdkVersion() } returns SDK_VERSION
+
+        mockNotificationManagerHelper = mockk(relaxed = true)
+        mockContext = mockk(relaxed = true)
+        mockPackageManager = mockk(relaxed = true)
+
+        every { mockContext.contentResolver } returns getTargetContext().contentResolver
+        every { mockContext.packageName } returns PACKAGE_NAME
+        every { mockContext.packageManager } returns mockPackageManager
 
         deviceInfo = DeviceInfo(
             context, mockClientIdProvider, mockVersionProvider,
-                mockLanguageProvider, mockNotificationManagerHelper,
-                isAutomaticPushSendingEnabled = true, isGooglePlayAvailable = true
+            mockLanguageProvider, mockNotificationManagerHelper,
+            isAutomaticPushSendingEnabled = true, isGooglePlayAvailable = true
         )
     }
 
@@ -95,20 +101,14 @@ class DeviceInfoTest : AnnotationSpec() {
     @Test
     @Throws(PackageManager.NameNotFoundException::class)
     fun testGetApplicationVersion_shouldBeDefault_whenVersionInPackageInfo_isNull() {
-        val packageName = "packageName"
-        val mockContext = Mockito.mock(Context::class.java)
         val packageInfo = PackageInfo()
-        val packageManager = Mockito.mock(PackageManager::class.java)
         packageInfo.versionName = null
-        whenever(mockContext.contentResolver).thenReturn(getTargetContext().contentResolver)
-        whenever(mockContext.packageName).thenReturn(packageName)
-        whenever(mockContext.packageManager).thenReturn(packageManager)
-        whenever(packageManager.getPackageInfo(packageName, 0)).thenReturn(packageInfo)
-        whenever(mockContext.applicationInfo).thenReturn(Mockito.mock(ApplicationInfo::class.java))
+
+        every { mockContext.applicationInfo } returns mockk(relaxed = true)
         val info = DeviceInfo(
             mockContext, mockClientIdProvider, mockVersionProvider,
-                mockLanguageProvider, mockNotificationManagerHelper,
-                isAutomaticPushSendingEnabled = true, isGooglePlayAvailable = true
+            mockLanguageProvider, mockNotificationManagerHelper,
+            isAutomaticPushSendingEnabled = true, isGooglePlayAvailable = true
         )
         info.applicationVersion shouldBe DeviceInfo.UNKNOWN_VERSION_NAME
     }
@@ -141,8 +141,8 @@ class DeviceInfoTest : AnnotationSpec() {
         val mockDebugContext = applicationDebug
         val debugDeviceInfo = DeviceInfo(
             mockDebugContext, mockClientIdProvider,
-                mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper,
-                isAutomaticPushSendingEnabled = true, isGooglePlayAvailable = true
+            mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper,
+            isAutomaticPushSendingEnabled = true, isGooglePlayAvailable = true
         )
         debugDeviceInfo.isDebugMode.shouldBeTrue()
     }
@@ -151,55 +151,46 @@ class DeviceInfoTest : AnnotationSpec() {
     fun testIsDebugMode_withReleaseApplication() {
         val mockReleaseContext = applicationRelease
         val releaseDeviceInfo = DeviceInfo(
-                mockReleaseContext,
+            mockReleaseContext,
             mockClientIdProvider,
-                mockVersionProvider,
-                mockLanguageProvider,
-                mockNotificationManagerHelper,
-                isAutomaticPushSendingEnabled = true,
-                isGooglePlayAvailable = true
+            mockVersionProvider,
+            mockLanguageProvider,
+            mockNotificationManagerHelper,
+            isAutomaticPushSendingEnabled = true,
+            isGooglePlayAvailable = true
         )
         releaseDeviceInfo.isDebugMode.shouldBeFalse()
     }
 
     @Test
     fun testClientId_isAcquiredFromClientIdProvider() {
-        Mockito.verify(mockClientIdProvider).provideClientId()
+        verify { mockClientIdProvider.provideClientId() }
         CLIENT_ID shouldBe deviceInfo.clientId
     }
 
     @Test
     fun testGetLanguage_isAcquiredFromLanguageProvider() {
         val language = deviceInfo.language
-        Mockito.verify(mockLanguageProvider).provideLanguage(Locale.getDefault())
+        verify { mockLanguageProvider.provideLanguage(Locale.getDefault()) }
         LANGUAGE shouldBe language
     }
 
     @Test
     fun testGetDeviceInfoPayload_shouldEqualPayload() {
-        val packageName = "packageName"
-        val mockContext = Mockito.mock(Context::class.java)
         val packageInfo = PackageInfo()
-        val packageManager = Mockito.mock(PackageManager::class.java)
         packageInfo.versionName = APP_VERSION
-        whenever(mockContext.contentResolver).thenReturn(getTargetContext().contentResolver)
-        whenever(mockContext.packageName).thenReturn(packageName)
-        whenever(mockContext.packageManager).thenReturn(packageManager)
-        whenever(packageManager.getPackageInfo(packageName, 0)).thenReturn(packageInfo)
-        whenever(mockContext.applicationInfo).thenReturn(Mockito.mock(ApplicationInfo::class.java))
+        every { mockPackageManager.getPackageInfo(PACKAGE_NAME, 0) } returns packageInfo
 
         deviceInfo = DeviceInfo(
             mockContext, mockClientIdProvider, mockVersionProvider,
-                mockLanguageProvider, mockNotificationManagerHelper,
-                isAutomaticPushSendingEnabled = true, isGooglePlayAvailable = true
+            mockLanguageProvider, mockNotificationManagerHelper,
+            isAutomaticPushSendingEnabled = true, isGooglePlayAvailable = true
         )
 
-        whenever(mockNotificationManagerHelper.channelSettings).thenReturn(
-                listOf(
-                        ChannelSettings(
-                                channelId = "channelId"
-                        )
-                )
+        every { mockNotificationManagerHelper.channelSettings } returns listOf(
+            ChannelSettings(
+                channelId = "channelId"
+            )
         )
 
         var channelSettings = """
@@ -216,7 +207,8 @@ class DeviceInfoTest : AnnotationSpec() {
         if (!AndroidVersionUtils.isOreoOrAbove) {
             channelSettings = "channelSettings: [{}]"
         }
-        val expectedPayload = JSONObject("""{
+        val expectedPayload = JSONObject(
+            """{
                   "notificationSettings": {
                     $channelSettings,
                     "importance": 0,
@@ -232,27 +224,21 @@ class DeviceInfoTest : AnnotationSpec() {
                   "displayMetrics": "${Resources.getSystem().displayMetrics.widthPixels}x${Resources.getSystem().displayMetrics.heightPixels}",
                   "sdkVersion": "sdkVersion",
                   "appVersion": "$APP_VERSION" 
-                }""").toString()
+                }"""
+        ).toString()
         deviceInfo.deviceInfoPayload shouldBe expectedPayload
     }
 
     @Test
     fun testDeviceInfo_platformShouldBeHuawei() {
-        val packageName = "packageName"
-        val mockContext = Mockito.mock(Context::class.java)
         val packageInfo = PackageInfo()
-        val packageManager = Mockito.mock(PackageManager::class.java)
         packageInfo.versionName = APP_VERSION
-        whenever(mockContext.contentResolver).thenReturn(getTargetContext().contentResolver)
-        whenever(mockContext.packageName).thenReturn(packageName)
-        whenever(mockContext.packageManager).thenReturn(packageManager)
-        whenever(packageManager.getPackageInfo(packageName, 0)).thenReturn(packageInfo)
-        whenever(mockContext.applicationInfo).thenReturn(Mockito.mock(ApplicationInfo::class.java))
+        every { mockPackageManager.getPackageInfo(PACKAGE_NAME, 0) } returns packageInfo
 
         deviceInfo = DeviceInfo(
             mockContext, mockClientIdProvider, mockVersionProvider,
-                mockLanguageProvider, mockNotificationManagerHelper,
-                isAutomaticPushSendingEnabled = true, isGooglePlayAvailable = false
+            mockLanguageProvider, mockNotificationManagerHelper,
+            isAutomaticPushSendingEnabled = true, isGooglePlayAvailable = false
         )
 
         deviceInfo.platform shouldBe "android-huawei"
