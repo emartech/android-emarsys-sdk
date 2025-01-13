@@ -75,6 +75,8 @@ test-android-firebase: check-env ## run Android Instrumented tests on real devic
        --device model=caymanlm,version=31,locale=en,orientation=portrait \
        --device model=bluejay,version=32,locale=en,orientation=portrait \
        --device model=felix,version=33,locale=en,orientation=portrait \
+       --device model=tokay,version=34,locale=en,orientation=portrait \
+       --device model=shiba_beta,version=35,locale=en,orientation=portrait \
        --client-details matrixLabel="Android Emarsys SDK - physical devices"
 
 run-github-workflow-locally: check-env ## needs act to be installed: `brew install act` and docker running. Pass in workflow path to run
