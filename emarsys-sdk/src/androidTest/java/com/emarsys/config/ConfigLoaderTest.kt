@@ -4,11 +4,8 @@ import android.app.Application
 import android.content.SharedPreferences
 import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.mockito.kotlin.anyOrNull
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
+import io.mockk.every
+import io.mockk.mockk
 
 class ConfigLoaderTest : AnnotationSpec() {
     companion object {
@@ -21,67 +18,72 @@ class ConfigLoaderTest : AnnotationSpec() {
 
     private lateinit var configLoader: ConfigLoader
     private lateinit var mockSharedPreferences: SharedPreferences
-    private lateinit var mockApplication : Application
+    private lateinit var mockApplication: Application
 
     @Before
     fun setUp() {
-        mockSharedPreferences = mock()
-        mockApplication = mock {
-            on { getSharedPreferences(SHARED_PREF_NAME, 0) } doReturn mockSharedPreferences
-        }
+        mockSharedPreferences = mockk(relaxed = true)
+        mockApplication = mockk(relaxed = true)
+        every {
+            mockApplication.getSharedPreferences(
+                SHARED_PREF_NAME,
+                0
+            )
+        } returns mockSharedPreferences
+
         configLoader = ConfigLoader()
     }
 
     @Test
     fun testLoadConfig_createsConfigFromSharedPref() {
-        whenever(
-                mockSharedPreferences.getString(
-                      eq(ConfigStorageKeys.MOBILE_ENGAGE_APPLICATION_CODE.name),
-                        anyOrNull()
-                )
-        ) doReturn APP_CODE
+        every {
+            mockSharedPreferences.getString(
+                ConfigStorageKeys.MOBILE_ENGAGE_APPLICATION_CODE.name,
+                any()
+            )
+        } returns APP_CODE
 
-        whenever(
-                mockSharedPreferences.getString(
-                       eq(ConfigStorageKeys.PREDICT_MERCHANT_ID.name),
-                        anyOrNull()
-                )
-        ) doReturn MERCHANT_ID
+        every {
+            mockSharedPreferences.getString(
+                ConfigStorageKeys.PREDICT_MERCHANT_ID.name,
+                any()
+            )
+        } returns MERCHANT_ID
 
-        whenever(
-                mockSharedPreferences.getString(
-                       eq(ConfigStorageKeys.ANDROID_SHARED_SECRET.name),
-                        anyOrNull()
-                )
-        ) doReturn SECRET
+        every {
+            mockSharedPreferences.getString(
+                ConfigStorageKeys.ANDROID_SHARED_SECRET.name,
+                any()
+            )
+        } returns SECRET
 
-        whenever(
-                mockSharedPreferences.getStringSet(
-                        eq(ConfigStorageKeys.ANDROID_SHARED_PACKAGE_NAMES.name),
-                        anyOrNull()
-                )
-        ) doReturn mutableSetOf(*SHARED_PACKAGE_NAMES.toTypedArray())
+        every {
+            mockSharedPreferences.getStringSet(
+                ConfigStorageKeys.ANDROID_SHARED_PACKAGE_NAMES.name,
+                any()
+            )
+        } returns mutableSetOf(*SHARED_PACKAGE_NAMES.toTypedArray())
 
-        whenever(
-                mockSharedPreferences.getBoolean(
-                        eq(ConfigStorageKeys.ANDROID_VERBOSE_CONSOLE_LOGGING_ENABLED.name),
-                        anyOrNull()
-                )
-        ) doReturn false
+        every {
+            mockSharedPreferences.getBoolean(
+                ConfigStorageKeys.ANDROID_VERBOSE_CONSOLE_LOGGING_ENABLED.name,
+                any()
+            )
+        } returns false
 
-        whenever(
-                mockSharedPreferences.getBoolean(
-                        eq(ConfigStorageKeys.ANDROID_DISABLE_AUTOMATIC_PUSH_TOKEN_SENDING.name),
-                        anyOrNull()
-                )
-        ) doReturn false
+        every {
+            mockSharedPreferences.getBoolean(
+                ConfigStorageKeys.ANDROID_DISABLE_AUTOMATIC_PUSH_TOKEN_SENDING.name,
+                any()
+            )
+        } returns false
 
         val expectedConfig = EmarsysConfig(
-                application = mockApplication,
-                applicationCode = APP_CODE,
-                merchantId = MERCHANT_ID,
-                sharedPackageNames = SHARED_PACKAGE_NAMES,
-                sharedSecret = SECRET
+            application = mockApplication,
+            applicationCode = APP_CODE,
+            merchantId = MERCHANT_ID,
+            sharedPackageNames = SHARED_PACKAGE_NAMES,
+            sharedSecret = SECRET
         )
 
         val result = configLoader.loadConfigFromSharedPref(mockApplication, SHARED_PREF_NAME)

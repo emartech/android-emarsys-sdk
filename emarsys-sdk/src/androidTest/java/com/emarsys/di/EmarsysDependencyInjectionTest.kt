@@ -4,7 +4,7 @@ import com.emarsys.geofence.Geofence
 import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.IntegrationTestUtils
 import io.kotest.matchers.shouldBe
-import org.mockito.kotlin.mock
+import io.mockk.mockk
 
 class EmarsysDependencyInjectionTest : AnnotationSpec() {
 
@@ -15,8 +15,8 @@ class EmarsysDependencyInjectionTest : AnnotationSpec() {
 
     @Test
     fun testGeofence_whenGooglePlayIsNotAvailable() {
-        val geofenceApi: Geofence = mock()
-        val loggingGeofenceApi: Geofence = mock()
+        val geofenceApi: Geofence = mockk(relaxed = true)
+        val loggingGeofenceApi: Geofence = mockk(relaxed = true)
 
         val dependencyContainer = FakeDependencyContainer(
                 geofence = geofenceApi,

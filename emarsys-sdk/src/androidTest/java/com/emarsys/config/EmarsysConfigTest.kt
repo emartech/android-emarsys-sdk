@@ -14,8 +14,8 @@ import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.IntegrationTestUtils
 import io.kotest.assertions.fail
 import io.kotest.matchers.shouldBe
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
+import io.mockk.every
+import io.mockk.mockk
 
 class EmarsysConfigTest : AnnotationSpec() {
     companion object {
@@ -38,15 +38,15 @@ class EmarsysConfigTest : AnnotationSpec() {
     @Before
     fun setUp() {
         FeatureTestUtils.resetFeatures()
-        val mockClientServiceProvider: ServiceEndpointProvider = mock {
-            on { provideEndpointHost() } doReturn CLIENT_HOST
-        }
-        val mockEventServiceProvider: ServiceEndpointProvider = mock {
-            on { provideEndpointHost() } doReturn EVENT_HOST
-        }
-        val mockMessageInboxServiceProvider: ServiceEndpointProvider = mock {
-            on { provideEndpointHost() } doReturn INBOX_HOST
-        }
+        val mockClientServiceProvider: ServiceEndpointProvider = mockk(relaxed = true)
+        every { mockClientServiceProvider.provideEndpointHost() } returns CLIENT_HOST
+
+        val mockEventServiceProvider: ServiceEndpointProvider = mockk(relaxed = true)
+        every { mockEventServiceProvider.provideEndpointHost() } returns EVENT_HOST
+
+        val mockMessageInboxServiceProvider: ServiceEndpointProvider = mockk(relaxed = true)
+        every { mockMessageInboxServiceProvider.provideEndpointHost() } returns INBOX_HOST
+
         val dependencyContainer = FakeDependencyContainer(
             clientServiceEndpointProvider = mockClientServiceProvider,
             eventServiceEndpointProvider = mockEventServiceProvider,
@@ -58,11 +58,11 @@ class EmarsysConfigTest : AnnotationSpec() {
 
         automaticPushTokenSending = true
         application = getTargetContext().applicationContext as Application
-        defaultInAppEventHandler = mock()
-        defaultNotificationEventHandler = mock()
+        defaultInAppEventHandler = mockk(relaxed = true)
+        defaultNotificationEventHandler = mockk(relaxed = true)
         features = arrayOf(
-            mock(),
-            mock()
+            mockk(relaxed = true),
+            mockk(relaxed = true)
         )
     }
 

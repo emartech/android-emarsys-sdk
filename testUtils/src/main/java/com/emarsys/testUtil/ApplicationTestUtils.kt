@@ -1,9 +1,10 @@
 package com.emarsys.testUtil
 
 import android.app.Application
+import android.content.Context
 import android.content.pm.ApplicationInfo
-import com.emarsys.testUtil.mockito.whenever
-import org.mockito.Mockito.spy
+import io.mockk.every
+import io.mockk.spyk
 
 object ApplicationTestUtils {
 
@@ -15,8 +16,9 @@ object ApplicationTestUtils {
     val applicationRelease: Application
         get() = getApplication { flags = 0 }
 
-    private fun getApplication(init: ApplicationInfo.() -> Unit) = (spy(InstrumentationRegistry.getTargetContext().applicationContext) as Application).also {
-        whenever(it.applicationInfo).thenReturn(ApplicationInfo().apply(init))
-    }
+    private fun getApplication(init: ApplicationInfo.() -> Unit) =
+        (spyk<Context>(InstrumentationRegistry.getTargetContext().applicationContext) as Application).also {
+            every { it.applicationInfo } returns ApplicationInfo().apply(init)
+        }
 
 }

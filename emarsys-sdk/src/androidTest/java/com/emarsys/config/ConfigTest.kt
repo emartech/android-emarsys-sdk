@@ -8,13 +8,12 @@ import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.IntegrationTestUtils
-import com.emarsys.testUtil.mockito.whenever
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.Rule
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
-import org.mockito.kotlin.doReturn
 
 
 class ConfigTest : AnnotationSpec() {
@@ -29,20 +28,20 @@ class ConfigTest : AnnotationSpec() {
     }
 
     lateinit var config: Config
-    lateinit var mockConfigInternal: ConfigInternal
+    private lateinit var mockConfigInternal: ConfigInternal
 
     @Before
     fun setUp() {
-        mockConfigInternal = mock(ConfigInternal::class.java)
-        val mockClientServiceProvider: ServiceEndpointProvider = org.mockito.kotlin.mock {
-            on { provideEndpointHost() } doReturn CLIENT_HOST
-        }
-        val mockEventServiceProvider: ServiceEndpointProvider = org.mockito.kotlin.mock {
-            on { provideEndpointHost() } doReturn EVENT_HOST
-        }
-        val mockMessageInboxServiceProvider: ServiceEndpointProvider = org.mockito.kotlin.mock {
-            on { provideEndpointHost() } doReturn INBOX_HOST
-        }
+        mockConfigInternal = mockk(relaxed = true)
+        val mockClientServiceProvider: ServiceEndpointProvider = mockk(relaxed = true)
+        every { mockClientServiceProvider.provideEndpointHost() } returns CLIENT_HOST
+
+        val mockEventServiceProvider: ServiceEndpointProvider = mockk(relaxed = true)
+        every { mockEventServiceProvider.provideEndpointHost() } returns EVENT_HOST
+
+        val mockMessageInboxServiceProvider: ServiceEndpointProvider = mockk(relaxed = true)
+        every { mockMessageInboxServiceProvider.provideEndpointHost() } returns INBOX_HOST
+
         val dependencyContainer = FakeDependencyContainer(
             configInternal = mockConfigInternal,
             clientServiceEndpointProvider = mockClientServiceProvider,
@@ -54,7 +53,6 @@ class ConfigTest : AnnotationSpec() {
         config = Config()
     }
 
-
     @After
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys()
@@ -62,105 +60,107 @@ class ConfigTest : AnnotationSpec() {
 
     @Test
     fun testGetContactFieldId_delegatesTo_internal() {
-        whenever(mockConfigInternal.contactFieldId).thenReturn(3)
+        every { mockConfigInternal.contactFieldId } returns 3
 
         val result = config.contactFieldId
 
         result shouldBe 3
-        verify(mockConfigInternal).contactFieldId
+        verify { mockConfigInternal.contactFieldId }
     }
 
     @Test
     fun testChangeApplicationCode_delegatesTo_internal() {
-        val mockCompletionListener = mock(CompletionListener::class.java)
-        whenever(mockConfigInternal.contactFieldId).thenReturn(3)
+        val mockCompletionListener: CompletionListener = mockk(relaxed = true)
+        every { mockConfigInternal.contactFieldId } returns 3
 
         config.changeApplicationCode("testApplicationCode", mockCompletionListener)
 
-        verify(mockConfigInternal).changeApplicationCode(
-            "testApplicationCode",
-            mockCompletionListener
-        )
+        verify {
+            mockConfigInternal.changeApplicationCode(
+                "testApplicationCode",
+                mockCompletionListener
+            )
+        }
     }
 
     @Test
     fun testGetApplicationCode_delegatesTo_internal() {
-        whenever(mockConfigInternal.applicationCode).thenReturn("testApplicationCode")
+        every { mockConfigInternal.applicationCode } returns "testApplicationCode"
 
         val result = config.applicationCode
 
         result shouldBe "testApplicationCode"
-        verify(mockConfigInternal).applicationCode
+        verify { mockConfigInternal.applicationCode }
     }
 
     @Test
     fun testChangeMerchantId_delegatesTo_internal() {
         config.changeMerchantId("testMerchantId")
 
-        verify(mockConfigInternal).changeMerchantId("testMerchantId")
+        verify { mockConfigInternal.changeMerchantId("testMerchantId") }
     }
 
     @Test
     fun testGetMerchantId_delegatesTo_internal() {
-        whenever(mockConfigInternal.merchantId).thenReturn("testMerchantId")
+        every { mockConfigInternal.merchantId } returns "testMerchantId"
 
         val result = config.merchantId
 
         result shouldBe "testMerchantId"
-        verify(mockConfigInternal).merchantId
+        verify { mockConfigInternal.merchantId }
     }
 
     @Test
     fun testGetNotificationSettings_delegatesTo_internal() {
-        val mockNotificationSettings = mock(NotificationSettings::class.java)
-        whenever(mockConfigInternal.notificationSettings).thenReturn(mockNotificationSettings)
+        val mockNotificationSettings: NotificationSettings = mockk(relaxed = true)
+        every { mockConfigInternal.notificationSettings } returns mockNotificationSettings
 
         val result = config.notificationSettings
 
         result shouldBe mockNotificationSettings
-        verify(mockConfigInternal).notificationSettings
+        verify { mockConfigInternal.notificationSettings }
     }
 
     @Test
     fun testGetLanguage_delegatesTo_internal() {
         val language = "testLanguage"
-        whenever(mockConfigInternal.language).thenReturn(language)
+        every { mockConfigInternal.language } returns language
 
         val result = config.languageCode
 
         result shouldBe language
-        verify(mockConfigInternal).language
+        verify { mockConfigInternal.language }
     }
 
     @Test
     fun testGetClientId_delegatesTo_internal() {
         val clientId = "testClientId"
-        whenever(mockConfigInternal.clientId).thenReturn(clientId)
+        every { mockConfigInternal.clientId } returns clientId
 
         val result = config.hardwareId
 
         result shouldBe clientId
-        verify(mockConfigInternal).clientId
+        verify { mockConfigInternal.clientId }
     }
 
     @Test
     fun testIsAutomaticPushSendingEnabled_delegatesTo_internal() {
-        whenever(mockConfigInternal.isAutomaticPushSendingEnabled).thenReturn(true)
+        every { mockConfigInternal.isAutomaticPushSendingEnabled } returns true
 
         val result = config.isAutomaticPushSendingEnabled
 
         result shouldBe true
-        verify(mockConfigInternal).isAutomaticPushSendingEnabled
+        verify { mockConfigInternal.isAutomaticPushSendingEnabled }
     }
 
     @Test
     fun testSdkVersion_delegatesTo_internal() {
         val sdkVersion = "testSdkVersion"
-        whenever(mockConfigInternal.sdkVersion).thenReturn(sdkVersion)
+        every { mockConfigInternal.sdkVersion } returns sdkVersion
 
         val result = config.sdkVersion
 
         result shouldBe sdkVersion
-        verify(mockConfigInternal).sdkVersion
+        verify { mockConfigInternal.sdkVersion }
     }
 }

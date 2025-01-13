@@ -17,13 +17,9 @@ import com.emarsys.predict.api.model.RecommendationFilter
 import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.RandomTestUtils.randomNumberString
 import com.emarsys.testUtil.RandomTestUtils.randomString
-import com.emarsys.testUtil.mockito.anyNotNull
 import io.kotest.assertions.throwables.shouldThrow
-import org.mockito.Mockito
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.isNull
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
+import io.mockk.mockk
+import io.mockk.verify
 
 class PredictTest : AnnotationSpec() {
     companion object {
@@ -40,17 +36,17 @@ class PredictTest : AnnotationSpec() {
 
     @Before
     fun setUp() {
-        mockPredictInternal = mock()
-        resultListenerCallback = mock()
+        mockPredictInternal = mockk(relaxed = true)
+        resultListenerCallback = mockk(relaxed = true)
 
         val dependencyContainer = FakeDependencyContainer(predictInternal = mockPredictInternal)
 
         setupEmarsysComponent(dependencyContainer)
 
         predict = Predict()
-        mockResultListener = mock()
-        mockLogic = mock()
-        val mockRecommendationFilter: RecommendationFilter = mock()
+        mockResultListener = mockk(relaxed = true)
+        mockLogic = mockk(relaxed = true)
+        val mockRecommendationFilter: RecommendationFilter = mockk(relaxed = true)
         mockRecommendationFilters = listOf(mockRecommendationFilter)
     }
 
@@ -75,7 +71,7 @@ class PredictTest : AnnotationSpec() {
             createItem("itemId2", 202.0, 102.0)
         )
         predict.trackCart(itemList)
-        Mockito.verify(mockPredictInternal).trackCart(itemList)
+        verify { mockPredictInternal.trackCart(itemList) }
     }
 
     @Test
@@ -87,7 +83,7 @@ class PredictTest : AnnotationSpec() {
             createItem("itemId2", 202.0, 102.0)
         )
         predict.trackPurchase(orderId, itemList)
-        Mockito.verify(mockPredictInternal).trackPurchase(orderId, itemList)
+        verify { mockPredictInternal.trackPurchase(orderId, itemList) }
     }
 
 
@@ -95,7 +91,7 @@ class PredictTest : AnnotationSpec() {
     fun testPredict_trackItemView_delegatesTo_predictInternal() {
         val itemId = randomString()
         predict.trackItemView(itemId)
-        Mockito.verify(mockPredictInternal).trackItemView(itemId)
+        verify { mockPredictInternal.trackItemView(itemId) }
     }
 
 
@@ -103,20 +99,20 @@ class PredictTest : AnnotationSpec() {
     fun testPredict_trackCategoryView_delegatesTo_predictInternal() {
         val categoryPath = randomString()
         predict.trackCategoryView(categoryPath)
-        verify(mockPredictInternal).trackCategoryView(categoryPath)
+        verify { mockPredictInternal.trackCategoryView(categoryPath) }
     }
 
     @Test
     fun testPredict_trackSearchTerm_delegatesTo_predictInternal() {
         val searchTerm = randomString()
         predict.trackSearchTerm(searchTerm)
-        verify(mockPredictInternal).trackSearchTerm(searchTerm)
+        verify { mockPredictInternal.trackSearchTerm(searchTerm) }
     }
 
     @Test
     fun testPredict_trackTag_delegatesTo_predictInternal() {
         predict.trackTag("testTag", HashMap())
-        verify(mockPredictInternal).trackTag("testTag", HashMap())
+        verify { mockPredictInternal.trackTag("testTag", HashMap()) }
     }
 
     @Test
@@ -129,86 +125,114 @@ class PredictTest : AnnotationSpec() {
     @Test
     fun testPredict_recommendProductWithLimit_delegatesTo_predictInternal() {
         predict.recommendProducts(mockLogic, 5, mockResultListener)
-        verify(mockPredictInternal).recommendProducts(mockLogic, 5, null, null, mockResultListener)
+        verify {
+            mockPredictInternal.recommendProducts(
+                mockLogic,
+                5,
+                null,
+                null,
+                mockResultListener
+            )
+        }
     }
 
     @Test
     fun testPredict_recommendProductWithLimitAndResultListenerCallback_delegatesTo_predictInternal() {
         predict.recommendProducts(mockLogic, 5, resultListenerCallback)
-        verify(mockPredictInternal).recommendProducts(
-            eq(mockLogic),
-            eq(5),
-            isNull(),
-            isNull(),
-            anyNotNull()
-        )
+        verify {
+            mockPredictInternal.recommendProducts(
+                mockLogic,
+                5,
+                isNull(),
+                isNull(),
+                isNull(inverse=true)
+            )
+        }
     }
 
     @Test
     fun testPredict_recommendProductWithLimitAndAvailabilityZone_delegatesTo_predictInternal() {
         predict.recommendProducts(mockLogic, 5, AVAILABILITY_ZONE, mockResultListener)
-        verify(mockPredictInternal).recommendProducts(mockLogic, 5, null, "HU", mockResultListener)
+        verify {
+            mockPredictInternal.recommendProducts(
+                mockLogic,
+                5,
+                null,
+                "HU",
+                mockResultListener
+            )
+        }
     }
 
     @Test
     fun testPredict_recommendProductWithLimitAndAvailabilityZoneAndResultListenerCallback_delegatesTo_predictInternal() {
         predict.recommendProducts(mockLogic, 5, AVAILABILITY_ZONE, resultListenerCallback)
-        verify(mockPredictInternal).recommendProducts(
-            eq(mockLogic),
-            eq(5),
-            isNull(),
-            eq("HU"),
-            anyNotNull()
-        )
+        verify {
+            mockPredictInternal.recommendProducts(
+                mockLogic,
+                5,
+                isNull(),
+                "HU",
+                isNull(inverse=true)
+            )
+        }
     }
 
     @Test
     fun testPredict_recommendProductWithAvailabilityZone_delegatesTo_predictInternal() {
         predict.recommendProducts(mockLogic, AVAILABILITY_ZONE, mockResultListener)
-        verify(mockPredictInternal).recommendProducts(
-            mockLogic,
-            null,
-            null,
-            "HU",
-            mockResultListener
-        )
+        verify {
+            mockPredictInternal.recommendProducts(
+                mockLogic,
+                null,
+                null,
+                "HU",
+                mockResultListener
+            )
+        }
     }
 
     @Test
     fun testPredict_recommendProductWithAvailabilityZoneAndResultListenerCallback_delegatesTo_predictInternal() {
         predict.recommendProducts(mockLogic, AVAILABILITY_ZONE, resultListenerCallback)
-        verify(mockPredictInternal).recommendProducts(
-            eq(mockLogic),
-            isNull(),
-            isNull(),
-            eq("HU"),
-            anyNotNull()
-        )
+        verify {
+            mockPredictInternal.recommendProducts(
+                mockLogic,
+                null,
+                null,
+                "HU",
+                isNull(inverse=true)
+            )
+        }
     }
 
     @Test
     fun testPredict_recommendProductsWithFilters_delegatesTo_predictInternal() {
         predict.recommendProducts(mockLogic, mockRecommendationFilters, mockResultListener)
-        verify(mockPredictInternal).recommendProducts(
-            mockLogic,
-            null,
-            mockRecommendationFilters,
-            null,
-            mockResultListener
-        )
+        verify {
+            mockPredictInternal.recommendProducts(
+                mockLogic,
+                null,
+                mockRecommendationFilters,
+                null,
+                mockResultListener
+            )
+        }
     }
 
     @Test
     fun testPredict_recommendProductsWithFiltersAndResultListenerCallback_delegatesTo_predictInternal() {
-        val resultListenerCallback: (Try<List<Product>>) -> Unit = mock()
+        val resultListenerCallback: (Try<List<Product>>) -> Unit = mockk(relaxed = true)
         predict.recommendProducts(mockLogic, mockRecommendationFilters, resultListenerCallback)
-        verify(mockPredictInternal).recommendProducts(
-            eq(mockLogic),
-            isNull(),
-            eq(mockRecommendationFilters),
-            isNull(),
-            anyNotNull()
-        )
+        verify {
+            mockPredictInternal.recommendProducts(
+                eq(mockLogic),
+                isNull(),
+                eq(mockRecommendationFilters),
+                isNull(),
+                isNull(inverse=true)
+            )
+        }
     }
 
     @Test
@@ -219,13 +243,15 @@ class PredictTest : AnnotationSpec() {
             AVAILABILITY_ZONE,
             mockResultListener
         )
-        verify(mockPredictInternal).recommendProducts(
-            mockLogic,
-            null,
-            mockRecommendationFilters,
-            "HU",
-            mockResultListener
-        )
+        verify {
+            mockPredictInternal.recommendProducts(
+                mockLogic,
+                null,
+                mockRecommendationFilters,
+                "HU",
+                mockResultListener
+            )
+        }
     }
 
     @Test
@@ -236,13 +262,15 @@ class PredictTest : AnnotationSpec() {
             AVAILABILITY_ZONE,
             resultListenerCallback
         )
-        verify(mockPredictInternal).recommendProducts(
-            eq(mockLogic),
-            isNull(),
-            eq(mockRecommendationFilters),
-            eq("HU"),
-            anyNotNull()
-        )
+        verify {
+            mockPredictInternal.recommendProducts(
+                eq(mockLogic),
+                isNull(),
+                eq(mockRecommendationFilters),
+                eq("HU"),
+                isNull(inverse=true)
+            )
+        }
     }
 
     @Test
@@ -255,26 +283,30 @@ class PredictTest : AnnotationSpec() {
     @Test
     fun testPredict_recommendProductsWithFiltersAndLimit_delegatesTo_predictInternal() {
         predict.recommendProducts(mockLogic, mockRecommendationFilters, 123, mockResultListener)
-        verify(mockPredictInternal).recommendProducts(
-            mockLogic,
-            123,
-            mockRecommendationFilters,
-            null,
-            mockResultListener
-        )
+        verify {
+            mockPredictInternal.recommendProducts(
+                mockLogic,
+                123,
+                mockRecommendationFilters,
+                null,
+                mockResultListener
+            )
+        }
     }
 
     @Test
     fun testPredict_recommendProductsWithFiltersAndLimitAndResultListenerCallback_delegatesTo_predictInternal() {
-        val resultListenerCallback: (Try<List<Product>>) -> Unit = mock()
+        val resultListenerCallback: (Try<List<Product>>) -> Unit = mockk(relaxed = true)
         predict.recommendProducts(mockLogic, mockRecommendationFilters, 123, resultListenerCallback)
-        verify(mockPredictInternal).recommendProducts(
-            eq(mockLogic),
-            eq(123),
-            eq(mockRecommendationFilters),
-            isNull(),
-            anyNotNull()
-        )
+        verify {
+            mockPredictInternal.recommendProducts(
+                eq(mockLogic),
+                eq(123),
+                eq(mockRecommendationFilters),
+                isNull(),
+                isNull(inverse=true)
+            )
+        }
     }
 
     @Test
@@ -286,43 +318,49 @@ class PredictTest : AnnotationSpec() {
             AVAILABILITY_ZONE,
             mockResultListener
         )
-        verify(mockPredictInternal).recommendProducts(
-            mockLogic,
-            123,
-            mockRecommendationFilters,
-            "HU",
-            mockResultListener
-        )
+        verify {
+            mockPredictInternal.recommendProducts(
+                mockLogic,
+                123,
+                mockRecommendationFilters,
+                "HU",
+                mockResultListener
+            )
+        }
     }
 
     @Test
     fun testPredict_recommendProducts_delegatesTo_predictInternal() {
         predict.recommendProducts(mockLogic, mockResultListener)
-        verify(mockPredictInternal).recommendProducts(
-            mockLogic,
-            null,
-            null,
-            null,
-            mockResultListener
-        )
+        verify {
+            mockPredictInternal.recommendProducts(
+                mockLogic,
+                null,
+                null,
+                null,
+                mockResultListener
+            )
+        }
     }
 
     @Test
     fun testPredict_recommendProductsWithResultListenerCallback_delegatesTo_predictInternal() {
-        val resultListenerCallback: (Try<List<Product>>) -> Unit = mock()
+        val resultListenerCallback: (Try<List<Product>>) -> Unit = mockk(relaxed = true)
         predict.recommendProducts(mockLogic, resultListenerCallback)
-        verify(mockPredictInternal).recommendProducts(
-            eq(mockLogic),
-            isNull(),
-            isNull(),
-            isNull(),
-            anyNotNull()
-        )
+        verify {
+            mockPredictInternal.recommendProducts(
+                eq(mockLogic),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(inverse=true)
+            )
+        }
     }
 
     @Test
     fun testPredict_recommendProductsWithFunction_delegatesTo_predictInternal() {
-        val resultListenerCallback: (Try<List<Product>>) -> Unit = mock()
+        val resultListenerCallback: (Try<List<Product>>) -> Unit = mockk(relaxed = true)
         predict.recommendProducts(
             mockLogic,
             mockRecommendationFilters,
@@ -330,13 +368,15 @@ class PredictTest : AnnotationSpec() {
             AVAILABILITY_ZONE,
             resultListenerCallback
         )
-        verify(mockPredictInternal).recommendProducts(
-            eq(mockLogic),
-            eq(123),
-            eq(mockRecommendationFilters),
-            eq("HU"),
-            anyNotNull()
-        )
+        verify {
+            mockPredictInternal.recommendProducts(
+                eq(mockLogic),
+                eq(123),
+                eq(mockRecommendationFilters),
+                eq("HU"),
+                isNull(inverse=true)
+            )
+        }
     }
 
     @Test
@@ -349,7 +389,7 @@ class PredictTest : AnnotationSpec() {
             randomNumberString()
         )
         predict.trackRecommendationClick(product)
-        verify(mockPredictInternal).trackRecommendationClick(product)
+        verify { mockPredictInternal.trackRecommendationClick(product) }
     }
 
     private fun createItem(id: String, price: Double, quantity: Double): CartItem {

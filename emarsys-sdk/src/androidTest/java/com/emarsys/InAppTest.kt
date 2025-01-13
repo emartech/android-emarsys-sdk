@@ -14,9 +14,9 @@ import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.shouldBe
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 
 class InAppTest : AnnotationSpec() {
     private lateinit var inApp: InApp
@@ -27,7 +27,7 @@ class InAppTest : AnnotationSpec() {
 
     @Before
     fun setUp() {
-        mockInAppInternal = mock()
+        mockInAppInternal = mockk(relaxed = true)
         val dependencyContainer = FakeDependencyContainer(inAppInternal = mockInAppInternal)
 
         setupEmarsysComponent(dependencyContainer)
@@ -36,8 +36,7 @@ class InAppTest : AnnotationSpec() {
 
     @After
     fun tearDown() {
-        application.unregisterActivityLifecycleCallbacks(
-                mobileEngage().activityLifecycleWatchdog)
+        application.unregisterActivityLifecycleCallbacks(mobileEngage().activityLifecycleWatchdog)
         application.unregisterActivityLifecycleCallbacks(emarsys().transitionSafeCurrentActivityWatchdog)
         try {
             val looper: Looper = emarsys().concurrentHandlerHolder.coreLooper
@@ -52,27 +51,27 @@ class InAppTest : AnnotationSpec() {
     @Test
     fun testInApp_pause_delegatesToInternal() {
         inApp.pause()
-        verify(mockInAppInternal).pause()
+        verify { mockInAppInternal.pause() }
     }
 
     @Test
     fun testInApp_resume_delegatesToInternal() {
         inApp.resume()
-        verify(mockInAppInternal).resume()
+        verify { mockInAppInternal.resume() }
     }
 
     @Test
     fun testInApp_isPaused_delegatesToInternal() {
-        whenever(mockInAppInternal.isPaused).thenReturn(true)
+        every { mockInAppInternal.isPaused } returns true
         val result = inApp.isPaused
-        verify(mockInAppInternal).isPaused
+        verify { mockInAppInternal.isPaused }
         result shouldBe true
     }
 
     @Test
     fun testInApp_setEventHandler_delegatesToInternal() {
-        val eventHandler: EventHandler = mock()
+        val eventHandler: EventHandler = mockk(relaxed = true)
         inApp.setEventHandler(eventHandler)
-        verify(mockInAppInternal).eventHandler = eventHandler
+        verify {mockInAppInternal.eventHandler = eventHandler }
     }
 }
