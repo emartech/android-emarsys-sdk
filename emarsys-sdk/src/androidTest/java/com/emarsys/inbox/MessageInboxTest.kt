@@ -10,10 +10,8 @@ import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.mobileengage.inbox.MessageInboxInternal
 import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.IntegrationTestUtils
-import org.mockito.kotlin.any
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
+import io.mockk.mockk
+import io.mockk.verify
 
 class MessageInboxTest : AnnotationSpec() {
     private companion object {
@@ -26,7 +24,7 @@ class MessageInboxTest : AnnotationSpec() {
 
     @Before
     fun setUp() {
-        mockInboxInternal = mock()
+        mockInboxInternal = mockk(relaxed = true)
         val dependencyContainer = FakeDependencyContainer(messageInboxInternal = mockInboxInternal)
 
         setupEmarsysComponent(dependencyContainer)
@@ -40,10 +38,10 @@ class MessageInboxTest : AnnotationSpec() {
 
     @Test
     fun testFetchInboxMessagesDelegatesToInternalMethod_throughRunnerProxy() {
-        val resultListener = mock<ResultListener<Try<InboxResult>>>()
+        val resultListener: ResultListener<Try<InboxResult>> = mockk(relaxed = true)
         inbox.fetchMessages(resultListener)
 
-        verify(mockInboxInternal).fetchMessages(resultListener)
+        verify { mockInboxInternal.fetchMessages(resultListener) }
     }
 
     @Test
@@ -52,22 +50,22 @@ class MessageInboxTest : AnnotationSpec() {
 
         inbox.fetchMessages(resultListener)
 
-        verify(mockInboxInternal).fetchMessages(any())
+        verify { mockInboxInternal.fetchMessages(any()) }
     }
 
     @Test
     fun testTrackAddTagDelegatesToInternalMethod_throughRunnerProxy() {
         inbox.addTag(TAG, MESSAGE_ID)
 
-        verify(mockInboxInternal).addTag(TAG, MESSAGE_ID, null)
+        verify { mockInboxInternal.addTag(TAG, MESSAGE_ID, null) }
     }
 
     @Test
     fun testTrackAddTagWithCompletionListenerDelegatesToInternalMethod_throughRunnerProxy() {
-        val mockCompletionListener: CompletionListener = mock()
+        val mockCompletionListener: CompletionListener = mockk(relaxed = true)
         inbox.addTag(TAG, MESSAGE_ID, mockCompletionListener)
 
-        verify(mockInboxInternal).addTag(TAG, MESSAGE_ID, mockCompletionListener)
+        verify { mockInboxInternal.addTag(TAG, MESSAGE_ID, mockCompletionListener) }
     }
 
     @Test
@@ -75,22 +73,22 @@ class MessageInboxTest : AnnotationSpec() {
         val mockCompletionListener: (Throwable?) -> Unit = {}
         inbox.addTag(TAG, MESSAGE_ID, mockCompletionListener)
 
-        verify(mockInboxInternal).addTag(eq(TAG), eq(MESSAGE_ID), any())
+        verify { mockInboxInternal.addTag(eq(TAG), eq(MESSAGE_ID), any()) }
     }
 
     @Test
     fun testTrackRemoveTagDelegatesToInternalMethod_throughRunnerProxy() {
         inbox.removeTag(TAG, MESSAGE_ID)
 
-        verify(mockInboxInternal).removeTag(TAG, MESSAGE_ID, null)
+        verify { mockInboxInternal.removeTag(TAG, MESSAGE_ID, null) }
     }
 
     @Test
     fun testTrackRemoveTagWithCompletionListenerDelegatesToInternalMethod_throughRunnerProxy() {
-        val mockCompletionListener: CompletionListener = mock()
+        val mockCompletionListener: CompletionListener = mockk(relaxed = true)
         inbox.removeTag(TAG, MESSAGE_ID, mockCompletionListener)
 
-        verify(mockInboxInternal).removeTag(TAG, MESSAGE_ID, mockCompletionListener)
+        verify { mockInboxInternal.removeTag(TAG, MESSAGE_ID, mockCompletionListener) }
     }
 
     @Test
@@ -98,6 +96,6 @@ class MessageInboxTest : AnnotationSpec() {
         val mockCompletionListener: (Throwable?) -> Unit = {}
         inbox.removeTag(TAG, MESSAGE_ID, mockCompletionListener)
 
-        verify(mockInboxInternal).removeTag(eq(TAG), eq(MESSAGE_ID), any())
+        verify { mockInboxInternal.removeTag(eq(TAG), eq(MESSAGE_ID), any()) }
     }
 }

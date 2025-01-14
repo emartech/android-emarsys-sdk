@@ -523,11 +523,6 @@ class DefaultConfigInternalTest : AnnotationSpec() {
             latch.countDown()
         }
         latch.await()
-//        val inOrder = inOrder(
-//            mockMobileEngageInternal,
-//            mockMobileEngageRequestContext,
-//            mockClientServiceInternal
-//        )
 
         verifyOrder {
             mockMobileEngageRequestContext.applicationCode = OTHER_APPLICATION_CODE
