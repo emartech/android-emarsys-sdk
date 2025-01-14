@@ -11,20 +11,13 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
-import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.MobileEngageRequestContext
-import com.emarsys.mobileengage.session.SessionIdHolder
 import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.mockito.ArgumentMatchers.eq
-import org.mockito.Mockito
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.never
-import org.mockito.kotlin.anyOrNull
-import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.isNull
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.verify
 
 class DefaultDeepLinkInternalTest : AnnotationSpec() {
     private lateinit var mockActivity: Activity
@@ -38,13 +31,13 @@ class DefaultDeepLinkInternalTest : AnnotationSpec() {
 
     @Before
     fun init() {
-        mockActivity = mock(Activity::class.java, Mockito.RETURNS_DEEP_STUBS)
-        mockManager = mock(RequestManager::class.java)
-        mockTimestampProvider = mock(TimestampProvider::class.java)
-        mockUuidProvider = mock(UUIDProvider::class.java)
-        whenever(mockUuidProvider.provideId()).thenReturn("REQUEST_ID")
-        mockDeviceInfo = mock(DeviceInfo::class.java)
-        whenever(mockDeviceInfo.sdkVersion).thenReturn("0.0.1")
+        mockActivity = mockk(relaxed = true)
+        mockManager = mockk(relaxed = true)
+        mockTimestampProvider = mockk(relaxed = true)
+        mockUuidProvider = mockk(relaxed = true)
+        every { mockUuidProvider.provideId() } returns "REQUEST_ID"
+        mockDeviceInfo = mockk(relaxed = true)
+        every { mockDeviceInfo.sdkVersion } returns "0.0.1"
         requestContext = MobileEngageRequestContext(
             APPLICATION_CODE,
             1,
@@ -52,15 +45,16 @@ class DefaultDeepLinkInternalTest : AnnotationSpec() {
             mockDeviceInfo,
             mockTimestampProvider,
             mockUuidProvider,
-            mock(StringStorage::class.java),
-            mock(StringStorage::class.java),
-            mock(StringStorage::class.java),
-            mock(StringStorage::class.java),
-            mock(StringStorage::class.java),
-            mock(SessionIdHolder::class.java)
+            mockk(relaxed = true),
+            mockk(relaxed = true),
+            mockk(relaxed = true),
+            mockk(relaxed = true),
+            mockk(relaxed = true),
+            mockk(relaxed = true)
         )
-        mockDeepLinkServiceProvider = mock(ServiceEndpointProvider::class.java)
-        Mockito.`when`(mockDeepLinkServiceProvider.provideEndpointHost()).thenReturn(DEEPLINK_BASE)
+
+        mockDeepLinkServiceProvider = mockk(relaxed = true)
+        every { mockDeepLinkServiceProvider.provideEndpointHost() } returns DEEPLINK_BASE
         deepLinkInternal =
             DefaultDeepLinkInternal(requestContext, mockDeepLinkServiceProvider, mockManager)
     }
@@ -90,62 +84,57 @@ class DefaultDeepLinkInternalTest : AnnotationSpec() {
             .headers(headers)
             .payload(payload)
             .build()
-        argumentCaptor<RequestModel> {
-            deepLinkInternal.trackDeepLinkOpen(mockActivity, intent, null)
-            Mockito.verify(mockManager)
-                .submit(this.capture(), isNull())
-            val result = this.firstValue
-            assertRequestModels(expected, result)
 
-        }
+        val requestModelSlot = slot<RequestModel>()
+
+        deepLinkInternal.trackDeepLinkOpen(mockActivity, intent, null)
+
+        verify { mockManager.submit(capture(requestModelSlot), null) }
+        assertRequestModels(expected, requestModelSlot.captured)
     }
 
     @Test
     fun testTrackDeepLink_requestManagerCalled_withCorrectCompletionHandler() {
+        val completionListener: CompletionListener = mockk(relaxed = true)
         val intent = Intent(
             Intent.ACTION_VIEW,
             Uri.parse("https://demo-mobileengage.emarsys.net/something?fancy_url=1&ems_dl=1_2_3_4_5")
         )
-        val completionListener: CompletionListener = mock()
+
         deepLinkInternal.trackDeepLinkOpen(mockActivity, intent, completionListener)
-        verify(mockManager).submit(
-            anyOrNull(), eq(completionListener)
-        )
+        verify { mockManager.submit(any(), completionListener) }
     }
 
     @Test
     fun testTrackDeepLink_setsClickedFlag_onIntentBundle() {
-        val originalIntent = mock(Intent::class.java)
-        Mockito.`when`(mockActivity.intent).thenReturn(originalIntent)
+        val originalIntent: Intent = mockk(relaxed = true)
+        every { mockActivity.intent } returns originalIntent
         val currentIntent = Intent(
             Intent.ACTION_VIEW,
             Uri.parse("https://demo-mobileengage.emarsys.net/something?fancy_url=1&ems_dl=1_2_3_4_5")
         )
         deepLinkInternal.trackDeepLinkOpen(mockActivity, currentIntent, null)
-        verify(originalIntent).putExtra("ems_deep_link_tracked", true)
+        verify { originalIntent.putExtra("ems_deep_link_tracked", true) }
     }
 
     @Test
     fun testTrackDeepLink_doesNotCallRequestManager_whenTrackedFlagIsSet() {
-        val intentFromActivity = mock(
-            Intent::class.java
-        )
-        Mockito.`when`(mockActivity.intent).thenReturn(intentFromActivity)
-        Mockito.`when`(intentFromActivity.getBooleanExtra("ems_deep_link_tracked", false))
-            .thenReturn(true)
+        val intentFromActivity: Intent = mockk(relaxed = true)
+        every { mockActivity.intent } returns intentFromActivity
+        every { intentFromActivity.getBooleanExtra("ems_deep_link_tracked", false) } returns true
         val currentIntent = Intent(
             Intent.ACTION_VIEW,
             Uri.parse("https://demo-mobileengage.emarsys.net/something?fancy_url=1&ems_dl=1_2_3_4_5")
         )
         deepLinkInternal.trackDeepLinkOpen(mockActivity, currentIntent, null)
-        verify(mockManager, never()).submit(anyOrNull(), isNull())
+        verify(exactly = 0) { mockManager.submit(any(), any()) }
     }
 
     @Test
     fun testTrackDeepLink_doesNotCallRequestManager_whenDataIsNull() {
         val intent = Intent()
         deepLinkInternal.trackDeepLinkOpen(mockActivity, intent, null)
-        verify(mockManager, never()).submit(anyOrNull(), isNull())
+        verify(exactly = 0) { mockManager.submit(any(), any()) }
     }
 
     @Test
@@ -155,7 +144,7 @@ class DefaultDeepLinkInternalTest : AnnotationSpec() {
             Uri.parse("https://demo-mobileengage.emarsys.net/something?fancy_url=1&other=1_2_3_4_5")
         )
         deepLinkInternal.trackDeepLinkOpen(mockActivity, intent, null)
-        verify(mockManager, never()).submit(anyOrNull(), isNull())
+        verify(exactly = 0) { mockManager.submit(any(), any()) }
     }
 
     private fun assertRequestModels(expected: RequestModel, result: RequestModel) {
