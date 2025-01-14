@@ -10,20 +10,17 @@ import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.request.PredictRequestModelBuilder
 import com.emarsys.testUtil.AnnotationSpec
-import com.emarsys.testUtil.mockito.whenever
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import org.mockito.Mockito.any
-import org.mockito.Mockito.anyMap
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 
 class PredictShardListMergerTest : AnnotationSpec() {
 
     private companion object {
         const val ID = "id"
         const val TIMESTAMP = 125L
-        const val TTL = Long.MAX_VALUE
         const val VISITOR_ID = "888999888"
         const val CONTACT_ID = "12345"
         const val OS_VERSION = "1.0.0"
@@ -48,36 +45,33 @@ class PredictShardListMergerTest : AnnotationSpec() {
 
     @Before
     fun init() {
-        mockStore = mock(KeyValueStore::class.java)
-        mockTimestampProvider = mock(TimestampProvider::class.java)
-        mockUuidProvider = mock(UUIDProvider::class.java)
-        mockDeviceInfo = mock(DeviceInfo::class.java)
+        mockStore = mockk(relaxed = true)
+        mockTimestampProvider = mockk(relaxed = true)
+        mockUuidProvider = mockk(relaxed = true)
+        mockDeviceInfo = mockk(relaxed = true)
 
-        mockPredictRequestContext = mock(PredictRequestContext::class.java).apply {
-            whenever(deviceInfo).thenReturn(mockDeviceInfo)
-            whenever(uuidProvider).thenReturn(mockUuidProvider)
-            whenever(timestampProvider).thenReturn(mockTimestampProvider)
-            whenever(keyValueStore).thenReturn(mockStore)
-            whenever(merchantId).thenReturn(MERCHANT_ID)
-        }
+        mockPredictRequestContext = mockk(relaxed = true)
+        every { mockPredictRequestContext.deviceInfo } returns mockDeviceInfo
+        every { mockPredictRequestContext.uuidProvider } returns mockUuidProvider
+        every { mockPredictRequestContext.timestampProvider } returns mockTimestampProvider
+        every { mockPredictRequestContext.keyValueStore } returns mockStore
+        every { mockPredictRequestContext.merchantId } returns MERCHANT_ID
 
-        mockPredictRequestModelBuilder = mock(PredictRequestModelBuilder::class.java).apply {
-            whenever(withLimit(any())).thenReturn(this)
-            whenever(withShardData(anyMap())).thenReturn(this)
-        }
+
+        mockPredictRequestModelBuilder = mockk(relaxed = true)
+        every { mockPredictRequestModelBuilder.withLimit(any()) } returns mockPredictRequestModelBuilder
+        every { mockPredictRequestModelBuilder.withShardData(any()) } returns mockPredictRequestModelBuilder
+
 
         mockPredictRequestModelBuilderProvider =
-            mock(PredictRequestModelBuilderProvider::class.java).apply {
-                whenever(providePredictRequestModelBuilder()).thenReturn(
-                    mockPredictRequestModelBuilder
-                )
-            }
+            mockk(relaxed = true)
+        every { mockPredictRequestModelBuilderProvider.providePredictRequestModelBuilder() } returns
+                mockPredictRequestModelBuilder
 
-
-        whenever(mockTimestampProvider.provideTimestamp()).thenReturn(TIMESTAMP)
-        whenever(mockUuidProvider.provideId()).thenReturn(ID)
-        whenever(mockDeviceInfo.osVersion).thenReturn(OS_VERSION)
-        whenever(mockDeviceInfo.platform).thenReturn(PLATFORM)
+        every { mockTimestampProvider.provideTimestamp() } returns TIMESTAMP
+        every { mockUuidProvider.provideId() } returns ID
+        every { mockDeviceInfo.osVersion } returns OS_VERSION
+        every { mockDeviceInfo.platform } returns PLATFORM
 
         merger = PredictShardListMerger(
             mockPredictRequestContext,
@@ -115,9 +109,9 @@ class PredictShardListMergerTest : AnnotationSpec() {
         shouldThrow<IllegalArgumentException> {
             merger.map(
                 listOf(
-                    mock(ShardModel::class.java),
+                    mockk(relaxed = true),
                     null,
-                    mock(ShardModel::class.java)
+                    mockk(relaxed = true)
                 )
             )
         }
@@ -132,6 +126,8 @@ class PredictShardListMergerTest : AnnotationSpec() {
 
     @Test
     fun testMap_singletonList_withMultipleParams() {
+        every { mockStore.getString("predict_visitor_id") } returns null
+        every { mockStore.getString("predict_contact_id") } returns null
         val expected = mapOf(
             "cp" to 1,
             "q1" to 1,
@@ -139,26 +135,33 @@ class PredictShardListMergerTest : AnnotationSpec() {
         )
         merger.map(listOf(shard1))
 
-        verify(mockPredictRequestModelBuilder).withShardData(expected)
-        verify(mockPredictRequestModelBuilder).build()
+        verify { mockPredictRequestModelBuilder.withShardData(expected) }
+        verify { mockPredictRequestModelBuilder.build() }
     }
 
     @Test
-    fun testMap_multipleShards() {
+    fun testMap_multipleShards_shouldInclude_visitorId_andContactFieldValue() {
+        every { mockStore.getString("predict_visitor_id") } returns VISITOR_ID
+        every { mockStore.getString("predict_contact_id") } returns CONTACT_ID
         val expected = mapOf(
             "cp" to 1,
+            "vi" to VISITOR_ID,
+            "ci" to CONTACT_ID,
             "q1" to 1,
             "q2" to "b",
             "q3" to "c"
         )
+
         merger.map(listOf(shard1, shard2))
 
-        verify(mockPredictRequestModelBuilder).withShardData(expected)
-        verify(mockPredictRequestModelBuilder).build()
+        verify { mockPredictRequestModelBuilder.withShardData(expected) }
+        verify { mockPredictRequestModelBuilder.build() }
     }
 
     @Test
     fun testMap_withoutVisitorIdOrContactId() {
+        every { mockStore.getString("predict_visitor_id") } returns null
+        every { mockStore.getString("predict_contact_id") } returns null
         val expected = mapOf(
             "cp" to 1,
             "<>," to "\"`;/?:^%#@&=\$+{}<>,| "
@@ -166,13 +169,14 @@ class PredictShardListMergerTest : AnnotationSpec() {
 
         merger.map(listOf(shard3))
 
-        verify(mockPredictRequestModelBuilder).withShardData(expected)
-        verify(mockPredictRequestModelBuilder).build()
+        verify { mockPredictRequestModelBuilder.withShardData(expected) }
+        verify { mockPredictRequestModelBuilder.build() }
     }
 
     @Test
     fun testMap_withVisitorIdPresent() {
-        whenever(mockStore.getString("predict_visitor_id")).thenReturn(VISITOR_ID)
+        every { mockStore.getString("predict_visitor_id") } returns VISITOR_ID
+        every { mockStore.getString("predict_contact_id") } returns null
 
         val expected = mapOf(
             "cp" to 1,
@@ -182,13 +186,14 @@ class PredictShardListMergerTest : AnnotationSpec() {
 
         merger.map(listOf(shard2))
 
-        verify(mockPredictRequestModelBuilder).withShardData(expected)
-        verify(mockPredictRequestModelBuilder).build()
+        verify { mockPredictRequestModelBuilder.withShardData(expected) }
+        verify { mockPredictRequestModelBuilder.build() }
     }
 
     @Test
     fun testMap_withContactIdPresent() {
-        whenever(mockStore.getString("predict_contact_id")).thenReturn(CONTACT_ID)
+        every { mockStore.getString("predict_contact_id") } returns CONTACT_ID
+        every { mockStore.getString("predict_visitor_id") } returns null
 
         val expected = mapOf(
             "cp" to 1,
@@ -198,14 +203,14 @@ class PredictShardListMergerTest : AnnotationSpec() {
 
         merger.map(listOf(shard2))
 
-        verify(mockPredictRequestModelBuilder).withShardData(expected)
-        verify(mockPredictRequestModelBuilder).build()
+        verify { mockPredictRequestModelBuilder.withShardData(expected) }
+        verify { mockPredictRequestModelBuilder.build() }
     }
 
     @Test
     fun testMap_withBoth_visitorIdAndContactIdPresent() {
-        whenever(mockStore.getString("predict_visitor_id")).thenReturn(VISITOR_ID)
-        whenever(mockStore.getString("predict_contact_id")).thenReturn(CONTACT_ID)
+        every { mockStore.getString("predict_visitor_id") } returns VISITOR_ID
+        every { mockStore.getString("predict_contact_id") } returns CONTACT_ID
 
         val expected = mapOf(
             "cp" to 1,
@@ -216,20 +221,20 @@ class PredictShardListMergerTest : AnnotationSpec() {
 
         merger.map(listOf(shard2))
 
-        verify(mockPredictRequestModelBuilder).withShardData(expected)
-        verify(mockPredictRequestModelBuilder).build()
+        verify { mockPredictRequestModelBuilder.withShardData(expected) }
+        verify { mockPredictRequestModelBuilder.build() }
     }
 
     @Test
     fun testMap_shouldUseRequestModelBuilder() {
-        val expected = mock(RequestModel::class.java)
+        val expected: RequestModel = mockk(relaxed = true)
 
-        whenever(mockPredictRequestModelBuilder.build()).thenReturn(expected)
+        every { mockPredictRequestModelBuilder.build() } returns expected
 
         val result = merger.map(listOf(shard1))
 
-        verify(mockPredictRequestModelBuilder).withShardData(anyMap())
-        verify(mockPredictRequestModelBuilder).build()
+        verify { mockPredictRequestModelBuilder.withShardData(any()) }
+        verify { mockPredictRequestModelBuilder.build() }
         result shouldBe expected
     }
 }

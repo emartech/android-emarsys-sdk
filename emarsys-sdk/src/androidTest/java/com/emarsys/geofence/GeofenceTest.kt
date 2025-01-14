@@ -8,9 +8,8 @@ import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.geofence.GeofenceInternal
 import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.IntegrationTestUtils
-import org.mockito.kotlin.any
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
+import io.mockk.mockk
+import io.mockk.verify
 
 class GeofenceTest : AnnotationSpec() {
 
@@ -20,7 +19,7 @@ class GeofenceTest : AnnotationSpec() {
 
     @Before
     fun setUp() {
-        mockGeofenceInternal = mock()
+        mockGeofenceInternal = mockk(relaxed = true)
         val dependencyContainer = FakeDependencyContainer(geofenceInternal = mockGeofenceInternal)
 
         setupEmarsysComponent(dependencyContainer)
@@ -37,52 +36,52 @@ class GeofenceTest : AnnotationSpec() {
     fun testEnableDelegatesToGeofenceInternalMethod_throughRunnerProxy() {
         geofenceProxy.enable()
 
-        verify(mockGeofenceInternal).enable(null)
+        verify { mockGeofenceInternal.enable(null) }
     }
 
     @Test
     fun testEnableDelegatesToGeofenceInternalMethod_withCompletionListener() {
-        val mockCompletionListener: CompletionListener = mock()
+        val mockCompletionListener: CompletionListener = mockk(relaxed = true)
         geofenceProxy.enable(mockCompletionListener)
 
-        verify(mockGeofenceInternal).enable(mockCompletionListener)
+        verify { mockGeofenceInternal.enable(mockCompletionListener) }
     }
 
     @Test
     fun testEnableDelegatesToGeofenceInternalMethod_withLambda() {
-        val mockCompletionListener: (Throwable?) -> Unit = mock()
+        val mockCompletionListener: (Throwable?) -> Unit = mockk(relaxed = true)
         geofenceProxy.enable(mockCompletionListener)
 
-        verify(mockGeofenceInternal).enable(any())
+        verify { mockGeofenceInternal.enable(any()) }
     }
 
     @Test
     fun testDisableDelegatesToGeofenceInternalMethod() {
         geofenceProxy.disable()
 
-        verify(mockGeofenceInternal).disable()
+        verify { mockGeofenceInternal.disable() }
     }
 
     @Test
     fun testSetEventHandler() {
-        val eventHandler: EventHandler = mock()
+        val eventHandler: EventHandler = mockk(relaxed = true)
 
         geofenceProxy.setEventHandler(eventHandler)
 
-        verify(mockGeofenceInternal).setEventHandler(eventHandler)
+        verify { mockGeofenceInternal.setEventHandler(eventHandler) }
     }
 
     @Test
     fun testIsEnabledDelegatesToGeofenceInternalMethod() {
         geofenceProxy.isEnabled()
 
-        verify(mockGeofenceInternal).isEnabled()
+        verify { mockGeofenceInternal.isEnabled() }
     }
 
     @Test
     fun testRegisteredGeofencesDelegatesToInternal() {
         geofenceProxy.registeredGeofences
 
-        verify(mockGeofenceInternal).registeredGeofences
+        verify { mockGeofenceInternal.registeredGeofences }
     }
 }
