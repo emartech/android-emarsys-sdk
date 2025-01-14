@@ -14,14 +14,10 @@ import com.emarsys.mobileengage.iam.dialog.IamDialogProvider
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.fake.FakeActivity
-import com.emarsys.testUtil.mockito.anyNotNull
-import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import java.util.concurrent.CountDownLatch
 
 class OverlayInAppPresenterTest : AnnotationSpec() {
@@ -41,15 +37,22 @@ class OverlayInAppPresenterTest : AnnotationSpec() {
     @Before
     fun setUp() {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
-        mockIamDialog = mock()
-        mockIamDialogProvider = mock {
-            on { provideDialog(any(), any(), any(), any()) } doReturn mockIamDialog
-        }
-        mockTimestampProvider = mock()
-        mockCurrentActivityProvider = mock()
+        mockIamDialog = mockk(relaxed = true)
+        mockIamDialogProvider = mockk(relaxed = true)
+        every {
+            mockIamDialogProvider.provideDialog(
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns mockIamDialog
 
-        whenever(mockIamDialog.loadInApp(any(), any(), any(), any())).thenAnswer {
-            (it.getArgument(2) as MessageLoadedListener).onMessageLoaded()
+        mockTimestampProvider = mockk(relaxed = true)
+        mockCurrentActivityProvider = mockk(relaxed = true)
+
+        every { mockIamDialog.loadInApp(any(), any(), any(), any()) } answers {
+            (args[2] as MessageLoadedListener).onMessageLoaded()
         }
 
         inAppPresenter = OverlayInAppPresenter(
@@ -67,7 +70,7 @@ class OverlayInAppPresenterTest : AnnotationSpec() {
         var callbackCalled = false
         Thread {
             scenario.onActivity { activity ->
-                whenever(mockCurrentActivityProvider.activity()).thenReturn(activity)
+                every { mockCurrentActivityProvider.activity() } returns activity
 
                 inAppPresenter.present(
                     "1",
@@ -95,7 +98,7 @@ class OverlayInAppPresenterTest : AnnotationSpec() {
         var callbackCalled = false
         Thread {
             scenario.onActivity { activity ->
-                whenever(mockCurrentActivityProvider.activity()).thenReturn(activity)
+                every { mockCurrentActivityProvider.activity() } returns activity
 
                 inAppPresenter.present(
                     "1",
@@ -112,17 +115,17 @@ class OverlayInAppPresenterTest : AnnotationSpec() {
         }.start()
         countDownLatch.await()
         scenario.close()
-        verify(mockIamDialog).showNow(any<FragmentManager>(), any())
+        verify { mockIamDialog.showNow(any<FragmentManager>(), any()) }
         callbackCalled shouldBe true
     }
 
     @Test
     fun testPresent_shouldNotShowDialog_whenActivity_isUsed() {
-        val activity: Activity = mock()
+        val activity: Activity = mockk(relaxed = true)
         val countDownLatch = CountDownLatch(1)
         var callbackCalled = false
         Thread {
-            whenever(mockCurrentActivityProvider.activity()).thenReturn(activity)
+            every { mockCurrentActivityProvider.activity() } returns activity
 
             inAppPresenter.present(
                 "1",
@@ -138,34 +141,31 @@ class OverlayInAppPresenterTest : AnnotationSpec() {
         }.start()
         countDownLatch.await()
 
-        verify(mockIamDialog, times(0)).showNow(any<FragmentManager>(), any())
+        verify(exactly = 0) { mockIamDialog.showNow(any<FragmentManager>(), any()) }
         callbackCalled shouldBe true
 
     }
 
     @Test
     fun testPresent_shouldNotShowDialog_whenAnotherDialog_isAlreadyShown() {
-        val activity: AppCompatActivity = mock()
-        val fragmentManager: FragmentManager = mock()
-        val fragment: Fragment = mock()
+        val activity: AppCompatActivity = mockk(relaxed = true)
+        val fragmentManager: FragmentManager = mockk(relaxed = true)
+        val fragment: Fragment = mockk(relaxed = true)
         val countDownLatch = CountDownLatch(1)
         var callbackCalled = false
         Thread {
-            whenever(
+            every {
                 mockIamDialogProvider.provideDialog(
-                    anyNotNull(),
+                    any<String>(),
                     any(),
                     any(),
                     any()
                 )
-            ).thenReturn(
-                mockIamDialog
-            )
-            whenever(mockCurrentActivityProvider.activity()).thenReturn(activity)
-            whenever(activity.supportFragmentManager).thenReturn(fragmentManager)
-            whenever(fragmentManager.findFragmentByTag("MOBILE_ENGAGE_IAM_DIALOG_TAG")).thenReturn(
-                fragment
-            )
+            } returns mockIamDialog
+
+            every { mockCurrentActivityProvider.activity() } returns activity
+            every { activity.supportFragmentManager } returns fragmentManager
+            every { fragmentManager.findFragmentByTag("MOBILE_ENGAGE_IAM_DIALOG_TAG") } returns fragment
 
             inAppPresenter.present(
                 "1",
@@ -181,34 +181,31 @@ class OverlayInAppPresenterTest : AnnotationSpec() {
         }.start()
         countDownLatch.await()
 
-        verify(mockIamDialog, times(0)).showNow(any<FragmentManager>(), any())
+        verify(exactly = 0) { mockIamDialog.showNow(any<FragmentManager>(), any()) }
         callbackCalled shouldBe true
 
     }
 
     @Test
     fun testPresent_shouldNotShowDialog_whenFragmentManager_isInSavedState() {
-        val activity: AppCompatActivity = mock()
-        val fragmentManager: FragmentManager = mock()
+        val activity: AppCompatActivity = mockk(relaxed = true)
+        val fragmentManager: FragmentManager = mockk(relaxed = true)
         val countDownLatch = CountDownLatch(1)
         var callbackCalled = false
         Thread {
-            whenever(
+            every {
                 mockIamDialogProvider.provideDialog(
-                    anyNotNull(),
+                    any<String>(),
                     any(),
                     any(),
                     any()
                 )
-            ).thenReturn(
-                mockIamDialog
-            )
-            whenever(mockCurrentActivityProvider.activity()).thenReturn(activity)
-            whenever(activity.supportFragmentManager).thenReturn(fragmentManager)
-            whenever(fragmentManager.isStateSaved).thenReturn(true)
-            whenever(fragmentManager.findFragmentByTag("MOBILE_ENGAGE_IAM_DIALOG_TAG")).thenReturn(
-                null
-            )
+            } returns mockIamDialog
+
+            every { mockCurrentActivityProvider.activity() } returns activity
+            every { activity.supportFragmentManager } returns fragmentManager
+            every { fragmentManager.isStateSaved } returns true
+            every { fragmentManager.findFragmentByTag("MOBILE_ENGAGE_IAM_DIALOG_TAG") } returns null
 
             inAppPresenter.present(
                 "1",
@@ -224,8 +221,7 @@ class OverlayInAppPresenterTest : AnnotationSpec() {
         }.start()
         countDownLatch.await()
 
-        verify(mockIamDialog, times(0)).showNow(any<FragmentManager>(), any())
+        verify(exactly = 0) { mockIamDialog.showNow(any<FragmentManager>(), any()) }
         callbackCalled shouldBe true
-
     }
 }

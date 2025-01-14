@@ -3,10 +3,9 @@ package com.emarsys.mobileengage.iam
 import com.emarsys.core.provider.timestamp.TimestampProvider
 
 import com.emarsys.testUtil.AnnotationSpec
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 
 class PushToInAppActionTest : AnnotationSpec() {
 
@@ -27,8 +26,8 @@ class PushToInAppActionTest : AnnotationSpec() {
 
     @Before
     fun setup() {
-        mockOverlayInAppPresenter = mock()
-        mockTimestampProvider = mock()
+        mockOverlayInAppPresenter = mockk(relaxed = true)
+        mockTimestampProvider = mockk(relaxed = true)
 
         pushToInAppAction = PushToInAppAction(
             mockOverlayInAppPresenter, CAMPAIGN_ID, HTML, SID, URL, mockTimestampProvider,
@@ -38,10 +37,20 @@ class PushToInAppActionTest : AnnotationSpec() {
 
     @Test
     fun testExecute_runsWithCorrectParams() {
-        whenever(mockTimestampProvider.provideTimestamp()).doReturn(TIMESTAMP)
-        pushToInAppAction.execute(mock())
+        every { mockTimestampProvider.provideTimestamp() } returns TIMESTAMP
+        pushToInAppAction.execute(mockk(relaxed = true))
 
-        verify(mockOverlayInAppPresenter).present(CAMPAIGN_ID, SID, URL,null, TIMESTAMP, HTML,null)
+        verify {
+            mockOverlayInAppPresenter.present(
+                CAMPAIGN_ID,
+                SID,
+                URL,
+                null,
+                TIMESTAMP,
+                HTML,
+                null
+            )
+        }
     }
 
 }

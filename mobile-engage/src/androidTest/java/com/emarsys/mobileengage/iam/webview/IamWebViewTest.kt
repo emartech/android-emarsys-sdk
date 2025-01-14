@@ -15,11 +15,11 @@ import com.emarsys.mobileengage.iam.model.InAppMetaData
 import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ExtensionTestUtils.runOnMain
 import com.emarsys.testUtil.fake.FakeActivity
-import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 
 class IamWebViewTest : AnnotationSpec() {
 
@@ -35,22 +35,21 @@ class IamWebViewTest : AnnotationSpec() {
     @Before
     fun setUp() {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
-        mockActivity = mock()
-        mockJsBridge = mock()
+        mockActivity = mockk(relaxed = true)
+        mockJsBridge = mockk(relaxed = true)
         val inAppMetaData = InAppMetaData("campaignId", "sid", "url")
 
-        mockCommandFactory = mock {
-            whenever(it.inAppMetaData).thenReturn(inAppMetaData)
-        }
-        mockJSBridgeFactory = mock {
-            whenever(it.createJsBridge(mockCommandFactory)).thenReturn(mockJsBridge)
-        }
+        mockCommandFactory = mockk(relaxed = true)
+            every { mockCommandFactory.inAppMetaData } returns inAppMetaData
+
+        mockJSBridgeFactory = mockk(relaxed = true)
+            every { mockJSBridgeFactory.createJsBridge(mockCommandFactory) } returns mockJsBridge
 
         scenario = ActivityScenario.launch(FakeActivity::class.java)
         scenario.onActivity { activity ->
-            mockCurrentActivityProvider = mock {
-                whenever(it.get()).thenReturn(activity)
-            }
+            mockCurrentActivityProvider = mockk(relaxed = true)
+                every { mockCurrentActivityProvider.get() } returns activity
+
             iamWebView = runOnMain {
                 IamWebView(
                     concurrentHandlerHolder,
@@ -83,31 +82,31 @@ class IamWebViewTest : AnnotationSpec() {
         val sid = "test sid"
         val url = "test url"
         val metaData = InAppMetaData(campaignId, sid, url)
-        val messageLoadedListener: MessageLoadedListener = mock()
+        val messageLoadedListener: MessageLoadedListener = mockk(relaxed = true)
 
         runOnMain {
             iamWebView.load(html, metaData, messageLoadedListener)
         }
 
-        verify(mockCommandFactory).inAppMetaData = metaData
+        verify { mockCommandFactory.inAppMetaData = metaData }
     }
 
     @Test
     fun testOnCloseTriggered() {
-        val onCloseListener: OnCloseListener = mock()
+        val onCloseListener: OnCloseListener = mockk(relaxed = true)
 
         iamWebView.onCloseTriggered = onCloseListener
 
-        verify(mockCommandFactory).onCloseTriggered = onCloseListener
+        verify { mockCommandFactory.onCloseTriggered = onCloseListener }
     }
 
     @Test
     fun testOnAppEventTriggered() {
-        val onAppEventTriggered: OnAppEventListener = mock()
+        val onAppEventTriggered: OnAppEventListener = mockk(relaxed = true)
 
         iamWebView.onAppEventTriggered = onAppEventTriggered
 
-        verify(mockCommandFactory).onAppEventTriggered = onAppEventTriggered
+        verify { mockCommandFactory.onAppEventTriggered = onAppEventTriggered }
     }
 
 }
