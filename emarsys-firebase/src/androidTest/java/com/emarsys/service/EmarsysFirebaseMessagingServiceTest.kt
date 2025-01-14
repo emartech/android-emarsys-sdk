@@ -10,21 +10,19 @@ import com.emarsys.fake.FakeFirebaseDependencyContainer
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.push.PushInternal
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
+import com.emarsys.testUtil.KotestRunnerAndroid
 import com.emarsys.testUtil.ReflectionTestUtils
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.spy
-import org.mockito.kotlin.timeout
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
+import io.kotest.core.spec.style.AnnotationSpec
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.spyk
+import io.mockk.verify
+import org.junit.runner.RunWith
 
-
+@RunWith(KotestRunnerAndroid::class)
 class EmarsysFirebaseMessagingServiceTest : AnnotationSpec() {
-
 
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
@@ -38,10 +36,10 @@ class EmarsysFirebaseMessagingServiceTest : AnnotationSpec() {
     @Before
     fun setUp() {
         emarsysFirebaseMessagingService = EmarsysFirebaseMessagingService()
-        mockPushInternal = mock()
+        mockPushInternal = mockk(relaxed = true)
 
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
-        spyCoreHandler = spy(concurrentHandlerHolder.coreHandler)
+        spyCoreHandler = spyk(concurrentHandlerHolder.coreHandler)
         ReflectionTestUtils.setInstanceField(
             concurrentHandlerHolder,
             "coreHandler",
@@ -61,7 +59,7 @@ class EmarsysFirebaseMessagingServiceTest : AnnotationSpec() {
 
         emarsysFirebaseMessagingService.onNewToken("testToken")
 
-        verify(mockPushInternal, timeout(100)).setPushToken("testToken", null)
+        verify(timeout = 100L) { mockPushInternal.setPushToken("testToken", null) }
     }
 
     @Test
@@ -70,7 +68,7 @@ class EmarsysFirebaseMessagingServiceTest : AnnotationSpec() {
 
         emarsysFirebaseMessagingService.onNewToken("testToken")
 
-        verify(spyCoreHandler, timeout(1000).times(1)).post(any())
+        verify(exactly = 1, timeout = 1000) { spyCoreHandler.post(any()) }
     }
 
     @Test
@@ -79,7 +77,7 @@ class EmarsysFirebaseMessagingServiceTest : AnnotationSpec() {
 
         emarsysFirebaseMessagingService.onNewToken("testToken")
 
-        verify(mockPushInternal, times(0)).setPushToken("testToken", null)
+        verify(exactly = 0) { mockPushInternal.setPushToken("testToken", null) }
     }
 
     @Test
@@ -88,22 +86,22 @@ class EmarsysFirebaseMessagingServiceTest : AnnotationSpec() {
 
         emarsysFirebaseMessagingService.onNewToken("testToken")
 
-        verify(mockPushInternal, times(0)).setPushToken("testToken", null)
+        verify(exactly = 0) { mockPushInternal.setPushToken("testToken", null) }
     }
 
     private fun setupEmarsys(isAutomaticPushSending: Boolean, isGooglePlayAvailable: Boolean) {
         val deviceInfo = DeviceInfo(
             application,
-            mock {
-                on { provideClientId() } doReturn "clientId"
+            mockk(relaxed = true) {
+                every { provideClientId() } returns  "clientId"
             },
-            mock {
-                on { provideSdkVersion() } doReturn "version"
+            mockk(relaxed = true) {
+                every { provideSdkVersion() } returns  "version"
             },
-            mock {
-                on { provideLanguage(any()) } doReturn "language"
+            mockk(relaxed = true) {
+                every { provideLanguage(any()) } returns  "language"
             },
-            mock(),
+            mockk(relaxed = true),
             isAutomaticPushSending,
             isGooglePlayAvailable
         )
