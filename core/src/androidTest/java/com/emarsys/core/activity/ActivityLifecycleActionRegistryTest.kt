@@ -8,14 +8,10 @@ import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doAnswer
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.inOrder
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import io.mockk.verifyOrder
 import java.util.concurrent.CountDownLatch
 
 class ActivityLifecycleActionRegistryTest : AnnotationSpec() {
@@ -31,19 +27,19 @@ class ActivityLifecycleActionRegistryTest : AnnotationSpec() {
 
     @Before
     fun setup() {
-        mockActivity = mock()
-        mockAction1 = mock {
-            on { triggeringLifecycle } doReturn RESUME
-        }
-        mockAction2 = mock {
-            on { triggeringLifecycle } doReturn RESUME
-        }
-        mockAction3 = mock {
-            on { triggeringLifecycle } doReturn RESUME
-        }
-        mockCurrentActivityProvider = mock {
-            on { get() } doReturn mockActivity
-        }
+        mockActivity = mockk(relaxed = true)
+        mockAction1 = mockk(relaxed = true)
+        every { mockAction1.triggeringLifecycle } returns RESUME
+
+        mockAction2 = mockk(relaxed = true)
+        every { mockAction2.triggeringLifecycle } returns RESUME
+
+        mockAction3 = mockk(relaxed = true)
+        every { mockAction3.triggeringLifecycle } returns RESUME
+
+        mockCurrentActivityProvider = mockk(relaxed = true)
+        every { mockCurrentActivityProvider.get() } returns mockActivity
+
         mockActions = mutableListOf(mockAction1, mockAction2, mockAction3)
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
 
@@ -71,24 +67,24 @@ class ActivityLifecycleActionRegistryTest : AnnotationSpec() {
         activityLifecycleActionRegistry.execute(mockActivity, listOf(RESUME))
 
         waitForCoreSDKThread()
-        verify(mockAction1).execute(mockActivity)
-        verify(mockAction2).execute(mockActivity)
-        verify(mockAction3).execute(mockActivity)
+        verify { mockAction1.execute(mockActivity) }
+        verify { mockAction2.execute(mockActivity) }
+        verify { mockAction3.execute(mockActivity) }
     }
 
     @Test
     fun testExecute_shouldExecuteInputActionsCorrectNumberOfTimes() {
-        whenever(mockAction1.repeatable).doReturn(false)
-        whenever(mockAction2.repeatable).doReturn(true)
-        whenever(mockAction3.repeatable).doReturn(false)
+        every { mockAction1.repeatable } returns false
+        every { mockAction2.repeatable } returns true
+        every { mockAction3.repeatable } returns false
 
-        activityLifecycleActionRegistry.execute(mock(), listOf(RESUME))
-        activityLifecycleActionRegistry.execute(mock(), listOf(RESUME))
+        activityLifecycleActionRegistry.execute(mockk(relaxed = true), listOf(RESUME))
+        activityLifecycleActionRegistry.execute(mockk(relaxed = true), listOf(RESUME))
 
         waitForCoreSDKThread()
-        verify(mockAction1, times(1)).execute(any())
-        verify(mockAction2, times(2)).execute(any())
-        verify(mockAction3, times(1)).execute(any())
+        verify(exactly = 1) { mockAction1.execute(any()) }
+        verify(exactly = 2) { mockAction2.execute(any()) }
+        verify(exactly = 1) { mockAction3.execute(any()) }
 
         mockActions.contains(mockAction1) shouldBe false
         mockActions.contains(mockAction2) shouldBe true
@@ -97,94 +93,96 @@ class ActivityLifecycleActionRegistryTest : AnnotationSpec() {
 
     @Test
     fun testExecute_shouldExecuteInputActionsInCorrectOrder() {
-        whenever(mockAction1.priority).doReturn(1)
-        whenever(mockAction2.priority).doReturn(65)
-        whenever(mockAction3.priority).doReturn(10)
+        every { mockAction1.priority } returns 1
+        every { mockAction2.priority } returns 65
+        every { mockAction3.priority } returns 10
 
-        activityLifecycleActionRegistry.execute(mock(), listOf(RESUME))
+        activityLifecycleActionRegistry.execute(mockk(relaxed = true), listOf(RESUME))
         waitForCoreSDKThread()
 
-        inOrder(mockAction1, mockAction2, mockAction3).apply {
-            verify(mockAction1).execute(any())
-            verify(mockAction3).execute(any())
-            verify(mockAction2).execute(any())
+        verifyOrder {
+            mockAction1.execute(any())
+            mockAction3.execute(any())
+            mockAction2.execute(any())
         }
     }
 
     @Test
     fun testExecute_shouldExecuteInputActionsInCorrectOrder_whenDifferentLifecycle() {
-        val mockAction4 = mock<ActivityLifecycleAction> {
-            on { priority } doReturn 100
-            on { triggeringLifecycle } doReturn CREATE
-        }
-        mockActions.add(mockAction4)
-        whenever(mockAction1.priority).doReturn(1)
-        whenever(mockAction2.priority).doReturn(65)
-        whenever(mockAction3.priority).doReturn(10)
+        val mockAction4: ActivityLifecycleAction = mockk(relaxed = true)
+        every { mockAction4.priority } returns 100
+        every { mockAction4.triggeringLifecycle } returns CREATE
 
-        activityLifecycleActionRegistry.execute(mock(), listOf(RESUME, CREATE))
+        mockActions.add(mockAction4)
+        every { mockAction1.priority } returns 1
+        every { mockAction2.priority } returns 65
+        every { mockAction3.priority } returns 10
+
+        activityLifecycleActionRegistry.execute(mockk(relaxed = true), listOf(RESUME, CREATE))
         waitForCoreSDKThread()
 
-        inOrder(mockAction1, mockAction2, mockAction3, mockAction4).apply {
-            verify(mockAction4).execute(any())
-            verify(mockAction1).execute(any())
-            verify(mockAction3).execute(any())
-            verify(mockAction2).execute(any())
+        verifyOrder {
+            mockAction4.execute(any())
+            mockAction1.execute(any())
+            mockAction3.execute(any())
+            mockAction2.execute(any())
         }
     }
 
     @Test
     fun testExecute_shouldRunAppropriateActions() {
-        whenever(mockAction1.triggeringLifecycle).doReturn(CREATE)
-        whenever(mockAction2.triggeringLifecycle).doReturn(RESUME)
-        whenever(mockAction3.triggeringLifecycle).doReturn(CREATE)
+        every { mockAction1.triggeringLifecycle } returns CREATE
+        every { mockAction2.triggeringLifecycle } returns RESUME
+        every { mockAction3.triggeringLifecycle } returns CREATE
 
-        activityLifecycleActionRegistry.execute(mock(), listOf(CREATE))
+        activityLifecycleActionRegistry.execute(mockk(relaxed = true), listOf(CREATE))
 
         waitForCoreSDKThread()
-        verify(mockAction1).execute(any())
-        verify(mockAction2, times(0)).execute(any())
-        verify(mockAction3).execute(any())
+        verify { mockAction1.execute(any()) }
+        verify(exactly = 0) { mockAction2.execute(any()) }
+        verify { mockAction3.execute(any()) }
     }
 
     @Test
     fun testExecute_shouldExecuteAppropriateActionsFromList() {
-        whenever(mockAction1.triggeringLifecycle).doReturn(CREATE)
-        whenever(mockAction2.triggeringLifecycle).doReturn(RESUME)
-        whenever(mockAction3.triggeringLifecycle).doReturn(CREATE)
+        every { mockAction1.triggeringLifecycle } returns CREATE
+        every { mockAction2.triggeringLifecycle } returns RESUME
+        every { mockAction3.triggeringLifecycle } returns CREATE
 
-        activityLifecycleActionRegistry.execute(mock(), listOf(CREATE, RESUME))
+        activityLifecycleActionRegistry.execute(mockk(relaxed = true), listOf(CREATE, RESUME))
 
         waitForCoreSDKThread()
-        verify(mockAction1).execute(any())
-        verify(mockAction2).execute(any())
-        verify(mockAction3).execute(any())
+        verify { mockAction1.execute(any()) }
+        verify { mockAction2.execute(any()) }
+        verify { mockAction3.execute(any()) }
     }
 
     @Test
     fun testExecute_shouldExecuteInputActionsInCorrectOrder_whenOnActivityActionsArePresent() {
-        val mockAction4 = mock<ActivityLifecycleAction> {
-            on { priority } doReturn 900
-            on { triggeringLifecycle } doReturn RESUME
-        }.also { activityLifecycleActionRegistry.triggerOnActivityActions.add(it) }
-        val mockAction5 = mock<ActivityLifecycleAction> {
-            on { priority } doReturn 900
-            on { triggeringLifecycle } doReturn RESUME
-        }.also { activityLifecycleActionRegistry.triggerOnActivityActions.add(it) }
+        val mockAction4: ActivityLifecycleAction = mockk(relaxed = true)
+        every { mockAction4.priority } returns 900
+        every { mockAction4.triggeringLifecycle } returns RESUME
 
-        whenever(mockAction1.priority).doReturn(1)
-        whenever(mockAction2.priority).doReturn(500)
-        whenever(mockAction3.priority).doReturn(10)
+        activityLifecycleActionRegistry.triggerOnActivityActions.add(mockAction4)
+        val mockAction5: ActivityLifecycleAction = mockk(relaxed = true)
+        every { mockAction5.priority } returns 900
+        every { mockAction5.triggeringLifecycle } returns RESUME
 
-        activityLifecycleActionRegistry.execute(mock(), listOf(RESUME))
+        activityLifecycleActionRegistry.triggerOnActivityActions.add(mockAction5)
+
+        every { mockAction1.priority } returns 1
+        every { mockAction2.priority } returns 500
+        every { mockAction3.priority } returns 10
+
+        activityLifecycleActionRegistry.execute(mockk(relaxed = true), listOf(RESUME))
 
         waitForCoreSDKThread()
-        inOrder(mockAction1, mockAction2, mockAction3, mockAction4, mockAction5).apply {
-            verify(mockAction1).execute(any())
-            verify(mockAction3).execute(any())
-            verify(mockAction2).execute(any())
-            verify(mockAction4).execute(any())
-            verify(mockAction5).execute(any())
+        verifyOrder {
+            mockAction1.execute(any())
+            mockAction3.execute(any())
+            mockAction2.execute(any())
+            mockAction4.execute(any())
+            mockAction5.execute(any())
         }
     }
 
@@ -192,19 +190,19 @@ class ActivityLifecycleActionRegistryTest : AnnotationSpec() {
     fun testAddTriggerOnActivityAction_shouldTrigger_whenActivityIsPresent() {
         val latch = CountDownLatch(1)
 
-        whenever(mockAction1.execute(any())).doAnswer {
+        every { mockAction1.execute(any()) } answers {
             latch.countDown()
         }
 
         activityLifecycleActionRegistry.addTriggerOnActivityAction(mockAction1)
         latch.await()
 
-        verify(mockAction1).execute(mockActivity)
+        verify { mockAction1.execute(mockActivity) }
     }
 
     @Test
     fun testAddTriggerOnActivityAction_shouldAddActionToTriggerOnActivityList_whenActivityIsNotPresent() {
-        whenever(mockCurrentActivityProvider.get()).doReturn(null)
+        every { mockCurrentActivityProvider.get() } returns null
 
         activityLifecycleActionRegistry.addTriggerOnActivityAction(mockAction1)
 
@@ -212,31 +210,31 @@ class ActivityLifecycleActionRegistryTest : AnnotationSpec() {
 
         activityLifecycleActionRegistry.triggerOnActivityActions.size shouldBe 1
         activityLifecycleActionRegistry.triggerOnActivityActions[0] shouldBe mockAction1
-        verify(mockAction1, times(0)).execute(any())
+        verify(exactly = 0) { mockAction1.execute(any()) }
     }
 
     @Test
     fun testAddTriggerOnActivityAction_shouldTriggerOnActivityList_whenActivityIsNotPresent_thenPresent() {
-        whenever(mockCurrentActivityProvider.get()).doReturn(null)
+        every { mockCurrentActivityProvider.get() } returns null
 
         activityLifecycleActionRegistry.addTriggerOnActivityAction(mockAction1)
 
-        whenever(mockCurrentActivityProvider.get()).doReturn(mockActivity)
+        every { mockCurrentActivityProvider.get() } returns mockActivity
 
         activityLifecycleActionRegistry.addTriggerOnActivityAction(mockAction2)
 
         waitForCoreSDKThread()
 
         activityLifecycleActionRegistry.triggerOnActivityActions.size shouldBe 0
-        inOrder(mockAction1, mockAction2).apply {
-            verify(mockAction1).execute(any())
-            verify(mockAction2).execute(any())
+        verifyOrder {
+            mockAction1.execute(any())
+            mockAction2.execute(any())
         }
     }
 
     @Test
     fun testAddTriggerOnActivity_shouldBeDelegatedToTheCoreThread() {
-        whenever(mockAction1.execute(any())).doAnswer {
+        every { mockAction1.execute(any()) } answers {
             Thread.currentThread().name.startsWith("CoreSDKHandlerThread") shouldBe true
             Unit
         }
@@ -246,7 +244,7 @@ class ActivityLifecycleActionRegistryTest : AnnotationSpec() {
 
     @Test
     fun testActivityLifecycleActionRegistryExecute_shouldBeDelegatedToTheCoreThread() {
-        whenever(mockAction1.execute(any())).doAnswer {
+        every { mockAction1.execute(any()) } answers {
             Thread.currentThread().name.startsWith("CoreSDKHandlerThread") shouldBe true
             Unit
         }
