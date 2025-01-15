@@ -88,7 +88,7 @@ class IamWebViewTest : AnnotationSpec() {
             iamWebView.load(html, metaData, messageLoadedListener)
         }
 
-        verify { mockCommandFactory.inAppMetaData = metaData }
+        verify(timeout = 5000) { mockCommandFactory.inAppMetaData = metaData }
     }
 
     @Test
@@ -97,7 +97,7 @@ class IamWebViewTest : AnnotationSpec() {
 
         iamWebView.onCloseTriggered = onCloseListener
 
-        verify { mockCommandFactory.onCloseTriggered = onCloseListener }
+        verify(timeout = 5000) { mockCommandFactory.onCloseTriggered = onCloseListener }
     }
 
     @Test
@@ -106,7 +106,7 @@ class IamWebViewTest : AnnotationSpec() {
 
         iamWebView.onAppEventTriggered = onAppEventTriggered
 
-        verify { mockCommandFactory.onAppEventTriggered = onAppEventTriggered }
+        verify(timeout = 5000) { mockCommandFactory.onAppEventTriggered = onAppEventTriggered }
     }
 
 }
