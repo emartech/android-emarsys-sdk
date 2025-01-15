@@ -11,10 +11,9 @@ import com.emarsys.core.worker.Worker
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.testUtil.AnnotationSpec
-import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
-import org.mockito.Mockito.mock
-import org.mockito.kotlin.mock
+import io.mockk.every
+import io.mockk.mockk
 
 class CoreCompletionHandlerRefreshTokenProxyProviderTest : AnnotationSpec() {
     private lateinit var mockCoreCompletionHandlerMiddlewareProvider: CoreCompletionHandlerMiddlewareProvider
@@ -37,20 +36,20 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest : AnnotationSpec() {
     @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
-        mockCoreCompletionHandlerMiddlewareProvider = mock()
-        mockCoreCompletionHandlerMiddleware = mock()
-        mockRestClient = mock()
-        mockContactTokenStorage = mock()
-        mockPushTokenStorage = mock()
-        mockClientServiceProvider = mock()
-        mockEventServiceProvider = mock()
-        mockEventServiceV4Provider = mock()
-        mockMessageInboxServiceProvider = mock()
-        mockCoreCompletionHandler = mock()
-        mockDefaultCoreCompletionHandler = mock()
-        mockRequestModelHelper = mock()
-        mockTokenResponseHandler = mock()
-        mockRequestModelFactory = mock()
+        mockCoreCompletionHandlerMiddlewareProvider = mockk(relaxed = true)
+        mockCoreCompletionHandlerMiddleware = mockk(relaxed = true)
+        mockRestClient = mockk(relaxed = true)
+        mockContactTokenStorage = mockk(relaxed = true)
+        mockPushTokenStorage = mockk(relaxed = true)
+        mockClientServiceProvider = mockk(relaxed = true)
+        mockEventServiceProvider = mockk(relaxed = true)
+        mockEventServiceV4Provider = mockk(relaxed = true)
+        mockMessageInboxServiceProvider = mockk(relaxed = true)
+        mockCoreCompletionHandler = mockk(relaxed = true)
+        mockDefaultCoreCompletionHandler = mockk(relaxed = true)
+        mockRequestModelHelper = mockk(relaxed = true)
+        mockTokenResponseHandler = mockk(relaxed = true)
+        mockRequestModelFactory = mockk(relaxed = true)
 
         coreCompletionHandlerRefreshTokenProxyProvider =
             CoreCompletionHandlerRefreshTokenProxyProvider(
@@ -67,13 +66,14 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest : AnnotationSpec() {
 
     @Test
     fun testProvideCoreCompletionHandlerRefreshTokenProxy() {
-        val mockWorker = mock(Worker::class.java)
-        whenever(
+        val mockWorker: Worker = mockk(relaxed = true)
+        every {
             mockCoreCompletionHandlerMiddlewareProvider.provideProxy(
                 mockWorker,
                 mockCoreCompletionHandler
             )
-        ).thenReturn(mockCoreCompletionHandlerMiddleware)
+        } returns mockCoreCompletionHandlerMiddleware
+
         val expectedProxy = CoreCompletionHandlerRefreshTokenProxy(
             mockCoreCompletionHandlerMiddleware,
             mockRestClient,
@@ -94,9 +94,8 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest : AnnotationSpec() {
 
     @Test
     fun testProvideCoreCompletionHandlerRefreshTokenProxy_whenNoHandlerIsAvailable() {
-        whenever(mockCoreCompletionHandlerMiddlewareProvider.provideProxy(null, null)).thenReturn(
-            mockDefaultCoreCompletionHandler
-        )
+        every { mockCoreCompletionHandlerMiddlewareProvider.provideProxy(null, null) } returns
+                mockDefaultCoreCompletionHandler
 
         val result = coreCompletionHandlerRefreshTokenProxyProvider.provideProxy(null, null)
 
@@ -106,12 +105,12 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest : AnnotationSpec() {
     @Test
     fun testProvideCoreCompletionHandlerRefreshTokenProxy_whenNoWorkerIsAvailable() {
 
-        whenever(
+        every {
             mockCoreCompletionHandlerMiddlewareProvider.provideProxy(
                 null,
                 mockCoreCompletionHandler
             )
-        ).thenReturn(mockCoreCompletionHandler)
+        } returns mockCoreCompletionHandler
 
         val result = coreCompletionHandlerRefreshTokenProxyProvider.provideProxy(
             null,
