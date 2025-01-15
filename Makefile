@@ -67,6 +67,7 @@ test-android-firebase-emulator: check-env ## run Android Instrumented tests on e
 test-android-firebase: check-env ## run Android Instrumented tests on real devices on Firebase Test Lab
 	@gcloud firebase test android run \
        --type instrumentation \
+       --use-orchestrator \
        --app ./sample/build/outputs/apk/androidTest/debug/sample-debug-androidTest.apk \
        --test ./$(MODULE_NAME)/build/outputs/apk/androidTest/debug/$(MODULE_NAME)-debug-androidTest.apk \
        --device model=Pixel2.arm,version=29,locale=en,orientation=portrait  \
