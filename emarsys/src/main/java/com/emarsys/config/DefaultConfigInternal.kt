@@ -1,5 +1,6 @@
 package com.emarsys.config
 
+import android.util.Log
 import com.emarsys.EmarsysRequestModelFactory
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.config.model.RemoteConfig
@@ -17,6 +18,9 @@ import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
+import com.emarsys.core.util.SystemUtils
+import com.emarsys.core.util.log.Logger
+import com.emarsys.core.util.log.entry.StatusLog
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.client.ClientServiceInternal
@@ -165,7 +169,7 @@ class DefaultConfigInternal(
     }
 
     override fun refreshRemoteConfig(completionListener: CompletionListener?) {
-        mobileEngageRequestContext.applicationCode?.let {
+        mobileEngageRequestContext.applicationCode?.let { applicationCode ->
             fetchRemoteConfigSignature(ResultListener { signatureResponse ->
                 signatureResponse.result?.let { signature ->
                     fetchRemoteConfig(ResultListener {
@@ -183,15 +187,12 @@ class DefaultConfigInternal(
                             }
                         }
                         it.errorCause?.let { throwable ->
-                            resetRemoteConfig()
-                            completionListener?.onCompleted(throwable)
-
+                            handleError("remoteConfigFetchingFailed", applicationCode, throwable, completionListener)
                         }
                     })
                 }
                 signatureResponse.errorCause?.let { throwable ->
-                    resetRemoteConfig()
-                    completionListener?.onCompleted(throwable)
+                    handleError("remoteConfigSignatureFetchingFailed", applicationCode, throwable, completionListener)
                 }
             })
         }
@@ -275,6 +276,35 @@ class DefaultConfigInternal(
                 }
             }
         }
+    }
+
+    private fun handleError(label: String, applicationCode: String, throwable: Throwable, completionListener: CompletionListener?) {
+        val status = buildMap {
+            put("source", label)
+            if (throwable is ResponseErrorException) {
+                put("statusCode", throwable.statusCode)
+                throwable.statusMessage?.let {
+                    put("statusMessage", it)
+                }
+                throwable.body?.let {
+                    put("body", it)
+                }
+            }
+            throwable.message?.let {
+                put("message", it)
+            }
+        }
+        Logger.error(
+            StatusLog(
+                this::class.java,
+                SystemUtils.getCallerMethodName(),
+                mapOf(),
+                status
+            )
+        )
+        resetRemoteConfig()
+        Log.e("EmarsysSDK", "ApplicationCode($applicationCode) not found. Consult with your Implementation Consultant")
+        completionListener?.onCompleted(throwable)
     }
 
     override fun resetRemoteConfig() {
