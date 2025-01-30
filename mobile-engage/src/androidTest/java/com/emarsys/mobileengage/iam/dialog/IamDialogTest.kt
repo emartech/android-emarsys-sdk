@@ -29,19 +29,18 @@ import com.emarsys.mobileengage.iam.webview.IamWebViewFactory
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 import com.emarsys.testUtil.ExtensionTestUtils.runOnMain
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
-import com.emarsys.testUtil.KotestRunnerAndroid
 import com.emarsys.testUtil.ReflectionTestUtils
-import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.runner.RunWith
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
-@RunWith(KotestRunnerAndroid::class)
-class IamDialogTest: AnnotationSpec() {
+class IamDialogTest {
     private companion object {
         const val CAMPAIGN_ID = "id_value"
         private const val SID = "testSid"
@@ -64,7 +63,7 @@ class IamDialogTest: AnnotationSpec() {
     private var scenario: ActivityScenario<EmptyFragmentActivity>? = null
     private lateinit var iamWebView: IamWebView
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockTimestampProvider = mockk(relaxed = true)
         val mockUuidProvider: UUIDProvider = mockk(relaxed = true)
@@ -101,7 +100,7 @@ class IamDialogTest: AnnotationSpec() {
         iamDialog = IamDialog(mockTimestampProvider, mockWebViewFactory)
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         tearDownMobileEngageComponent()
         scenario?.close()
@@ -260,7 +259,6 @@ class IamDialogTest: AnnotationSpec() {
             org.junit.Assert.assertEquals(expected.toDouble(), actual.toDouble(), 0.0000001)
         }
     }
-
 
     @Test
     fun testInitialization_setsDialogToFullscreen() {
