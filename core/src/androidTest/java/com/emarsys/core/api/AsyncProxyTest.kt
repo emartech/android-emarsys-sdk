@@ -2,16 +2,16 @@ package com.emarsys.core.api
 
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.ThreadSpy
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import java.util.concurrent.Callable
 import java.util.concurrent.CountDownLatch
 
-class AsyncProxyTest : AnnotationSpec() {
+class AsyncProxyTest  {
 
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
-
 
     @Before
     fun setUp() {

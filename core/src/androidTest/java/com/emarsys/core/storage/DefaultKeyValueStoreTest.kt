@@ -3,14 +3,15 @@ package com.emarsys.core.storage
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import org.junit.After
 import org.junit.Assert
+import org.junit.Before
+import org.junit.Test
 
-
-class DefaultKeyValueStoreTest : AnnotationSpec() {
+class DefaultKeyValueStoreTest  {
     companion object {
         private const val KEY = "key"
         private const val DELTA = 0.001
@@ -21,7 +22,6 @@ class DefaultKeyValueStoreTest : AnnotationSpec() {
         private const val KEY5 = "key5"
         private const val KEY6 = "key6"
     }
-
 
     private lateinit var store: DefaultKeyValueStore
     private lateinit var prefs: SharedPreferences

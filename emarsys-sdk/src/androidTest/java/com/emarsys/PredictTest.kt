@@ -14,14 +14,16 @@ import com.emarsys.predict.api.model.CartItem
 import com.emarsys.predict.api.model.Logic
 import com.emarsys.predict.api.model.Product
 import com.emarsys.predict.api.model.RecommendationFilter
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.RandomTestUtils.randomNumberString
 import com.emarsys.testUtil.RandomTestUtils.randomString
 import io.kotest.assertions.throwables.shouldThrow
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 
-class PredictTest : AnnotationSpec() {
+class PredictTest  {
     companion object {
         const val AVAILABILITY_ZONE = "HU"
     }

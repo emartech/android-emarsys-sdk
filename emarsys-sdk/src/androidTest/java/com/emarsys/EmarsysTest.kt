@@ -69,7 +69,6 @@ import com.emarsys.predict.api.model.RecommendationFilter
 import com.emarsys.predict.response.VisitorIdResponseHandler
 import com.emarsys.predict.response.XPResponseHandler
 import com.emarsys.push.PushApi
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.CollectionTestUtils.getElementByType
 import com.emarsys.testUtil.CollectionTestUtils.numberOfElementsIn
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
@@ -87,10 +86,13 @@ import io.mockk.slot
 import io.mockk.spyk
 import io.mockk.verify
 import io.mockk.verifyOrder
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
+import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
-class EmarsysTest : AnnotationSpec() {
+class EmarsysTest  {
     @Rule
     @JvmField
     val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")

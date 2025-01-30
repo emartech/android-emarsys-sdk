@@ -16,17 +16,18 @@ import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.specification.Everything
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.util.serialization.SerializationUtils
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
 import org.json.JSONException
 import org.junit.Assert
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito
 import java.util.*
 
-class RequestModelRepositoryTest : AnnotationSpec() {
+class RequestModelRepositoryTest  {
 
 
     companion object {

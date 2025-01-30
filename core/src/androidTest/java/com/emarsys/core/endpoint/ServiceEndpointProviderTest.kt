@@ -1,12 +1,13 @@
 package com.emarsys.core.endpoint
 
 import com.emarsys.core.storage.StringStorage
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito
 
-class ServiceEndpointProviderTest : AnnotationSpec() {
+class ServiceEndpointProviderTest  {
     companion object {
         const val ENDPOINT = "https://emarsys.com"
         const val DEFAULT_ENDPOINT = "https://default.emarsys.com"

@@ -4,16 +4,14 @@ import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
-import com.emarsys.testUtil.KotestRunnerAndroid
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.runner.RunWith
+import org.junit.Before
+import org.junit.Test
 
-@RunWith(KotestRunnerAndroid::class)
-class MetaDataReaderTest : AnnotationSpec() {
+class MetaDataReaderTest {
     private var reader: MetaDataReader? = null
     private lateinit var mockContext: Context
     private lateinit var applicationInfo: ApplicationInfo

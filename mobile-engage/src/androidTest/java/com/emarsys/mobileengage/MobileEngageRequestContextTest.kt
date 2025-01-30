@@ -1,13 +1,14 @@
 package com.emarsys.mobileengage
 
 import com.emarsys.core.storage.Storage
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
-class MobileEngageRequestContextTest : AnnotationSpec() {
+class MobileEngageRequestContextTest  {
 
     private lateinit var mockContactFieldValueStorage: Storage<String?>
 

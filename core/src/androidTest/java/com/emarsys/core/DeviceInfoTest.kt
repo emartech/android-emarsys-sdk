@@ -12,7 +12,6 @@ import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.provider.clientid.ClientIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.util.AndroidVersionUtils
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ApplicationTestUtils.applicationDebug
 import com.emarsys.testUtil.ApplicationTestUtils.applicationRelease
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
@@ -24,9 +23,12 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.json.JSONObject
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import java.util.*
 
-class DeviceInfoTest : AnnotationSpec() {
+class DeviceInfoTest {
 
     companion object {
         private const val CLIENT_ID = "hwid"

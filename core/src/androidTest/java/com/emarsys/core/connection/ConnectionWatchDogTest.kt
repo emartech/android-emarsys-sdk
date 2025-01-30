@@ -8,7 +8,6 @@ import androidx.test.filters.SdkSuppress
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.worker.DefaultWorker
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ConnectionTestUtils.getContextMockWithAppContextWithConnectivityManager
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.ReflectionTestUtils
@@ -19,13 +18,13 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
-
+import org.junit.Before
+import org.junit.Test
 
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
-class ConnectionWatchDogTest : AnnotationSpec() {
+class ConnectionWatchDogTest  {
     private lateinit var context: Context
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
-
 
     @Before
     fun setup() {

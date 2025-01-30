@@ -7,18 +7,18 @@ import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.device.ClientIdentification
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.storage.Storage
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 
-
-class ClientIdProviderTest : AnnotationSpec() {
+class ClientIdProviderTest  {
 
     companion object {
         private const val CLIENT_ID = "hw_value"

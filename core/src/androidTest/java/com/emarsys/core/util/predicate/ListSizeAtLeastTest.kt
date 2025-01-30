@@ -1,10 +1,10 @@
 package com.emarsys.core.util.predicate
 
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 
-
-class ListSizeAtLeastTest : AnnotationSpec() {
+class ListSizeAtLeastTest  {
 
 
     private lateinit var predicate: ListSizeAtLeast<Int>

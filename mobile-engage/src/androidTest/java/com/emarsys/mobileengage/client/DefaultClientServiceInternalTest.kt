@@ -4,18 +4,18 @@ package com.emarsys.mobileengage.client
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito
 import org.mockito.Mockito.verify
 
-class DefaultClientServiceInternalTest : AnnotationSpec() {
+class DefaultClientServiceInternalTest  {
 
     private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockRequestManager: RequestManager
     private lateinit var clientServiceInternal: ClientServiceInternal
-
 
     @Before
     @Suppress("UNCHECKED_CAST")

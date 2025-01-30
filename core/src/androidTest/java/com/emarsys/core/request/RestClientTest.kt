@@ -13,12 +13,13 @@ import com.emarsys.core.request.model.RequestResult
 import com.emarsys.core.request.model.asRequestResult
 import com.emarsys.core.response.ResponseHandlersProcessor
 import com.emarsys.core.testUtil.RequestModelTestUtils
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ConnectionTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TestUrls
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -26,7 +27,7 @@ import org.mockito.kotlin.verify
 import java.net.UnknownHostException
 import java.util.concurrent.CountDownLatch
 
-class RestClientTest : AnnotationSpec() {
+class RestClientTest  {
 
     private lateinit var client: RestClient
     private lateinit var latch: CountDownLatch

@@ -4,15 +4,15 @@ import com.emarsys.core.api.ResponseErrorException
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.spyk
 import io.mockk.verify
+import org.junit.Before
+import org.junit.Test
 
-class DefaultCoreCompletionHandlerTest : AnnotationSpec() {
+class DefaultCoreCompletionHandlerTest  {
 
     companion object {
         const val STATUS_CODE = 500
@@ -94,18 +94,16 @@ class DefaultCoreCompletionHandlerTest : AnnotationSpec() {
     @Test
     fun testOnSuccess_removesListener_afterCalled() {
         val listener: CompletionListener = mockk(relaxed = true)
-        val spyMap = spyk(HashMap<String, CompletionListener>().apply {
-            put(REQUEST_ID, listener)
-        })
-        val coreCompletionHandler = DefaultCoreCompletionHandler(spyMap)
+        every { mockMap[REQUEST_ID] } returns listener
+        val coreCompletionHandler = DefaultCoreCompletionHandler(mockMap)
 
         coreCompletionHandler.onSuccess(REQUEST_ID, createAnyResponseModel())
         coreCompletionHandler.onSuccess(REQUEST_ID, createAnyResponseModel())
 
-        verify(exactly = 2) { spyMap[REQUEST_ID] }
+        verify(exactly = 2) { mockMap[REQUEST_ID] }
         verify { listener.onCompleted(null) }
-        verify { spyMap.remove(REQUEST_ID) }
-        confirmVerified(spyMap)
+        verify { mockMap.remove(REQUEST_ID) }
+        confirmVerified(mockMap)
     }
 
     @Test
@@ -133,27 +131,24 @@ class DefaultCoreCompletionHandlerTest : AnnotationSpec() {
     @Test
     fun testOnError_withException_removesListener_afterCalled() {
         val listener: CompletionListener = mockk(relaxed = true)
-        val spyMap = spyk(HashMap<String, CompletionListener>().apply {
-            put(REQUEST_ID, listener)
-        })
-        val coreCompletionHandler = DefaultCoreCompletionHandler(spyMap)
+        every { mockMap[REQUEST_ID] } returns listener
+        val coreCompletionHandler = DefaultCoreCompletionHandler(mockMap)
 
         coreCompletionHandler.onError(REQUEST_ID, responseErrorException)
         coreCompletionHandler.onError(REQUEST_ID, responseErrorException)
 
-        verify(exactly = 2) { spyMap[REQUEST_ID] }
+        verify(exactly = 2) { mockMap[REQUEST_ID] }
         verify { listener.onCompleted(responseErrorException) }
-        verify { spyMap.remove(REQUEST_ID) }
-        confirmVerified(spyMap)
+        verify { mockMap.remove(REQUEST_ID) }
+        confirmVerified(mockMap)
     }
 
     @Test
     fun testOnError_withResponseModel_callsRegisteredCompletionListener() {
         val listener: CompletionListener = mockk(relaxed = true)
-        val spyMap = spyk(HashMap<String, CompletionListener>().apply {
-            put(REQUEST_ID, listener)
-        })
-        val coreCompletionHandler = DefaultCoreCompletionHandler(spyMap)
+
+        every { mockMap[REQUEST_ID] } returns listener
+        val coreCompletionHandler = DefaultCoreCompletionHandler(mockMap)
 
         coreCompletionHandler.register(mockRequestModel, listener)
 
@@ -178,20 +173,18 @@ class DefaultCoreCompletionHandlerTest : AnnotationSpec() {
     @Test
     fun testOnError_withResponseModel_removesListener_afterCalled() {
         val listener: CompletionListener = mockk(relaxed = true)
-        val spyMap = spyk(HashMap<String, CompletionListener>().apply {
-            put(REQUEST_ID, listener)
-        })
-        val coreCompletionHandler = DefaultCoreCompletionHandler(spyMap)
+        every { mockMap[REQUEST_ID] } returns listener
+        val coreCompletionHandler = DefaultCoreCompletionHandler(mockMap)
 
         val responseModel = createResponseModel(400, "", "")
         val expectedError = responseModel.toError()
         coreCompletionHandler.onError(REQUEST_ID, responseModel)
         coreCompletionHandler.onError(REQUEST_ID, responseModel)
 
-        verify(exactly = 2) { spyMap[REQUEST_ID] }
+        verify(exactly = 2) { mockMap[REQUEST_ID] }
         verify { listener.onCompleted(expectedError) }
-        verify { spyMap.remove(REQUEST_ID) }
-        confirmVerified(spyMap)
+        verify { mockMap.remove(REQUEST_ID) }
+        confirmVerified(mockMap)
     }
 
     @Test
@@ -220,7 +213,7 @@ class DefaultCoreCompletionHandlerTest : AnnotationSpec() {
     private fun createAnyResponseModel() = createResponseModel(200, "", "")
 
     private fun createResponseModel(statusCode: Int, message: String, body: String): ResponseModel {
-        val mockResponseModel = mockk<ResponseModel>(relaxed = true)
+        val mockResponseModel: ResponseModel = mockk(relaxed = true)
         every { mockResponseModel.statusCode } returns statusCode
         every { mockResponseModel.body } returns body
         every { mockResponseModel.message } returns message
@@ -228,7 +221,7 @@ class DefaultCoreCompletionHandlerTest : AnnotationSpec() {
     }
 
     private fun createRequestModelMock(requestId: String): RequestModel {
-        val mockRequestModel = mockk<RequestModel>()
+        val mockRequestModel: RequestModel = mockk(relaxed = true)
         every { mockRequestModel.id } returns requestId
         return mockRequestModel
     }

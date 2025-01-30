@@ -2,19 +2,19 @@ package com.emarsys.core.database.helper
 
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 
-
-class CoreDbHelperTest : AnnotationSpec() {
+class CoreDbHelperTest  {
 
     companion object {
         const val LATEST_DB_VERSION = 5
     }
-
 
     private lateinit var dbHelper: CoreDbHelper
     private lateinit var db: SQLiteDatabase
@@ -281,6 +281,7 @@ class CoreDbHelperTest : AnnotationSpec() {
         dbHelper.onUpgrade(db, 0, version)
     }
 
-    data class ColumnInfo(val columnName: String, val columnType: String, val defaultValue: String? = null, val primaryKey: Boolean = false, val notNull: Boolean = false)
+    data 
+class ColumnInfo(val columnName: String, val columnType: String, val defaultValue: String? = null, val primaryKey: Boolean = false, val notNull: Boolean = false)
 }
 

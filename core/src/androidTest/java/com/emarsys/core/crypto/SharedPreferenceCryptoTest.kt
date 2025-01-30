@@ -1,7 +1,6 @@
 import android.security.keystore.KeyGenParameterSpec
 import android.util.Base64
 import com.emarsys.core.crypto.SharedPreferenceCrypto
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.Runs
@@ -11,6 +10,9 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import java.security.GeneralSecurityException
 import java.security.KeyStore
 import javax.crypto.Cipher
@@ -18,7 +20,7 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
-class SharedPreferenceCryptoTest : AnnotationSpec() {
+class SharedPreferenceCryptoTest  {
     private companion object {
         const val encryptedBase64 = "Base64EncryptedBase64IV123123"
 
@@ -30,7 +32,7 @@ class SharedPreferenceCryptoTest : AnnotationSpec() {
     private lateinit var mockSecretKey: SecretKey
     private lateinit var mockCipher: Cipher
 
-    @BeforeEach
+    @Before
     fun setup() {
         mockkStatic(KeyStore::class)
         mockkStatic(KeyGenerator::class)
@@ -49,7 +51,7 @@ class SharedPreferenceCryptoTest : AnnotationSpec() {
         sharedPreferenceCrypto = SharedPreferenceCrypto()
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         unmockkAll()
     }

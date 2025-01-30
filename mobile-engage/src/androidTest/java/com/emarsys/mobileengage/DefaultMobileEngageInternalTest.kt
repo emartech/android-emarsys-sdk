@@ -12,8 +12,6 @@ import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.session.MobileEngageSession
 import com.emarsys.mobileengage.session.SessionIdHolder
-import com.emarsys.testUtil.KotestRunnerAndroid
-import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.confirmVerified
 import io.mockk.every
@@ -21,12 +19,12 @@ import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
 import io.mockk.verifyOrder
-import org.junit.runner.RunWith
+import org.junit.Before
+import org.junit.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-@RunWith(KotestRunnerAndroid::class)
-class DefaultMobileEngageInternalTest : AnnotationSpec() {
+class DefaultMobileEngageInternalTest {
 
     private companion object {
         const val CONTACT_FIELD_ID = 999

@@ -1,11 +1,11 @@
 package com.emarsys.mobileengage.notification.command
 
 import com.emarsys.mobileengage.event.EventServiceInternal
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.throwables.shouldThrow
+import org.junit.Test
 import org.mockito.Mockito
 
-class TrackActionClickCommandTest : AnnotationSpec() {
+class TrackActionClickCommandTest  {
     @Test
     fun testConstructor_eventServiceInternal_mustNotBeNull() {
         shouldThrow<IllegalArgumentException> {
@@ -16,21 +16,24 @@ class TrackActionClickCommandTest : AnnotationSpec() {
     @Test
     fun testConstructor_buttonId_mustNotBeNull() {
         shouldThrow<IllegalArgumentException> {
-            TrackActionClickCommand(Mockito.mock(EventServiceInternal::class.java), null, "")
+            TrackActionClickCommand(Mockito.mock(EventServiceInternal::
+class.java), null, "")
         }
     }
 
     @Test
     fun testConstructor_sid_mustNotBeNull() {
         shouldThrow<IllegalArgumentException> {
-            TrackActionClickCommand(Mockito.mock(EventServiceInternal::class.java), "", null)
+            TrackActionClickCommand(Mockito.mock(EventServiceInternal::
+class.java), "", null)
         }
     }
 
     @Test
     fun testRun_sendsInternalCustomEvent() {
         val internalMock = Mockito.mock(
-            EventServiceInternal::class.java
+            EventServiceInternal::
+class.java
         )
         val buttonId = "buttonId"
         val sid = "sid1234"

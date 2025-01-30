@@ -6,13 +6,13 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.MobileEngageRequestContext
-
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.Before
+import org.junit.Test
 
-class EmarsysRequestModelFactoryTest : AnnotationSpec() {
+class EmarsysRequestModelFactoryTest  {
     companion object {
         const val CLIENT_ID = "client_id"
         const val TIMESTAMP = 123456789L

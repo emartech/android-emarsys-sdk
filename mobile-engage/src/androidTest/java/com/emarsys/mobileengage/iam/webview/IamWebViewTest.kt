@@ -12,7 +12,6 @@ import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory
 import com.emarsys.mobileengage.iam.jsbridge.OnAppEventListener
 import com.emarsys.mobileengage.iam.jsbridge.OnCloseListener
 import com.emarsys.mobileengage.iam.model.InAppMetaData
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ExtensionTestUtils.runOnMain
 import com.emarsys.testUtil.fake.FakeActivity
 import io.kotest.matchers.shouldBe
@@ -20,8 +19,11 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 
-class IamWebViewTest : AnnotationSpec() {
+class IamWebViewTest  {
 
     private lateinit var iamWebView: IamWebView
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder

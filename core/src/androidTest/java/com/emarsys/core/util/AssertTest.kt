@@ -1,13 +1,12 @@
 package com.emarsys.core.util
 
 
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.fail
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import org.junit.Test
 
-class AssertTest : AnnotationSpec() {
-
+class AssertTest  {
 
     @Test
     fun testNotNull_shouldThrowException_whenArgumentIsNull() {

@@ -2,13 +2,14 @@ package com.emarsys.mobileengage.iam.dialog
 
 
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.mock
 import java.util.concurrent.CountDownLatch
 import kotlin.concurrent.thread
 
-class IamDialogProviderTest : AnnotationSpec() {
+class IamDialogProviderTest  {
 
     private lateinit var iamDialogProvider: IamDialogProvider
 

@@ -19,19 +19,21 @@ import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
 import com.emarsys.core.worker.DefaultWorker
 import com.emarsys.core.worker.Worker
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ConnectionTestUtils.checkConnection
 import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.TestUrls.DENNA_ECHO
 import io.kotest.matchers.shouldBe
 import org.json.JSONObject
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.mock
 import java.util.concurrent.CountDownLatch
 
-class RequestManagerDennaTest : AnnotationSpec() {
+class RequestManagerDennaTest  {
     private lateinit var manager: RequestManager
     private lateinit var headers: MutableMap<String, String>
     private lateinit var model: RequestModel

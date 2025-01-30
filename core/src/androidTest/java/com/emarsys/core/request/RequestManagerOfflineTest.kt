@@ -22,18 +22,20 @@ import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
 import com.emarsys.core.worker.DefaultWorker
 import com.emarsys.core.worker.Worker
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.collections.beEmpty
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.mock
 import java.io.IOException
 import java.util.concurrent.CountDownLatch
 
-class RequestManagerOfflineTest : AnnotationSpec() {
+class RequestManagerOfflineTest  {
     companion object {
         const val URL = "https://www.emarsys.com/"
     }

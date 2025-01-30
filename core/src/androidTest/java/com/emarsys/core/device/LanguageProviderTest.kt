@@ -2,12 +2,13 @@ package com.emarsys.core.device
 
 import android.os.Build.VERSION_CODES.P
 import androidx.test.filters.SdkSuppress
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import java.util.Locale
 
-class LanguageProviderTest : AnnotationSpec() {
+class LanguageProviderTest  {
 
 
     private lateinit var languageProvider: LanguageProvider

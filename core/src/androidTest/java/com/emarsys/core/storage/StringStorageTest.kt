@@ -1,15 +1,16 @@
 package com.emarsys.core.storage
 
 import android.content.SharedPreferences
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.assertions.throwables.shouldThrow
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito.anyString
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 
-class StringStorageTest : AnnotationSpec() {
+class StringStorageTest  {
 
     private companion object {
         const val VALUE = "value"

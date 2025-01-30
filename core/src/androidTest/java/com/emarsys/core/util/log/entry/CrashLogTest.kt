@@ -1,14 +1,13 @@
 package com.emarsys.core.util.log.entry
 
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 
-
-class CrashLogTest : AnnotationSpec() {
+class CrashLogTest  {
 
     private lateinit var crashLog: CrashLog
     private lateinit var exception: Exception
-
 
     @Before
     fun init() {

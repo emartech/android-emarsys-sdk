@@ -7,14 +7,15 @@ import com.emarsys.core.provider.clientid.ClientIdProvider
 import com.emarsys.core.provider.random.RandomProvider
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.util.log.LogLevel
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
-class RemoteConfigResponseMapperTest : AnnotationSpec() {
+class RemoteConfigResponseMapperTest  {
 
 
     private lateinit var mockResponseModel: ResponseModel

@@ -1,17 +1,16 @@
 package com.emarsys.mobileengage.iam
 
+
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.event.EventServiceInternal
-
-
-import com.emarsys.testUtil.AnnotationSpec
-
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 
-class InAppInternalTest : AnnotationSpec() {
+class InAppInternalTest  {
 
     private companion object {
         const val EVENT_NAME = "customEventName"

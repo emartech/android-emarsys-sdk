@@ -9,8 +9,9 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.util.RequestModelHelper
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.eq
@@ -19,8 +20,7 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import java.net.URL
 
-class CoreCompletionHandlerRefreshTokenProxyTest : AnnotationSpec() {
-
+class CoreCompletionHandlerRefreshTokenProxyTest  {
 
     companion object {
         const val REQUEST_ID = "testRequestId"

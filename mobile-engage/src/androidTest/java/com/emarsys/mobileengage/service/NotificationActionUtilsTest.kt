@@ -9,18 +9,20 @@ import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.notification.NotificationCommandFactory
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.mockito.ThreadSpy
 import io.kotest.matchers.shouldBe
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito
 import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
-class NotificationActionUtilsTest : AnnotationSpec() {
+class NotificationActionUtilsTest  {
     private companion object {
         const val SMALL_RESOURCE_ID = 123
         const val COLOR_RESOURCE_ID = 456
@@ -60,8 +62,10 @@ class NotificationActionUtilsTest : AnnotationSpec() {
     fun testHandleAction_runsNotificationCommand() {
         val threadSpy = ThreadSpy<Unit>()
         val latch = CountDownLatch(1)
-        val factory = Mockito.mock(NotificationCommandFactory::class.java)
-        val intent = Mockito.mock(Intent::class.java)
+        val factory = Mockito.mock(NotificationCommandFactory::
+class.java)
+        val intent = Mockito.mock(Intent::
+class.java)
         val command = Runnable {
             threadSpy.call()
             latch.countDown()
@@ -140,7 +144,8 @@ class NotificationActionUtilsTest : AnnotationSpec() {
     }
 
     @Test
-    @Throws(JSONException::class)
+    @Throws(JSONException::
+class)
     fun testCreateActions_appEvent_withSingleAction() {
         val testActions = JSONArray()
             .put(
@@ -166,7 +171,8 @@ class NotificationActionUtilsTest : AnnotationSpec() {
     }
 
     @Test
-    @Throws(JSONException::class)
+    @Throws(JSONException::
+class)
     fun testCreateActions_appEvent_withMultipleActions() {
         val payload = JSONArray()
             .put(
@@ -199,7 +205,8 @@ class NotificationActionUtilsTest : AnnotationSpec() {
     }
 
     @Test
-    @Throws(JSONException::class)
+    @Throws(JSONException::
+class)
     fun testCreateActions_externalUrl_missingUrl() {
         val testActions = JSONArray().put(
             JSONObject()
@@ -217,7 +224,8 @@ class NotificationActionUtilsTest : AnnotationSpec() {
     }
 
     @Test
-    @Throws(JSONException::class)
+    @Throws(JSONException::
+class)
     fun testCreateActions_externalUrl_withSingleAction() {
         val payload = JSONArray()
             .put(
@@ -238,7 +246,8 @@ class NotificationActionUtilsTest : AnnotationSpec() {
     }
 
     @Test
-    @Throws(JSONException::class)
+    @Throws(JSONException::
+class)
     fun testCreateActions_externalUrl_withMultipleActions() {
         val payload = JSONArray()
             .put(
@@ -268,7 +277,8 @@ class NotificationActionUtilsTest : AnnotationSpec() {
     }
 
     @Test
-    @Throws(JSONException::class)
+    @Throws(JSONException::
+class)
     fun testCreateActions_customEvent_missingName() {
         val testActions = JSONArray().put(
             JSONObject()
@@ -287,7 +297,8 @@ class NotificationActionUtilsTest : AnnotationSpec() {
     }
 
     @Test
-    @Throws(JSONException::class)
+    @Throws(JSONException::
+class)
     fun testCreateActions_customEvent_withSingleAction() {
         val testActions = JSONArray().put(
             JSONObject()
@@ -312,7 +323,8 @@ class NotificationActionUtilsTest : AnnotationSpec() {
     }
 
     @Test
-    @Throws(JSONException::class)
+    @Throws(JSONException::
+class)
     fun testCreateActions_customEvent_withSingleAction_withoutPayload() {
         val testActions = JSONArray().put(
             JSONObject()
@@ -332,7 +344,8 @@ class NotificationActionUtilsTest : AnnotationSpec() {
     }
 
     @Test
-    @Throws(JSONException::class)
+    @Throws(JSONException::
+class)
     fun testCreateActions_customEvent_withMultipleActions() {
         val testActions = JSONArray().put(
             JSONObject()
@@ -366,7 +379,8 @@ class NotificationActionUtilsTest : AnnotationSpec() {
     }
 
     @Test
-    @Throws(Exception::class)
+    @Throws(Exception::
+class)
     fun testCreateActions_dismiss() {
         val testActions = JSONArray().put(
             JSONObject()

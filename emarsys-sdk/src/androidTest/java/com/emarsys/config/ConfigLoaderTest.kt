@@ -2,12 +2,13 @@ package com.emarsys.config
 
 import android.app.Application
 import android.content.SharedPreferences
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.Before
+import org.junit.Test
 
-class ConfigLoaderTest : AnnotationSpec() {
+class ConfigLoaderTest  {
     companion object {
         private const val SHARED_PREF_NAME = "testPrefName"
         const val APP_CODE = "testAppCode"

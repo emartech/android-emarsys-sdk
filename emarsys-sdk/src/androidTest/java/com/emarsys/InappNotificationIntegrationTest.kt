@@ -17,7 +17,6 @@ import com.emarsys.mobileengage.iam.OverlayInAppPresenter
 import com.emarsys.mobileengage.service.IntentUtils
 import com.emarsys.mobileengage.service.NotificationData
 import com.emarsys.mobileengage.service.NotificationOperation
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ConnectionTestUtils
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
@@ -26,9 +25,12 @@ import com.emarsys.testUtil.TestUrls.LARGE_IMAGE
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
-class InappNotificationIntegrationTest : AnnotationSpec() {
+class InappNotificationIntegrationTest  {
 
     private companion object {
         const val APP_ID = "14C19-A121F"

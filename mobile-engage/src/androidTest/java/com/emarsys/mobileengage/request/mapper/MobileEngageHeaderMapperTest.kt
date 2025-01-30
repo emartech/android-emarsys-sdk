@@ -10,16 +10,17 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.util.RequestModelHelper
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
 class
-MobileEngageHeaderMapperTest : AnnotationSpec() {
+MobileEngageHeaderMapperTest  {
     private companion object {
         const val CLIENT_STATE = "client-state"
         const val TIMESTAMP = 123456789L

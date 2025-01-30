@@ -11,7 +11,6 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.model.InAppMetaData
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.ThreadSpy
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -21,9 +20,11 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
+import org.junit.Before
+import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
-class JSCommandFactoryTest : AnnotationSpec() {
+class JSCommandFactoryTest  {
 
     private companion object {
         const val PROPERTY = "testProperty"

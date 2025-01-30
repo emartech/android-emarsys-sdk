@@ -29,13 +29,15 @@ import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvid
 import com.emarsys.mobileengage.service.MessagingServiceUtils.styleNotification
 import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperFactory
 import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperV1
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.copyInputStreamToFile
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.json.JSONArray
 import org.json.JSONObject
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
@@ -45,7 +47,7 @@ import org.mockito.kotlin.whenever
 import java.io.File
 import java.util.Locale
 
-class MessagingServiceUtilsTest : AnnotationSpec() {
+class MessagingServiceUtilsTest  {
     private companion object {
         const val TITLE = "title"
         const val BODY = "body"

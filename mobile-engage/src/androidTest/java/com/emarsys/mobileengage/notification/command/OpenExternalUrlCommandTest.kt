@@ -2,14 +2,12 @@ package com.emarsys.mobileengage.notification.command
 
 import android.content.Context
 import android.content.Intent
-
-import com.emarsys.testUtil.AnnotationSpec
-
+import org.junit.Test
 import org.mockito.Mockito
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
-class OpenExternalUrlCommandTest : AnnotationSpec() {
+class OpenExternalUrlCommandTest  {
     companion object {
         init {
             Mockito.mock(Context::class.java)

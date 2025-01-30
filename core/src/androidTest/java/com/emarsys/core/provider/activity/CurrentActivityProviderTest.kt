@@ -1,25 +1,25 @@
 package com.emarsys.core.provider.activity
 
 import android.app.Activity
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
+import io.mockk.every
+import io.mockk.mockk
+import org.junit.Before
+import org.junit.Test
 import java.lang.ref.WeakReference
 
-class CurrentActivityProviderTest : AnnotationSpec() {
+class CurrentActivityProviderTest  {
     private lateinit var provider: CurrentActivityProvider
     private lateinit var mockFallbackActivityProvider: FallbackActivityProvider
 
     companion object {
-        val activity1: Activity = mock()
-        val activity2: Activity = mock()
+        val activity1: Activity = mockk(relaxed = true)
+        val activity2: Activity = mockk(relaxed = true)
     }
-
 
     @Before
     fun setUp() {
-        mockFallbackActivityProvider = mock()
+        mockFallbackActivityProvider = mockk(relaxed = true)
         provider = CurrentActivityProvider(WeakReference(null), mockFallbackActivityProvider)
     }
 
@@ -31,7 +31,6 @@ class CurrentActivityProviderTest : AnnotationSpec() {
 
     @Test
     fun testSet_overridesPreviousValue() {
-
         provider.set(activity1)
         provider.set(activity2)
         provider.get() shouldBe activity2
@@ -41,7 +40,7 @@ class CurrentActivityProviderTest : AnnotationSpec() {
     fun testGet_getsActivityWithReflection_whenValueIsNotSet() {
         provider.set(null)
 
-        whenever(mockFallbackActivityProvider.provide()).thenReturn(activity1)
+        every { mockFallbackActivityProvider.provide() } returns activity1
 
         val result = provider.get()
 

@@ -1,13 +1,13 @@
 package com.emarsys.mobileengage.iam
 
 import com.emarsys.core.provider.timestamp.TimestampProvider
-
-import com.emarsys.testUtil.AnnotationSpec
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.Before
+import org.junit.Test
 
-class PushToInAppActionTest : AnnotationSpec() {
+class PushToInAppActionTest  {
 
     companion object {
         const val CAMPAIGN_ID = "campaignId"

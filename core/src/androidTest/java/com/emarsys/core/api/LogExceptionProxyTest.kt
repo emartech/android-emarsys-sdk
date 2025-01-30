@@ -8,16 +8,17 @@ import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.util.log.LogLevel
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.log.entry.CrashLog
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.CountDownLatch
 
-
-class LogExceptionProxyTest : AnnotationSpec() {
+class LogExceptionProxyTest  {
     private lateinit var mockLogger: Logger
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 

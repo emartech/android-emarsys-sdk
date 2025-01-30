@@ -2,13 +2,14 @@ package com.emarsys.core.shard
 
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 
-class ShardModelTest : AnnotationSpec() {
+class ShardModelTest  {
 
     companion object {
         const val ID = "shard_id"

@@ -1,16 +1,16 @@
 package com.emarsys.core.storage
 
 import android.content.SharedPreferences
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.Test
 import java.security.GeneralSecurityException
 
-class EncryptedSharedPreferencesToSharedPreferencesMigrationTest : AnnotationSpec() {
+class EncryptedSharedPreferencesToSharedPreferencesMigrationTest  {
 
     private val mockOldSharedPreferences = mockk<SharedPreferences>()
     private val mockNewSharedPreferences = mockk<SharedPreferences>()

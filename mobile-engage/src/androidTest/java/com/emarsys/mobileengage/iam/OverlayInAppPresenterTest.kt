@@ -12,15 +12,16 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.mobileengage.iam.dialog.IamDialog
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.fake.FakeActivity
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.Before
+import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
-class OverlayInAppPresenterTest : AnnotationSpec() {
+class OverlayInAppPresenterTest  {
     companion object {
         private var SID = "testSid"
         private var URL = "https://www.emarsys.com"

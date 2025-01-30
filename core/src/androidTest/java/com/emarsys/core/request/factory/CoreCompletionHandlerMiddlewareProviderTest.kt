@@ -9,18 +9,18 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.worker.CoreCompletionHandlerMiddleware
 import com.emarsys.core.worker.Worker
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.should
 import io.kotest.matchers.types.beInstanceOf
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import java.util.concurrent.CountDownLatch
 
-class CoreCompletionHandlerMiddlewareProviderTest : AnnotationSpec() {
-
+class CoreCompletionHandlerMiddlewareProviderTest  {
 
     private lateinit var mockRequestRepository: Repository<RequestModel, SqlSpecification>
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder

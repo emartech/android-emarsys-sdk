@@ -1,10 +1,10 @@
 package com.emarsys.core.util
 
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import org.junit.Test
 
-class HeaderUtilsInstrumentationTest : AnnotationSpec() {
+class HeaderUtilsInstrumentationTest  {
     private val username = "user"
 
     @Test

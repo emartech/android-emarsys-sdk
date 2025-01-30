@@ -3,11 +3,12 @@ package com.emarsys.mobileengage.iam.model
 import com.emarsys.core.util.TimestampUtils
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import java.util.Arrays
 
-class IamConversionUtilsTest : AnnotationSpec() {
+class IamConversionUtilsTest  {
     private var buttonClicked1: ButtonClicked? = null
     private var buttonClicked2: ButtonClicked? = null
     private var buttonClicked3: ButtonClicked? = null

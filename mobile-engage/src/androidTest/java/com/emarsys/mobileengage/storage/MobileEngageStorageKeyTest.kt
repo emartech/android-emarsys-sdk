@@ -1,14 +1,12 @@
 package com.emarsys.mobileengage.storage
 
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
+import org.junit.Test
 
-
-class MobileEngageStorageKeyTest : AnnotationSpec() {
-
+class MobileEngageStorageKeyTest  {
 
     @Test
     fun testGetKey() = runBlocking {

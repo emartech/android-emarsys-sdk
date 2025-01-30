@@ -3,13 +3,14 @@ package com.emarsys.core.storage
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import org.junit.Before
+import org.junit.Test
 
 
-class SecureSharedPreferencesProviderTest : AnnotationSpec() {
+class SecureSharedPreferencesProviderTest  {
 
     private lateinit var sharedPreferencesProvider: SecureSharedPreferencesProvider
 

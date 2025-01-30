@@ -5,13 +5,14 @@ import android.database.Cursor
 import android.net.Uri
 import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.helper.CoreDbHelper
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ReflectionTestUtils
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.Before
+import org.junit.Test
 
-class SharedClientIdentificationContentProviderTest : AnnotationSpec() {
+class SharedClientIdentificationContentProviderTest  {
 
     private companion object {
         const val ENCRYPTED_CLIENT_ID = "encrypted_hardware_id"

@@ -6,15 +6,16 @@ import com.emarsys.core.activity.ActivityLifecycleAction.ActivityLifecycle.RESUM
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifyOrder
+import org.junit.Before
+import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
-class ActivityLifecycleActionRegistryTest : AnnotationSpec() {
+class ActivityLifecycleActionRegistryTest  {
 
     private lateinit var activityLifecycleActionRegistry: ActivityLifecycleActionRegistry
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder

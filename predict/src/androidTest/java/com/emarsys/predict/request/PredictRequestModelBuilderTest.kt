@@ -14,7 +14,6 @@ import com.emarsys.predict.api.model.PredictCartItem
 import com.emarsys.predict.api.model.RecommendationFilter
 import com.emarsys.predict.api.model.RecommendationLogic
 import com.emarsys.predict.model.LastTrackedItemContainer
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.data.forAll
@@ -23,9 +22,11 @@ import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import org.json.JSONObject
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito.mock
 
-class PredictRequestModelBuilderTest : AnnotationSpec() {
+class PredictRequestModelBuilderTest  {
 
     private companion object {
         const val TIMESTAMP = 123456789L

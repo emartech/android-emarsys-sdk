@@ -8,12 +8,12 @@ import com.emarsys.mobileengage.api.geofence.Trigger
 import com.emarsys.mobileengage.api.geofence.TriggerType
 import com.emarsys.mobileengage.geofence.model.GeofenceGroup
 import com.emarsys.mobileengage.geofence.model.GeofenceResponse
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import org.json.JSONObject
+import org.junit.Before
+import org.junit.Test
 
-
-class GeofenceFilterTest : AnnotationSpec() {
+class GeofenceFilterTest  {
 
     private companion object {
         val currentLocation: Location = Location(LocationManager.GPS_PROVIDER).apply {

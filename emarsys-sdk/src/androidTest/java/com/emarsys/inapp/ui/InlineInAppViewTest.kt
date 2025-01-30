@@ -9,7 +9,6 @@ import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
-
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
@@ -22,7 +21,6 @@ import com.emarsys.mobileengage.iam.model.InAppMetaData
 import com.emarsys.mobileengage.iam.webview.IamWebView
 import com.emarsys.mobileengage.iam.webview.IamWebViewFactory
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ExtensionTestUtils.runOnMain
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.fake.FakeActivity
@@ -33,9 +31,12 @@ import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
 import org.json.JSONObject
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
-class InlineInAppViewTest : AnnotationSpec() {
+class InlineInAppViewTest {
     private companion object {
         const val VIEW_ID = "testViewId"
         const val OTHER_VIEW_ID = "testViewId2"

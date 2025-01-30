@@ -27,15 +27,17 @@ import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository
 import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.mobileengage.util.RequestPayloadUtils.createCompositeRequestModelPayload
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.RandomTestUtils.randomString
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.*
 
-class RequestRepositoryProxyTest : AnnotationSpec() {
+class RequestRepositoryProxyTest  {
     private lateinit var mockRequestContext: MobileEngageRequestContext
     private lateinit var mockRequestModelRepository: Repository<RequestModel, SqlSpecification>
     private lateinit var mockDisplayedIamRepository: Repository<DisplayedIam, SqlSpecification>

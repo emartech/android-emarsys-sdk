@@ -8,16 +8,16 @@ import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.notification.command.AppEventCommand
 import com.emarsys.mobileengage.notification.command.CustomEventCommand
 import com.emarsys.mobileengage.notification.command.OpenExternalUrlCommand
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.json.JSONArray
 import org.json.JSONObject
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.mock
 
-class ActionCommandFactoryTest : AnnotationSpec() {
-
+class ActionCommandFactoryTest  {
 
     private lateinit var factory: ActionCommandFactory
     private lateinit var context: Context
@@ -48,7 +48,9 @@ class ActionCommandFactoryTest : AnnotationSpec() {
                 "type" to "MEAppEvent")))
 
         result shouldNotBe null
-        result!!::class.java shouldBe AppEventCommand::class.java
+        result!!::
+class.java shouldBe AppEventCommand::
+class.java
     }
 
     @Test
@@ -58,7 +60,9 @@ class ActionCommandFactoryTest : AnnotationSpec() {
                 "type" to "OpenExternalUrl")))
 
         result shouldNotBe null
-        result!!::class.java shouldBe OpenExternalUrlCommand::class.java
+        result!!::
+class.java shouldBe OpenExternalUrlCommand::
+class.java
     }
 
     @Test
@@ -69,7 +73,9 @@ class ActionCommandFactoryTest : AnnotationSpec() {
                 "type" to "MECustomEvent")))
 
         result shouldNotBe null
-        result!!::class.java shouldBe CustomEventCommand::class.java
+        result!!::
+class.java shouldBe CustomEventCommand::
+class.java
     }
 
     @Test

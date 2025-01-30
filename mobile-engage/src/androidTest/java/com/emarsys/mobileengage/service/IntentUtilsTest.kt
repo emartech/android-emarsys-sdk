@@ -14,7 +14,6 @@ import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.service.IntentUtils.createLaunchPendingIntent
 import com.emarsys.mobileengage.service.IntentUtils.createNotificationHandlerServiceIntent
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -23,8 +22,11 @@ import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.unmockkStatic
 import io.mockk.verify
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 
-class IntentUtilsTest : AnnotationSpec() {
+class IntentUtilsTest  {
     private companion object {
         const val BACKGROUND_ACTIVITY_START_MODE_KEY = "android.activity.pendingIntentCreatorBackgroundActivityStartMode"
         const val TITLE = "title"
@@ -62,7 +64,7 @@ class IntentUtilsTest : AnnotationSpec() {
     private val bundleCaptor = slot<Bundle>()
     private val intentCaptor = slot<Intent>()
 
-    @BeforeEach
+    @Before
     fun init() {
         setupMobileEngageComponent(FakeMobileEngageDependencyContainer())
         context = getTargetContext()
@@ -86,7 +88,7 @@ class IntentUtilsTest : AnnotationSpec() {
         } returns mockk()
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         unmockkStatic(PendingIntent::class)
         bundleCaptor.clear()

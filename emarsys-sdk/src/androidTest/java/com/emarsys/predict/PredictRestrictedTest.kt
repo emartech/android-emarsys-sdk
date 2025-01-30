@@ -5,13 +5,13 @@ import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.emarsys
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.di.tearDownEmarsysComponent
-
-
-import com.emarsys.testUtil.AnnotationSpec
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito
 import org.mockito.kotlin.mock
 
-class PredictRestrictedTest : AnnotationSpec() {
+class PredictRestrictedTest  {
     private companion object {
         const val CONTACT_FIELD_ID = 999
     }

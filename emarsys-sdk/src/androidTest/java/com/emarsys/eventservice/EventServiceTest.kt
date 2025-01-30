@@ -5,12 +5,14 @@ import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.event.EventServiceInternal
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.IntegrationTestUtils
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 
-class EventServiceTest : AnnotationSpec() {
+class EventServiceTest  {
     companion object {
         private const val EVENT_NAME = "testEventName"
         private val EVENT_ATTRIBUTES = mapOf(

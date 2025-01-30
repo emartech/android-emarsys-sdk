@@ -7,13 +7,14 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.KeyValueStore
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.Before
+import org.junit.Test
 
-class XPResponseHandlerTest : AnnotationSpec() {
+class XPResponseHandlerTest  {
 
 
     private lateinit var keyValueStore: KeyValueStore

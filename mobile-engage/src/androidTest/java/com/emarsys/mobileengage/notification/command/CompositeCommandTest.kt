@@ -1,11 +1,12 @@
 package com.emarsys.mobileengage.notification.command
 
-import com.emarsys.testUtil.AnnotationSpec
 import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifyOrder
+import org.junit.Test
 
-class CompositeCommandTest : AnnotationSpec() {
+class CompositeCommandTest  {
+
     @Test
     fun testRun_shouldInvokeAllCommands() {
         val command1: Runnable = mockk(relaxed = true)

@@ -8,12 +8,14 @@ import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.mobileengage.inbox.MessageInboxInternal
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.IntegrationTestUtils
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 
-class MessageInboxTest : AnnotationSpec() {
+class MessageInboxTest  {
     private companion object {
         private const val TAG = "READ"
         private const val MESSAGE_ID = Integer.MAX_VALUE.toString()

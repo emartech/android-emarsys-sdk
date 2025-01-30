@@ -7,12 +7,14 @@ import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.api.push.NotificationInformationListener
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.push.Push
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.IntegrationTestUtils
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 
-class PushTest : AnnotationSpec() {
+class PushTest  {
     private lateinit var mockPushInternal: PushInternal
     private lateinit var mockCompletionListener: CompletionListener
     private lateinit var mockEventHandler: EventHandler

@@ -2,11 +2,12 @@ package com.emarsys.predict.api.model
 
 import com.emarsys.predict.api.model.RecommendationFilter.Companion.exclude
 import com.emarsys.predict.api.model.RecommendationFilter.Companion.include
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import java.util.Arrays
 
-class RecommendationFilterTest : AnnotationSpec() {
+class RecommendationFilterTest  {
 
     companion object {
         private const val FIELD = "field"

@@ -6,12 +6,14 @@ import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.geofence.GeofenceInternal
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.IntegrationTestUtils
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 
-class GeofenceTest : AnnotationSpec() {
+class GeofenceTest  {
 
     private lateinit var geofenceProxy: GeofenceApi
     private lateinit var mockGeofenceInternal: GeofenceInternal

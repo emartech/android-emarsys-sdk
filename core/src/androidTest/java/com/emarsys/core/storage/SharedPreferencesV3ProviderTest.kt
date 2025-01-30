@@ -4,7 +4,6 @@ import com.emarsys.core.crypto.SharedPreferenceCrypto
 import com.emarsys.core.storage.EmarsysEncryptedSharedPreferencesV3
 import com.emarsys.core.storage.EncryptedSharedPreferencesToSharedPreferencesMigration
 import com.emarsys.core.storage.SharedPreferencesV3Provider
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ReflectionTestUtils
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
@@ -12,8 +11,10 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.Before
+import org.junit.Test
 
-class SharedPreferencesV3ProviderTest : AnnotationSpec() {
+class SharedPreferencesV3ProviderTest  {
 
     private lateinit var mockContext: Context
     private lateinit var mockOldSharedPreferences: SharedPreferences
@@ -21,7 +22,7 @@ class SharedPreferencesV3ProviderTest : AnnotationSpec() {
     private lateinit var mockMigration: EncryptedSharedPreferencesToSharedPreferencesMigration
     private lateinit var mockEmarsysEncryptedSharedPreferencesV3: EmarsysEncryptedSharedPreferencesV3
 
-    @BeforeEach
+    @Before
     fun setup() {
         mockContext = mockk()
         mockOldSharedPreferences = mockk()

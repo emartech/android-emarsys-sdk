@@ -3,10 +3,10 @@ package com.emarsys.core.util
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.util.serialization.SerializationUtils
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
+import org.junit.Test
 
-class SerializationUtilsTest : AnnotationSpec() {
+class SerializationUtilsTest  {
     @Test
     fun testSerialization() {
         val payload = HashMap<String, Any?>()

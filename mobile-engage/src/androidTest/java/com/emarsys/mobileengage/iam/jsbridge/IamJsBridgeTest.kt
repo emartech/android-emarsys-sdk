@@ -5,7 +5,6 @@ import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.iam.model.InAppMetaData
 import com.emarsys.mobileengage.iam.webview.IamWebView
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.mockk.Called
@@ -14,8 +13,10 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import org.json.JSONObject
+import org.junit.Before
+import org.junit.Test
 
-class IamJsBridgeTest : AnnotationSpec() {
+class IamJsBridgeTest  {
 
     private val jsonObject = JSONObject(
         mapOf(

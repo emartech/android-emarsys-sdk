@@ -1,14 +1,15 @@
 package com.emarsys.core.validate
 
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import org.json.JSONObject
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito.mock
 
-class JsonObjectValidatorTest : AnnotationSpec() {
+class JsonObjectValidatorTest  {
 
 
     lateinit var json: JSONObject

@@ -8,7 +8,6 @@ import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.api.event.EventHandler
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.IntegrationTestUtils
@@ -16,8 +15,11 @@ import io.kotest.assertions.fail
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 
-class EmarsysConfigTest : AnnotationSpec() {
+class EmarsysConfigTest  {
     companion object {
         private const val APP_ID = "appID"
         private const val MERCHANT_ID = "MERCHANT_ID"

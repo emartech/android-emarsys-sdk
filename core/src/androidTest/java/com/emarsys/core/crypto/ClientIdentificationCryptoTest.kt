@@ -1,12 +1,13 @@
 package com.emarsys.core.crypto
 
 import com.emarsys.core.device.ClientIdentification
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
-class ClientIdentificationCryptoTest : AnnotationSpec() {
+class ClientIdentificationCryptoTest  {
 
     companion object {
         private const val SECRET = "SECRET"

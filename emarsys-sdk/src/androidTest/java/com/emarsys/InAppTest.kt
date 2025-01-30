@@ -11,14 +11,16 @@ import com.emarsys.inapp.InApp
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.iam.InAppInternal
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 
-class InAppTest : AnnotationSpec() {
+class InAppTest  {
     private lateinit var inApp: InApp
     private lateinit var mockInAppInternal: InAppInternal
     private val application: Application

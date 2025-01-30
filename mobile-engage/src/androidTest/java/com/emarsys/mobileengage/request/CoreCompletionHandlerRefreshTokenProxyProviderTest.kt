@@ -10,12 +10,13 @@ import com.emarsys.core.worker.CoreCompletionHandlerMiddleware
 import com.emarsys.core.worker.Worker
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.util.RequestModelHelper
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.Before
+import org.junit.Test
 
-class CoreCompletionHandlerRefreshTokenProxyProviderTest : AnnotationSpec() {
+class CoreCompletionHandlerRefreshTokenProxyProviderTest  {
     private lateinit var mockCoreCompletionHandlerMiddlewareProvider: CoreCompletionHandlerMiddlewareProvider
     private lateinit var mockCoreCompletionHandlerMiddleware: CoreCompletionHandlerMiddleware
     private lateinit var mockRestClient: RestClient
@@ -31,7 +32,6 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest : AnnotationSpec() {
     private lateinit var mockRequestModelHelper: RequestModelHelper
     private lateinit var mockTokenResponseHandler: MobileEngageTokenResponseHandler
     private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
-
 
     @Before
     @Suppress("UNCHECKED_CAST")

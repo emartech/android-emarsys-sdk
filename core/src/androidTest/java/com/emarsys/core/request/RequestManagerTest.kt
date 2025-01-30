@@ -22,7 +22,6 @@ import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.worker.DefaultWorker
 import com.emarsys.core.worker.DelegatorCompletionHandlerProvider
 import com.emarsys.core.worker.Worker
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ConnectionTestUtils.checkConnection
 import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
@@ -36,7 +35,10 @@ import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
+import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doReturn
@@ -49,7 +51,7 @@ import org.mockito.kotlin.whenever
 import java.net.UnknownHostException
 import java.util.concurrent.CountDownLatch
 
-class RequestManagerTest : AnnotationSpec() {
+class RequestManagerTest  {
 
     @Rule
     @JvmField

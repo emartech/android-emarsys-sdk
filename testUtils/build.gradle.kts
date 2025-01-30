@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin)
-    alias(libs.plugins.android.junit5)
 }
 
 android {
@@ -55,7 +54,7 @@ group = "com.emarsys.testUtil"
 
 dependencies {
     implementation(libs.androidx.appcompat)
-    api(libs.androidx.test.extensions)
+    api(libs.androidx.test.junit)
     debugApi(libs.androidx.test.fragment)
 
     api(libs.kotlin.stdlib)

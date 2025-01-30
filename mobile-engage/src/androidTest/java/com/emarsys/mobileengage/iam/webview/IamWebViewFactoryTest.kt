@@ -8,14 +8,15 @@ import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
 import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory
 import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactoryProvider
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ExtensionTestUtils.runOnMain
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.Before
+import org.junit.Test
 
-class IamWebViewFactoryTest : AnnotationSpec() {
+class IamWebViewFactoryTest  {
 
     private lateinit var mockJSCommandFactoryProvider: JSCommandFactoryProvider
     private lateinit var mockJSCommandFactory: JSCommandFactory

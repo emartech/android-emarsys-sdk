@@ -30,7 +30,6 @@ import com.emarsys.mobileengage.client.ClientServiceInternal
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.predict.PredictInternal
 import com.emarsys.predict.request.PredictRequestContext
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ExtensionTestUtils.tryCast
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
@@ -41,9 +40,12 @@ import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
 import io.mockk.verifyOrder
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
-class DefaultConfigInternalTest : AnnotationSpec() {
+class DefaultConfigInternalTest  {
     private companion object {
         const val APPLICATION_CODE = "applicationCode"
         const val MERCHANT_ID = "merchantId"
@@ -83,7 +85,6 @@ class DefaultConfigInternalTest : AnnotationSpec() {
     private lateinit var mockClientServiceInternal: ClientServiceInternal
     private lateinit var mockCompletionListener: CompletionListener
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
-
 
     @Before
     fun setUp() {

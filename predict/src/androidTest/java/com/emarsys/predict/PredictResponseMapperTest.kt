@@ -2,13 +2,14 @@ package com.emarsys.predict
 
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.predict.api.model.Product
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.Before
+import org.junit.Test
 
-class PredictResponseMapperTest : AnnotationSpec() {
+class PredictResponseMapperTest  {
 
     private lateinit var predictResponseMapper: PredictResponseMapper
     private lateinit var mockResponseModel: ResponseModel

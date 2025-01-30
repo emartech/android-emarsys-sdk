@@ -12,17 +12,16 @@ import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.KotestRunnerAndroid
 import com.emarsys.testUtil.ReflectionTestUtils
-import io.kotest.core.spec.style.AnnotationSpec
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
-import org.junit.runner.RunWith
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 
-@RunWith(KotestRunnerAndroid::class)
-class EmarsysFirebaseMessagingServiceTest : AnnotationSpec() {
+class EmarsysFirebaseMessagingServiceTest {
 
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application

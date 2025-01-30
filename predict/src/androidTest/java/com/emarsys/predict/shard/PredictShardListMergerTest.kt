@@ -9,14 +9,15 @@ import com.emarsys.core.storage.KeyValueStore
 import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.request.PredictRequestModelBuilder
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.Before
+import org.junit.Test
 
-class PredictShardListMergerTest : AnnotationSpec() {
+class PredictShardListMergerTest  {
 
     private companion object {
         const val ID = "id"

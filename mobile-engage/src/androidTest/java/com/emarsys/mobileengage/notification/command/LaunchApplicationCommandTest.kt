@@ -8,21 +8,23 @@ import androidx.test.core.app.ApplicationProvider
 import com.emarsys.mobileengage.fake.FakeActivityLifecycleCallbacks
 import com.emarsys.mobileengage.notification.LaunchActivityCommandLifecycleCallbacksFactory
 import com.emarsys.mobileengage.service.IntentUtils
-import com.emarsys.testUtil.AnnotationSpec
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
-class LaunchApplicationCommandTest : AnnotationSpec() {
+class LaunchApplicationCommandTest  {
 
     private lateinit var mockLaunchActivityCommandLifecycleCallbacksFactory: LaunchActivityCommandLifecycleCallbacksFactory
     private lateinit var applicationContext: Context
     private lateinit var mockLaunchPendingIntent: PendingIntent
 
-    @BeforeEach
+    @Before
     fun setUp() {
         mockLaunchActivityCommandLifecycleCallbacksFactory = mockk(relaxed = true)
         applicationContext = ApplicationProvider.getApplicationContext()
@@ -31,7 +33,7 @@ class LaunchApplicationCommandTest : AnnotationSpec() {
         mockkStatic(IntentUtils::class)
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         unmockkStatic(IntentUtils::class)
     }

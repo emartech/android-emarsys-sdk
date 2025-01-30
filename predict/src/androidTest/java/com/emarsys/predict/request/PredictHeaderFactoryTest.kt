@@ -3,13 +3,14 @@ package com.emarsys.predict.request
 
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.storage.KeyValueStore
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito
 
-class PredictHeaderFactoryTest : AnnotationSpec() {
+class PredictHeaderFactoryTest  {
     private companion object {
         const val OS_VERSION = "1.0.0"
         const val PLATFORM = "android"

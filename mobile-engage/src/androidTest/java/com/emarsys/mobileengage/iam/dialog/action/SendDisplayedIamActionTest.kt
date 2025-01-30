@@ -4,15 +4,17 @@ package com.emarsys.mobileengage.iam.dialog.action
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory.create
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.iam.InAppInternal
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.ThreadSpy
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.isNull
 import org.mockito.kotlin.whenever
 
-class SendDisplayedIamActionTest : AnnotationSpec() {
+class SendDisplayedIamActionTest  {
     private lateinit var action: SendDisplayedIamAction
     private lateinit var handler: ConcurrentHandlerHolder
     private lateinit var inAppInternal: InAppInternal

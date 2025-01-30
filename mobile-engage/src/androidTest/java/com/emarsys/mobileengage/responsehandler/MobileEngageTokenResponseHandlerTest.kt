@@ -5,16 +5,17 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.util.RequestModelHelper
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import java.net.URL
 
-class MobileEngageTokenResponseHandlerTest : AnnotationSpec() {
+class MobileEngageTokenResponseHandlerTest  {
     private companion object {
         const val CLIENT_HOST = "https://mobile-events.eservice.emarsys.net"
         const val CLIENT_BASE = "$CLIENT_HOST/v3/apps/%s/client"

@@ -19,7 +19,6 @@ import com.emarsys.di.DefaultEmarsysComponent
 import com.emarsys.di.DefaultEmarsysDependencies
 import com.emarsys.di.emarsys
 import com.emarsys.mobileengage.push.PushTokenProvider
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ConnectionTestUtils
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
@@ -32,10 +31,13 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
+import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
-class MobileEngageIntegrationTest : AnnotationSpec() {
+class MobileEngageIntegrationTest  {
     @Rule
     @JvmField
     val retryRule: RetryRule = RetryUtils.retryRule
