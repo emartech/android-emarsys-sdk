@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.iam.dialog
 
+import android.annotation.TargetApi
 import android.app.Activity
 import android.content.DialogInterface
 import android.graphics.Color
@@ -89,7 +90,9 @@ class IamDialog(
 
         val activity = activityReference?.get() ?: this.activity
         val html = html ?: savedInstanceState?.getString("html")
-        val inAppMetaData = inAppMetaData ?: getInAppMetaDataFromBundle(savedInstanceState)
+        val inAppMetaData = inAppMetaData
+            ?: if (AndroidVersionUtils.isBelowTiramisu) savedInstanceState?.getSerializable("inAppMetaData") as InAppMetaData?
+            else getInAppMetaDataFromBundle(savedInstanceState)
         if (iamWebView == null && activity != null) {
             iamWebView = webViewFactory.create(activity)
             if (html != null && inAppMetaData != null) {
@@ -98,12 +101,9 @@ class IamDialog(
         }
     }
 
+    @TargetApi(33)
     private fun getInAppMetaDataFromBundle(savedInstanceState: Bundle?) =
-        if (AndroidVersionUtils.isBelowTiramisu) {
-            savedInstanceState?.getSerializable("inAppMetaData") as InAppMetaData?
-        } else {
-            savedInstanceState?.getSerializable("inAppMetaData", InAppMetaData::class.java)
-        }
+        savedInstanceState?.getSerializable("inAppMetaData", InAppMetaData::class.java)
 
     override fun onCreateView(
         inflater: LayoutInflater,
