@@ -35,7 +35,7 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
-class LoggerTest  {
+class LoggerTest {
 
     companion object {
         const val TIMESTAMP = 400L
@@ -99,6 +99,15 @@ class LoggerTest  {
 
     @Test
     fun testPersistLog_addsLog_toShardRepository() {
+        loggerInstance.handleLog(
+            LogLevel.INFO, logEntryMock(
+                "log_request", mapOf(
+                    "key1" to "value",
+                    "key2" to 3,
+                    "key3" to true
+                )
+            ), null
+        )
         loggerInstance.persistLog(
             LogLevel.ERROR, logEntryMock(
                 "log_request", mapOf(
@@ -114,8 +123,7 @@ class LoggerTest  {
         runBlocking {
             verify(mockShardRepository, timeout(100)).add(capture<ShardModel>(captor))
         }
-
-        captor.value shouldBe ShardModel(
+        val expected = ShardModel(
             UUID,
             "log_request",
             mapOf(
@@ -123,11 +131,129 @@ class LoggerTest  {
                 "key2" to 3,
                 "key3" to true,
                 "level" to "ERROR",
+                "thread" to "testThreadName",
+                "breadcrumbs" to listOf("topic='log_request', data={key1=value, key2=3, key3=true}"),
+            ),
+            TIMESTAMP,
+            TTL
+        )
+        val result = captor.value
+        result.id shouldBe expected.id
+        result.timestamp shouldBe expected.timestamp
+        result.ttl shouldBe expected.ttl
+        result.data shouldBe expected.data
+    }
+
+    @Test
+    fun testPersistLog_DoesntAddBreadcumbs_toNonErrorLog() {
+        whenever(mockLogLevelStorage.get()).thenReturn("INFO")
+
+        for (i in 0..13) {
+            loggerInstance.handleLog(
+                LogLevel.DEBUG, logEntryMock(
+                    "log_request", mapOf(
+                        "key$i" to "value",
+                        "key2" to 3,
+                        "key3" to true
+                    )
+                ), null
+            )
+        }
+        loggerInstance.persistLog(
+            LogLevel.INFO, logEntryMock(
+                "log_request", mapOf(
+                    "key14" to "value",
+                    "key2" to 3,
+                    "key3" to true
+                )
+            ), "testThreadName", null
+        )
+
+        val captor = ArgumentCaptor.forClass(ShardModel::class.java)
+
+        runBlocking {
+            verify(mockShardRepository, timeout(100)).add(capture<ShardModel>(captor))
+        }
+        val expected = ShardModel(
+            UUID,
+            "log_request",
+            mapOf(
+                "key14" to "value",
+                "key2" to 3,
+                "key3" to true,
+                "level" to "INFO",
                 "thread" to "testThreadName"
             ),
             TIMESTAMP,
             TTL
         )
+        val result = captor.value
+        result.id shouldBe expected.id
+        result.timestamp shouldBe expected.timestamp
+        result.ttl shouldBe expected.ttl
+        result.data shouldBe expected.data
+    }
+
+    @Test
+    fun testPersistLog_addsBreadcumbs_toErrorLog() {
+
+        for (i in 0..13) {
+            loggerInstance.handleLog(
+                LogLevel.INFO, logEntryMock(
+                    "log_request", mapOf(
+                        "key$i" to "value",
+                        "key2" to 3,
+                        "key3" to true
+                    )
+                ), null
+            )
+        }
+        loggerInstance.persistLog(
+            LogLevel.ERROR, logEntryMock(
+                "log_request", mapOf(
+                    "key14" to "value",
+                    "key2" to 3,
+                    "key3" to true
+                )
+            ), "testThreadName", null
+        )
+
+        val captor = ArgumentCaptor.forClass(ShardModel::class.java)
+
+        runBlocking {
+            verify(mockShardRepository, timeout(100)).add(capture<ShardModel>(captor))
+        }
+        val expected = ShardModel(
+            UUID,
+            "log_request",
+            mapOf(
+                "key14" to "value",
+                "key2" to 3,
+                "key3" to true,
+                "level" to "ERROR",
+                "thread" to "testThreadName",
+                "breadcrumbs" to listOf(
+                    "topic='log_request', data={key13=value, key2=3, key3=true}",
+                    "topic='log_request', data={key12=value, key2=3, key3=true}",
+                    "topic='log_request', data={key11=value, key2=3, key3=true}",
+                    "topic='log_request', data={key10=value, key2=3, key3=true}",
+                    "topic='log_request', data={key9=value, key2=3, key3=true}",
+                    "topic='log_request', data={key8=value, key2=3, key3=true}",
+                    "topic='log_request', data={key7=value, key2=3, key3=true}",
+                    "topic='log_request', data={key6=value, key2=3, key3=true}",
+                    "topic='log_request', data={key5=value, key2=3, key3=true}",
+                    "topic='log_request', data={key4=value, key2=3, key3=true}",
+                    "topic='log_request', data={key3=true, key2=3}"
+                ),
+            ),
+            TIMESTAMP,
+            TTL
+        )
+        val result = captor.value
+        result.id shouldBe expected.id
+        result.timestamp shouldBe expected.timestamp
+        result.ttl shouldBe expected.ttl
+        result.data shouldBe expected.data
     }
 
     @Test
@@ -154,16 +280,23 @@ class LoggerTest  {
         runBlocking {
             verify(mockShardRepository, timeout(100)).add(capture<ShardModel>(captor))
         }
-        captor.value shouldBe ShardModel(
+        val expected = ShardModel(
             UUID,
-            "any_log",
+            "log_request",
             mapOf(
+
                 "level" to "ERROR",
-                "thread" to "testThreadName"
+                "thread" to "testThreadName",
+                "breadcrumbs" to listOf<String>(),
             ),
             TIMESTAMP,
             TTL
         )
+        val result = captor.value
+        result.id shouldBe expected.id
+        result.timestamp shouldBe expected.timestamp
+        result.ttl shouldBe expected.ttl
+        result.data shouldBe expected.data
     }
 
     @Test

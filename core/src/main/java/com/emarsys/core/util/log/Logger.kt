@@ -41,6 +41,7 @@ class Logger(
 
     companion object {
         const val TAG = "Emarsys SDK"
+        val queue = ArrayDeque<LogEntry>(10)
 
         @JvmStatic
         fun log(logEntry: LogEntry) {
@@ -91,6 +92,12 @@ class Logger(
     fun handleLog(logLevel: LogLevel, logEntry: LogEntry, onCompleted: (() -> Unit)? = null) {
         val currentThreadName = Thread.currentThread().name
         concurrentHandlerHolder.coreHandler.post {
+            if (logLevel == DEBUG || logLevel == INFO) {
+                if (queue.size > 10) {
+                    queue.removeLast()
+                }
+                queue.addFirst(logEntry)
+            }
             val isDebugMode: Boolean =
                 0 != context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE
             if ((verboseConsoleLoggingEnabled || logEntry is MethodNotAllowed) && isDebugMode) {
@@ -106,18 +113,23 @@ class Logger(
         when (logLevel) {
             DEBUG ->
                 Log.d(TAG, logEntry.asString())
+
             TRACE ->
                 Log.v(TAG, logEntry.asString())
+
             INFO ->
                 Log.i(TAG, logEntry.asString())
+
             WARN ->
                 Log.w(TAG, logEntry.asString())
+
             ERROR ->
                 if (logEntry is CrashLog) {
                     Log.e(TAG, logEntry.asString(), logEntry.throwable)
                 } else {
                     Log.e(TAG, logEntry.asString())
                 }
+
             else -> {
             }
         }
@@ -140,10 +152,12 @@ class Logger(
                             logLevel,
                             currentThreadName,
                             WrapperInfoContainer.wrapperInfo
-                        )
+                        ) + if (logLevel == ERROR) mapOf("breadcrumbs" to queue.map { it.asString() }) else emptyMap()
                     )
                     .build()
                 shardRepository.add(shard)
+                if (logLevel == ERROR)
+                    queue.clear()
                 onCompleted?.invoke()
             }
         } else {
