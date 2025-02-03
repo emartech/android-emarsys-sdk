@@ -17,7 +17,7 @@ import io.mockk.verify
 import org.junit.Before
 import org.junit.Test
 
-class PredictShardListMergerTest  {
+class PredictShardListMergerTest {
 
     private companion object {
         const val ID = "id"
