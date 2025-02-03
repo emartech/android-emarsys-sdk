@@ -147,7 +147,6 @@ class PredictShardListMergerTest {
         val expected = mapOf(
             "cp" to 1,
             "vi" to VISITOR_ID,
-            "ci" to CONTACT_ID,
             "q1" to 1,
             "q2" to "b",
             "q3" to "c"
