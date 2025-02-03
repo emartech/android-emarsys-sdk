@@ -13,8 +13,9 @@ import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.predict.request.PredictMultiIdRequestModelFactory
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.eq
@@ -23,7 +24,7 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import java.net.URL
 
-class CoreCompletionHandlerRefreshTokenProxyTest : AnnotationSpec() {
+class CoreCompletionHandlerRefreshTokenProxyTest {
 
 
     companion object {

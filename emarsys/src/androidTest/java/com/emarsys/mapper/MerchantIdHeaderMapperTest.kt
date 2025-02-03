@@ -5,14 +5,15 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.predict.request.PredictRequestContext
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.stub
 
-class MerchantIdHeaderMapperTest : AnnotationSpec() {
+class MerchantIdHeaderMapperTest {
 
     private companion object {
         const val TIMESTAMP = 123456789L

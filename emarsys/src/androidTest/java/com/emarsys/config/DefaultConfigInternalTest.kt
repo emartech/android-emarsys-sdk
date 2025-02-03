@@ -45,7 +45,7 @@ import org.junit.Before
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
-class DefaultConfigInternalTest  {
+class DefaultConfigInternalTest {
     private companion object {
         const val APPLICATION_CODE = "applicationCode"
         const val MERCHANT_ID = "merchantId"
@@ -557,7 +557,7 @@ class DefaultConfigInternalTest  {
         configInternal.changeMerchantId(MERCHANT_ID, null)
 
         FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe true
-        verify(mockPredictRequestContext).merchantId = MERCHANT_ID
+        verify { mockPredictRequestContext.merchantId = MERCHANT_ID }
     }
 
     @Test
@@ -567,9 +567,9 @@ class DefaultConfigInternalTest  {
         configInternal.changeMerchantId(MERCHANT_ID, null)
 
         FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe true
-        verify(mockPredictRequestContext).merchantId = MERCHANT_ID
-        verify(mockPredictInternal).clearPredictOnlyContact(null)
-        verifyNoInteractions(mockMobileEngageInternal)
+        verify { mockPredictRequestContext.merchantId = MERCHANT_ID }
+        verify { mockPredictInternal.clearPredictOnlyContact(null) }
+        confirmVerified(mockMobileEngageInternal)
     }
 
     @Test
@@ -577,9 +577,9 @@ class DefaultConfigInternalTest  {
         configInternal.changeMerchantId(MERCHANT_ID, null)
 
         FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe true
-        verify(mockPredictRequestContext).merchantId = MERCHANT_ID
-        verifyNoInteractions(mockPredictInternal)
-        verifyNoInteractions(mockMobileEngageInternal)
+        verify { mockPredictRequestContext.merchantId = MERCHANT_ID }
+        confirmVerified(mockPredictInternal)
+        confirmVerified(mockMobileEngageInternal)
     }
 
     @Test
@@ -592,7 +592,7 @@ class DefaultConfigInternalTest  {
         latch.await()
 
         FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe true
-        verify(mockMobileEngageInternal).clearContact(null)
+        verify { mockMobileEngageInternal.clearContact(null) }
     }
 
     @Test
