@@ -5,7 +5,6 @@ import android.app.Application
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.util.RetryUtil
 import com.emarsys.mobileengage.api.inbox.Message
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.E2ETestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.RetryUtils
@@ -13,11 +12,13 @@ import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import com.emarsys.testUtil.rules.RetryRule
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import org.junit.After
 import org.junit.Rule
+import org.junit.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-class EmarsysE2ETests : AnnotationSpec() {
+class EmarsysE2ETests  {
 
     @Rule
     @JvmField

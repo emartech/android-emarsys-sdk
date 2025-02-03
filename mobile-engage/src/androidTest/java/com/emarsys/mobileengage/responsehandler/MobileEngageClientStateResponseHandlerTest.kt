@@ -6,16 +6,17 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.mobileengage.util.RequestModelHelper
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import java.net.URL
 
-class MobileEngageClientStateResponseHandlerTest : AnnotationSpec() {
+class MobileEngageClientStateResponseHandlerTest  {
     private companion object {
         const val X_CLIENT_STATE_VALUE =
             "TG9yZW0gSXBzdW0gaXMgc2ltcGx5IGR1bW15IHRleHQgb2YgdGhlIHByaW50aW5nIGFuZCB0"

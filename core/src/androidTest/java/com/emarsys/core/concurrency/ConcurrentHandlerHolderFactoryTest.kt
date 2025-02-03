@@ -1,14 +1,14 @@
 package com.emarsys.core.concurrency
 
 import com.emarsys.core.handler.ConcurrentHandlerHolder
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 
-
-class ConcurrentHandlerHolderFactoryTest : AnnotationSpec() {
+class ConcurrentHandlerHolderFactoryTest  {
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
-
 
     @Before
     fun setUp() {

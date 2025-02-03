@@ -8,25 +8,24 @@ import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.util.log.LogLevel
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.log.entry.CrashLog
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.mockito.kotlin.any
-import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.verify
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.CountDownLatch
 
-
-class LogExceptionProxyTest : AnnotationSpec() {
+class LogExceptionProxyTest  {
     private lateinit var mockLogger: Logger
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
     @Before
     fun setUp() {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
-        mockLogger = mock()
+        mockLogger = mockk(relaxed = true)
 
         val dependencyContainer =
             FakeCoreDependencyContainer(
@@ -64,7 +63,7 @@ class LogExceptionProxyTest : AnnotationSpec() {
             latch.countDown()
         }
         latch.await()
-        verify(mockLogger).handleLog(eq(LogLevel.ERROR), any(), eq(null))
+        verify { mockLogger.handleLog(LogLevel.ERROR, any(), null) }
     }
 
     @Test
@@ -77,9 +76,8 @@ class LogExceptionProxyTest : AnnotationSpec() {
 
         callback.proxyWithLogExceptions().run()
 
-        argumentCaptor<CrashLog> {
-            verify(mockLogger).handleLog(eq(LogLevel.ERROR), capture(), eq(null))
-            firstValue.throwable shouldBe expectedCause
-        }
+        val slot = slot<CrashLog>()
+        verify { mockLogger.handleLog(LogLevel.ERROR, capture(slot), null) }
+        slot.captured.throwable shouldBe expectedCause
     }
 }

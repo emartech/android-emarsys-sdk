@@ -3,13 +3,14 @@ package com.emarsys.mobileengage.service.mapper
 import android.content.Context
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.resource.MetaDataReader
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.mock
 
 
-class RemoteMessageMapperFactoryTest : AnnotationSpec() {
+class RemoteMessageMapperFactoryTest  {
     private lateinit var mockMetaDataReader: MetaDataReader
     private lateinit var context: Context
     private lateinit var mockUuidProvider: UUIDProvider

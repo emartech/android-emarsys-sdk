@@ -3,7 +3,6 @@ package com.emarsys.core.util
 import android.content.Context
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.FileTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.RetryUtils
@@ -13,7 +12,9 @@ import com.emarsys.testUtil.rules.RetryRule
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import org.junit.Before
 import org.junit.Rule
+import org.junit.Test
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
@@ -22,7 +23,7 @@ import java.util.Arrays
 import java.util.UUID
 import java.util.concurrent.CountDownLatch
 
-class FileDownloaderTest : AnnotationSpec() {
+class FileDownloaderTest  {
 
     @Rule
     @JvmField

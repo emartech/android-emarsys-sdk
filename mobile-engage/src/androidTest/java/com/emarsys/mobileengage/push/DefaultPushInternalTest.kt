@@ -15,11 +15,12 @@ import com.emarsys.mobileengage.event.CacheableEventHandler
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.fake.FakeCompletionListener
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.ThreadSpy
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.argumentCaptor
@@ -32,7 +33,7 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.verifyNoMoreInteractions
 import java.util.concurrent.CountDownLatch
 
-class DefaultPushInternalTest : AnnotationSpec() {
+class DefaultPushInternalTest  {
 
     private companion object {
         const val TIMESTAMP = 123456789L

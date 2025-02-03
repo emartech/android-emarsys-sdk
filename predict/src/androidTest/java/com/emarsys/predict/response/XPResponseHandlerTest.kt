@@ -7,13 +7,14 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.KeyValueStore
-import com.emarsys.testUtil.AnnotationSpec
-import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
-import org.mockito.Mockito
-import org.mockito.Mockito.mock
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import org.junit.Before
+import org.junit.Test
 
-class XPResponseHandlerTest : AnnotationSpec() {
+class XPResponseHandlerTest  {
 
 
     private lateinit var keyValueStore: KeyValueStore
@@ -22,10 +23,10 @@ class XPResponseHandlerTest : AnnotationSpec() {
 
     @Before
     fun init() {
-        mockPredictServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
-            whenever(provideEndpointHost()).thenReturn("https://recommender.scarabresearch.com")
-        }
-        keyValueStore = mock(KeyValueStore::class.java)
+        mockPredictServiceProvider = mockk(relaxed = true)
+            every { mockPredictServiceProvider.provideEndpointHost() } returns "https://recommender.scarabresearch.com"
+
+        keyValueStore = mockk(relaxed = true)
         responseHandler = XPResponseHandler(keyValueStore, mockPredictServiceProvider)
     }
 
@@ -108,7 +109,7 @@ class XPResponseHandlerTest : AnnotationSpec() {
 
         responseHandler.handleResponse(response)
 
-        Mockito.verify(keyValueStore).putString("xp", xp)
+        verify { keyValueStore.putString("xp", xp) }
     }
 
 }

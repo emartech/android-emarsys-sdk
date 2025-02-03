@@ -11,7 +11,7 @@ interface ConfigInternal {
 
     val merchantId: String?
 
-    val hardwareId: String
+    val clientId: String
 
     val language: String
 

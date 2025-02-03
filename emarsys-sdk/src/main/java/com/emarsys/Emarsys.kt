@@ -286,7 +286,7 @@ object Emarsys {
                             "refreshRemoteConfig",
                             mapOf("applicationCode" to applicationCode, "exception" to it.message)
                         )
-                        Logger.log(logEntry)
+                        Logger.error(logEntry)
                     }
                 }
         } else {

@@ -3,12 +3,12 @@ package com.emarsys.core.util
 import com.emarsys.core.request.model.CompositeRequestModel
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import org.junit.Test
 
 
-class RequestModelUtilsTest : AnnotationSpec() {
+class RequestModelUtilsTest  {
 
 
     @Test

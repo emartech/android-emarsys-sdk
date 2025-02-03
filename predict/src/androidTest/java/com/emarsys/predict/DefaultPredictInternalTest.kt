@@ -31,13 +31,14 @@ import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
 import com.emarsys.predict.request.PredictMultiIdRequestModelFactory
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.request.PredictRequestModelBuilder
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
 import com.emarsys.testUtil.mockito.anyNotNull
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.argumentCaptor
@@ -50,7 +51,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import java.util.concurrent.CountDownLatch
 
-class DefaultPredictInternalTest : AnnotationSpec() {
+class DefaultPredictInternalTest  {
 
     companion object {
         const val TTL = Long.MAX_VALUE

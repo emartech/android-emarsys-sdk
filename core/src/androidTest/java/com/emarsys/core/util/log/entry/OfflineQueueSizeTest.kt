@@ -1,10 +1,10 @@
 package com.emarsys.core.util.log.entry
 
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
+import org.junit.Test
 
 
-class OfflineQueueSizeTest : AnnotationSpec() {
+class OfflineQueueSizeTest  {
 
 
     @Test

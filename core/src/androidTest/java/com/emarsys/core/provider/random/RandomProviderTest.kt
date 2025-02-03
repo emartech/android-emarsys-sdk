@@ -1,10 +1,10 @@
 package com.emarsys.core.provider.random
 
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.doubles.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.doubles.shouldBeLessThanOrEqual
+import org.junit.Test
 
-class RandomProviderTest : AnnotationSpec() {
+class RandomProviderTest  {
 
     @Test
     fun testProvideRandomDouble() {

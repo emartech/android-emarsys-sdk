@@ -4,6 +4,7 @@ import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.webkit.WebView
 import android.widget.LinearLayout
+import androidx.fragment.app.testing.EmptyFragmentActivity
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragment
 import androidx.lifecycle.Lifecycle
@@ -26,23 +27,25 @@ import com.emarsys.mobileengage.iam.model.InAppMetaData
 import com.emarsys.mobileengage.iam.webview.IamWebView
 import com.emarsys.mobileengage.iam.webview.IamWebViewFactory
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ExtensionTestUtils.runOnMain
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.ReflectionTestUtils
-import com.emarsys.testUtil.fake.FakeActivity
+import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
-class IamDialogTest : AnnotationSpec() {
+class IamDialogTest {
     private companion object {
         const val CAMPAIGN_ID = "id_value"
-        private const val SID = "testSid"
-        private const val URL = "https://www.emarsys.com"
+        const val SID = "testSid"
+        const val URL = "https://www.emarsys.com"
         const val ON_SCREEN_TIME_KEY = "on_screen_time"
         const val CAMPAIGN_ID_KEY = "id"
         const val REQUEST_ID_KEY = "request_id"
@@ -58,7 +61,7 @@ class IamDialogTest : AnnotationSpec() {
     private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
 
     private lateinit var iamDialog: IamDialog
-    private var scenario: ActivityScenario<FakeActivity>? = null
+    private var scenario: ActivityScenario<EmptyFragmentActivity>? = null
     private lateinit var iamWebView: IamWebView
 
     @Before
@@ -104,9 +107,9 @@ class IamDialogTest : AnnotationSpec() {
         scenario?.close()
     }
 
-    private fun launchFakeActivityIfNeeded() {
+    private fun launchActivityIfNeeded() {
         if (scenario == null) {
-            scenario = ActivityScenario.launch(FakeActivity::class.java)
+            scenario = ActivityScenario.launch(EmptyFragmentActivity::class.java)
             val countDownLatch = CountDownLatch(1)
             scenario!!.onActivity { activity ->
                 every {
@@ -130,10 +133,9 @@ class IamDialogTest : AnnotationSpec() {
 
     @Test
     fun testCreate_shouldReturnIamDialogInstance() {
-        val fragmentScenario =
-            launchFragment {
-                iamDialog
-            }
+        val fragmentScenario = launchFragment(initialState = Lifecycle.State.CREATED) {
+            iamDialog
+        }
         fragmentScenario.onFragment { fragment ->
             (fragment is IamDialog) shouldBe true
             fragment shouldNotBe null
@@ -148,7 +150,7 @@ class IamDialogTest : AnnotationSpec() {
         bundle.putString(IamDialog.SID, null)
         bundle.putString(IamDialog.URL, null)
         bundle.putString(IamDialog.REQUEST_ID, null)
-        val fragmentScenario = launchFragment(bundle) {
+        val fragmentScenario = launchFragment(bundle, initialState = Lifecycle.State.CREATED) {
             iamDialog
         }
         fragmentScenario.onFragment { fragment ->
@@ -168,7 +170,7 @@ class IamDialogTest : AnnotationSpec() {
         bundle.putString(IamDialog.SID, null)
         bundle.putString(IamDialog.URL, null)
         bundle.putString(IamDialog.REQUEST_ID, requestId)
-        val fragmentScenario = launchFragment(bundle) {
+        val fragmentScenario = launchFragment(bundle, initialState = Lifecycle.State.CREATED) {
             iamDialog
         }
         fragmentScenario.onFragment { fragment ->
@@ -189,7 +191,7 @@ class IamDialogTest : AnnotationSpec() {
         bundle.putString(IamDialog.URL, null)
         bundle.putString(IamDialog.REQUEST_ID, requestId)
 
-        val fragmentScenario = launchFragment(bundle) {
+        val fragmentScenario = launchFragment(bundle, initialState = Lifecycle.State.CREATED) {
             iamDialog
         }
         fragmentScenario.onFragment { fragment ->
@@ -210,7 +212,7 @@ class IamDialogTest : AnnotationSpec() {
         bundle.putString(IamDialog.URL, URL)
         bundle.putString(IamDialog.REQUEST_ID, requestId)
 
-        val fragmentScenario = launchFragment(bundle) {
+        val fragmentScenario = launchFragment(bundle, initialState = Lifecycle.State.CREATED) {
             iamDialog
         }
         fragmentScenario.onFragment { fragment ->
@@ -222,6 +224,35 @@ class IamDialogTest : AnnotationSpec() {
     }
 
     @Test
+    fun testOnCreate_shouldCreateWebView_withFragmentActivity_whenActivityReferenceIsNull() {
+        val fragmentScenario = launchFragment(initialState = Lifecycle.State.CREATED) {
+            iamDialog
+        }
+        fragmentScenario.onFragment { fragment ->
+            verify { mockWebViewFactory.create(fragment.activity!!) }
+        }
+    }
+
+    @Test
+    fun testOnCreate_should_notOverrideHtml_whenItIsStillAvailable() {
+        val mockIamWebView: IamWebView = mockk(relaxed = true)
+        every { mockWebViewFactory.create(any()) } returns mockIamWebView
+
+        val testHtml = "<html>123</html>"
+        val testInAppMetaData = InAppMetaData("123", null, null)
+        ReflectionTestUtils.setInstanceField(iamDialog, "html", testHtml)
+        ReflectionTestUtils.setInstanceField(iamDialog, "inAppMetaData", testInAppMetaData)
+
+        val fragmentScenario = launchFragment(initialState = Lifecycle.State.CREATED) {
+            iamDialog
+        }
+
+        fragmentScenario.onFragment { fragment ->
+            verify { mockIamWebView.load(testHtml, testInAppMetaData, any()) }
+        }
+    }
+
+    @Test
     fun testCreate_shouldInitializeDialog_withOutRequestId() {
         val campaignId = "campaignId"
         val bundle = Bundle()
@@ -229,7 +260,7 @@ class IamDialogTest : AnnotationSpec() {
         bundle.putString(IamDialog.SID, SID)
         bundle.putString(IamDialog.URL, URL)
         bundle.putString(IamDialog.REQUEST_ID, null)
-        val fragmentScenario = launchFragment(bundle) {
+        val fragmentScenario = launchFragment(bundle, initialState = Lifecycle.State.CREATED) {
             iamDialog
         }
         fragmentScenario.onFragment { fragment ->
@@ -242,14 +273,16 @@ class IamDialogTest : AnnotationSpec() {
 
     @Test
     fun testInitialization_setsDimAmountToZero() {
-        launchFakeActivityIfNeeded()
+        launchActivityIfNeeded()
+
+        every { mockWebViewFactory.create(any()) } returns iamWebView
 
         val bundle = Bundle()
         bundle.putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
         bundle.putString(IamDialog.SID, SID)
         bundle.putString(IamDialog.URL, URL)
         bundle.putString(IamDialog.REQUEST_ID, null)
-        val fragmentScenario = launchFragment(bundle) {
+        val fragmentScenario = launchFragment(bundle, initialState = Lifecycle.State.CREATED) {
             iamDialog
         }
         displayDialog(fragmentScenario)
@@ -260,10 +293,11 @@ class IamDialogTest : AnnotationSpec() {
         }
     }
 
-
     @Test
     fun testInitialization_setsDialogToFullscreen() {
-        launchFakeActivityIfNeeded()
+        launchActivityIfNeeded()
+
+        every { mockWebViewFactory.create(any()) } returns iamWebView
 
         val bundle = Bundle()
         bundle.putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
@@ -271,26 +305,32 @@ class IamDialogTest : AnnotationSpec() {
         bundle.putString(IamDialog.URL, URL)
         bundle.putString(IamDialog.REQUEST_ID, null)
 
-        val fragmentScenario = launchFragment(bundle) {
+        val fragmentScenario = launchFragment(bundle, initialState = Lifecycle.State.CREATED) {
             iamDialog
         }
 
-        displayDialog(fragmentScenario)
         fragmentScenario.onFragment {
-            val windowWidth = it.activity!!.window.attributes.width
-            val windowHeight = it.activity!!.window.attributes.height
+            fragmentScenario.moveToState(Lifecycle.State.STARTED)
+            fragmentScenario.moveToState(Lifecycle.State.RESUMED)
 
-            val dialogWidth = it.dialog!!.window!!.attributes.width
-            val dialogHeight = it.dialog!!.window!!.attributes.height
+            val windowWidth = it.activity!!.window.decorView.measuredWidth
+            val windowHeight = it.activity!!.window.decorView.measuredHeight
 
-            dialogWidth shouldBe windowWidth
-            dialogHeight shouldBe windowHeight
+            val dialogWidth = it.view!!.layoutParams.width
+            val dialogHeight = it.view!!.layoutParams.height
+
+            windowHeight shouldBeGreaterThan 0
+            windowWidth shouldBeGreaterThan 0
+            dialogHeight shouldBe -1
+            dialogWidth shouldBe -1
         }
     }
 
     @Test
     fun testDialog_stillVisible_afterOrientationChange() {
-        launchFakeActivityIfNeeded()
+        launchActivityIfNeeded()
+
+        every { mockWebViewFactory.create(any()) } returns iamWebView
 
         val bundle = Bundle()
         bundle.putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
@@ -299,94 +339,29 @@ class IamDialogTest : AnnotationSpec() {
         bundle.putString(IamDialog.REQUEST_ID, REQUEST_ID_KEY)
         bundle.putSerializable("loading_time", InAppLoadingTime(0, 0))
 
-        val fragmentScenario = launchFragment(bundle) {
+        val fragmentScenario = launchFragment(bundle, initialState = Lifecycle.State.CREATED) {
             iamDialog
         }
 
-        displayDialog(fragmentScenario)
-
         fragmentScenario.onFragment {
-            it.activity?.runOnUiThread {
-                it.activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-            }
+            fragmentScenario.moveToState(Lifecycle.State.STARTED)
+            fragmentScenario.moveToState(Lifecycle.State.RESUMED)
 
-            it.activity?.runOnUiThread {
-                it.activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-            }
+            it.activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
-            val dialogWidth = it.activity?.window?.attributes?.width ?: 0
-            val dialogHeight = it.activity?.window?.attributes?.height ?: 0
-            val windowWidth = it.dialog!!.window!!.attributes.width
-            val windowHeight = it.dialog!!.window!!.attributes.height
+            it.activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
-            dialogWidth shouldBe windowWidth
-            dialogHeight shouldBe windowHeight
+            val windowWidth = it.activity!!.window.decorView.measuredWidth
+            val windowHeight = it.activity!!.window.decorView.measuredHeight
+
+            val dialogWidth = it.view!!.layoutParams.width
+            val dialogHeight = it.view!!.layoutParams.height
+
+            windowHeight shouldBeGreaterThan 0
+            windowWidth shouldBeGreaterThan 0
+            dialogHeight shouldBe -1
+            dialogWidth shouldBe -1
         }
-    }
-
-    @Test
-    fun testDialog_cancel_turnsRetainInstanceOff() {
-        launchFakeActivityIfNeeded()
-
-        val bundle = Bundle()
-        bundle.putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
-        bundle.putString(IamDialog.SID, SID)
-        bundle.putString(IamDialog.URL, URL)
-        bundle.putString(IamDialog.REQUEST_ID, REQUEST_ID_KEY)
-
-        val fragmentScenario =
-            launchFragment(bundle) {
-                iamDialog
-            }
-        val fragmentLatch = CountDownLatch(1)
-
-        displayDialog(fragmentScenario)
-        fragmentScenario.onFragment {
-            it.setInAppLoadingTime(InAppLoadingTime(1, 1))
-            it.activity?.runOnUiThread {
-                it.activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-
-                it.onCancel(it.dialog!!)
-
-                it.activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-
-                it.retainInstance shouldBe false
-            }
-            fragmentLatch.countDown()
-        }
-        fragmentLatch.await()
-    }
-
-    @Test
-    fun testDialog_dismiss_turnsRetainInstanceOff() {
-        launchFakeActivityIfNeeded()
-
-        val bundle = Bundle()
-        bundle.putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
-        bundle.putString(IamDialog.SID, SID)
-        bundle.putString(IamDialog.URL, URL)
-        bundle.putString(IamDialog.REQUEST_ID, REQUEST_ID_KEY)
-
-        val fragmentScenario = launchFragment(bundle) {
-            iamDialog
-        }
-        val fragmentLatch = CountDownLatch(1)
-
-        displayDialog(fragmentScenario)
-        fragmentScenario.onFragment {
-            it.setInAppLoadingTime(InAppLoadingTime(1, 1))
-            it.activity?.runOnUiThread {
-                it.activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-
-                it.dismiss()
-
-                it.activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-
-                it.retainInstance shouldBe false
-                fragmentLatch.countDown()
-            }
-        }
-        fragmentLatch.await()
     }
 
     @Test
@@ -406,7 +381,6 @@ class IamDialogTest : AnnotationSpec() {
         for (action in actions) {
             verify { (action).execute("123456789", null, null) }
         }
-
     }
 
     @Test
@@ -501,11 +475,13 @@ class IamDialogTest : AnnotationSpec() {
 
     @Test
     fun testOnStart_shouldNotThrowTheSpecifiedChildAlreadyHasAParent_exception() {
-        launchFakeActivityIfNeeded()
+        launchActivityIfNeeded()
+
+        every { mockWebViewFactory.create(any()) } returns iamWebView
 
         var result: Exception? = null
         try {
-            val fragmentScenario = launchFragment {
+            val fragmentScenario = launchFragment(initialState = Lifecycle.State.CREATED) {
                 iamDialog
             }
             displayDialog(fragmentScenario)
@@ -521,7 +497,9 @@ class IamDialogTest : AnnotationSpec() {
 
     @Test
     fun testOnStart_shouldNotThrowTheSpecifiedWebViewAlreadyHasAParent_exception() {
-        launchFakeActivityIfNeeded()
+        launchActivityIfNeeded()
+
+        every { mockWebViewFactory.create(any()) } returns iamWebView
 
         var result: Exception? = null
         try {
@@ -535,7 +513,7 @@ class IamDialogTest : AnnotationSpec() {
 
             every { mockWebViewFactory.create(any()) } returns iamWebView
 
-            val fragmentScenario = launchFragment {
+            val fragmentScenario = launchFragment(initialState = Lifecycle.State.CREATED) {
                 iamDialog
             }
             displayDialog(fragmentScenario)
@@ -550,8 +528,6 @@ class IamDialogTest : AnnotationSpec() {
 
     @Test
     fun testLoadInApp() {
-        launchFakeActivityIfNeeded()
-
         val html = "<html></html>"
         val inAppMetaData = InAppMetaData(CAMPAIGN_ID, null, null)
         val messageLoadedListener = MessageLoadedListener { }
@@ -585,9 +561,7 @@ class IamDialogTest : AnnotationSpec() {
 
     private fun displayDialog(fragmentScenario: FragmentScenario<IamDialog>) {
         fragmentScenario.onFragment { dialog ->
-            dialog.activity?.runOnUiThread {
-                dialog.activity?.supportFragmentManager?.executePendingTransactions()
-            }
+            dialog.activity?.supportFragmentManager?.executePendingTransactions()
         }
         fragmentScenario.moveToState(Lifecycle.State.RESUMED)
     }

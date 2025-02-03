@@ -15,19 +15,20 @@ import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository
 import com.emarsys.mobileengage.util.RequestPayloadUtils
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
-class MobileEngageRequestModelFactoryTest : AnnotationSpec() {
+class MobileEngageRequestModelFactoryTest  {
 
     private companion object {
         const val TIMESTAMP = 123456789L
         const val REQUEST_ID = "request_id"
-        const val HARDWARE_ID = "hardware_id"
+        const val CLIENT_ID = "clientId"
         const val APPLICATION_CODE = "app_code"
         const val PUSH_TOKEN = "kjhygtfdrtrtdtguyihoj3iurf8y7t6fqyua2gyi8fhu"
         const val REFRESH_TOKEN =
@@ -77,7 +78,7 @@ class MobileEngageRequestModelFactoryTest : AnnotationSpec() {
             on { provideTimestamp() } doReturn TIMESTAMP
         }
         mockDeviceInfo = mock {
-            on { hardwareId } doReturn HARDWARE_ID
+            on { clientId } doReturn CLIENT_ID
             on { isDebugMode } doReturn true
             on { notificationSettings } doReturn mockNotificationSettings
         }

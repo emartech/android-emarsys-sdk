@@ -4,9 +4,8 @@ import android.graphics.BitmapFactory
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.notification.NotificationManagerHelper
-import com.emarsys.core.provider.hardwareid.HardwareIdProvider
+import com.emarsys.core.provider.clientid.ClientIdProvider
 import com.emarsys.core.provider.version.VersionProvider
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.RetryUtils
 import com.emarsys.testUtil.copyInputStreamToFile
@@ -14,7 +13,9 @@ import com.emarsys.testUtil.rules.RetryRule
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import org.junit.Before
 import org.junit.Rule
+import org.junit.Test
 import org.mockito.Mockito
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doAnswer
@@ -22,7 +23,7 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import java.io.File
 
-class ImageUtilsTest : AnnotationSpec() {
+class ImageUtilsTest  {
 
     @Rule
     @JvmField
@@ -34,7 +35,7 @@ class ImageUtilsTest : AnnotationSpec() {
 
     private lateinit var mockFileDownloader: FileDownloader
     private lateinit var deviceInfo: DeviceInfo
-    private lateinit var mockHardwareIdProvider: HardwareIdProvider
+    private lateinit var mockClientIdProvider: ClientIdProvider
     private lateinit var mockLanguageProvider: LanguageProvider
     private lateinit var mockVersionProvider: VersionProvider
 
@@ -59,8 +60,8 @@ class ImageUtilsTest : AnnotationSpec() {
             }
 
         }
-        mockHardwareIdProvider = mock {
-            on { provideHardwareId() } doReturn "hardwareId"
+        mockClientIdProvider = mock {
+            on { provideClientId() } doReturn "clientId"
         }
         mockLanguageProvider = mock {
             on { provideLanguage(any()) } doReturn "language"
@@ -71,7 +72,7 @@ class ImageUtilsTest : AnnotationSpec() {
 
         deviceInfo = DeviceInfo(
             getTargetContext(),
-            mockHardwareIdProvider,
+            mockClientIdProvider,
             mockVersionProvider,
             mockLanguageProvider,
             Mockito.mock(NotificationManagerHelper::class.java),

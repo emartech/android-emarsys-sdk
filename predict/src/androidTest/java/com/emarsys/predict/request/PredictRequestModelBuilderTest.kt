@@ -14,7 +14,6 @@ import com.emarsys.predict.api.model.PredictCartItem
 import com.emarsys.predict.api.model.RecommendationFilter
 import com.emarsys.predict.api.model.RecommendationLogic
 import com.emarsys.predict.model.LastTrackedItemContainer
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.data.forAll
@@ -23,14 +22,16 @@ import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import org.json.JSONObject
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito.mock
 
-class PredictRequestModelBuilderTest : AnnotationSpec() {
+class PredictRequestModelBuilderTest  {
 
     private companion object {
         const val TIMESTAMP = 123456789L
         const val REQUEST_ID = "request_id"
-        const val HARDWARE_ID = "hardware_id"
+        const val CLIENT_ID = "clientId"
         const val MERCHANT_ID = "merchantId"
         const val OS_VERSION = "1.0.0"
         const val PLATFORM = "android"
@@ -77,7 +78,7 @@ class PredictRequestModelBuilderTest : AnnotationSpec() {
             whenever(provideTimestamp()).thenReturn(TIMESTAMP)
         }
         mockDeviceInfo = mock(DeviceInfo::class.java).apply {
-            whenever(hardwareId).thenReturn(HARDWARE_ID)
+            whenever(clientId).thenReturn(CLIENT_ID)
         }
 
         mockRequestContext = mock(PredictRequestContext::class.java).apply {

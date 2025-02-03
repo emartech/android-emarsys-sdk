@@ -4,16 +4,17 @@ import android.content.ContentValues
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.trigger.TriggerEvent
 import com.emarsys.core.database.trigger.TriggerType
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.data.forAll
 import io.kotest.data.row
 import kotlinx.coroutines.runBlocking
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 
-class DelegatingCoreSQLiteDatabase_triggerRecursion_parameterizedTest : AnnotationSpec() {
+class DelegatingCoreSQLiteDatabase_triggerRecursion_parameterizedTest  {
 
     companion object {
         private const val TABLE_NAME = "TEST"

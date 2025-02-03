@@ -11,10 +11,12 @@ import com.emarsys.fake.FakeHuaweiDependencyContainer
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.push.PushInternal
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.ReflectionTestUtils
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -23,7 +25,7 @@ import org.mockito.kotlin.timeout
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 
-class EmarsysHuaweiMessagingServiceTest : AnnotationSpec() {
+class EmarsysHuaweiMessagingServiceTest  {
 
 
     private val application: Application
@@ -96,7 +98,7 @@ class EmarsysHuaweiMessagingServiceTest : AnnotationSpec() {
         val deviceInfo = DeviceInfo(
             application,
             mock {
-                on { provideHardwareId() } doReturn "hardwareId"
+                on { provideClientId() } doReturn "clientId"
             },
             mock {
                 on { provideSdkVersion() } doReturn "version"

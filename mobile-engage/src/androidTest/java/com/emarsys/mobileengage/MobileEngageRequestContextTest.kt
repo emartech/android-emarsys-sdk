@@ -1,13 +1,14 @@
 package com.emarsys.mobileengage
 
 import com.emarsys.core.storage.Storage
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
-class MobileEngageRequestContextTest : AnnotationSpec() {
+class MobileEngageRequestContextTest  {
 
     private lateinit var mockContactFieldValueStorage: Storage<String?>
 
@@ -80,5 +81,19 @@ class MobileEngageRequestContextTest : AnnotationSpec() {
 
         requestContext.contactFieldValue shouldBe testContactFieldValue
         verify(mockContactFieldValueStorage).get()
+    }
+
+    @Test
+    fun testReset() {
+        requestContext.reset()
+
+        requestContext.clientStateStorage.get() shouldBe null
+        requestContext.contactTokenStorage.get() shouldBe null
+        requestContext.refreshTokenStorage.get() shouldBe null
+        requestContext.contactFieldValueStorage.get() shouldBe null
+        requestContext.pushTokenStorage.get() shouldBe null
+        requestContext.sessionIdHolder.sessionId shouldBe null
+        requestContext.openIdToken shouldBe null
+        requestContext.applicationCode shouldBe null
     }
 }

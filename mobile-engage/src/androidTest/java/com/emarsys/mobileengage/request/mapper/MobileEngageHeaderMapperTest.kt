@@ -10,21 +10,22 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.util.RequestModelHelper
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
 class
-MobileEngageHeaderMapperTest : AnnotationSpec() {
+MobileEngageHeaderMapperTest  {
     private companion object {
         const val CLIENT_STATE = "client-state"
         const val TIMESTAMP = 123456789L
         const val REQUEST_ID = "request_id"
-        const val HARDWARE_ID = "hwid"
+        const val CLIENT_ID = "hwid"
         const val APPLICATION_CODE = "applicationCode"
     }
 
@@ -45,7 +46,7 @@ MobileEngageHeaderMapperTest : AnnotationSpec() {
         }
 
         mockDeviceInfo = mock {
-            on { hardwareId } doReturn HARDWARE_ID
+            on { clientId } doReturn CLIENT_ID
         }
 
         mockUuidProvider = mock {
@@ -75,7 +76,7 @@ MobileEngageHeaderMapperTest : AnnotationSpec() {
 
         val expectedRequestModels = createMobileEngageRequest(extraHeaders = mapOf(
                 "X-Client-State" to CLIENT_STATE,
-                "X-Client-Id" to HARDWARE_ID,
+            "X-Client-Id" to CLIENT_ID,
                 "X-Request-Order" to TIMESTAMP.toString()
         ))
 
@@ -91,7 +92,7 @@ MobileEngageHeaderMapperTest : AnnotationSpec() {
 
         val expectedRequestModels = createCustomEventCompositeRequest(extraHeaders = mapOf(
                 "X-Client-State" to CLIENT_STATE,
-                "X-Client-Id" to HARDWARE_ID,
+            "X-Client-Id" to CLIENT_ID,
                 "X-Request-Order" to TIMESTAMP.toString()
         ))
 
@@ -104,7 +105,7 @@ MobileEngageHeaderMapperTest : AnnotationSpec() {
     fun testMap_shouldLeaveOutClientStateHeader_whenValueIsMissing() {
         val originalRequestModels = createMobileEngageRequest(extraHeaders = mapOf(
                 "X-Request-Order" to TIMESTAMP.toString(),
-                "X-Client-Id" to HARDWARE_ID,
+            "X-Client-Id" to CLIENT_ID,
         ))
 
         whenever(mockClientStateStorage.get()).thenReturn(null)

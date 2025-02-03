@@ -15,7 +15,7 @@ import com.emarsys.core.api.notification.ChannelSettings
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
-import com.emarsys.core.provider.hardwareid.HardwareIdProvider
+import com.emarsys.core.provider.clientid.ClientIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.mobileengage.di.mobileEngage
@@ -29,13 +29,15 @@ import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvid
 import com.emarsys.mobileengage.service.MessagingServiceUtils.styleNotification
 import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperFactory
 import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperV1
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.copyInputStreamToFile
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.json.JSONArray
 import org.json.JSONObject
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
@@ -45,12 +47,12 @@ import org.mockito.kotlin.whenever
 import java.io.File
 import java.util.Locale
 
-class MessagingServiceUtilsTest : AnnotationSpec() {
+class MessagingServiceUtilsTest  {
     private companion object {
         const val TITLE = "title"
         const val BODY = "body"
         const val CHANNEL_ID = "channelId"
-        const val HARDWARE_ID = "hwid"
+        const val CLIENT_ID = "hwid"
         const val SDK_VERSION = "sdkVersion"
         const val LANGUAGE = "en-US"
         const val IMAGE_URL = "https://emarsys.com/image"
@@ -97,7 +99,7 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
     fun init() {
         context = getTargetContext()
         val mockNotificationSettings: NotificationSettings = mock()
-        val mockHardwareIdProvider: HardwareIdProvider = mock()
+        val mockClientIdProvider: ClientIdProvider = mock()
         val mockVersionProvider: VersionProvider = mock()
         val mockLanguageProvider: LanguageProvider = mock()
         val channelSettings = ChannelSettings(channelId = CHANNEL_ID)
@@ -124,7 +126,7 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
         mockSilentNotificationInformationListenerProvider = mock()
 
         whenever(mockNotificationSettings.channelSettings).thenReturn(listOf(channelSettings))
-        whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID)
+        whenever(mockClientIdProvider.provideClientId()).thenReturn(CLIENT_ID)
         whenever(
             mockLanguageProvider.provideLanguage(
                 ArgumentMatchers.any(
@@ -136,7 +138,7 @@ class MessagingServiceUtilsTest : AnnotationSpec() {
         whenever(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION)
         deviceInfo = DeviceInfo(
             context,
-            mockHardwareIdProvider,
+            mockClientIdProvider,
             mockVersionProvider,
             mockLanguageProvider,
             mockNotificationSettings,

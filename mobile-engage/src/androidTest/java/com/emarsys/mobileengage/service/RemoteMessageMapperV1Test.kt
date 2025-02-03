@@ -12,15 +12,17 @@ import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperV1
 import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperV1.Companion.MISSING_MESSAGE_ID
 import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperV1.Companion.MISSING_SID
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.json.JSONObject
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
-class RemoteMessageMapperV1Test : AnnotationSpec() {
+class RemoteMessageMapperV1Test  {
     private companion object {
         const val TITLE = "title"
         const val BODY = "body"

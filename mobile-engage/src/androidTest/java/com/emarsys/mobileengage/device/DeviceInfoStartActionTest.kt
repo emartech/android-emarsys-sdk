@@ -8,15 +8,15 @@ import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.util.waitForTask
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.SharedPrefsUtils
 import io.mockk.every
-
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 
-
-class DeviceInfoStartActionTest : AnnotationSpec() {
+class DeviceInfoStartActionTest  {
 
     private lateinit var deviceInfoPayloadStorage: Storage<String?>
     private lateinit var mockClientServiceInternal: ClientServiceInternal

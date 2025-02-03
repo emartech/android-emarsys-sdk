@@ -5,13 +5,14 @@ import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.spy
 
-class DefaultEventServiceInternalTest : AnnotationSpec() {
+class DefaultEventServiceInternalTest  {
 
     companion object {
         const val REQUEST_ID = "request_id"
@@ -31,11 +32,15 @@ class DefaultEventServiceInternalTest : AnnotationSpec() {
 
     @Before
     fun setUp() {
-        mockRequestModel = mock(RequestModel::class.java)
-        mockRequestManager = mock(RequestManager::class.java)
-        mockCompletionListener = mock(CompletionListener::class.java)
+        mockRequestModel = mock(RequestModel::
+class.java)
+        mockRequestManager = mock(RequestManager::
+class.java)
+        mockCompletionListener = mock(CompletionListener::
+class.java)
 
-        mockRequestModelFactory = mock(MobileEngageRequestModelFactory::class.java).apply {
+        mockRequestModelFactory = mock(MobileEngageRequestModelFactory::
+class.java).apply {
             whenever(createCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES)).thenReturn(
                 mockRequestModel
             )

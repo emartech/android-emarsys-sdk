@@ -3,11 +3,12 @@ package com.emarsys.core.database.helper
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import com.emarsys.core.database.trigger.TriggerKey
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 
-class AbstractDbHelperTest : AnnotationSpec() {
+class AbstractDbHelperTest {
     private class DummyDbHelper(
         context: Context,
         databaseName: String,

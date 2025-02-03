@@ -5,12 +5,14 @@ import com.emarsys.core.feature.FeatureRegistry.disableFeature
 import com.emarsys.core.feature.FeatureRegistry.enableFeature
 import com.emarsys.core.feature.FeatureRegistry.isFeatureEnabled
 import com.emarsys.core.feature.FeatureRegistry.reset
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
-class FeatureRegistryTest : AnnotationSpec() {
+class FeatureRegistryTest  {
     private lateinit var feature1: FlipperFeature
     private lateinit var feature2: FlipperFeature
     private lateinit var feature3: FlipperFeature

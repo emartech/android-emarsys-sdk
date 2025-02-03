@@ -2,12 +2,13 @@ package com.emarsys.core.request.model
 
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import org.junit.Before
+import org.junit.Test
 import java.net.URL
 
-class CompositeRequestModelTest : AnnotationSpec() {
+class CompositeRequestModelTest  {
 
     private companion object {
         const val TIMESTAMP = 800L
@@ -17,8 +18,6 @@ class CompositeRequestModelTest : AnnotationSpec() {
         val METHOD = RequestMethod.PUT
         val ORIGINAL_IDS = arrayOf("uuid")
     }
-
-
 
     private lateinit var timestampProvider: TimestampProvider
     private lateinit var uuidProvider: UUIDProvider

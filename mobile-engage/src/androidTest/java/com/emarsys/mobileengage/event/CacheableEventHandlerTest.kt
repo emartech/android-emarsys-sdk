@@ -3,18 +3,18 @@ package com.emarsys.mobileengage.event
 import android.content.Context
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.feature.FeatureRegistry
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.ReflectionTestUtils
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.json.JSONObject
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.mock
 
-internal class CacheableEventHandlerTest : AnnotationSpec() {
+internal class CacheableEventHandlerTest  {
 
     private lateinit var cacheableEventHandler: CacheableEventHandler
-
 
     @Before
     fun setUp() {

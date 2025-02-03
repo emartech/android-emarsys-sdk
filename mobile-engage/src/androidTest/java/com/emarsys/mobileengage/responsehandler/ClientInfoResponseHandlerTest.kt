@@ -5,14 +5,15 @@ import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.StringStorage
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import java.net.URL
 
-class ClientInfoResponseHandlerTest : AnnotationSpec() {
+class ClientInfoResponseHandlerTest  {
 
     companion object {
         val URL: URL = URL("https://me-client.eservice.emarsys.net/v3/apps/12341/client")

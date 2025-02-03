@@ -11,22 +11,23 @@ import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.mobileengage.util.RequestPayloadUtils
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.stub
 
-class ContactTokenHeaderMapperTest : AnnotationSpec() {
+class ContactTokenHeaderMapperTest  {
     private companion object {
         const val CONTACT_TOKEN = "contactToken"
         const val REFRESH_TOKEN = "refreshToken"
         const val TIMESTAMP = 123456789L
         const val REQUEST_ID = "request_id"
-        const val HARDWARE_ID = "hwid"
+        const val CLIENT_ID = "clientId"
         const val APPLICATION_CODE = "applicationCode"
         const val MERCHANT_ID = "merchantId"
     }
@@ -40,7 +41,6 @@ class ContactTokenHeaderMapperTest : AnnotationSpec() {
     private lateinit var mockDeviceInfo: DeviceInfo
     private lateinit var mockRequestModelHelper: RequestModelHelper
 
-
     @Before
     fun setUp() {
         mockContactTokenStorage = mock {
@@ -51,7 +51,7 @@ class ContactTokenHeaderMapperTest : AnnotationSpec() {
         }
 
         mockDeviceInfo = mock {
-            on { hardwareId } doReturn HARDWARE_ID
+            on { clientId } doReturn CLIENT_ID
         }
 
         mockUuidProvider = mock {

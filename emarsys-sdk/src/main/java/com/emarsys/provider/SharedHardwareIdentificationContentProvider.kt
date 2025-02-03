@@ -20,11 +20,14 @@ class SharedHardwareIdentificationContentProvider : ContentProvider() {
 
     override fun query(uri: Uri, projection: Array<out String>?, selection: String?, selectionArgs: Array<out String>?, sortOrder: String?): Cursor? {
         return if (context != null) {
-            if (uri == DatabaseContract.getHardwareIdProviderUri(context!!.packageName)) {
-                coreDbHelper.readableCoreDatabase.query(false, DatabaseContract.HARDWARE_IDENTIFICATION_TABLE_NAME,
-                        arrayOf(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_ENCRYPTED_HARDWARE_ID,
-                                DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_SALT,
-                                DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_IV),
+            if (uri == DatabaseContract.getClientIdProviderUri(context!!.packageName)) {
+                coreDbHelper.readableCoreDatabase.query(
+                    false, DatabaseContract.CLIENT_IDENTIFICATION_TABLE_NAME,
+                    arrayOf(
+                        DatabaseContract.CLIENT_IDENTIFICATION_COLUMN_NAME_ENCRYPTED_CLIENT_ID,
+                        DatabaseContract.CLIENT_IDENTIFICATION_COLUMN_NAME_SALT,
+                        DatabaseContract.CLIENT_IDENTIFICATION_COLUMN_NAME_IV
+                    ),
                         null, null, null, null, null, null)
             } else {
                 null

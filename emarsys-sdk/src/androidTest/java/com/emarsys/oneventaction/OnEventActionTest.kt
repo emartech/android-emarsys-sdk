@@ -6,14 +6,16 @@ import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.event.CacheableEventHandler
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.IntegrationTestUtils
 import org.json.JSONObject
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
-class OnEventActionTest : AnnotationSpec() {
+class OnEventActionTest  {
 
     private lateinit var mockEventHandler: EventHandler
     private lateinit var onEventAction: OnEventAction

@@ -6,16 +6,17 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.shard.ShardModel
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.RandomTestUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
-class LogShardListMergerTest : AnnotationSpec() {
+class LogShardListMergerTest  {
 
     private companion object {
         const val ID = "id"
@@ -45,7 +46,7 @@ class LogShardListMergerTest : AnnotationSpec() {
             on { applicationVersion } doReturn "1.0.0"
             on { osVersion } doReturn "8.0"
             on { model } doReturn "Pixel"
-            on { hardwareId } doReturn "hardwareId"
+            on { clientId } doReturn "clientId"
             on { sdkVersion } doReturn "1.6.1"
         }
 
@@ -156,7 +157,7 @@ class LogShardListMergerTest : AnnotationSpec() {
             "sdkVersion" to "1.6.1",
             "osVersion" to "8.0",
             "model" to "Pixel",
-            "hwId" to "hardwareId",
+            "hwId" to "clientId",
             "applicationCode" to APPLICATION_CODE,
             "merchantId" to MERCHANT_ID
         )

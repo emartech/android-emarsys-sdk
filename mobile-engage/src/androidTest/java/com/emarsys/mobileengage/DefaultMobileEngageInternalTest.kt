@@ -12,32 +12,25 @@ import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.session.MobileEngageSession
 import com.emarsys.mobileengage.session.SessionIdHolder
-
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doAnswer
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.inOrder
-import org.mockito.kotlin.isNull
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.spy
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoInteractions
-import org.mockito.kotlin.verifyNoMoreInteractions
-import org.mockito.kotlin.whenever
+import io.mockk.confirmVerified
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.spyk
+import io.mockk.verify
+import io.mockk.verifyOrder
+import org.junit.Before
+import org.junit.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-
-class DefaultMobileEngageInternalTest : AnnotationSpec() {
+class DefaultMobileEngageInternalTest {
 
     private companion object {
         const val CONTACT_FIELD_ID = 999
         const val TIMESTAMP = 123456789L
         const val REQUEST_ID = "request_id"
-        const val HARDWARE_ID = "hardware_id"
+        const val CLIENT_ID = "clientId"
         const val APPLICATION_CODE = "app_code"
         const val PUSH_TOKEN = "kjhygtfdrtrtdtguyihoj3iurf8y7t6fqyua2gyi8fhu"
         const val PLATFORM = "android"
@@ -78,78 +71,80 @@ class DefaultMobileEngageInternalTest : AnnotationSpec() {
 
 
     @Before
-    @Suppress("UNCHECKED_CAST")
     fun setUp() {
-        mockEventServiceInternal = mock()
-        mockPushInternal = mock()
+        mockEventServiceInternal = mockk(relaxed = true)
+        mockPushInternal = mockk(relaxed = true)
 
-        mockRefreshTokenStorage = mock()
-        mockContactTokenStorage = mock()
-        mockClientStateStorage = mock()
-        mockPushTokenStorage = mock()
-        mockSession = mock()
-        whenever(mockSession.endSession(any())).doAnswer {
-            (it.arguments[0] as CompletionListener).onCompleted(null)
+        mockRefreshTokenStorage = mockk(relaxed = true)
+        mockContactTokenStorage = mockk(relaxed = true)
+        mockClientStateStorage = mockk(relaxed = true)
+        mockPushTokenStorage = mockk(relaxed = true)
+        mockSession = mockk(relaxed = true)
+        every { (mockSession.endSession(any())) } answers {
+            (args[0] as CompletionListener).onCompleted(null)
         }
 
-        mockSessionIdHolder = mock()
+        mockSessionIdHolder = mockk(relaxed = true)
 
-        mockUuidProvider = mock {
-            on { provideId() }.thenReturn(REQUEST_ID)
-        }
-        mockTimestampProvider = mock {
-            on { provideTimestamp() }.thenReturn(TIMESTAMP)
-        }
+        mockUuidProvider = mockk(relaxed = true)
+        every { mockUuidProvider.provideId() } returns REQUEST_ID
 
-        mockDeviceInfo = mock {
-            on { hardwareId }.thenReturn(HARDWARE_ID)
-            on { platform }.thenReturn(PLATFORM)
-            on { applicationVersion }.thenReturn(APPLICATION_VERSION)
-            on { model }.thenReturn(DEVICE_MODEL)
-            on { osVersion }.thenReturn(OS_VERSION)
-            on { sdkVersion }.thenReturn(SDK_VERSION)
-            on { language }.thenReturn(LANGUAGE)
-            on { timezone }.thenReturn(TIMEZONE)
-        }
+        mockTimestampProvider = mockk(relaxed = true)
+        every { mockTimestampProvider.provideTimestamp() } returns TIMESTAMP
 
-        mockRequestManager = mock()
-        mockRequestContext = mock {
-            on { timestampProvider }.thenReturn(mockTimestampProvider)
-            on { uuidProvider }.thenReturn(mockUuidProvider)
-            on { deviceInfo }.thenReturn(mockDeviceInfo)
-            on { applicationCode }.thenReturn(APPLICATION_CODE)
-            on { refreshTokenStorage }.thenReturn(mockRefreshTokenStorage)
-            on { contactTokenStorage }.thenReturn(mockContactTokenStorage)
-            on { clientStateStorage }.thenReturn(mockClientStateStorage)
-            on { pushTokenStorage }.thenReturn(mockPushTokenStorage)
-        }
+        mockDeviceInfo = mockk(relaxed = true)
+        every { mockDeviceInfo.clientId } returns CLIENT_ID
+        every { mockDeviceInfo.platform } returns PLATFORM
+        every { mockDeviceInfo.applicationVersion } returns APPLICATION_VERSION
+        every { mockDeviceInfo.model } returns DEVICE_MODEL
+        every { mockDeviceInfo.osVersion } returns OS_VERSION
+        every { mockDeviceInfo.sdkVersion } returns SDK_VERSION
+        every { mockDeviceInfo.language } returns LANGUAGE
+        every { mockDeviceInfo.timezone } returns TIMEZONE
 
-        mockRequestModel = mock()
-        mockRequestModelWithNullContactFieldValue = mock()
-        mockRequestModelWithNullContactFieldValueAndNullContactFieldId = mock()
+        mockRequestManager = mockk(relaxed = true)
+        mockRequestContext = mockk(relaxed = true)
+        every { mockRequestContext.timestampProvider } returns mockTimestampProvider
+        every { mockRequestContext.uuidProvider } returns mockUuidProvider
+        every { mockRequestContext.deviceInfo } returns mockDeviceInfo
+        every { mockRequestContext.applicationCode } returns APPLICATION_CODE
+        every { mockRequestContext.refreshTokenStorage } returns mockRefreshTokenStorage
+        every { mockRequestContext.contactTokenStorage } returns mockContactTokenStorage
+        every { mockRequestContext.clientStateStorage } returns mockClientStateStorage
+        every { mockRequestContext.pushTokenStorage } returns mockPushTokenStorage
 
-        mockRequestModelFactory = mock {
-            on { createSetContactRequest(CONTACT_FIELD_ID, null) }.thenReturn(
+        mockRequestModel = mockk(relaxed = true)
+        mockRequestModelWithNullContactFieldValue = mockk(relaxed = true)
+        mockRequestModelWithNullContactFieldValueAndNullContactFieldId = mockk(relaxed = true)
+
+        mockRequestModelFactory = mockk(relaxed = true)
+        every { mockRequestModelFactory.createSetContactRequest(CONTACT_FIELD_ID, null) } returns
                 mockRequestModelWithNullContactFieldValue
-            )
-            on { createSetContactRequest(null, null) }.thenReturn(
+        every { mockRequestModelFactory.createSetContactRequest(null, null) } returns
                 mockRequestModelWithNullContactFieldValueAndNullContactFieldId
-            )
-            on { createSetContactRequest(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE) }.thenReturn(
-                mockRequestModel
-            )
-            on { createSetPushTokenRequest(PUSH_TOKEN) }.thenReturn(mockRequestModel)
-            on { createCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES) }.thenReturn(
-                mockRequestModel
-            )
-            on { createTrackDeviceInfoRequest() }.thenReturn(mockRequestModel)
-            on { createInternalCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES) }.thenReturn(
-                mockRequestModel
-            )
-            on { createRemovePushTokenRequest() }.thenReturn(mockRequestModel)
-        }
 
-        mockCompletionListener = mock()
+        every {
+            mockRequestModelFactory.createSetContactRequest(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE)
+        } returns
+                mockRequestModel
+
+        every { mockRequestModelFactory.createSetPushTokenRequest(PUSH_TOKEN) } returns mockRequestModel
+        every {
+            mockRequestModelFactory.createCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES)
+        } returns mockRequestModel
+
+        every { mockRequestModelFactory.createTrackDeviceInfoRequest() } returns mockRequestModel
+        every {
+            mockRequestModelFactory.createInternalCustomEventRequest(
+                EVENT_NAME,
+                EVENT_ATTRIBUTES
+            )
+        } returns
+                mockRequestModel
+
+        every { mockRequestModelFactory.createRemovePushTokenRequest() } returns mockRequestModel
+
+        mockCompletionListener = mockk(relaxed = true)
 
         mobileEngageInternal = DefaultMobileEngageInternal(
             mockRequestManager,
@@ -162,7 +157,7 @@ class DefaultMobileEngageInternalTest : AnnotationSpec() {
 
     @Test
     fun testSetContact_shouldCallRequestManager_whenNewSessionIsNeeded() {
-        whenever(mockRequestContext.contactFieldValue).thenReturn(OTHER_CONTACT_FIELD_VALUE)
+        every { mockRequestContext.contactFieldValue } returns OTHER_CONTACT_FIELD_VALUE
 
         mobileEngageInternal.setContact(
             CONTACT_FIELD_ID,
@@ -170,12 +165,12 @@ class DefaultMobileEngageInternalTest : AnnotationSpec() {
             mockCompletionListener
         )
 
-        verify(mockRequestManager).submit(mockRequestModel, mockCompletionListener)
+        verify { mockRequestManager.submit(mockRequestModel, mockCompletionListener) }
     }
 
     @Test
     fun testSetContact_shouldNotCallRequestManager_whenSessionIsNotChanging() {
-        whenever(mockRequestContext.contactFieldValue).thenReturn(CONTACT_FIELD_VALUE)
+        every { mockRequestContext.contactFieldValue } returns CONTACT_FIELD_VALUE
 
         mobileEngageInternal.setContact(
             CONTACT_FIELD_ID,
@@ -183,160 +178,166 @@ class DefaultMobileEngageInternalTest : AnnotationSpec() {
             mockCompletionListener
         )
 
-        verifyNoInteractions(mockRequestManager)
-        verify(mockCompletionListener).onCompleted(null)
+        confirmVerified(mockRequestManager)
+        verify { mockCompletionListener.onCompleted(null) }
     }
 
     @Test
     fun testSetAuthenticatedContact_completionListener_canBeNull() {
         mobileEngageInternal.setAuthenticatedContact(CONTACT_FIELD_ID, OPEN_ID_TOKEN, null)
 
-        verify(mockRequestManager).submit(mockRequestModelWithNullContactFieldValue, null)
+        verify { mockRequestManager.submit(mockRequestModelWithNullContactFieldValue, null) }
     }
 
     @Test
     fun testSetAuthenticatedContact_shouldStartNewSession() {
         mobileEngageInternal.setAuthenticatedContact(CONTACT_FIELD_ID, OPEN_ID_TOKEN, null)
 
-        verify(mockSession).startSession(any())
+        verify { mockSession.startSession(any()) }
     }
 
     @Test
     fun testSetAuthenticatedContact_shouldEndRunningSessionBeforeStartingANewOne() {
         mobileEngageInternal.setAuthenticatedContact(CONTACT_FIELD_ID, OPEN_ID_TOKEN, null)
 
-        whenever(mockSessionIdHolder.sessionId).thenReturn("testSessionId")
+        every { mockSessionIdHolder.sessionId } returns "testSessionId"
 
         mobileEngageInternal.setContact(CONTACT_FIELD_ID, "newContactFieldValue", null)
 
-        inOrder(mockSession).run {
-            verify(mockSession).startSession(any())
-            verify(mockSession).endSession(any())
-            verify(mockSession).startSession(any())
+        verifyOrder {
+            mockSession.startSession(any())
+            mockSession.endSession(any())
+            mockSession.startSession(any())
         }
     }
 
     @Test
     fun testSetAuthenticatedContact_shouldNotCallEndSession_whenNoSessionWasStartedBefore() {
-        whenever(mockSessionIdHolder.sessionId).thenReturn(null)
-        inOrder(mockSession) {
-            mobileEngageInternal.setAuthenticatedContact(CONTACT_FIELD_ID, OPEN_ID_TOKEN, null)
-            verify(mockSession, times(0)).endSession(any())
-            verify(mockSession).startSession(any())
-        }
+        every { mockSessionIdHolder.sessionId } returns null
 
+        mobileEngageInternal.setAuthenticatedContact(CONTACT_FIELD_ID, OPEN_ID_TOKEN, null)
+
+        verify { mockSession.startSession(any()) }
+        confirmVerified(mockSession)
     }
 
     @Test
     fun testSetContact_shouldStartNewSession_onlyWhenItIsDifferentFromPreviousContact() {
-        whenever(mockRequestContext.contactFieldValue).thenReturn(CONTACT_FIELD_VALUE)
-        inOrder(mockSession) {
-            mobileEngageInternal.setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE, null)
+        every { mockRequestContext.contactFieldValue } returns CONTACT_FIELD_VALUE
 
-            mobileEngageInternal.setContact(CONTACT_FIELD_ID, OTHER_CONTACT_FIELD_VALUE, null)
+        mobileEngageInternal.setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE, null)
 
-            verify(mockSession, times(1)).startSession(any())
+        mobileEngageInternal.setContact(CONTACT_FIELD_ID, OTHER_CONTACT_FIELD_VALUE, null)
+
+        verify(exactly = 1) {
+            mockSession.startSession(any())
         }
     }
 
     @Test
     fun testSetAuthenticatedContact_shouldStartNewSession_onlyWhenItIsDifferentFromPreviousContact() {
-        whenever(mockRequestContext.openIdToken).thenReturn(OPEN_ID_TOKEN)
+        every { mockRequestContext.openIdToken } returns OPEN_ID_TOKEN
 
         mobileEngageInternal.setAuthenticatedContact(CONTACT_FIELD_ID, OPEN_ID_TOKEN, null)
 
         mobileEngageInternal.setAuthenticatedContact(CONTACT_FIELD_ID, OTHER_OPEN_ID_TOKEN, null)
 
-        verify(mockSession, times(1)).startSession(any())
+        verify(exactly = 1) { mockSession.startSession(any()) }
     }
 
     @Test
     fun testSetAuthenticatedContact_shouldSetIdToken_inRequestContext() {
         mobileEngageInternal.setAuthenticatedContact(CONTACT_FIELD_ID, OPEN_ID_TOKEN, null)
 
-        verify(mockRequestContext).contactFieldValue = null
-        verify(mockRequestContext).openIdToken = OPEN_ID_TOKEN
+        verify { mockRequestContext.contactFieldValue = null }
+        verify { mockRequestContext.openIdToken = OPEN_ID_TOKEN }
     }
 
     @Test
     fun testClearContact() {
-        whenever(mockSessionIdHolder.sessionId).thenReturn("sessionid")
+        every { mockSessionIdHolder.sessionId } returns "sessionId"
+        every { mockContactTokenStorage.get() } returns "contactToken"
+        every { mockRequestContext.hasContactIdentification() } returns true
 
-        mobileEngageInternal = spy(mobileEngageInternal)
+        mobileEngageInternal = spyk(mobileEngageInternal)
         val latch = CountDownLatch(1)
         val completionListener = CompletionListener {
             latch.countDown()
         }
 
-        whenever(mockRequestManager.submit(any(), any())).doAnswer {
-            (it.arguments[1] as CompletionListener).onCompleted(null)
+        every { mockRequestManager.submit(any(), any()) } answers {
+            (args[1] as CompletionListener).onCompleted(null)
         }
+
         mobileEngageInternal.clearContact(completionListener)
 
         latch.await(2000L, TimeUnit.MILLISECONDS)
-        inOrder(mobileEngageInternal, mockRequestManager, mockSession).run {
-            verify(mobileEngageInternal).clearContact(completionListener)
-            verify(mockSession).endSession(any())
-            verify(mobileEngageInternal).doClearContact(any())
-            verify(mobileEngageInternal).resetContext()
-            verify(mobileEngageInternal).doSetContact(
-                isNull(),
-                isNull(),
-                isNull(),
-                any<CompletionListener>()
-            )
-            verify(mockRequestManager).submit(
-                eq(mockRequestModelWithNullContactFieldValueAndNullContactFieldId),
+        verifyOrder {
+            mobileEngageInternal.clearContact(completionListener)
+            mockSession.endSession(any())
+            mobileEngageInternal.doClearContact(any())
+            mobileEngageInternal.resetContext()
+            mobileEngageInternal.doSetContact(
+                null,
+                null,
+                null,
                 any()
             )
-            verifyNoMoreInteractions(mobileEngageInternal)
-            verify(mockSession).startSession(any())
+            mockRequestManager.submit(
+                mockRequestModelWithNullContactFieldValueAndNullContactFieldId,
+                any()
+            )
+            mockSession.startSession(any())
         }
+        confirmVerified(mobileEngageInternal)
     }
 
     @Test
     fun testClearContact_shouldEndCurrentSession() {
-        whenever(mockSessionIdHolder.sessionId).thenReturn("testSessionId")
-        whenever(mockRequestContext.hasContactIdentification()).thenReturn(true)
-        whenever(mockRequestContext.contactTokenStorage.get()).thenReturn("contactToken")
+        every { mockSessionIdHolder.sessionId } returns "testSessionId"
+        every { mockRequestContext.hasContactIdentification() } returns true
+        every { mockRequestContext.contactTokenStorage.get() } returns "contactToken"
+
         mobileEngageInternal.clearContact(null)
 
-        verify(mockSession).endSession(any())
+        verify { mockSession.endSession(any()) }
     }
 
     @Test
     fun testClearContact_shouldCallOnCompleted_whenContactWasAlreadyAnonymous() {
-        whenever(mockRequestContext.hasContactIdentification()).thenReturn(false)
-        whenever(mockRequestContext.contactTokenStorage.get()).thenReturn("contactToken")
-        whenever(mockSessionIdHolder.sessionId).thenReturn("testSessionId")
+        every { mockRequestContext.hasContactIdentification() } returns false
+        every { mockRequestContext.contactTokenStorage.get() } returns "contactToken"
+        every { mockSessionIdHolder.sessionId } returns "testSessionId"
 
         var result = false
         mobileEngageInternal.clearContact {
             result = true
         }
         result shouldBe true
-        verifyNoInteractions(mockSession)
-        verifyNoInteractions(mockRequestManager)
+        confirmVerified(mockSession)
+        confirmVerified(mockRequestManager)
     }
 
     @Test
     fun testClearContact_shouldNotCallEndCurrentSession_whenThereWasNoSessionInProgress() {
-        whenever(mockSessionIdHolder.sessionId).thenReturn(null)
+        every { mockRequestContext.contactTokenStorage.get() } returns "contactToken"
+        every { mockSessionIdHolder.sessionId } returns "testSessionId"
+        every { mockSessionIdHolder.sessionId } returns null
 
         mobileEngageInternal.clearContact(null)
 
-        verify(mockSession, times(0)).endSession(any())
+        verify(exactly = 0) { mockSession.endSession(any()) }
     }
 
     @Test
     fun testResetContext_shouldClearTokenStorages() {
         mobileEngageInternal.resetContext()
 
-        verify(mockRefreshTokenStorage).remove()
-        verify(mockContactTokenStorage).remove()
-        verify(mockPushTokenStorage).remove()
-        verify(mockRequestContext).contactFieldValue = null
-        verify(mockRequestContext).openIdToken = null
-        verify(mockRequestContext).contactFieldId = null
+        verify { mockRefreshTokenStorage.remove() }
+        verify { mockContactTokenStorage.remove() }
+        verify { mockPushTokenStorage.remove() }
+        verify { mockRequestContext.contactFieldValue = null }
+        verify { mockRequestContext.openIdToken = null }
+        verify { mockRequestContext.contactFieldId = null }
     }
 }

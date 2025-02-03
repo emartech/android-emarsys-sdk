@@ -14,7 +14,7 @@ import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.handler.ConcurrentHandlerHolder
-import com.emarsys.core.provider.hardwareid.HardwareIdProvider
+import com.emarsys.core.provider.clientid.ClientIdProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
@@ -43,9 +43,9 @@ class FakeCoreDependencyContainer(
     override val keyValueStore: KeyValueStore = mock(),
     override val sharedPreferences: SharedPreferences = mock(),
     override val sharedPreferencesV3: SharedPreferences = mock(),
-    override val hardwareIdProvider: HardwareIdProvider = mock(),
+    override val clientIdProvider: ClientIdProvider = mock(),
     override val coreDbHelper: CoreDbHelper = mock(),
-    override val hardwareIdStorage: Storage<String?> = mock(),
+    override val clientIdStorage: Storage<String?> = mock(),
     override val crypto: Crypto = mock(),
     override val requestManager: RequestManager = mock(),
     override val worker: Worker = mock(),

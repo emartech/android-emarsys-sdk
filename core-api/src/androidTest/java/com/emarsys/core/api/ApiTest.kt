@@ -1,11 +1,9 @@
 package com.emarsys.core.api
 
 
-import com.emarsys.testUtil.AnnotationSpec
+import org.junit.Test
 
-
-class ApiTest : AnnotationSpec() {
-
+class ApiTest  {
 
     @Test
     fun test() {

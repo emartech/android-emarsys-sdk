@@ -7,16 +7,17 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.fake.FakeConnectionChangeListener
 import com.emarsys.core.handler.ConcurrentHandlerHolder
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.mock
 import java.util.concurrent.CountDownLatch
 
-class ConnectivityChangeReceiverTest : AnnotationSpec() {
+class ConnectivityChangeReceiverTest  {
     private lateinit var receiver: ConnectivityChangeReceiver
     private lateinit var mockListener: ConnectionChangeListener
     private lateinit var context: Context
-
 
     lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 

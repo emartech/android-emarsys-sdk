@@ -7,7 +7,8 @@ import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
-import org.mockito.kotlin.mock
+import io.mockk.mockk
+
 
 class FakeRestClient(
     private var mode: Mode = Mode.SUCCESS,
@@ -15,7 +16,13 @@ class FakeRestClient(
     private var exceptions: List<Exception> = listOf(),
     response: ResponseModel? = null,
     exception: Exception? = null
-) : RestClient(mock(), mock(), mock(), mock(), ConcurrentHandlerHolderFactory.create()) {
+) : RestClient(
+    mockk(relaxed = true),
+    mockk(relaxed = true),
+    mockk(relaxed = true),
+    mockk(relaxed = true),
+    ConcurrentHandlerHolderFactory.create()
+) {
     init {
         if (exception != null) {
             exceptions = mutableListOf(exception)
@@ -36,9 +43,11 @@ class FakeRestClient(
                 Mode.SUCCESS -> {
                     completionHandler.onSuccess(model.id, getCurrentItem(responses))
                 }
+
                 Mode.ERROR_RESPONSE_MODEL -> {
                     completionHandler.onError(model.id, getCurrentItem(responses))
                 }
+
                 Mode.ERROR_EXCEPTION -> {
                     completionHandler.onError(model.id, getCurrentItem(exceptions))
                 }

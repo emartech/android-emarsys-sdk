@@ -18,9 +18,10 @@ import com.emarsys.mobileengage.api.inbox.Message
 import com.emarsys.mobileengage.fake.FakeRestClient
 import com.emarsys.mobileengage.fake.FakeResultListener
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.CoroutineScope
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doReturn
@@ -32,7 +33,7 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
-class DefaultMessageInboxInternalTest : AnnotationSpec() {
+class DefaultMessageInboxInternalTest  {
     private companion object {
         private const val TAG = "READ"
         private const val LOWER_CASED_TAG = "read"

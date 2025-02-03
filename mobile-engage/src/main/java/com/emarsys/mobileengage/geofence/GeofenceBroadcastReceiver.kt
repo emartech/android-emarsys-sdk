@@ -3,7 +3,6 @@ package com.emarsys.mobileengage.geofence
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.util.SystemUtils
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.log.entry.StatusLog
@@ -13,9 +12,11 @@ import com.emarsys.mobileengage.geofence.model.TriggeringEmarsysGeofence
 import com.google.android.gms.location.GeofencingEvent
 
 
-class GeofenceBroadcastReceiver(val concurrentHandlerHolder: ConcurrentHandlerHolder) :
+class GeofenceBroadcastReceiver :
     BroadcastReceiver() {
-    constructor() : this(mobileEngage().concurrentHandlerHolder)
+    private val concurrentHandlerHolder by lazy {
+        mobileEngage().concurrentHandlerHolder
+    }
 
     override fun onReceive(context: Context, intent: Intent) {
         val geofencingEvent = GeofencingEvent.fromIntent(intent)

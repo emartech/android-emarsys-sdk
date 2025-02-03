@@ -2,7 +2,6 @@ package com.emarsys.core.activity
 
 import android.app.Activity
 import com.emarsys.getCurrentActivity
-import com.emarsys.testUtil.AnnotationSpec
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -15,10 +14,13 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class ActivityLifecycleWatchdogTest : AnnotationSpec() {
+class ActivityLifecycleWatchdogTest {
     private lateinit var watchdog: ActivityLifecycleWatchdog
     private lateinit var mockRegistry: ActivityLifecycleActionRegistry
     private lateinit var mockActivity: Activity

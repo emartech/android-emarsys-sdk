@@ -1,12 +1,13 @@
 package com.emarsys.core.response
 
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainAll
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito.inOrder
 import org.mockito.Mockito.mock
 
-class ResponseHandlersProcessorTest : AnnotationSpec() {
+class ResponseHandlersProcessorTest  {
 
 
     private lateinit var responseHandlersProcessor: ResponseHandlersProcessor

@@ -1,23 +1,34 @@
 package com.emarsys.mobileengage.service
 
 import android.app.Activity
+import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
+import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import com.emarsys.core.util.AndroidVersionUtils.isBelowUpsideDownCake
+import com.emarsys.core.util.AndroidVersionUtils.isUpsideDownCakeOrHigher
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
-import com.emarsys.mobileengage.service.IntentUtils.createLaunchIntent
+import com.emarsys.mobileengage.service.IntentUtils.createLaunchPendingIntent
 import com.emarsys.mobileengage.service.IntentUtils.createNotificationHandlerServiceIntent
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import io.kotest.matchers.shouldBe
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.slot
+import io.mockk.unmockkStatic
+import io.mockk.verify
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 
-class IntentUtilsTest : AnnotationSpec() {
+class IntentUtilsTest  {
     private companion object {
+        const val BACKGROUND_ACTIVITY_START_MODE_KEY = "android.activity.pendingIntentCreatorBackgroundActivityStartMode"
         const val TITLE = "title"
         const val BODY = "body"
         const val CHANNEL_ID = "channelId"
@@ -47,59 +58,137 @@ class IntentUtilsTest : AnnotationSpec() {
     }
 
     private lateinit var context: Context
+    private lateinit var launchIntentForPackage: Intent
+    private lateinit var mockPackageManager: PackageManager
+    private lateinit var mockActivity: Activity
+    private val bundleCaptor = slot<Bundle>()
+    private val intentCaptor = slot<Intent>()
 
     @Before
     fun init() {
         setupMobileEngageComponent(FakeMobileEngageDependencyContainer())
         context = getTargetContext()
+        mockkStatic(PendingIntent::class)
+
+        launchIntentForPackage = Intent()
+        mockPackageManager = mockk(relaxed = true)
+        every { mockPackageManager.getLaunchIntentForPackage(any()) } returns launchIntentForPackage
+
+        mockActivity = mockk(relaxed = true)
+        every { mockActivity.packageManager } returns mockPackageManager
+        every { mockActivity.packageName } returns "com.emarsys.mobileengage.test"
+        every {
+            PendingIntent.getActivity(
+                mockActivity,
+                0,
+                launchIntentForPackage,
+                any(),
+                any()
+            )
+        } returns mockk()
+    }
+
+    @After
+    fun tearDown() {
+        unmockkStatic(PendingIntent::class)
+        bundleCaptor.clear()
+        intentCaptor.clear()
     }
 
     @Test
     fun testCreateLaunchIntent() {
-        val launchIntentForPackage = Intent()
-        val pm: PackageManager = mock {
-            on { getLaunchIntentForPackage(any()) } doReturn launchIntentForPackage
+        if(isBelowUpsideDownCake) {
+            val remoteIntent = Intent()
+            val expectedExtras = Bundle()
+            expectedExtras.putString("key", "value")
+            remoteIntent.putExtras(expectedExtras)
+
+            createLaunchPendingIntent(remoteIntent, mockActivity)
+
+            verify {
+                PendingIntent.getActivity(
+                    mockActivity,
+                    0,
+                    capture(intentCaptor),
+                    FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE,
+                    null
+                )
+            }
+
+            intentCaptor.captured.extras?.getString("key") shouldBe "value"
         }
-        val mockActivity: Activity = mock {
-            on { packageManager } doReturn pm
-            on { packageName } doReturn "packageName"
-        }
-        val intent = Intent()
-        val bundle = Bundle()
-        bundle.putString("key", "value")
-        intent.putExtras(bundle)
-        val result = createLaunchIntent(intent, mockActivity)
-        launchIntentForPackage shouldBe result
-        val launcherBundle = launchIntentForPackage.extras
-        bundle.keySet() shouldBe launcherBundle!!.keySet()
-        for (key in bundle.keySet()) {
-            bundle[key] shouldBe launcherBundle[key]
+    }
+
+    @Test
+    fun testCreateLaunchIntent_shouldCreatePendingIntentWithApplicationOptionsAboveApiLevel34() {
+        if(isUpsideDownCakeOrHigher) {
+            val remoteIntent = Intent()
+            val expectedExtras = Bundle()
+            expectedExtras.putString("key", "value")
+            remoteIntent.putExtras(expectedExtras)
+
+            createLaunchPendingIntent(remoteIntent, mockActivity)
+
+            verify {
+                PendingIntent.getActivity(
+                    mockActivity,
+                    0,
+                    capture(intentCaptor),
+                    FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE,
+                    capture(bundleCaptor)
+                )
+            }
+
+            bundleCaptor.captured.getInt(BACKGROUND_ACTIVITY_START_MODE_KEY) shouldBe 1
+            intentCaptor.captured.extras?.getString("key") shouldBe "value"
         }
     }
 
     @Test
     fun testCreateLaunchIntent_withNoBundleInIntent() {
-        val launchIntentForPackage = Intent()
-        val pm: PackageManager = mock {
-            on { getLaunchIntentForPackage(any()) } doReturn launchIntentForPackage
+        if (isBelowUpsideDownCake) {
+            createLaunchPendingIntent(Intent(), mockActivity)
+            launchIntentForPackage.extras shouldBe null
+
+            verify {
+                PendingIntent.getActivity(
+                    mockActivity,
+                    0,
+                    capture(intentCaptor),
+                    FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE,
+                    null
+                )
+            }
+
+            intentCaptor.captured.extras shouldBe null
         }
-        val mockActivity: Activity = mock {
-            on { packageManager } doReturn pm
-            on { packageName } doReturn "packageName"
-        }
-        val result = createLaunchIntent(Intent(), mockActivity)
-        launchIntentForPackage shouldBe result
-        launchIntentForPackage.extras shouldBe null
     }
 
     @Test
-    fun testCreateLaunchIntent_whenIntentIsNull() {
-        val pm: PackageManager = mock()
-        val mockActivity: Activity = mock {
-            on { packageManager } doReturn pm
-            on { packageName } doReturn "packageName"
+    fun testCreateLaunchIntent_withNoBundleInIntent_aboveApiLevel34() {
+        if (isUpsideDownCakeOrHigher) {
+            createLaunchPendingIntent(Intent(), mockActivity)
+            launchIntentForPackage.extras shouldBe null
+
+            verify {
+                PendingIntent.getActivity(
+                    mockActivity,
+                    0,
+                    capture(intentCaptor),
+                    FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE,
+                    capture(bundleCaptor)
+                )
+            }
+
+            bundleCaptor.captured.getInt(BACKGROUND_ACTIVITY_START_MODE_KEY) shouldBe 1
+            intentCaptor.captured.extras shouldBe null
         }
-        val result = createLaunchIntent(Intent(), mockActivity)
+    }
+
+    @Test
+    fun testCreateLaunchIntent_whenLaunchIntentForPackageIsNull() {
+        every { mockPackageManager.getLaunchIntentForPackage(any()) } returns null
+        val result = createLaunchPendingIntent(Intent(), mockActivity)
         result shouldBe null
     }
 

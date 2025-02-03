@@ -8,13 +8,12 @@ import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.notification.NotificationManagerHelper
-import com.emarsys.core.provider.hardwareid.HardwareIdProvider
+import com.emarsys.core.provider.clientid.ClientIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.storage.Storage
 import com.emarsys.di.DefaultEmarsysComponent
 import com.emarsys.di.DefaultEmarsysDependencies
 import com.emarsys.di.emarsys
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ConnectionTestUtils
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.FeatureTestUtils
@@ -27,10 +26,13 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
+import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
-class MobileEngageRefreshContactTokenIntegrationTest : AnnotationSpec() {
+class MobileEngageRefreshContactTokenIntegrationTest  {
 
     @Rule
     @JvmField
@@ -67,8 +69,8 @@ class MobileEngageRefreshContactTokenIntegrationTest : AnnotationSpec() {
 
         val deviceInfo = DeviceInfo(
             application,
-            mockk<HardwareIdProvider>(relaxed = true).apply {
-                every { provideHardwareId() } returns "mobileengage_integration_hwid"
+            mockk<ClientIdProvider>(relaxed = true).apply {
+                every { provideClientId() } returns "mobileengage_integration_hwid"
             },
             mockk<VersionProvider>(relaxed = true).apply {
                 every { provideSdkVersion() } returns "0.0.0-mobileengage_integration_version"

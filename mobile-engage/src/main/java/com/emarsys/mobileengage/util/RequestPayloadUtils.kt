@@ -6,7 +6,7 @@ import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.iam.model.IamConversionUtils
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
-import java.util.*
+import java.util.Locale
 
 object RequestPayloadUtils {
 
@@ -75,11 +75,11 @@ object RequestPayloadUtils {
                 "name" to eventName,
                 "timestamp" to TimestampUtils.formatTimestampWithUTC(requestContext.timestampProvider.provideTimestamp())
         )
-        if (eventAttributes != null && eventAttributes.isNotEmpty()) {
+        if (!eventAttributes.isNullOrEmpty()) {
             event["attributes"] = eventAttributes
         }
-        if (requestContext.sessionIdHolder.sessionId != null) {
-            event["sessionId"] = requestContext.sessionIdHolder.sessionId!!
+        requestContext.sessionIdHolder.sessionId?.let {
+            event["sessionId"] = it
         }
         return event
     }

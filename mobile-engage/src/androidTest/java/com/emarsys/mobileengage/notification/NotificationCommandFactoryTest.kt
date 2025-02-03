@@ -28,7 +28,6 @@ import com.emarsys.mobileengage.service.IntentUtils
 import com.emarsys.mobileengage.service.NotificationData
 import com.emarsys.mobileengage.service.NotificationMethod
 import com.emarsys.mobileengage.service.NotificationOperation
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.data.forAll
@@ -38,10 +37,13 @@ import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import org.json.JSONObject
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.kotlin.mock
 
-class NotificationCommandFactoryTest : AnnotationSpec() {
+class NotificationCommandFactoryTest  {
     private companion object {
         const val SID = "129487fw123"
         const val MISSING_SID = "Missing sid"
@@ -97,19 +99,24 @@ class NotificationCommandFactoryTest : AnnotationSpec() {
     fun setUp() {
         context = InstrumentationRegistry.getTargetContext().applicationContext
         mockConcurrentHandlerHolder = mock()
-        mockEventServiceInternal = mock(EventServiceInternal::class.java)
-        mockPushInternal = mock(PushInternal::class.java)
-        mockEventHandler = mock(CacheableEventHandler::class.java)
+        mockEventServiceInternal = mock(EventServiceInternal::
+class.java)
+        mockPushInternal = mock(PushInternal::
+class.java)
+        mockEventHandler = mock(CacheableEventHandler::
+class.java)
         mockActionCommandFactory = ActionCommandFactory(
             context,
             mockEventServiceInternal,
             mockEventHandler,
             mockConcurrentHandlerHolder
         )
-        mockCurrentActivityProvider = mock(CurrentActivityProvider::class.java).apply {
+        mockCurrentActivityProvider = mock(CurrentActivityProvider::
+class.java).apply {
             whenever(get()).thenReturn(null)
         }
-        mockActivity = mock(Activity::class.java).apply {
+        mockActivity = mock(Activity::
+class.java).apply {
             whenever(toString()).thenReturn("com.emarsys.NotificationOpenedActivity")
         }
 
@@ -190,7 +197,9 @@ class NotificationCommandFactoryTest : AnnotationSpec() {
         val command = factory.createNotificationCommand(intent)
 
         command shouldNotBe null
-        command::class.java shouldBe CompositeCommand::class.java
+        command::
+class.java shouldBe CompositeCommand::
+class.java
 
         command as CompositeCommand
 
@@ -233,7 +242,9 @@ class NotificationCommandFactoryTest : AnnotationSpec() {
         val command = factory.createNotificationCommand(intent)
 
         command shouldNotBe null
-        command::class.java shouldBe CompositeCommand::class.java
+        command::
+class.java shouldBe CompositeCommand::
+class.java
 
         command as CompositeCommand
 
@@ -275,7 +286,9 @@ class NotificationCommandFactoryTest : AnnotationSpec() {
         val command = factory.createNotificationCommand(intent)
 
         command shouldNotBe null
-        command::class.java shouldBe CompositeCommand::class.java
+        command::
+class.java shouldBe CompositeCommand::
+class.java
 
         command as CompositeCommand
         contains<LaunchApplicationCommand>(command) shouldBe true
@@ -338,7 +351,9 @@ class NotificationCommandFactoryTest : AnnotationSpec() {
         val command = factory.createNotificationCommand(intent)
 
         command shouldNotBe null
-        command::class.java shouldBe CompositeCommand::class.java
+        command::
+class.java shouldBe CompositeCommand::
+class.java
 
         command as CompositeCommand
 
@@ -356,7 +371,9 @@ class NotificationCommandFactoryTest : AnnotationSpec() {
         val command = factory.createNotificationCommand(intent)
 
         command shouldNotBe null
-        command::class.java shouldBe CompositeCommand::class.java
+        command::
+class.java shouldBe CompositeCommand::
+class.java
 
         command as CompositeCommand
 
@@ -489,7 +506,9 @@ class NotificationCommandFactoryTest : AnnotationSpec() {
         val command = factory.createNotificationCommand(intent)
 
         command shouldNotBe null
-        command::class.java shouldBe CompositeCommand::class.java
+        command::
+class.java shouldBe CompositeCommand::
+class.java
 
         command as CompositeCommand
 
@@ -530,7 +549,9 @@ class NotificationCommandFactoryTest : AnnotationSpec() {
         val command = factory.createNotificationCommand(intent)
 
         command shouldNotBe null
-        command::class.java shouldBe CompositeCommand::class.java
+        command::
+class.java shouldBe CompositeCommand::
+class.java
 
         command as CompositeCommand
 
@@ -594,7 +615,9 @@ class NotificationCommandFactoryTest : AnnotationSpec() {
         val compositeCommands = factory.createNotificationCommand(intent) as CompositeCommand
         val result = compositeCommands.commands
 
-        result[2]::class.java shouldBe LaunchApplicationCommand::class.java
+        result[2]::
+class.java shouldBe LaunchApplicationCommand::
+class.java
     }
 
     @Test
@@ -605,7 +628,9 @@ class NotificationCommandFactoryTest : AnnotationSpec() {
         val compositeCommands = factory.createNotificationCommand(intent) as CompositeCommand
         val result = compositeCommands.commands
 
-        result.forEach { it::class.java shouldNotBe LaunchApplicationCommand::class.java }
+        result.forEach { it::
+class.java shouldNotBe LaunchApplicationCommand::
+class.java }
     }
 
     @Test
@@ -635,7 +660,8 @@ class NotificationCommandFactoryTest : AnnotationSpec() {
         (factory.createNotificationCommand(intent) as CompositeCommand).commands.filterIsInstance<T>()
             .let { list ->
                 list.firstOrNull().takeIf { list.size == 1 }
-                    ?: error("CompositeCommand contains multiple commands of type ${T::class.java}: $list")
+                    ?: error("CompositeCommand contains multiple commands of type ${T::
+class.java}: $list")
             }
 
     @Suppress("UNCHECKED_CAST")

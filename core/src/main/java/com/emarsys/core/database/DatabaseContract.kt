@@ -7,7 +7,7 @@ object DatabaseContract {
     const val SHARD_TABLE_NAME = "shard"
     const val DISPLAYED_IAM_TABLE_NAME = "displayed_iam"
     const val BUTTON_CLICKED_TABLE_NAME = "button_clicked"
-    const val HARDWARE_IDENTIFICATION_TABLE_NAME = "hardware_identification"
+    const val CLIENT_IDENTIFICATION_TABLE_NAME = "hardware_identification"
     const val REQUEST_COLUMN_NAME_REQUEST_ID = "request_id"
     const val REQUEST_COLUMN_NAME_METHOD = "method"
     const val REQUEST_COLUMN_NAME_URL = "url"
@@ -25,13 +25,14 @@ object DatabaseContract {
     const val BUTTON_CLICKED_COLUMN_NAME_CAMPAIGN_ID = "campaign_id"
     const val BUTTON_CLICKED_COLUMN_NAME_BUTTON_ID = "button_id"
     const val BUTTON_CLICKED_COLUMN_NAME_TIMESTAMP = "timestamp"
-    const val HARDWARE_IDENTIFICATION_COLUMN_NAME_HARDWARE_ID = "hardware_id"
-    const val HARDWARE_IDENTIFICATION_COLUMN_NAME_ENCRYPTED_HARDWARE_ID = "encrypted_hardware_id"
-    const val HARDWARE_IDENTIFICATION_COLUMN_NAME_SALT = "salt"
-    const val HARDWARE_IDENTIFICATION_COLUMN_NAME_IV = "iv"
+    const val CLIENT_IDENTIFICATION_COLUMN_NAME_CLIENT_ID = "hardware_id"
+    const val CLIENT_IDENTIFICATION_COLUMN_NAME_ENCRYPTED_CLIENT_ID = "encrypted_hardware_id"
+    const val CLIENT_IDENTIFICATION_COLUMN_NAME_SALT = "salt"
+    const val CLIENT_IDENTIFICATION_COLUMN_NAME_IV = "iv"
 
-    fun getHardwareIdProviderUri(authority: String): Uri {
-        return Uri.parse("content://$authority").buildUpon().appendPath(HARDWARE_IDENTIFICATION_TABLE_NAME).build()
+    fun getClientIdProviderUri(authority: String): Uri {
+        return Uri.parse("content://$authority").buildUpon()
+            .appendPath(CLIENT_IDENTIFICATION_TABLE_NAME).build()
     }
 
     val UPGRADE_TO_1 = arrayOf(

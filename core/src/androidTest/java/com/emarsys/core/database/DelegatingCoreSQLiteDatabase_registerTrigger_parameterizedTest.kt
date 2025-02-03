@@ -5,7 +5,6 @@ import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.trigger.TriggerEvent
 import com.emarsys.core.database.trigger.TriggerKey
 import com.emarsys.core.database.trigger.TriggerType
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.data.forAll
@@ -13,11 +12,13 @@ import io.kotest.data.headers
 import io.kotest.data.row
 import io.kotest.data.table
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 
-class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest : AnnotationSpec() {
+class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest  {
 
     companion object {
 

@@ -11,16 +11,17 @@ import com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_TYPE
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.util.serialization.SerializationUtils.serializableToBlob
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.shouldBe
 import org.junit.Assert
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import java.io.Serializable
 
-class ShardModelRepositoryTest : AnnotationSpec() {
+class ShardModelRepositoryTest  {
 
     private lateinit var shardModel: ShardModel
     private lateinit var repository: ShardModelRepository

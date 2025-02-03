@@ -14,18 +14,19 @@ import com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_TTL
 import com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_URL
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.helper.DbHelper
-import com.emarsys.core.device.FilterByHardwareId
+import com.emarsys.core.device.FilterByClientId
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.util.serialization.SerializationUtils.serializableToBlob
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.mockito.anyNotNull
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
@@ -36,7 +37,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
-class AbstractSqliteRepositoryTest : AnnotationSpec() {
+class AbstractSqliteRepositoryTest  {
 
     companion object {
         private const val DISTINCT = true
@@ -119,7 +120,7 @@ class AbstractSqliteRepositoryTest : AnnotationSpec() {
             whenever(dbMock.update(any(), any(), any(), any())).thenReturn(1)
             val input = anyNotNull<Any>()
 
-            val result = repository.update(input, eq(FilterByHardwareId("id")))
+            val result = repository.update(input, eq(FilterByClientId("id")))
 
             verify(repository).contentValuesFromItem(input)
             verify(dbMock).beginTransaction()

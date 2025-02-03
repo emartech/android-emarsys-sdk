@@ -1,11 +1,11 @@
 package com.emarsys.mobileengage.iam.dialog
 
+import android.annotation.TargetApi
 import android.app.Activity
 import android.content.DialogInterface
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +14,7 @@ import android.widget.FrameLayout
 import androidx.fragment.app.DialogFragment
 import com.emarsys.core.Mockable
 import com.emarsys.core.provider.timestamp.TimestampProvider
+import com.emarsys.core.util.AndroidVersionUtils
 import com.emarsys.core.util.log.Logger.Companion.error
 import com.emarsys.core.util.log.Logger.Companion.metric
 import com.emarsys.core.util.log.entry.AppEventLog
@@ -53,6 +54,9 @@ class IamDialog(
     private var startTime: Long = 0
     private var dismissed = false
 
+    private var html: String? = null
+    private var inAppMetaData: InAppMetaData? = null
+
     private var activityReference: WeakReference<Activity>? = null
 
     private var iamWebView: IamWebView? = null
@@ -64,6 +68,8 @@ class IamDialog(
         activity: Activity
     ) {
         this.activityReference = WeakReference(activity)
+        this.html = html
+        this.inAppMetaData = inAppMetaData
         if (iamWebView == null) {
             iamWebView = webViewFactory.create(activity)
         }
@@ -80,13 +86,24 @@ class IamDialog(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        retainInstance = true
         setStyle(STYLE_NO_FRAME, android.R.style.Theme_Dialog)
-        val activity = activityReference?.get()
+
+        val activity = activityReference?.get() ?: this.activity
+        val html = html ?: savedInstanceState?.getString("html")
+        val inAppMetaData = inAppMetaData
+            ?: if (AndroidVersionUtils.isBelowTiramisu) savedInstanceState?.getSerializable("inAppMetaData") as InAppMetaData?
+            else getInAppMetaDataFromBundle(savedInstanceState)
         if (iamWebView == null && activity != null) {
             iamWebView = webViewFactory.create(activity)
+            if (html != null && inAppMetaData != null) {
+                iamWebView?.load(html, inAppMetaData) {}
+            }
         }
     }
+
+    @TargetApi(33)
+    private fun getInAppMetaDataFromBundle(savedInstanceState: Bundle?) =
+        savedInstanceState?.getSerializable("inAppMetaData", InAppMetaData::class.java)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -139,13 +156,11 @@ class IamDialog(
 
     override fun onCancel(dialog: DialogInterface) {
         saveOnScreenTime()
-        retainInstance = false
         super.onCancel(dialog)
     }
 
     override fun dismiss() {
         saveOnScreenTime()
-        retainInstance = false
         super.dismiss()
     }
 
@@ -167,10 +182,16 @@ class IamDialog(
     }
 
     override fun onDestroyView() {
-        if (dialog != null && retainInstance) {
+        if (dialog != null) {
             dialog!!.setDismissMessage(null)
         }
         super.onDestroyView()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString("html", html)
+        outState.putSerializable("inAppMetaData", inAppMetaData)
+        super.onSaveInstanceState(outState)
     }
 
     private fun updateOnScreenTime() {

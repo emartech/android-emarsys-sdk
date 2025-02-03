@@ -7,17 +7,18 @@ import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.util.waitForTask
-import com.emarsys.testUtil.AnnotationSpec
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 
-class AppStartActionTest : AnnotationSpec() {
+class AppStartActionTest  {
 
     private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var mockContactTokenStorage: Storage<String?>
     private lateinit var startAction: AppStartAction
-
 
     @Before
     fun setUp() {

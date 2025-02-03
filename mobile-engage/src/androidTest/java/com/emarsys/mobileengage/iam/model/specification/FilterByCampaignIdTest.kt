@@ -8,13 +8,14 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
+import org.junit.Before
+import org.junit.Test
 
-class FilterByCampaignIdTest : AnnotationSpec() {
+class FilterByCampaignIdTest  {
 
 
     private lateinit var displayedIamRepository: DisplayedIamRepository

@@ -3,14 +3,15 @@ package com.emarsys.core.storage
 import android.content.Context
 import android.content.SharedPreferences
 import com.emarsys.core.crypto.SharedPreferenceCrypto
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.Before
+import org.junit.Test
 import javax.crypto.SecretKey
 
-class EmarsysEncryptedSharedPreferencesV3Test : AnnotationSpec() {
+class EmarsysEncryptedSharedPreferencesV3Test  {
 
     private lateinit var mockContext: Context
     private lateinit var mockSharedPreferenceCrypto: SharedPreferenceCrypto
@@ -19,7 +20,7 @@ class EmarsysEncryptedSharedPreferencesV3Test : AnnotationSpec() {
     private lateinit var emarsysEncryptedSharedPreferencesV3: EmarsysEncryptedSharedPreferencesV3
     private lateinit var mockInternalEditor: SharedPreferences.Editor
 
-    @BeforeEach
+    @Before
     fun setup() {
         mockContext = mockk()
         mockSharedPreferenceCrypto = mockk()

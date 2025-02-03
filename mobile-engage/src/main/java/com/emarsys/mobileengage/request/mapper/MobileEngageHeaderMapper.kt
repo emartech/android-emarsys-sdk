@@ -14,7 +14,7 @@ class MobileEngageHeaderMapper(override val requestContext: MobileEngageRequestC
             updatedHeaders["X-Client-State"] = it
         }
         updatedHeaders["X-Request-Order"] = requestContext.timestampProvider.provideTimestamp().toString()
-        updatedHeaders["X-Client-Id"] = requestContext.deviceInfo.hardwareId
+        updatedHeaders["X-Client-Id"] = requestContext.deviceInfo.clientId
         return updatedHeaders
     }
 

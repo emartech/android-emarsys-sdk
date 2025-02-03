@@ -11,11 +11,13 @@ import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.service.NotificationData
 import com.emarsys.mobileengage.service.NotificationOperation
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.FileTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.shouldBe
 import org.json.JSONObject
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -25,7 +27,7 @@ import java.io.File
 import java.util.concurrent.CountDownLatch
 
 
-class PreloadedInappHandlerCommandTest : AnnotationSpec() {
+class PreloadedInappHandlerCommandTest  {
     companion object {
         private const val URL = "https://www.google.com"
         const val TITLE = "title"

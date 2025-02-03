@@ -1,15 +1,15 @@
 package com.emarsys.predict
 
-
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.predict.api.model.Product
-import com.emarsys.testUtil.AnnotationSpec
-import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
-import org.mockito.Mockito
+import io.mockk.every
+import io.mockk.mockk
+import org.junit.Before
+import org.junit.Test
 
-class PredictResponseMapperTest : AnnotationSpec() {
+class PredictResponseMapperTest  {
 
     private lateinit var predictResponseMapper: PredictResponseMapper
     private lateinit var mockResponseModel: ResponseModel
@@ -19,12 +19,12 @@ class PredictResponseMapperTest : AnnotationSpec() {
     @Before
     fun setUp() {
         predictResponseMapper = PredictResponseMapper()
-        mockResponseModel = Mockito.mock(ResponseModel::class.java)
+        mockResponseModel = mockk(relaxed = true)
     }
 
     @Test
     fun testMap_withSearch_shouldPreserveOrder() {
-        whenever(mockResponseModel.body).thenReturn(getBodyFor("SEARCH"))
+        every { mockResponseModel.body } returns getBodyFor("SEARCH")
         val result = predictResponseMapper.map(mockResponseModel)
         expectedResult = getExpectedResult("SEARCH", 100F, true, 100F)
         result shouldContainAll expectedResult
@@ -36,7 +36,7 @@ class PredictResponseMapperTest : AnnotationSpec() {
 
     @Test
     fun testMap_shouldNotCrash_whenParsedValuesAreNull() {
-        whenever(mockResponseModel.body).thenReturn(getBodyFor("SEARCH", "null", "null", "null"))
+        every { mockResponseModel.body } returns getBodyFor("SEARCH", "null", "null", "null")
         val expectedResult = getExpectedResult("SEARCH", null, null, null)[0]
 
         val result = predictResponseMapper.map(mockResponseModel)[0]
@@ -46,7 +46,7 @@ class PredictResponseMapperTest : AnnotationSpec() {
 
     @Test
     fun testMap_withCart_shouldPreserveOrder() {
-        whenever(mockResponseModel.body).thenReturn(getBodyFor("CART"))
+        every { mockResponseModel.body } returns getBodyFor("CART")
         val result = predictResponseMapper.map(mockResponseModel)
         expectedResult = getExpectedResult("CART", 100F, true, 100F)
 
@@ -59,7 +59,7 @@ class PredictResponseMapperTest : AnnotationSpec() {
 
     @Test
     fun testMap_withRelated_shouldPreserveOrder() {
-        whenever(mockResponseModel.body).thenReturn(getBodyFor("RELATED"))
+        every { mockResponseModel.body } returns getBodyFor("RELATED")
         val result = predictResponseMapper.map(mockResponseModel)
         expectedResult = getExpectedResult("RELATED", 100F, true, 100F)
 
@@ -72,7 +72,7 @@ class PredictResponseMapperTest : AnnotationSpec() {
 
     @Test
     fun testMap_withResponseWithoutProducts() {
-        whenever(mockResponseModel.body).thenReturn(getEmptyBodyFor("SEARCH"))
+        every { mockResponseModel.body } returns getEmptyBodyFor("SEARCH")
         val result = predictResponseMapper.map(mockResponseModel)
 
         expectedResult = emptyList()
@@ -82,7 +82,7 @@ class PredictResponseMapperTest : AnnotationSpec() {
 
     @Test
     fun testMap_shouldNotBreakWhenFloatPropertyIsNull() {
-        whenever(mockResponseModel.body).thenReturn(getBodyFor(feature = "SEARCH", msrp = null))
+        every { mockResponseModel.body } returns getBodyFor(feature = "SEARCH", msrp = null)
         val result = predictResponseMapper.map(mockResponseModel)
 
         expectedResult = getExpectedResult("SEARCH", null, true, 100.0F)
@@ -90,58 +90,70 @@ class PredictResponseMapperTest : AnnotationSpec() {
         result shouldBe expectedResult
     }
 
-    private fun getExpectedResult(feature: String, msrp: Float?, available: Boolean?, price: Float?): List<Product> {
+    private fun getExpectedResult(
+        feature: String,
+        msrp: Float?,
+        available: Boolean?,
+        price: Float?
+    ): List<Product> {
         val product1 = Product(
-                productId = "2119",
-                title = "LSL Men Polo Shirt SE16",
-                linkUrl = "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html",
-                feature = feature,
-                cohort = "AAAA",
-                categoryPath = "MEN>Shirts",
-                available = available,
-                msrp = msrp,
-                price = price,
-                imageUrlString = "http://lifestylelabels.com/pub/media/catalog/product/m/p/mp001.jpg",
-                zoomImageUrlString = "http://lifestylelabels.com/pub/media/catalog/product/m/p/mp001.jpg",
-                productDescription = "product Description",
-                album = "album",
-                actor = "actor",
-                artist = "artist",
-                author = "author",
-                brand = "brand",
-                year = 2000,
-                customFields = mapOf(
-                        "msrp_gpb" to "83.2",
-                        "price_gpb" to "83.2",
-                        "msrp_aed" to "100",
-                        "price_aed" to "100",
-                        "msrp_cad" to "100",
-                        "price_cad" to "100",
-                        "msrp_mxn" to "2057.44",
-                        "price_mxn" to "2057.44",
-                        "msrp_pln" to "100",
-                        "price_pln" to null,
-                        "msrp_rub" to "100",
-                        "price_rub" to "100",
-                        "msrp_sek" to "100",
-                        "price_sek" to "100",
-                        "msrp_try" to "339.95",
-                        "price_try" to "339.95",
-                        "msrp_usd" to "100",
-                        "price_usd" to "100"
-                ))
+            productId = "2119",
+            title = "LSL Men Polo Shirt SE16",
+            linkUrl = "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html",
+            feature = feature,
+            cohort = "AAAA",
+            categoryPath = "MEN>Shirts",
+            available = available,
+            msrp = msrp,
+            price = price,
+            imageUrlString = "http://lifestylelabels.com/pub/media/catalog/product/m/p/mp001.jpg",
+            zoomImageUrlString = "http://lifestylelabels.com/pub/media/catalog/product/m/p/mp001.jpg",
+            productDescription = "product Description",
+            album = "album",
+            actor = "actor",
+            artist = "artist",
+            author = "author",
+            brand = "brand",
+            year = 2000,
+            customFields = mapOf(
+                "msrp_gpb" to "83.2",
+                "price_gpb" to "83.2",
+                "msrp_aed" to "100",
+                "price_aed" to "100",
+                "msrp_cad" to "100",
+                "price_cad" to "100",
+                "msrp_mxn" to "2057.44",
+                "price_mxn" to "2057.44",
+                "msrp_pln" to "100",
+                "price_pln" to null,
+                "msrp_rub" to "100",
+                "price_rub" to "100",
+                "msrp_sek" to "100",
+                "price_sek" to "100",
+                "msrp_try" to "339.95",
+                "price_try" to "339.95",
+                "msrp_usd" to "100",
+                "price_usd" to "100"
+            )
+        )
         return listOf(
-                product1,
-                Product(
-                        "2120",
-                        "LSL Men Polo Shirt SE16",
-                        "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html",
-                        feature,
-                        "AAAA")
+            product1,
+            Product(
+                "2120",
+                "LSL Men Polo Shirt SE16",
+                "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html",
+                feature,
+                "AAAA"
+            )
         )
     }
 
-    private fun getBodyFor(feature: String, msrp: String? = "100", available: String = "true", price: String = "100.0"): String {
+    private fun getBodyFor(
+        feature: String,
+        msrp: String? = "100",
+        available: String = "true",
+        price: String = "100.0"
+    ): String {
         return """{
            "cohort":"AAAA",
            "visitor":"16BCC0D2745E6B36",

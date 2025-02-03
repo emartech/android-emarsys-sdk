@@ -3,13 +3,13 @@ package com.emarsys.predict.util
 
 import com.emarsys.predict.api.model.CartItem
 import com.emarsys.predict.api.model.PredictCartItem
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito.mock
 
-class CartItemUtilsTest : AnnotationSpec() {
-
+class CartItemUtilsTest  {
 
     private lateinit var cartItem1: CartItem
     private lateinit var cartItem2: CartItem

@@ -13,7 +13,7 @@ import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.handler.ConcurrentHandlerHolder
-import com.emarsys.core.provider.hardwareid.HardwareIdProvider
+import com.emarsys.core.provider.clientid.ClientIdProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
@@ -78,11 +78,11 @@ interface CoreComponent {
 
     val sharedPreferencesV3: SharedPreferences
 
-    val hardwareIdProvider: HardwareIdProvider
+    val clientIdProvider: ClientIdProvider
 
     val coreDbHelper: CoreDbHelper
 
-    val hardwareIdStorage: Storage<String?>
+    val clientIdStorage: Storage<String?>
 
     val logLevelStorage: Storage<String?>
 

@@ -3,8 +3,9 @@ package com.emarsys.core.request
 import com.emarsys.core.connection.ConnectionProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.request.model.RequestModel
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.fail
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
@@ -12,7 +13,7 @@ import org.mockito.kotlin.whenever
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
-class RequestTaskTest : AnnotationSpec() {
+class RequestTaskTest  {
     private lateinit var connectionProvider: ConnectionProvider
     private lateinit var mockTimestampProvider: TimestampProvider
 

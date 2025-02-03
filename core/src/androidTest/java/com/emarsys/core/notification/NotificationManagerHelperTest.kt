@@ -1,12 +1,13 @@
 package com.emarsys.core.notification
 
 import com.emarsys.core.api.notification.ChannelSettings
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito.mock
 
-class NotificationManagerHelperTest : AnnotationSpec() {
+class NotificationManagerHelperTest  {
 
     private companion object {
         const val CHANNEL_ID_1 = "channelId1"

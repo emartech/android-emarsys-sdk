@@ -6,28 +6,26 @@ import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.notification.NotificationManagerHelper
-import com.emarsys.core.provider.hardwareid.HardwareIdProvider
+import com.emarsys.core.provider.clientid.ClientIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.di.DefaultEmarsysComponent
 import com.emarsys.di.DefaultEmarsysDependencies
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.IntegrationTestUtils
-import com.emarsys.testUtil.KotestRunnerAndroid
 import com.emarsys.testUtil.rules.ConnectionRule
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
-import org.junit.runner.RunWith
+import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
-
-@RunWith(KotestRunnerAndroid::class)
-class DefaultInboxIntegrationTest : AnnotationSpec() {
+class DefaultInboxIntegrationTest {
     @Rule
     @JvmField
     val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
@@ -65,8 +63,8 @@ class DefaultInboxIntegrationTest : AnnotationSpec() {
         latch = CountDownLatch(1)
         val deviceInfo = DeviceInfo(
             application,
-            mockk<HardwareIdProvider>(relaxed = true).apply {
-                every { provideHardwareId() } returns "inboxv1_integration_hwid"
+            mockk<ClientIdProvider>(relaxed = true).apply {
+                every { provideClientId() } returns "inboxv1_integration_hwid"
             },
             mockk<VersionProvider>(relaxed = true).apply {
                 every { provideSdkVersion() } returns SDK_VERSION

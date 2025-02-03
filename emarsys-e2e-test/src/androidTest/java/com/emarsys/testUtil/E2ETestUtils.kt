@@ -19,7 +19,7 @@ object E2ETestUtils {
             emarsys().contactTokenStorage.remove()
             emarsys().clientStateStorage.remove()
             emarsys().pushTokenStorage.remove()
-            emarsys().hardwareIdStorage.remove()
+            emarsys().clientIdStorage.remove()
             emarsys().refreshTokenStorage.remove()
             emarsys().contactFieldValueStorage.remove()
             emarsys().clientServiceStorage.remove()

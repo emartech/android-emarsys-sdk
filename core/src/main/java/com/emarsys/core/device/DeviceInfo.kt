@@ -8,7 +8,7 @@ import android.os.Build
 import android.util.DisplayMetrics
 import com.emarsys.core.Mockable
 import com.emarsys.core.api.notification.NotificationSettings
-import com.emarsys.core.provider.hardwareid.HardwareIdProvider
+import com.emarsys.core.provider.clientid.ClientIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.util.AndroidVersionUtils
 import org.json.JSONObject
@@ -19,7 +19,7 @@ import java.util.Locale
 @Mockable
 data class DeviceInfo(
     private val context: Context,
-    private val hardwareIdProvider: HardwareIdProvider,
+    private val clientIdProvider: ClientIdProvider,
     private val versionProvider: VersionProvider,
     private val languageProvider: LanguageProvider,
     val notificationSettings: NotificationSettings,
@@ -31,7 +31,7 @@ data class DeviceInfo(
         const val UNKNOWN_VERSION_NAME = "unknown"
     }
 
-    val hardwareId: String = hardwareIdProvider.provideHardwareId()
+    val clientId: String = clientIdProvider.provideClientId()
     val platform: String
         get() {
             return if (isGooglePlayAvailable) "android" else "android-huawei"
@@ -66,7 +66,7 @@ data class DeviceInfo(
                     "importance" to notificationSettings.importance,
                     "areNotificationsEnabled" to notificationSettings.areNotificationsEnabled
                 ),
-                "hwid" to hardwareId,
+                "hwid" to clientId,
                 "platform" to platform,
                 "language" to language,
                 "timezone" to timezone,

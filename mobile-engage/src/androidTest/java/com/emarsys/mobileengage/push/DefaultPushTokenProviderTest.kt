@@ -2,16 +2,15 @@ package com.emarsys.mobileengage.push
 
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.storage.StringStorage
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
+import org.junit.Test
 import org.mockito.Mockito.mock
 
-class DefaultPushTokenProviderTest : AnnotationSpec() {
+class DefaultPushTokenProviderTest  {
     private companion object {
         const val PUSH_TOKEN = "pushToken"
     }
-
 
     @Test
     fun testProvidePushToken() {

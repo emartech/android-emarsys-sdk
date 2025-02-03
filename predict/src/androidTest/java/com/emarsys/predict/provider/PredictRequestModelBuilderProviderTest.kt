@@ -5,14 +5,15 @@ import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.predict.request.PredictHeaderFactory
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.request.PredictRequestModelBuilder
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito.mock
 
-class PredictRequestModelBuilderProviderTest : AnnotationSpec() {
+class PredictRequestModelBuilderProviderTest  {
 
     private lateinit var mockRequestContext: PredictRequestContext
     private lateinit var mockHeaderFactory: PredictHeaderFactory

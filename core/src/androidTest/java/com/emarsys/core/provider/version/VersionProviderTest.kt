@@ -1,10 +1,10 @@
 package com.emarsys.core.provider.version
 
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 
-
-class VersionProviderTest : AnnotationSpec() {
+class VersionProviderTest  {
 
 
     private lateinit var versionProvider: VersionProvider

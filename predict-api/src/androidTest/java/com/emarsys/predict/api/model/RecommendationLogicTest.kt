@@ -8,11 +8,11 @@ import com.emarsys.predict.api.model.RecommendationLogic.Companion.personal
 import com.emarsys.predict.api.model.RecommendationLogic.Companion.popular
 import com.emarsys.predict.api.model.RecommendationLogic.Companion.related
 import com.emarsys.predict.api.model.RecommendationLogic.Companion.search
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
+import org.junit.Test
 
 
-class RecommendationLogicTest : AnnotationSpec() {
+class RecommendationLogicTest  {
 
     @Test
     fun testConstructor_variants_mustBeEmptyList_withoutVariantsParam() {

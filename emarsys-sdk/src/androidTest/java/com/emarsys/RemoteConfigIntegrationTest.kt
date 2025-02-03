@@ -4,7 +4,6 @@ package com.emarsys
 import android.app.Application
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.di.emarsys
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ConnectionTestUtils
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
@@ -12,11 +11,14 @@ import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.rules.ConnectionRule
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import io.kotest.matchers.shouldBe
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
+import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
 
-class RemoteConfigIntegrationTest : AnnotationSpec() {
+class RemoteConfigIntegrationTest  {
     @Rule
     @JvmField
     val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")

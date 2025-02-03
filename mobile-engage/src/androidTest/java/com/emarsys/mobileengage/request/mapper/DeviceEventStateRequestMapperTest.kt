@@ -8,15 +8,16 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.util.RequestModelHelper
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import org.json.JSONObject
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
-class DeviceEventStateRequestMapperTest : AnnotationSpec() {
+class DeviceEventStateRequestMapperTest  {
     companion object {
         const val DEVICE_EVENT_STATE: String = """{"device-event-state":true}"""
         val DEVICE_EVENT_STATE_JSON: JSONObject = JSONObject("""{"device-event-state":true}""")
@@ -35,7 +36,7 @@ class DeviceEventStateRequestMapperTest : AnnotationSpec() {
     fun setUp() {
         FeatureRegistry.enableFeature(InnerFeature.EVENT_SERVICE_V4)
         val mockDeviceInfo: DeviceInfo = mock {
-            on { hardwareId } doReturn "TEST_HARDWARE_ID"
+            on { clientId } doReturn "TEST_CLIENT_ID"
         }
         mockRequestContext = mock {
             on { deviceInfo } doReturn mockDeviceInfo

@@ -1,14 +1,12 @@
 package com.emarsys.core.storage
 
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
+import org.junit.Test
 
-
-class CoreStorageKeyTest : AnnotationSpec() {
-
+class CoreStorageKeyTest  {
 
     @Test
     fun testGetKey() = runBlocking {

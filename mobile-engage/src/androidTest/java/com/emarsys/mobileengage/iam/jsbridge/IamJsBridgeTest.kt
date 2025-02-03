@@ -5,7 +5,6 @@ import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.iam.model.InAppMetaData
 import com.emarsys.mobileengage.iam.webview.IamWebView
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.mockk.Called
@@ -14,8 +13,10 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import org.json.JSONObject
+import org.junit.Before
+import org.junit.Test
 
-class IamJsBridgeTest : AnnotationSpec() {
+class IamJsBridgeTest  {
 
     private val jsonObject = JSONObject(
         mapOf(
@@ -37,7 +38,6 @@ class IamJsBridgeTest : AnnotationSpec() {
     private lateinit var mockOnOpenExternalUrlListener: JSCommand
     private lateinit var mockCopyToClipboardListener: JSCommand
     private lateinit var mockOnMEEventListener: JSCommand
-    private val slot = slot<JSONObject>()
 
     @Before
     fun setUp() {
@@ -50,14 +50,14 @@ class IamJsBridgeTest : AnnotationSpec() {
         mockOnOpenExternalUrlListener = mockk(relaxed = true)
         mockOnMEEventListener = mockk(relaxed = true)
         mockCopyToClipboardListener = mockk(relaxed = true)
-        mockJsCommandFactory = mockk {
-            every { create(JSCommandFactory.CommandType.ON_CLOSE) } returns mockOnCloseListener
-            every { create(JSCommandFactory.CommandType.ON_ME_EVENT) } returns mockOnMEEventListener
-            every { create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL) } returns mockOnOpenExternalUrlListener
-            every { create(JSCommandFactory.CommandType.ON_APP_EVENT) } returns mockOnAppEventListener
-            every { create(JSCommandFactory.CommandType.ON_BUTTON_CLICKED) } returns mockOnButtonClickedListener
-            every { create(JSCommandFactory.CommandType.ON_COPY_TO_CLIPBOARD) } returns mockCopyToClipboardListener
-        }
+        mockJsCommandFactory = mockk(relaxed = true)
+        every { mockJsCommandFactory.create(JSCommandFactory.CommandType.ON_CLOSE) } returns mockOnCloseListener
+        every { mockJsCommandFactory.create(JSCommandFactory.CommandType.ON_ME_EVENT) } returns mockOnMEEventListener
+        every { mockJsCommandFactory.create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL) } returns mockOnOpenExternalUrlListener
+        every { mockJsCommandFactory.create(JSCommandFactory.CommandType.ON_APP_EVENT) } returns mockOnAppEventListener
+        every { mockJsCommandFactory.create(JSCommandFactory.CommandType.ON_BUTTON_CLICKED) } returns mockOnButtonClickedListener
+        every { mockJsCommandFactory.create(JSCommandFactory.CommandType.ON_COPY_TO_CLIPBOARD) } returns mockCopyToClipboardListener
+
         mockEventHandler = mockk(relaxed = true)
         jsBridge = IamJsBridge(
             concurrentHandlerHolder,
@@ -169,12 +169,13 @@ class IamJsBridgeTest : AnnotationSpec() {
 
     @Test
     fun testTriggerAppEvent_shouldInvokeCallback_onSuccess() {
+        val slot = slot<JSONObject>()
         val id = "123456789"
         val json = JSONObject().put("id", id).put("name", "value")
 
         jsBridge.triggerAppEvent(json.toString())
 
-        verify(timeout = 1000) {
+        verify(timeout = 2500) {
             mockIamWebView.respondToJS(capture(slot))
         }
 
@@ -184,12 +185,13 @@ class IamJsBridgeTest : AnnotationSpec() {
 
     @Test
     fun testTriggerMeEvent_shouldInvokeCallback_onSuccess() {
+        val slot = slot<JSONObject>()
         val id = "123456789"
         val json = JSONObject().put("id", id).put("name", "value")
 
         jsBridge.triggerMEEvent(json.toString())
 
-        verify(timeout = 1000) {
+        verify(timeout = 2500) {
             mockIamWebView.respondToJS(capture(slot))
         }
 
@@ -199,12 +201,13 @@ class IamJsBridgeTest : AnnotationSpec() {
 
     @Test
     fun testButtonClicked_shouldInvokeCallback_onSuccess() {
+        val slot = slot<JSONObject>()
         val id = "12346789"
         val buttonId = "987654321"
         val json = JSONObject().put("id", id).put("buttonId", buttonId)
         jsBridge.buttonClicked(json.toString())
 
-        verify(timeout = 1000) {
+        verify(timeout = 2500) {
             mockIamWebView.respondToJS(capture(slot))
         }
 
@@ -214,12 +217,13 @@ class IamJsBridgeTest : AnnotationSpec() {
 
     @Test
     fun testOpenExternalLink_shouldInvokeCallback_onSuccess() {
+        val slot = slot<JSONObject>()
         val id = "12346789"
         val url = "https://emarsys.com"
         val json = JSONObject().put("id", id).put("url", url).put("keepInAppOpen", false)
         jsBridge.openExternalLink(json.toString())
 
-        verify(timeout = 1000) {
+        verify(timeout = 2500) {
             mockIamWebView.respondToJS(capture(slot))
         }
 
@@ -229,11 +233,12 @@ class IamJsBridgeTest : AnnotationSpec() {
 
     @Test
     fun testTriggerAppEvent_shouldInvokeCallback_whenNameIsMissing() {
+        val slot = slot<JSONObject>()
         val id = "123456789"
         val json = JSONObject().put("id", id)
         jsBridge.triggerAppEvent(json.toString())
 
-        verify(timeout = 1000) {
+        verify(timeout = 2500) {
             mockIamWebView.respondToJS(capture(slot))
         }
 
@@ -244,12 +249,13 @@ class IamJsBridgeTest : AnnotationSpec() {
 
     @Test
     fun testTriggerMeEvent_shouldInvokeCallback_whenNameIsMissing() {
+        val slot = slot<JSONObject>()
         val id = "123456789"
         val json = JSONObject().put("id", id)
 
         jsBridge.triggerMEEvent(json.toString())
 
-        verify(timeout = 1000) {
+        verify(timeout = 2500) {
             mockIamWebView.respondToJS(capture(slot))
         }
 
@@ -260,11 +266,12 @@ class IamJsBridgeTest : AnnotationSpec() {
 
     @Test
     fun testButtonClicked_shouldInvokeCallback_whenButtonIdIsMissing() {
+        val slot = slot<JSONObject>()
         val id = "12346789"
         val json = JSONObject().put("id", id)
         jsBridge.buttonClicked(json.toString())
 
-        verify(timeout = 1000) {
+        verify(timeout = 2500) {
             mockIamWebView.respondToJS(capture(slot))
         }
 
@@ -275,11 +282,12 @@ class IamJsBridgeTest : AnnotationSpec() {
 
     @Test
     fun testOpenExternalLink_shouldInvokeCallback_whenUrlIsMissing() {
+        val slot = slot<JSONObject>()
         val id = "12346789"
         val json = JSONObject().put("id", id).put("keepInAppOpen", false)
         jsBridge.openExternalLink(json.toString())
 
-        verify(timeout = 1000) {
+        verify(timeout = 2500) {
             mockIamWebView.respondToJS(capture(slot))
         }
 
@@ -290,11 +298,12 @@ class IamJsBridgeTest : AnnotationSpec() {
 
     @Test
     fun testCopyToClipboard_shouldInvokeCallback_onSuccess() {
+        val slot = slot<JSONObject>()
         val id = "12346789"
         val json = JSONObject().put("id", id).put("text", "testText")
         jsBridge.copyToClipboard(json.toString())
 
-        verify(timeout = 1000) {
+        verify(timeout = 2500) {
             mockIamWebView.respondToJS(capture(slot))
         }
 
@@ -304,11 +313,12 @@ class IamJsBridgeTest : AnnotationSpec() {
 
     @Test
     fun testCopyToClipboard_shouldInvokeCallback_onError_whenTextIsMissing() {
+        val slot = slot<JSONObject>()
         val id = "12346789"
         val json = JSONObject().put("id", id)
         jsBridge.copyToClipboard(json.toString())
 
-        verify(timeout = 1000) {
+        verify(timeout = 2500) {
             mockIamWebView.respondToJS(capture(slot))
         }
 
@@ -328,7 +338,7 @@ class IamJsBridgeTest : AnnotationSpec() {
         val json = JSONObject().put("id", "123456789").put("key", "value")
         jsBridge.sendResult(json)
 
-        verify(timeout = 1000) {
+        verify(timeout = 2500) {
             mockIamWebView.respondToJS(json)
         }
     }

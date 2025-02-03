@@ -12,14 +12,13 @@ import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.notification.NotificationManagerHelper
-import com.emarsys.core.provider.hardwareid.HardwareIdProvider
+import com.emarsys.core.provider.clientid.ClientIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.di.DefaultEmarsysComponent
 import com.emarsys.di.DefaultEmarsysDependencies
 import com.emarsys.di.emarsys
 import com.emarsys.mobileengage.push.PushTokenProvider
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.ConnectionTestUtils
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
@@ -32,10 +31,13 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
+import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
-class MobileEngageIntegrationTest : AnnotationSpec() {
+class MobileEngageIntegrationTest  {
     @Rule
     @JvmField
     val retryRule: RetryRule = RetryUtils.retryRule
@@ -85,8 +87,8 @@ class MobileEngageIntegrationTest : AnnotationSpec() {
         }
         val deviceInfo = DeviceInfo(
             application,
-            mockk<HardwareIdProvider>(relaxed = true).apply {
-                every { provideHardwareId() } returns "mobileengage_integration_hwid"
+            mockk<ClientIdProvider>(relaxed = true).apply {
+                every { provideClientId() } returns "mobileengage_integration_hwid"
             },
             mockk<VersionProvider>(relaxed = true).apply {
                 every { provideSdkVersion() } returns "0.0.0-mobileengage_integration_version"
@@ -136,7 +138,6 @@ class MobileEngageIntegrationTest : AnnotationSpec() {
     }
 
     @Test
-
     fun testSetContact() {
         Emarsys.setContact(
             CONTACT_FIELD_ID,
@@ -146,7 +147,6 @@ class MobileEngageIntegrationTest : AnnotationSpec() {
     }
 
     @Test
-
     fun testClearContact() {
         Emarsys.clearContact(
             this::eventuallyStoreResult
@@ -154,7 +154,6 @@ class MobileEngageIntegrationTest : AnnotationSpec() {
     }
 
     @Test
-
     fun testTrackCustomEvent_V3_noAttributes() {
         Emarsys.trackCustomEvent(
             "integrationTestCustomEvent",
@@ -164,7 +163,6 @@ class MobileEngageIntegrationTest : AnnotationSpec() {
     }
 
     @Test
-
     fun testTrackCustomEvent_V3_withAttributes() {
         Emarsys.trackCustomEvent(
             "integrationTestCustomEvent",
@@ -174,7 +172,6 @@ class MobileEngageIntegrationTest : AnnotationSpec() {
     }
 
     @Test
-
     fun testTrackInternalCustomEvent_V3_noAttributes() {
         val eventServiceInternal = emarsys().eventServiceInternal
 
@@ -186,7 +183,6 @@ class MobileEngageIntegrationTest : AnnotationSpec() {
     }
 
     @Test
-
     fun testTrackInternalCustomEvent_V3_withAttributes() {
         val eventServiceInternal = emarsys().eventServiceInternal
 
@@ -198,7 +194,6 @@ class MobileEngageIntegrationTest : AnnotationSpec() {
     }
 
     @Test
-
     fun testSetPushToken() {
         Emarsys.push.setPushToken(
             "integration_test_push_token",
@@ -207,7 +202,6 @@ class MobileEngageIntegrationTest : AnnotationSpec() {
     }
 
     @Test
-
     fun testRemovePushToken() {
         Emarsys.push.clearPushToken(
             this::eventuallyStoreResult
@@ -215,7 +209,6 @@ class MobileEngageIntegrationTest : AnnotationSpec() {
     }
 
     @Test
-
     fun testDeepLinkOpen() {
         Thread.sleep(1000)
         val activity = mockk<Activity>(relaxed = true)
@@ -236,7 +229,6 @@ class MobileEngageIntegrationTest : AnnotationSpec() {
     }
 
     @Test
-
     fun testTrackDeviceInfo() {
         val clientServiceInternal = emarsys().clientServiceInternal
 
@@ -245,7 +237,6 @@ class MobileEngageIntegrationTest : AnnotationSpec() {
     }
 
     @Test
-
     fun testConfig_changeApplicationCode() {
         val originalApplicationCode = Emarsys.config.applicationCode
         Emarsys.config.changeApplicationCode(OTHER_APP_ID, this::eventuallyStoreResult)
@@ -255,7 +246,6 @@ class MobileEngageIntegrationTest : AnnotationSpec() {
     }
 
     @Test
-
     fun testConfig_changeApplicationCode_nilToSomething() {
         val setupLatch = CountDownLatch(1)
         emarsys().concurrentHandlerHolder.coreHandler.post {
@@ -289,6 +279,7 @@ class MobileEngageIntegrationTest : AnnotationSpec() {
 
     private fun eventuallyAssertSuccess() {
         completionListenerLatch.await()
+        completionHandlerLatch?.await()
         errorCause shouldBe null
         responseModel.statusCode shouldBeInRange IntRange(200, 299)
     }

@@ -1,13 +1,12 @@
 package com.emarsys.common.feature
 
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
+import org.junit.Test
 
-
-class InnerFeatureTest : AnnotationSpec() {
+class InnerFeatureTest  {
 
     @Test
     fun testValues_shouldReturnCorrectValues() {

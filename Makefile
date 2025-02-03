@@ -61,8 +61,7 @@ test-android-firebase-emulator: check-env ## run Android Instrumented tests on e
        --app ./sample/build/outputs/apk/androidTest/debug/sample-debug-androidTest.apk \
        --test ./$(MODULE_NAME)/build/outputs/apk/androidTest/debug/$(MODULE_NAME)-debug-androidTest.apk \
        --device model=Pixel2.arm,version=28,locale=en,orientation=portrait  \
-       --device model=MediumPhone.arm,version=30,locale=en,orientation=portrait \
-       --device model=SmallPhone.arm,version=33,locale=en,orientation=portrait \
+       --device model=Pixel2.arm,version=30,locale=en,orientation=portrait \
        --client-details matrixLabel="Android Emarsys SDK - virtual devices"
 
 test-android-firebase: check-env ## run Android Instrumented tests on real devices on Firebase Test Lab
@@ -70,10 +69,13 @@ test-android-firebase: check-env ## run Android Instrumented tests on real devic
        --type instrumentation \
        --app ./sample/build/outputs/apk/androidTest/debug/sample-debug-androidTest.apk \
        --test ./$(MODULE_NAME)/build/outputs/apk/androidTest/debug/$(MODULE_NAME)-debug-androidTest.apk \
+       --device model=Pixel2.arm,version=29,locale=en,orientation=portrait  \
        --device model=redfin,version=30,locale=en,orientation=portrait  \
-       --device model=q2q,version=31,locale=en,orientation=portrait \
+       --device model=a12,version=31,locale=en,orientation=portrait \
        --device model=oriole,version=32,locale=en,orientation=portrait \
-       --device model=felix,version=33,locale=en,orientation=portrait \
+       --device model=lynx,version=33,locale=en,orientation=portrait \
+       --device model=komodo,version=34,locale=en,orientation=portrait \
+       --device model=shiba_beta,version=35,locale=en,orientation=portrait \
        --client-details matrixLabel="Android Emarsys SDK - physical devices"
 
 run-github-workflow-locally: check-env ## needs act to be installed: `brew install act` and docker running. Pass in workflow path to run

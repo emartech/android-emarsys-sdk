@@ -3,26 +3,27 @@ package com.emarsys.core.util
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.notification.NotificationManagerHelper
-import com.emarsys.core.provider.hardwareid.HardwareIdProvider
+import com.emarsys.core.provider.clientid.ClientIdProvider
 import com.emarsys.core.provider.version.VersionProvider
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import java.text.SimpleDateFormat
 import java.util.TimeZone
 
-class TimestampUtilsTest : AnnotationSpec() {
+class TimestampUtilsTest  {
 
     companion object {
-        private const val HARDWARE_ID = "hwid"
+        private const val CLIENT_ID = "clientId"
         private const val SDK_VERSION = "sdkVersion"
         private const val LANGUAGE = "en-US"
     }
 
-    private lateinit var mockHardwareIdProvider: HardwareIdProvider
+    private lateinit var mockClientIdProvider: ClientIdProvider
     private lateinit var mockLanguageProvider: LanguageProvider
     private lateinit var mockVersionProvider: VersionProvider
     private lateinit var mockNotificationManagerHelper: NotificationManagerHelper
@@ -30,8 +31,8 @@ class TimestampUtilsTest : AnnotationSpec() {
 
     @Before
     fun setup() {
-        mockHardwareIdProvider = mock {
-            on { provideHardwareId() } doReturn HARDWARE_ID
+        mockClientIdProvider = mock {
+            on { provideClientId() } doReturn CLIENT_ID
         }
         mockLanguageProvider = mock {
             on { provideLanguage(any()) } doReturn LANGUAGE
@@ -46,7 +47,7 @@ class TimestampUtilsTest : AnnotationSpec() {
     fun testFormatTimestampWithUTC() {
         val deviceTimeZone = DeviceInfo(
             getTargetContext(),
-            mockHardwareIdProvider,
+            mockClientIdProvider,
             mockVersionProvider,
             mockLanguageProvider,
             mockNotificationManagerHelper,

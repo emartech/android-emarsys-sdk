@@ -1,22 +1,22 @@
 package com.emarsys.core.connection
 
 import com.emarsys.core.request.model.RequestModel
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.should
 import io.kotest.matchers.types.beTheSameInstanceAs
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import java.net.URL
 
-class ConnectionProviderTest : AnnotationSpec() {
+class ConnectionProviderTest  {
     companion object {
         const val HTTP_PATH = "http://emarsys.com"
         const val HTTPS_PATH = "https://emarsys.com"
     }
 
     private lateinit var provider: ConnectionProvider
-
 
     @Before
     fun setUp() {

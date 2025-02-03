@@ -1,11 +1,11 @@
 package com.emarsys.mobileengage.iam
 
 
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
+import org.junit.Before
+import org.junit.Test
 
-
-class InAppEventHandlerInternalTest : AnnotationSpec() {
+class InAppEventHandlerInternalTest  {
 
     private lateinit var inAppEventHandlerInternal: InAppEventHandlerInternal
 

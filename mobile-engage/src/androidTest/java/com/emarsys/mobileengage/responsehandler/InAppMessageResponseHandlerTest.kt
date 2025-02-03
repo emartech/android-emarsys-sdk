@@ -13,14 +13,15 @@ import com.emarsys.mobileengage.iam.dialog.IamDialog
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
+import org.junit.Before
+import org.junit.Test
 
-class InAppMessageResponseHandlerTest : AnnotationSpec() {
+class InAppMessageResponseHandlerTest  {
 
     private lateinit var handler: InAppMessageResponseHandler
     private lateinit var presenter: OverlayInAppPresenter

@@ -1,12 +1,12 @@
 package com.emarsys.core.util.log.entry
 
 import com.emarsys.core.util.log.LogLevel
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
+import org.junit.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
-class LogEntryKtTest : AnnotationSpec() {
+class LogEntryKtTest  {
 
     @Test
     fun testToData() {

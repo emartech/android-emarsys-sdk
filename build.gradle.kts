@@ -14,7 +14,6 @@ plugins {
     alias(libs.plugins.grgit)
     alias(libs.plugins.dotenv)
     alias(libs.plugins.ben.manes.versions)
-    alias(libs.plugins.android.junit5) apply false
     alias(libs.plugins.nexus.publish)
     id("maven-publish")
     id("signing")

@@ -1,11 +1,9 @@
 package com.emarsys.core.util.log.entry
 
-import com.emarsys.testUtil.AnnotationSpec
 import io.kotest.matchers.shouldBe
+import org.junit.Test
 
-
-class AppEventLogTest : AnnotationSpec() {
-
+class AppEventLogTest  {
 
     @Test
     fun testTopic() {

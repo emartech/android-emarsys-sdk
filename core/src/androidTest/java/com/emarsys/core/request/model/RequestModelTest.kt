@@ -3,15 +3,16 @@ package com.emarsys.core.request.model
 import android.net.Uri
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.mockito.whenever
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito
 import java.net.URL
 import java.util.*
 
-class RequestModelTest : AnnotationSpec() {
+class RequestModelTest  {
     private lateinit var url: String
     private lateinit var method: RequestMethod
     private lateinit var payload: Map<String, Any>

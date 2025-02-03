@@ -28,7 +28,7 @@ import com.emarsys.core.database.trigger.TriggerType
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.feature.FeatureRegistry
-import com.emarsys.core.provider.hardwareid.HardwareIdProvider
+import com.emarsys.core.provider.clientid.ClientIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseHandlersProcessor
@@ -69,7 +69,6 @@ import com.emarsys.predict.api.model.RecommendationFilter
 import com.emarsys.predict.response.VisitorIdResponseHandler
 import com.emarsys.predict.response.XPResponseHandler
 import com.emarsys.push.PushApi
-import com.emarsys.testUtil.AnnotationSpec
 import com.emarsys.testUtil.CollectionTestUtils.getElementByType
 import com.emarsys.testUtil.CollectionTestUtils.numberOfElementsIn
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
@@ -87,10 +86,13 @@ import io.mockk.slot
 import io.mockk.spyk
 import io.mockk.verify
 import io.mockk.verifyOrder
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
+import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
-class EmarsysTest : AnnotationSpec() {
+class EmarsysTest  {
     @Rule
     @JvmField
     val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
@@ -139,7 +141,7 @@ class EmarsysTest : AnnotationSpec() {
     private lateinit var mockConfig: ConfigApi
     private lateinit var mockConfigInternal: ConfigInternal
     private lateinit var mockMessageInbox: MessageInboxApi
-    private lateinit var mockHardwareIdProvider: HardwareIdProvider
+    private lateinit var mockClientIdProvider: ClientIdProvider
     private lateinit var mockLanguageProvider: LanguageProvider
     private lateinit var mockNotificationManagerHelper: NotificationSettings
     private lateinit var mockVersionProvider: VersionProvider
@@ -196,7 +198,7 @@ class EmarsysTest : AnnotationSpec() {
             .merchantId(MERCHANT_ID)
             .build()
         mockRequestContext = mockk(relaxed = true)
-        mockHardwareIdProvider = mockk(relaxed = true)
+        mockClientIdProvider = mockk(relaxed = true)
         mockMobileEngageApi = mockk(relaxed = true)
         mockLoggingMobileEngageApi = mockk(relaxed = true)
         mockInApp = mockk(relaxed = true)
@@ -219,7 +221,7 @@ class EmarsysTest : AnnotationSpec() {
 
         every { mockNotificationManagerHelper.importance } returns -1000
         every { mockNotificationManagerHelper.areNotificationsEnabled } returns false
-        every { mockHardwareIdProvider.provideHardwareId() } returns "hwid"
+        every { mockClientIdProvider.provideClientId() } returns "hwid"
         every {
             mockLanguageProvider.provideLanguage(any())
         } returns "language"
@@ -227,7 +229,7 @@ class EmarsysTest : AnnotationSpec() {
         every { mockVersionProvider.provideSdkVersion() } returns "version"
 
         deviceInfo = DeviceInfo(
-            application, mockHardwareIdProvider, mockVersionProvider,
+            application, mockClientIdProvider, mockVersionProvider,
             mockLanguageProvider, mockNotificationManagerHelper,
             isAutomaticPushSendingEnabled = true, isGooglePlayAvailable = true
         )
