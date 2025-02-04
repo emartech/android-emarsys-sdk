@@ -20,8 +20,9 @@ internal var currentActivityFlow: MutableStateFlow<WeakReference<Activity?>?> =
     MutableStateFlow(null)
     private set
 
-suspend fun getCurrentActivity(): Activity {
-    return currentActivityFlow.first { activity -> activity != null }!!.get()!!
+suspend fun getCurrentActivity(): Activity? {
+    return currentActivityFlow.first { activityReference -> activityReference?.get() != null }
+        ?.get()
 }
 
 class EmarsysSdkInitializer : Initializer<Unit> {

@@ -7,6 +7,8 @@ import com.emarsys.core.Mockable
 import com.emarsys.core.handler.SdkHandler
 import com.emarsys.core.observer.Observer
 import com.emarsys.core.provider.Property
+import com.emarsys.core.util.log.Logger
+import com.emarsys.core.util.log.entry.StatusLog
 import com.emarsys.getCurrentActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +18,7 @@ import java.util.concurrent.CountDownLatch
 @Mockable
 class TransitionSafeCurrentActivityWatchdog(
     private val handler: SdkHandler,
-    private val currentActivityProvider: Property<Activity?>
+    private val currentActivityProvider: Property<Activity?>,
 ) :
     ActivityLifecycleCallbacks, Observer<Activity> {
 
@@ -75,8 +77,18 @@ class TransitionSafeCurrentActivityWatchdog(
         activityCallbacks.add(callback)
         CoroutineScope(Dispatchers.Default).launch {
             val currentActivity = getCurrentActivity()
-            currentActivityProvider.set(currentActivity)
-            callback(currentActivity)
+            if (currentActivity == null) {
+                Logger.error(
+                    StatusLog(
+                        this::class.java,
+                        "TransitionSafeCurrentActivityWatchdog#register",
+                        mapOf("currentActivity" to "null")
+                    )
+                )
+            } else {
+                currentActivityProvider.set(currentActivity)
+                callback(currentActivity)
+            }
         }
     }
 
