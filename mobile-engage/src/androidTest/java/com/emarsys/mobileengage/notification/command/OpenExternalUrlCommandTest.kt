@@ -2,26 +2,25 @@ package com.emarsys.mobileengage.notification.command
 
 import android.content.Context
 import android.content.Intent
+import io.mockk.mockk
+import io.mockk.verify
+import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
 
-class OpenExternalUrlCommandTest  {
-    companion object {
-        init {
-            Mockito.mock(Context::class.java)
-        }
+class OpenExternalUrlCommandTest {
+    private lateinit var mockContext: Context
+
+    @Before
+    fun setup() {
+        mockContext = mockk(relaxed = true)
     }
-
 
     @Test
     fun testRun_startsActivity_withCorrectIntent() {
-        val mockContext: Context = mock()
         val intent = Intent()
         val command = OpenExternalUrlCommand(intent, mockContext)
         command.run()
 
-        verify(mockContext).startActivity(intent)
+        verify { mockContext.startActivity(intent) }
     }
 }

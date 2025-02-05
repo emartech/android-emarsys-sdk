@@ -5,13 +5,14 @@ import android.content.Context
 import android.content.Intent
 import com.emarsys.mobileengage.service.NotificationData
 import com.emarsys.mobileengage.service.NotificationOperation
+import io.mockk.confirmVerified
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import org.junit.Before
 import org.junit.Test
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoInteractions
 
-class DismissNotificationCommandTest  {
+class DismissNotificationCommandTest {
     private companion object {
         const val TITLE = "title"
         const val BODY = "body"
@@ -42,47 +43,37 @@ class DismissNotificationCommandTest  {
         )
     }
 
+    private lateinit var mockNotificationManager: NotificationManager
+    private lateinit var mockContext: Context
+
+    @Before
+    fun setup() {
+        mockNotificationManager = mockk(relaxed = true)
+        mockContext = mockk(relaxed = true)
+        every { mockContext.getSystemService(Context.NOTIFICATION_SERVICE) } returns mockNotificationManager
+    }
 
     @Test
     fun testDismissNotification_callsNotificationManager() {
-        val notificationManagerMock: NotificationManager = mock()
-
-        val mockContext: Context = mock {
-            on { getSystemService(Context.NOTIFICATION_SERVICE) } doReturn notificationManagerMock
-        }
-
         val intent = Intent()
         intent.putExtra("payload", notificationData)
 
         DismissNotificationCommand(mockContext, notificationData).run()
 
-        verify(notificationManagerMock).cancel(COLLAPSE_ID, COLLAPSE_ID.hashCode())
+        verify { mockNotificationManager.cancel(COLLAPSE_ID, COLLAPSE_ID.hashCode()) }
     }
 
     @Test
     fun testDismissNotification_doesNotCallNotificationManager_ifBundleIsMissing() {
-        val notificationManagerMock: NotificationManager = mock()
-
-        val mockContext: Context = mock {
-            on { getSystemService(Context.NOTIFICATION_SERVICE) } doReturn notificationManagerMock
-        }
-
         DismissNotificationCommand(mockContext, null).run()
 
-        verifyNoInteractions(notificationManagerMock)
+        confirmVerified(mockNotificationManager)
     }
 
     @Test
     fun testDismissNotification_doesNotCallNotificationManager_ifNotificationIdIsMissing() {
-        val notificationManagerMock: NotificationManager = mock()
-
-        val mockContext: Context = mock {
-            on { getSystemService(Context.NOTIFICATION_SERVICE) } doReturn notificationManagerMock
-        }
-
         DismissNotificationCommand(mockContext, null).run()
 
-        verifyNoInteractions(notificationManagerMock)
+        confirmVerified(mockNotificationManager)
     }
-
 }

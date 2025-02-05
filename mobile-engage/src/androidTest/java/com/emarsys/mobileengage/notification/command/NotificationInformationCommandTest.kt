@@ -3,29 +3,33 @@ package com.emarsys.mobileengage.notification.command
 import com.emarsys.mobileengage.api.push.NotificationInformation
 import com.emarsys.mobileengage.api.push.NotificationInformationListener
 import com.emarsys.mobileengage.push.NotificationInformationListenerProvider
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.Test
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
 
-class NotificationInformationCommandTest  {
+class NotificationInformationCommandTest {
     @Test
     fun testRun() {
-        val mockNotificationInformationListener: NotificationInformationListener = mock()
+        val mockNotificationInformationListener: NotificationInformationListener =
+            mockk(relaxed = true)
         val mockNotificationInformationListenerProvider: NotificationInformationListenerProvider =
-            mock {
-                on { notificationInformationListener } doReturn mockNotificationInformationListener
-            }
+            mockk(relaxed = true)
+        every { mockNotificationInformationListenerProvider.notificationInformationListener } returns mockNotificationInformationListener
+
         val notificationInformation = NotificationInformation("campaignId")
         val notificationInformationCommand = NotificationInformationCommand(
             mockNotificationInformationListenerProvider,
             notificationInformation
         )
+
         notificationInformationCommand.run()
 
-        verify(mockNotificationInformationListenerProvider).notificationInformationListener
-        verify(mockNotificationInformationListener).onNotificationInformationReceived(
-            notificationInformation
-        )
+        verify { mockNotificationInformationListenerProvider.notificationInformationListener }
+        verify {
+            mockNotificationInformationListener.onNotificationInformationReceived(
+                notificationInformation
+            )
+        }
     }
 }

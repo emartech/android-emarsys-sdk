@@ -14,22 +14,21 @@ import com.emarsys.mobileengage.service.NotificationOperation
 import com.emarsys.testUtil.FileTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.shouldBe
+import io.mockk.confirmVerified
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoInteractions
 import java.io.File
 import java.util.concurrent.CountDownLatch
 
 
-class PreloadedInappHandlerCommandTest  {
-    companion object {
-        private const val URL = "https://www.google.com"
+class PreloadedInappHandlerCommandTest {
+    private companion object {
+        const val URL = "https://www.google.com"
         const val TITLE = "title"
         const val BODY = "body"
         const val CHANNEL_ID = "channelId"
@@ -69,12 +68,11 @@ class PreloadedInappHandlerCommandTest  {
         fileUrl =
             InstrumentationRegistry.getTargetContext().applicationContext.cacheDir.absolutePath + "/test.file"
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
-        mockLifecycleActionRegistry = mock()
+        mockLifecycleActionRegistry = mockk(relaxed = true)
 
-        val mockFileDownloader: FileDownloader = mock {
-            on { readFileIntoString(any()) } doReturn "html"
-            on { readURLIntoString(any()) } doReturn "html"
-        }
+        val mockFileDownloader: FileDownloader = mockk(relaxed = true)
+        every { mockFileDownloader.readFileIntoString(any()) } returns "html"
+        every { mockFileDownloader.readURLIntoString(any()) } returns "html"
 
         mockDependencyContainer = FakeMobileEngageDependencyContainer(
             concurrentHandlerHolder = concurrentHandlerHolder,
@@ -107,7 +105,7 @@ class PreloadedInappHandlerCommandTest  {
 
         waitForEventLoopToFinish(concurrentHandlerHolder)
 
-        verify(mockLifecycleActionRegistry).addTriggerOnActivityAction(any())
+        verify { mockLifecycleActionRegistry.addTriggerOnActivityAction(any()) }
     }
 
     @Test
@@ -126,7 +124,7 @@ class PreloadedInappHandlerCommandTest  {
 
         waitForEventLoopToFinish(concurrentHandlerHolder)
 
-        verify(mockLifecycleActionRegistry).addTriggerOnActivityAction(any())
+        verify { mockLifecycleActionRegistry.addTriggerOnActivityAction(any()) }
     }
 
     @Test
@@ -141,7 +139,7 @@ class PreloadedInappHandlerCommandTest  {
 
         waitForEventLoopToFinish(concurrentHandlerHolder)
 
-        verify(mockLifecycleActionRegistry).addTriggerOnActivityAction(any())
+        verify { mockLifecycleActionRegistry.addTriggerOnActivityAction(any()) }
     }
 
     @Test
@@ -160,7 +158,7 @@ class PreloadedInappHandlerCommandTest  {
 
         waitForEventLoopToFinish(concurrentHandlerHolder)
 
-        verify(mockLifecycleActionRegistry).addTriggerOnActivityAction(any())
+        verify { mockLifecycleActionRegistry.addTriggerOnActivityAction(any()) }
 
         File(fileUrl).exists() shouldBe false
     }
@@ -171,7 +169,7 @@ class PreloadedInappHandlerCommandTest  {
 
         waitForEventLoopToFinish(concurrentHandlerHolder)
 
-        verifyNoInteractions(mockLifecycleActionRegistry)
+        confirmVerified(mockLifecycleActionRegistry)
     }
 
     private fun waitForEventLoopToFinish(handlerHolder: ConcurrentHandlerHolder) {

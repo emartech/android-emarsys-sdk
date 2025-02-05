@@ -7,10 +7,10 @@ import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.ReflectionTestUtils
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.mockk
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Test
-import org.mockito.kotlin.mock
 
 internal class CacheableEventHandlerTest  {
 
@@ -37,7 +37,7 @@ internal class CacheableEventHandlerTest  {
     fun testHandleEvent_shouldStoreEventsInOrder() {
         FeatureRegistry.enableFeature(InnerFeature.APP_EVENT_CACHE)
 
-        val mockContext: Context = mock()
+        val mockContext: Context = mockk(relaxed = true)
 
         val mockEventName1 = "event1"
         val mockEventName2 = "event2"
@@ -72,7 +72,7 @@ internal class CacheableEventHandlerTest  {
         FeatureRegistry.enableFeature(InnerFeature.APP_EVENT_CACHE)
 
         cacheableEventHandler.setEventHandler { _, _, _ -> }
-        val mockContext: Context = mock()
+        val mockContext: Context = mockk(relaxed = true)
 
         val mockEventName1 = "event1"
         val mockEventName2 = "event2"
@@ -99,7 +99,7 @@ internal class CacheableEventHandlerTest  {
 
     @Test
     fun testHandleEvent_shouldNotStoreEvents_whenFeatureIsDisabled() {
-        val mockContext: Context = mock()
+        val mockContext: Context = mockk(relaxed = true)
 
         val mockEventName1 = "event1"
         val mockEventName2 = "event2"
@@ -132,7 +132,7 @@ internal class CacheableEventHandlerTest  {
         cacheableEventHandler.setEventHandler { context, name, payload ->
             triggeredEvents.add(Triple(context, name, payload))
         }
-        val mockContext: Context = mock()
+        val mockContext: Context = mockk(relaxed = true)
 
         val mockEventName1 = "event1"
         val mockEventName2 = "event2"
@@ -168,7 +168,7 @@ internal class CacheableEventHandlerTest  {
         FeatureRegistry.enableFeature(InnerFeature.APP_EVENT_CACHE)
 
         val triggeredEvents = mutableListOf<Triple<Context, String, JSONObject?>>()
-        val mockContext: Context = mock()
+        val mockContext: Context = mockk(relaxed = true)
 
         val mockEventName1 = "event1"
         val mockEventName2 = "event2"

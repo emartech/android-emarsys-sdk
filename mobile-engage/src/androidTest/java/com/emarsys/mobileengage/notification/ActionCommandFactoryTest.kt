@@ -11,11 +11,11 @@ import com.emarsys.mobileengage.notification.command.OpenExternalUrlCommand
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.mockk
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Test
-import org.mockito.kotlin.mock
 
 class ActionCommandFactoryTest  {
 
@@ -29,9 +29,9 @@ class ActionCommandFactoryTest  {
     fun setUp() {
         context = InstrumentationRegistry.getTargetContext().applicationContext
 
-        mockEventServiceInternal = mock()
-        mockNotificationCacheableEventHandler = mock()
-        mockConcurrentHandlerHolder = mock()
+        mockEventServiceInternal = mockk(relaxed = true)
+        mockNotificationCacheableEventHandler = mockk(relaxed = true)
+        mockConcurrentHandlerHolder = mockk(relaxed = true)
         factory = ActionCommandFactory(
             context,
             mockEventServiceInternal,
@@ -48,9 +48,7 @@ class ActionCommandFactoryTest  {
                 "type" to "MEAppEvent")))
 
         result shouldNotBe null
-        result!!::
-class.java shouldBe AppEventCommand::
-class.java
+        result!!::class.java shouldBe AppEventCommand::class.java
     }
 
     @Test
@@ -60,9 +58,7 @@ class.java
                 "type" to "OpenExternalUrl")))
 
         result shouldNotBe null
-        result!!::
-class.java shouldBe OpenExternalUrlCommand::
-class.java
+        result!!::class.java shouldBe OpenExternalUrlCommand::class.java
     }
 
     @Test
@@ -73,9 +69,7 @@ class.java
                 "type" to "MECustomEvent")))
 
         result shouldNotBe null
-        result!!::
-class.java shouldBe CustomEventCommand::
-class.java
+        result!!::class.java shouldBe CustomEventCommand::class.java
     }
 
     @Test
