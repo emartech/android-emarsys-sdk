@@ -110,6 +110,8 @@ interface MobileEngageComponent : CoreComponent {
 
     val pushTokenStorage: Storage<String?>
 
+    val localPushTokenStorage: Storage<String?>
+
     val refreshTokenStorage: Storage<String?>
 
     val clientServiceStorage: Storage<String?>

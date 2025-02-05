@@ -452,6 +452,10 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         StringStorage(MobileEngageStorageKey.PUSH_TOKEN, sharedPreferencesV3)
     }
 
+    override val localPushTokenStorage: Storage<String?> by lazy {
+        StringStorage(MobileEngageStorageKey.LOCAL_PUSH_TOKEN, sharedPreferencesV3)
+    }
+
     override val uuidProvider: UUIDProvider by lazy {
         UUIDProvider()
     }
@@ -754,10 +758,12 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             mobileEngageRequestModelFactory,
             eventServiceInternal,
             pushTokenStorage,
+            localPushTokenStorage,
             notificationCacheableEventHandler,
             silentMessageCacheableEventHandler,
             notificationInformationListenerProvider,
-            silentNotificationInformationListenerProvider
+            silentNotificationInformationListenerProvider,
+            config.automaticPushTokenSendingEnabled
         )
     }
 

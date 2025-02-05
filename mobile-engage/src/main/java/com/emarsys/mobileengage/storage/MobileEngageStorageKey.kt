@@ -1,7 +1,7 @@
 package com.emarsys.mobileengage.storage
 
 import com.emarsys.core.storage.StorageKey
-import java.util.*
+import java.util.Locale
 
 enum class MobileEngageStorageKey : StorageKey {
     REFRESH_TOKEN,
@@ -9,6 +9,7 @@ enum class MobileEngageStorageKey : StorageKey {
     CLIENT_STATE,
     CONTACT_FIELD_VALUE,
     PUSH_TOKEN,
+    LOCAL_PUSH_TOKEN,
     EVENT_SERVICE_URL,
     CLIENT_SERVICE_URL,
     MESSAGE_INBOX_SERVICE_URL,
