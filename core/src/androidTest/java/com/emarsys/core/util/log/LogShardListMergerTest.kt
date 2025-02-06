@@ -46,6 +46,7 @@ class LogShardListMergerTest {
         every { mockDeviceInfo.model } returns "Pixel"
         every { mockDeviceInfo.clientId } returns "clientId"
         every { mockDeviceInfo.sdkVersion } returns "1.6.1"
+        every { mockDeviceInfo.isDebugMode } returns true
 
 
         merger = LogShardListMerger(
@@ -119,6 +120,7 @@ class LogShardListMergerTest {
             "osVersion" to "8.0",
             "model" to "Pixel",
             "hwId" to "clientId",
+            "isDebugMode" to "true",
             "applicationCode" to APPLICATION_CODE,
             "merchantId" to MERCHANT_ID
         )
