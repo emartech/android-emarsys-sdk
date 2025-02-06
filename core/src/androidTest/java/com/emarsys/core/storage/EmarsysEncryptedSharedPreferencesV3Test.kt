@@ -23,7 +23,7 @@ class EmarsysEncryptedSharedPreferencesV3Test  {
     @Before
     fun setup() {
         mockContext = mockk()
-        mockSharedPreferenceCrypto = mockk()
+        mockSharedPreferenceCrypto = mockk(relaxed = true)
         mockRealPreferences = mockk(relaxed = true)
         mockSecretKey = mockk()
 
@@ -84,6 +84,21 @@ class EmarsysEncryptedSharedPreferencesV3Test  {
         val result = emarsysEncryptedSharedPreferencesV3.getString("testKey", "defaultValue")
 
         result shouldBe "decryptedValue"
+    }
+
+    @Test
+    fun testGetString_shouldReturnDefaultValue_whenNull() {
+        every { mockRealPreferences.getString("testKey", null) } returns "encryptedValue"
+        every {
+            mockSharedPreferenceCrypto.decrypt(
+                "encryptedValue",
+                mockSecretKey
+            )
+        } returns null
+
+        val result = emarsysEncryptedSharedPreferencesV3.getString("testKey", "defaultValue")
+
+        result shouldBe "defaultValue"
     }
 
     @Test

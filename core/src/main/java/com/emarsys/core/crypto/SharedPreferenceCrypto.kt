@@ -52,7 +52,7 @@ class SharedPreferenceCrypto {
         }
     }
 
-    fun decrypt(value: String, secretKey: SecretKey): String {
+    fun decrypt(value: String, secretKey: SecretKey): String? {
         return try {
             val ivBytes = Base64.decode(value.substring(0, 16), Base64.DEFAULT)
             val encryptedBytes = Base64.decode(value.substring(16), Base64.DEFAULT)
@@ -63,10 +63,10 @@ class SharedPreferenceCrypto {
             String(decrypted)
         } catch (e: GeneralSecurityException) {
             e.printStackTrace()
-            value
+            null
         } catch (e: IllegalArgumentException) {
             e.printStackTrace()
-            value
+            null
         }
     }
 }

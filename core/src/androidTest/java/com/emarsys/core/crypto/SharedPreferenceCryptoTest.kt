@@ -157,6 +157,28 @@ class SharedPreferenceCryptoTest  {
 
         val result = sharedPreferenceCrypto.decrypt(encryptedBase64, mockSecretKey)
 
-        result shouldBe encryptedBase64
+        result shouldBe null
+    }
+
+    @Test
+    fun testDecrypt_IllegalArgumentException() {
+        val IVValue = "Base64EncryptedBase64IV123"
+        val decryptedBytes = encryptedBase64.toByteArray()
+        every {
+            mockCipher.init(any(), mockSecretKey, any<GCMParameterSpec>())
+        } just Runs
+        every {
+            mockCipher.doFinal(any())
+        } returns decryptedBytes
+        every {
+            Base64.decode(
+                IVValue,
+                Base64.DEFAULT
+            )
+        } throws IllegalArgumentException("bad base-64")
+
+        val result = sharedPreferenceCrypto.decrypt(encryptedBase64, mockSecretKey)
+
+        result shouldBe null
     }
 }

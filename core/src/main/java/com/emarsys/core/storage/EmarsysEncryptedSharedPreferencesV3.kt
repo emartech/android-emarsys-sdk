@@ -44,7 +44,7 @@ class EmarsysEncryptedSharedPreferencesV3(
 
     override fun getStringSet(key: String?, defValues: MutableSet<String>?): MutableSet<String>? {
         val encryptedValue = realPreferences.getStringSet(key, null)
-        return encryptedValue?.map { decryptString(it) }?.toMutableSet() ?: defValues
+        return encryptedValue?.mapNotNull { decryptString(it) }?.toMutableSet() ?: defValues
     }
 
     override fun getInt(key: String?, defValue: Int): Int {
@@ -79,7 +79,7 @@ class EmarsysEncryptedSharedPreferencesV3(
         realPreferences.unregisterOnSharedPreferenceChangeListener(listener)
     }
 
-    private fun decryptString(value: String): String {
+    private fun decryptString(value: String): String? {
         return sharedPreferenceCrypto.decrypt(value, secretKey)
     }
 
