@@ -14,7 +14,7 @@ import io.mockk.verify
 import org.junit.Before
 import org.junit.Test
 
-class SharedPreferencesV3ProviderTest  {
+class SharedPreferencesV3ProviderTest {
 
     private lateinit var mockContext: Context
     private lateinit var mockOldSharedPreferences: SharedPreferences
@@ -43,7 +43,7 @@ class SharedPreferencesV3ProviderTest  {
 
     @Test
     fun testInitialization() {
-        val provider = SharedPreferencesV3Provider(
+        SharedPreferencesV3Provider(
             mockContext,
             "test_file",
             mockOldSharedPreferences,

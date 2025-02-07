@@ -137,7 +137,7 @@ class IamDialogTest {
             iamDialog
         }
         fragmentScenario.onFragment { fragment ->
-            (fragment is IamDialog) shouldBe true
+            fragment::class.java shouldBe IamDialog::class.java
             fragment shouldNotBe null
         }
     }
@@ -247,7 +247,7 @@ class IamDialogTest {
             iamDialog
         }
 
-        fragmentScenario.onFragment { fragment ->
+        fragmentScenario.onFragment {
             verify { mockIamWebView.load(testHtml, testInAppMetaData, any()) }
         }
     }

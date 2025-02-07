@@ -218,7 +218,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
                     true,
                     config.application.classLoader
                 )
-            val huaweiServiceChecker = huaweiServiceCheckerClass.newInstance()
+            val huaweiServiceChecker = huaweiServiceCheckerClass.getDeclaredConstructor().newInstance()
 
             val types = listOf<Class<*>>(Context::class.java).toTypedArray()
             val method: Method = huaweiServiceCheckerClass.getDeclaredMethod("check", *types)

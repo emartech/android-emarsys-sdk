@@ -46,7 +46,7 @@ class LoggingPushInternal(private val klass: Class<*>) : PushInternal {
 
     override fun setNotificationEventHandler(notificationEventHandler: EventHandler) {
         val parameters: Map<String, Any?> = mapOf(
-            "notification_event_handler" to (notificationEventHandler != null)
+            "notification_event_handler" to true
         )
         val callerMethodName = SystemUtils.getCallerMethodName()
         debug(MethodNotAllowed(klass, callerMethodName, parameters))
@@ -54,7 +54,7 @@ class LoggingPushInternal(private val klass: Class<*>) : PushInternal {
 
     override fun setSilentMessageEventHandler(silentMessageEventHandler: EventHandler) {
         val parameters: Map<String, Any?> = mapOf(
-            "silent_message_event_handler" to (silentMessageEventHandler != null)
+            "silent_message_event_handler" to true
         )
         val callerMethodName = SystemUtils.getCallerMethodName()
         debug(MethodNotAllowed(klass, callerMethodName, parameters))
@@ -62,7 +62,7 @@ class LoggingPushInternal(private val klass: Class<*>) : PushInternal {
 
     override fun setNotificationInformationListener(notificationInformationListener: NotificationInformationListener) {
         val parameters: Map<String, Any?> = mapOf(
-            "notification_information_listener" to (notificationInformationListener != null)
+            "notification_information_listener" to true
         )
 
         val callerMethodName = SystemUtils.getCallerMethodName()
@@ -71,7 +71,7 @@ class LoggingPushInternal(private val klass: Class<*>) : PushInternal {
 
     override fun setSilentNotificationInformationListener(silentNotificationInformationListener: NotificationInformationListener) {
         val parameters: Map<String, Any?> = mapOf(
-            "notification_information_listener" to (silentNotificationInformationListener != null)
+            "notification_information_listener" to true
         )
         val callerMethodName = SystemUtils.getCallerMethodName()
         debug(MethodNotAllowed(klass, callerMethodName, parameters))

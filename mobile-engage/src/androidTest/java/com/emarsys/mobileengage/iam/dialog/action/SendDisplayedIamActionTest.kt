@@ -33,7 +33,7 @@ class SendDisplayedIamActionTest  {
 
     @Test
     fun testExecute_callsRequestManager_withProperAttributes() {
-        action!!.execute(CAMPAIGN_ID, SID, URL)
+        action.execute(CAMPAIGN_ID, SID, URL)
         val eventName = "inapp:viewed"
         val attributes: MutableMap<String, String> = HashMap()
         attributes["campaignId"] = CAMPAIGN_ID

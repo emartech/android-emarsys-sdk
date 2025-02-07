@@ -127,8 +127,8 @@ class DeviceInfoTest {
         val resources = getTargetContext().resources
         Locale.setDefault(locale)
         val config = resources.configuration
-        config.locale = locale
-        resources.updateConfiguration(config, resources.displayMetrics)
+        config.setLocale(locale)
+        context.createConfigurationContext(config)
         Locale.setDefault(previous)
         "+0900" shouldBe deviceInfo.timezone
     }
