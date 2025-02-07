@@ -3,7 +3,6 @@ package com.emarsys.core.storage
 import android.content.Context
 import android.content.SharedPreferences
 import com.emarsys.core.crypto.SharedPreferenceCrypto
-import javax.crypto.SecretKey
 
 class EmarsysEncryptedSharedPreferencesV3(
     context: Context,
@@ -11,13 +10,11 @@ class EmarsysEncryptedSharedPreferencesV3(
     private val sharedPreferenceCrypto: SharedPreferenceCrypto
 ) : SharedPreferences {
 
-    private val secretKey: SecretKey = sharedPreferenceCrypto.getOrCreateSecretKey()
     private val realPreferences: SharedPreferences =
         context.getSharedPreferences(fileName, Context.MODE_PRIVATE)
     private val editor: SharedPreferences.Editor = Editor(
         realPreferences,
-        sharedPreferenceCrypto,
-        secretKey
+        sharedPreferenceCrypto
     )
 
     override fun getAll(): Map<String, *> {
@@ -80,13 +77,12 @@ class EmarsysEncryptedSharedPreferencesV3(
     }
 
     private fun decryptString(value: String): String? {
-        return sharedPreferenceCrypto.decrypt(value, secretKey)
+        return sharedPreferenceCrypto.decrypt(value)
     }
 
     private class Editor(
         realPreferences: SharedPreferences,
-        private val sharedPreferenceCrypto: SharedPreferenceCrypto,
-        private val secretKey: SecretKey
+        private val sharedPreferenceCrypto: SharedPreferenceCrypto
     ) : SharedPreferences.Editor {
         private val editor: SharedPreferences.Editor = realPreferences.edit()
 
@@ -145,7 +141,7 @@ class EmarsysEncryptedSharedPreferencesV3(
 
         private fun encryptString(value: String?): String? {
             value ?: return null
-            return sharedPreferenceCrypto.encrypt(value, secretKey)
+            return sharedPreferenceCrypto.encrypt(value)
         }
     }
 }

@@ -28,11 +28,10 @@ class EmarsysEncryptedSharedPreferencesV3Test  {
         mockSecretKey = mockk()
 
         every { mockContext.getSharedPreferences(any(), any()) } returns mockRealPreferences
-        every { mockSharedPreferenceCrypto.getOrCreateSecretKey() } returns mockSecretKey
         mockInternalEditor = mockk<SharedPreferences.Editor>(relaxed = true)
 
         every { mockRealPreferences.edit() } returns mockInternalEditor
-        every { mockSharedPreferenceCrypto.encrypt(any(), any()) } returns "encryptedValue"
+        every { mockSharedPreferenceCrypto.encrypt(any()) } returns "encryptedValue"
 
         emarsysEncryptedSharedPreferencesV3 = EmarsysEncryptedSharedPreferencesV3(
             mockContext,
@@ -54,7 +53,6 @@ class EmarsysEncryptedSharedPreferencesV3Test  {
         every { mockRealPreferences.all } returns encryptedMap
         every {
             mockSharedPreferenceCrypto.decrypt(
-                any(),
                 any()
             )
         } returnsMany listOf("decryptedValue1", "decryptedValue2", "decryptedValue3")
@@ -76,8 +74,7 @@ class EmarsysEncryptedSharedPreferencesV3Test  {
         every { mockRealPreferences.getString("testKey", null) } returns "encryptedValue"
         every {
             mockSharedPreferenceCrypto.decrypt(
-                "encryptedValue",
-                mockSecretKey
+                "encryptedValue"
             )
         } returns "decryptedValue"
 
@@ -91,8 +88,7 @@ class EmarsysEncryptedSharedPreferencesV3Test  {
         every { mockRealPreferences.getString("testKey", null) } returns "encryptedValue"
         every {
             mockSharedPreferenceCrypto.decrypt(
-                "encryptedValue",
-                mockSecretKey
+                "encryptedValue"
             )
         } returns null
 
@@ -107,14 +103,12 @@ class EmarsysEncryptedSharedPreferencesV3Test  {
         every { mockRealPreferences.getStringSet("testKey", null) } returns encryptedSet
         every {
             mockSharedPreferenceCrypto.decrypt(
-                "encryptedValue1",
-                mockSecretKey
+                "encryptedValue1"
             )
         } returns "decryptedValue1"
         every {
             mockSharedPreferenceCrypto.decrypt(
-                "encryptedValue2",
-                mockSecretKey
+                "encryptedValue2"
             )
         } returns "decryptedValue2"
 
@@ -196,9 +190,9 @@ class EmarsysEncryptedSharedPreferencesV3Test  {
 
         editor.commit()
 
-        verify(exactly = 1) { mockSharedPreferenceCrypto.encrypt("testValue", mockSecretKey) }
-        verify(exactly = 1) { mockSharedPreferenceCrypto.encrypt("value1", mockSecretKey) }
-        verify(exactly = 1) { mockSharedPreferenceCrypto.encrypt("value2", mockSecretKey) }
+        verify(exactly = 1) { mockSharedPreferenceCrypto.encrypt("testValue") }
+        verify(exactly = 1) { mockSharedPreferenceCrypto.encrypt("value1") }
+        verify(exactly = 1) { mockSharedPreferenceCrypto.encrypt("value2") }
 
         verify(exactly = 1) { mockInternalEditor.putString("testKey", "encryptedValue") }
         verify(exactly = 1) { mockInternalEditor.putInt("testIntKey", 42) }
