@@ -9,8 +9,6 @@ class LaunchActivityCommandLifecycleCallbacksFactoryTest  {
     fun testCreate() {
         val latch = CountDownLatch(1)
         val result = LaunchActivityCommandLifecycleCallbacksFactory().create(latch)
-        result::
-class.java shouldBe LaunchActivityCommandLifecycleCallbacks::
-class.java
+        result::class.java shouldBe LaunchActivityCommandLifecycleCallbacks::class.java
     }
 }

@@ -16,13 +16,17 @@ class DefaultPushInternal(
     private val requestModelFactory: MobileEngageRequestModelFactory,
     private val eventServiceInternal: EventServiceInternal,
     private val pushTokenStorage: Storage<String?>,
+    private val localPushTokenStorage: Storage<String?>,
     private val notificationCacheableEventHandler: CacheableEventHandler,
     private val silentMessageCacheableEventHandler: CacheableEventHandler,
     private val notificationInformationListenerProvider: NotificationInformationListenerProvider,
-    private val silentNotificationInformationListenerProvider: SilentNotificationInformationListenerProvider
+    private val silentNotificationInformationListenerProvider: SilentNotificationInformationListenerProvider,
+    private val isAutomaticPushSendingEnabled: Boolean
 ) : PushInternal {
 
     override fun setPushToken(pushToken: String, completionListener: CompletionListener?) {
+        localPushTokenStorage.set(pushToken)
+
         if (pushTokenStorage.get() != pushToken) {
             val requestModel = requestModelFactory.createSetPushTokenRequest(pushToken)
 
@@ -41,6 +45,7 @@ class DefaultPushInternal(
 
     override val pushToken: String?
         get() = pushTokenStorage.get()
+            ?: (if (isAutomaticPushSendingEnabled) localPushTokenStorage.get() else null)
 
     override fun setNotificationInformationListener(notificationInformationListener: NotificationInformationListener) {
         notificationInformationListenerProvider.notificationInformationListener =

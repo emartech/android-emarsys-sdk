@@ -1,23 +1,22 @@
 package com.emarsys.mobileengage.notification.command
 
 import com.emarsys.mobileengage.push.PushInternal
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.Test
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
 
-class TrackMessageOpenCommandTest  {
+class TrackMessageOpenCommandTest {
 
 
     @Test
     fun testRun_callsMobileEngageInternal() {
-        val pushInternal = mock(PushInternal::
-class.java)
+        val mockPushInternal = mockk<PushInternal>(relaxed = true)
         val sid = "test sid"
-        val command = TrackMessageOpenCommand(pushInternal, sid)
+        val command = TrackMessageOpenCommand(mockPushInternal, sid)
 
         command.run()
 
-        verify(pushInternal).trackMessageOpen(sid, null)
+        verify { mockPushInternal.trackMessageOpen(sid, null) }
     }
 
 }

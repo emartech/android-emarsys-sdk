@@ -27,14 +27,11 @@ data class ResponseModel(
 
     val parsedBody: JSONObject?
         get() {
-            var result : JSONObject? = null
-            if (body != null) {
-                try {
-                    result = JSONObject(body)
-                } catch (ignored: JSONException) {
-                }
+            return try {
+                body?.let { JSONObject(it) }
+            } catch (ignored: JSONException) {
+                null
             }
-            return result
         }
 
     class Builder @JvmOverloads constructor(private val timestampProvider: TimestampProvider = TimestampProvider()) {

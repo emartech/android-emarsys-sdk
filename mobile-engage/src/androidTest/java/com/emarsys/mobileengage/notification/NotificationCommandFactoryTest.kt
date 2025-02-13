@@ -29,21 +29,20 @@ import com.emarsys.mobileengage.service.NotificationData
 import com.emarsys.mobileengage.service.NotificationMethod
 import com.emarsys.mobileengage.service.NotificationOperation
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.mockito.whenever
 import io.kotest.data.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.mock
-import org.mockito.kotlin.mock
 
-class NotificationCommandFactoryTest  {
+class NotificationCommandFactoryTest {
     private companion object {
         const val SID = "129487fw123"
         const val MISSING_SID = "Missing sid"
@@ -98,27 +97,22 @@ class NotificationCommandFactoryTest  {
     @Before
     fun setUp() {
         context = InstrumentationRegistry.getTargetContext().applicationContext
-        mockConcurrentHandlerHolder = mock()
-        mockEventServiceInternal = mock(EventServiceInternal::
-class.java)
-        mockPushInternal = mock(PushInternal::
-class.java)
-        mockEventHandler = mock(CacheableEventHandler::
-class.java)
+        mockConcurrentHandlerHolder = mockk(relaxed = true)
+        mockEventServiceInternal = mockk(relaxed = true)
+        mockPushInternal = mockk(relaxed = true)
+        mockEventHandler = mockk(relaxed = true)
         mockActionCommandFactory = ActionCommandFactory(
             context,
             mockEventServiceInternal,
             mockEventHandler,
             mockConcurrentHandlerHolder
         )
-        mockCurrentActivityProvider = mock(CurrentActivityProvider::
-class.java).apply {
-            whenever(get()).thenReturn(null)
-        }
-        mockActivity = mock(Activity::
-class.java).apply {
-            whenever(toString()).thenReturn("com.emarsys.NotificationOpenedActivity")
-        }
+        mockCurrentActivityProvider = mockk(relaxed = true)
+        every { mockCurrentActivityProvider.get() } returns null
+
+        mockActivity = mockk(relaxed = true)
+        every { mockActivity.toString() } returns "com.emarsys.NotificationOpenedActivity"
+
 
         mockDependencyContainer = FakeMobileEngageDependencyContainer(
             eventServiceInternal = mockEventServiceInternal,
@@ -129,7 +123,6 @@ class.java).apply {
         )
 
         setupMobileEngageComponent(mockDependencyContainer)
-
 
         factory = NotificationCommandFactory(context)
     }
@@ -169,7 +162,7 @@ class.java).apply {
 
     @Test
     fun testCreateNotificationCommand_shouldCreateAppLaunchCommand_whenCurrentActivityIsNotificationOpenedActivity() {
-        whenever(mockCurrentActivityProvider.get()).thenReturn(mockActivity)
+        every { mockCurrentActivityProvider.get() } returns mockActivity
         val command = factory.createNotificationCommand(createAppEventIntent()) as CompositeCommand
 
         contains<LaunchApplicationCommand>(command) shouldBe true
@@ -197,9 +190,7 @@ class.java).apply {
         val command = factory.createNotificationCommand(intent)
 
         command shouldNotBe null
-        command::
-class.java shouldBe CompositeCommand::
-class.java
+        command::class.java shouldBe CompositeCommand::class.java
 
         command as CompositeCommand
 
@@ -242,9 +233,7 @@ class.java
         val command = factory.createNotificationCommand(intent)
 
         command shouldNotBe null
-        command::
-class.java shouldBe CompositeCommand::
-class.java
+        command::class.java shouldBe CompositeCommand::class.java
 
         command as CompositeCommand
 
@@ -277,7 +266,6 @@ class.java
         contains<DismissNotificationCommand>(command) shouldBe true
         contains<TrackMessageOpenCommand>(command) shouldBe true
         contains<AppEventCommand>(command) shouldBe true
-
     }
 
     @Test
@@ -286,9 +274,7 @@ class.java
         val command = factory.createNotificationCommand(intent)
 
         command shouldNotBe null
-        command::
-class.java shouldBe CompositeCommand::
-class.java
+        command::class.java shouldBe CompositeCommand::class.java
 
         command as CompositeCommand
         contains<LaunchApplicationCommand>(command) shouldBe true
@@ -296,7 +282,6 @@ class.java
         contains<TrackMessageOpenCommand>(command) shouldBe true
         contains<CustomEventCommand>(command) shouldBe true
         contains<AppEventCommand>(command) shouldBe true
-
     }
 
     @Test
@@ -351,9 +336,7 @@ class.java
         val command = factory.createNotificationCommand(intent)
 
         command shouldNotBe null
-        command::
-class.java shouldBe CompositeCommand::
-class.java
+        command::class.java shouldBe CompositeCommand::class.java
 
         command as CompositeCommand
 
@@ -362,7 +345,6 @@ class.java
         contains<TrackActionClickCommand>(command) shouldBe true
         contains<AppEventCommand>(command) shouldBe true
         command.commands.filterIsInstance<AppEventCommand>().size shouldBe 2
-
     }
 
     @Test
@@ -371,9 +353,7 @@ class.java
         val command = factory.createNotificationCommand(intent)
 
         command shouldNotBe null
-        command::
-class.java shouldBe CompositeCommand::
-class.java
+        command::class.java shouldBe CompositeCommand::class.java
 
         command as CompositeCommand
 
@@ -382,7 +362,6 @@ class.java
         contains<TrackActionClickCommand>(command) shouldBe true
         contains<AppEventCommand>(command) shouldBe true
         contains<NotificationInformationCommand>(command) shouldBe true
-
     }
 
     @Test
@@ -506,9 +485,7 @@ class.java
         val command = factory.createNotificationCommand(intent)
 
         command shouldNotBe null
-        command::
-class.java shouldBe CompositeCommand::
-class.java
+        command::class.java shouldBe CompositeCommand::class.java
 
         command as CompositeCommand
 
@@ -549,9 +526,7 @@ class.java
         val command = factory.createNotificationCommand(intent)
 
         command shouldNotBe null
-        command::
-class.java shouldBe CompositeCommand::
-class.java
+        command::class.java shouldBe CompositeCommand::class.java
 
         command as CompositeCommand
 
@@ -615,22 +590,20 @@ class.java
         val compositeCommands = factory.createNotificationCommand(intent) as CompositeCommand
         val result = compositeCommands.commands
 
-        result[2]::
-class.java shouldBe LaunchApplicationCommand::
-class.java
+        result[2]::class.java shouldBe LaunchApplicationCommand::class.java
     }
 
     @Test
     fun testCreateNotificationCommand_shouldNotCreateLaunchCommand_whenInForeground() {
-        val mockActivity: Activity = mock()
-        whenever(mockCurrentActivityProvider.get()).thenReturn(mockActivity)
+        val mockActivity: Activity = mockk(relaxed = true)
+        every { mockCurrentActivityProvider.get() } returns mockActivity
         val intent = createOpenExternalLinkIntent()
         val compositeCommands = factory.createNotificationCommand(intent) as CompositeCommand
         val result = compositeCommands.commands
 
-        result.forEach { it::
-class.java shouldNotBe LaunchApplicationCommand::
-class.java }
+        result.forEach {
+            it::class.java shouldNotBe LaunchApplicationCommand::class.java
+        }
     }
 
     @Test
@@ -655,20 +628,21 @@ class.java }
         command shouldBe null
     }
 
-    @Suppress("UNCHECKED_CAST")
     private inline fun <reified T : Runnable> extractCommandFromComposite(intent: Intent) =
         (factory.createNotificationCommand(intent) as CompositeCommand).commands.filterIsInstance<T>()
             .let { list ->
                 list.firstOrNull().takeIf { list.size == 1 }
-                    ?: error("CompositeCommand contains multiple commands of type ${T::
-class.java}: $list")
+                    ?: error(
+                        "CompositeCommand contains multiple commands of type ${
+                            T::
+                            class.java
+                        }: $list"
+                    )
             }
 
-    @Suppress("UNCHECKED_CAST")
     private inline fun <reified T : Runnable> extractCommandsFromComposite(intent: Intent) =
         (factory.createNotificationCommand(intent) as CompositeCommand).commands.filterIsInstance<T>()
 
-    @Suppress("UNCHECKED_CAST")
     private inline fun <reified T : Runnable> contains(command: CompositeCommand) =
         command.commands.filterIsInstance<T>().isNotEmpty()
 

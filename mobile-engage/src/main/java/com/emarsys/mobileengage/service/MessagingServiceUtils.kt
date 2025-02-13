@@ -71,7 +71,7 @@ object MessagingServiceUtils {
         actionCommandFactory: ActionCommandFactory,
         notificationData: NotificationData
     ): List<Runnable?> {
-        val actionsJsonArray = notificationData.actions?.let { JSONArray(it) } ?: null
+        val actionsJsonArray = notificationData.actions?.let { JSONArray(it) }
         val actions: MutableList<Runnable?> = mutableListOf()
         if (!notificationData.campaignId.isNullOrEmpty()) {
             val silentNotificationInformationListenerProvider =
@@ -98,7 +98,7 @@ object MessagingServiceUtils {
             JSONObject(emsPayload).optBoolean("silent", false)
         } else false
 
-        val v2IsSilent = remoteMessageData?.get("ems.silent")?.let { it.toBoolean() } ?: false
+        val v2IsSilent = remoteMessageData?.get("ems.silent")?.toBoolean() ?: false
         return v1IsSilent || v2IsSilent
     }
 

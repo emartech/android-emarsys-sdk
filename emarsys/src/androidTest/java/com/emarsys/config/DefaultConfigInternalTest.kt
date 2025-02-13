@@ -384,8 +384,13 @@ class DefaultConfigInternalTest {
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, null)
 
         verifyOrder {
+            mockPushInternal.pushToken
+            mockMobileEngageRequestContext.hasContactIdentification()
+            mockMobileEngageRequestContext.applicationCode
             mockPushInternal.clearPushToken(any())
+            mockMobileEngageRequestContext.applicationCode
             mockMobileEngageInternal.clearContact(any())
+            mockMobileEngageRequestContext.reset()
             mockMobileEngageRequestContext.applicationCode =
                 OTHER_APPLICATION_CODE
             mockPushInternal.setPushToken(PUSH_TOKEN, any())

@@ -89,14 +89,14 @@ class IamDialog(
         setStyle(STYLE_NO_FRAME, android.R.style.Theme_Dialog)
 
         val activity = activityReference?.get() ?: this.activity
-        val html = html ?: savedInstanceState?.getString("html")
-        val inAppMetaData = inAppMetaData
+        html = html ?: savedInstanceState?.getString("html")
+        inAppMetaData = inAppMetaData
             ?: if (AndroidVersionUtils.isBelowTiramisu) savedInstanceState?.getSerializable("inAppMetaData") as InAppMetaData?
             else getInAppMetaDataFromBundle(savedInstanceState)
         if (iamWebView == null && activity != null) {
             iamWebView = webViewFactory.create(activity)
             if (html != null && inAppMetaData != null) {
-                iamWebView?.load(html, inAppMetaData) {}
+                iamWebView?.load(html!!, inAppMetaData!!) {}
             }
         }
     }

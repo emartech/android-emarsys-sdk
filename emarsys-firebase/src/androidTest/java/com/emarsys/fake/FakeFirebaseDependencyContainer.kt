@@ -89,6 +89,7 @@ class FakeFirebaseDependencyContainer(
     override val contactTokenStorage: Storage<String?> = mockk(relaxed = true),
     override val clientStateStorage: Storage<String?> = mockk(relaxed = true),
     override val pushTokenStorage: Storage<String?> = mockk(relaxed = true),
+    override val localPushTokenStorage: Storage<String?> = mockk(relaxed = true),
     override val refreshTokenStorage: Storage<String?> = mockk(relaxed = true),
     override val clientServiceStorage: Storage<String?> = mockk(relaxed = true),
     override val eventServiceStorage: Storage<String?> = mockk(relaxed = true),

@@ -221,7 +221,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
                     true,
                     config.application.classLoader
                 )
-            val huaweiServiceChecker = huaweiServiceCheckerClass.newInstance()
+            val huaweiServiceChecker = huaweiServiceCheckerClass.getDeclaredConstructor().newInstance()
 
             val types = listOf<Class<*>>(Context::class.java).toTypedArray()
             val method: Method = huaweiServiceCheckerClass.getDeclaredMethod("check", *types)
@@ -453,6 +453,10 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val pushTokenStorage: Storage<String?> by lazy {
         StringStorage(MobileEngageStorageKey.PUSH_TOKEN, sharedPreferencesV3)
+    }
+
+    override val localPushTokenStorage: Storage<String?> by lazy {
+        StringStorage(MobileEngageStorageKey.LOCAL_PUSH_TOKEN, sharedPreferencesV3)
     }
 
     override val uuidProvider: UUIDProvider by lazy {
@@ -760,10 +764,12 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             mobileEngageRequestModelFactory,
             eventServiceInternal,
             pushTokenStorage,
+            localPushTokenStorage,
             notificationCacheableEventHandler,
             silentMessageCacheableEventHandler,
             notificationInformationListenerProvider,
-            silentNotificationInformationListenerProvider
+            silentNotificationInformationListenerProvider,
+            config.automaticPushTokenSendingEnabled
         )
     }
 

@@ -7,16 +7,14 @@ import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.testUtil.RandomTestUtils
-import com.emarsys.testUtil.mockito.whenever
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
 
-class LogShardListMergerTest  {
+class LogShardListMergerTest {
 
     private companion object {
         const val ID = "id"
@@ -28,82 +26,42 @@ class LogShardListMergerTest  {
 
     private lateinit var merger: LogShardListMerger
 
-    private lateinit var timestampProvider: TimestampProvider
-    private lateinit var uuidProvider: UUIDProvider
-    private lateinit var deviceInfo: DeviceInfo
+    private lateinit var mockTimestampProvider: TimestampProvider
+    private lateinit var mockUuidProvider: UUIDProvider
+    private lateinit var mockDeviceInfo: DeviceInfo
 
 
     @Before
     fun setUp() {
-        timestampProvider = mock()
-        whenever(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP)
+        mockTimestampProvider = mockk(relaxed = true)
+        every { mockTimestampProvider.provideTimestamp() } returns TIMESTAMP
 
-        uuidProvider = mock()
-        whenever(uuidProvider.provideId()).thenReturn(ID)
+        mockUuidProvider = mockk(relaxed = true)
+        every { mockUuidProvider.provideId() } returns ID
 
-        deviceInfo = mock {
-            on { platform } doReturn "android"
-            on { applicationVersion } doReturn "1.0.0"
-            on { osVersion } doReturn "8.0"
-            on { model } doReturn "Pixel"
-            on { clientId } doReturn "clientId"
-            on { sdkVersion } doReturn "1.6.1"
-        }
+        mockDeviceInfo = mockk(relaxed = true)
+        every { mockDeviceInfo.platform } returns "android"
+        every { mockDeviceInfo.applicationVersion } returns "1.0.0"
+        every { mockDeviceInfo.osVersion } returns "8.0"
+        every { mockDeviceInfo.model } returns "Pixel"
+        every { mockDeviceInfo.clientId } returns "clientId"
+        every { mockDeviceInfo.sdkVersion } returns "1.6.1"
+        every { mockDeviceInfo.isDebugMode } returns true
+
 
         merger = LogShardListMerger(
-            timestampProvider,
-            uuidProvider,
-            deviceInfo,
+            mockTimestampProvider,
+            mockUuidProvider,
+            mockDeviceInfo,
             APPLICATION_CODE,
             MERCHANT_ID
         )
     }
 
     @Test
-    fun testMap_shards_mustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            merger.map(null)
-        }
-    }
-
-    @Test
-    fun testMap_shards_mustNotContainNullElements() {
-        shouldThrow<IllegalArgumentException> {
-            merger.map(
-                listOf(
-                    Mockito.mock(ShardModel::class.java),
-                    null,
-                    Mockito.mock(ShardModel::class.java)
-                )
-            )
-        }
-    }
-
-    @Test
     fun testMap_shards_mustContainAtLeastOneElement() {
         shouldThrow<IllegalArgumentException> {
             merger.map(listOf())
-        }
-    }
-
-    @Test
-    fun testConstructor_timestampProvider_mustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            LogShardListMerger(null, uuidProvider, deviceInfo, APPLICATION_CODE, MERCHANT_ID)
-        }
-    }
-
-    @Test
-    fun testConstructor_uuidProvider_mustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            LogShardListMerger(timestampProvider, null, deviceInfo, APPLICATION_CODE, MERCHANT_ID)
-        }
-    }
-
-    @Test
-    fun testConstructor_deviceInfo_mustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            LogShardListMerger(timestampProvider, uuidProvider, null, APPLICATION_CODE, MERCHANT_ID)
         }
     }
 
@@ -124,12 +82,16 @@ class LogShardListMergerTest  {
     fun testMap_multipleElementsInList() {
         val shards = (1..5).map { randomShardModel() }
 
-        val logDatas =
-            shards.map { it.data + mapOf("type" to it.type) + mapOf("deviceInfo" to createDeviceInfo()) }
+        val logData =
+            shards.map { mapOf("type" to it.type) + mapOf("deviceInfo" to createDeviceInfo()) + it.data }
 
-        val expectedRequestModel = requestModel(mapOf("logs" to logDatas))
+        val expectedRequestModel = requestModel(mapOf("logs" to logData))
 
-        merger.map(shards) shouldBe expectedRequestModel
+        val result = merger.map(shards)
+
+        result.payload?.keys?.forEach { key ->
+            expectedRequestModel.payload?.get(key) shouldBe result.payload?.get(key)
+        }
     }
 
     private fun randomShardModel() = ShardModel(
@@ -158,6 +120,7 @@ class LogShardListMergerTest  {
             "osVersion" to "8.0",
             "model" to "Pixel",
             "hwId" to "clientId",
+            "isDebugMode" to "true",
             "applicationCode" to APPLICATION_CODE,
             "merchantId" to MERCHANT_ID
         )

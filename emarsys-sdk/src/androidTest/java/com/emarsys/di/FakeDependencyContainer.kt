@@ -130,6 +130,7 @@ class FakeDependencyContainer(
     override val contactTokenStorage: Storage<String?> = mock(),
     override val clientStateStorage: Storage<String?> = mock(),
     override val pushTokenStorage: Storage<String?> = mock(),
+    override val localPushTokenStorage: Storage<String?> = mock(),
     override val refreshTokenStorage: Storage<String?> = mock(),
     override val clientServiceStorage: Storage<String?> = mock(),
     override val eventServiceStorage: Storage<String?> = mock(),

@@ -118,8 +118,8 @@ class NotificationCommandFactory(private val context: Context) {
         notificationData: NotificationData?,
         action: JSONObject?
     ): Runnable {
-        return if (action != null && actionId != null) {
-            TrackActionClickCommand(eventServiceInternal, actionId, notificationData?.sid)
+        return if (action != null && actionId != null && notificationData != null) {
+            TrackActionClickCommand(eventServiceInternal, actionId, notificationData.sid)
         } else {
             TrackMessageOpenCommand(pushInternal, notificationData?.sid)
         }

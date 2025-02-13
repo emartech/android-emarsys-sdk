@@ -5,6 +5,8 @@ import android.app.Application.ActivityLifecycleCallbacks
 import android.os.Bundle
 import com.emarsys.core.Mockable
 import com.emarsys.core.activity.ActivityLifecycleAction.ActivityLifecycle
+import com.emarsys.core.util.log.Logger
+import com.emarsys.core.util.log.entry.StatusLog
 import com.emarsys.getCurrentActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,8 +20,19 @@ class ActivityLifecycleWatchdog(
 
     init {
         CoroutineScope(Dispatchers.Default + SupervisorJob()).launch {
-            onActivityCreated(getCurrentActivity(), null)
-            onActivityResumed(getCurrentActivity())
+            val activity = getCurrentActivity()
+            if (activity != null) {
+                onActivityCreated(activity, null)
+                onActivityResumed(activity)
+            } else {
+                Logger.error(
+                    StatusLog(
+                        this::class.java,
+                        "ActivityLifecycleWatchdog#init",
+                        mapOf("activity" to "null")
+                    )
+                )
+            }
         }
     }
 

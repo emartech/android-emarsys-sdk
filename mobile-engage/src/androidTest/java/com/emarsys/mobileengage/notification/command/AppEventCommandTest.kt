@@ -7,14 +7,16 @@ import com.emarsys.mobileengage.event.CacheableEventHandler
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.mockito.ThreadSpy
 import io.kotest.assertions.fail
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.json.JSONException
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Test
-import org.mockito.kotlin.*
 import java.util.concurrent.CountDownLatch
 
-class AppEventCommandTest  {
+class AppEventCommandTest {
 
     private lateinit var applicationContext: Context
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
@@ -23,13 +25,12 @@ class AppEventCommandTest  {
     @Before
     fun setUp() {
         applicationContext = getTargetContext().applicationContext
-        mockEventHandler = mock()
+        mockEventHandler = mockk(relaxed = true)
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
     }
 
     @Test
-    @Throws(JSONException::
-class)
+    @Throws(JSONException::class)
     fun testRun_invokeHandleEventMethod_onNotificationEventHandlerOnMainThread() {
         val name = "nameOfTheEvent"
         val payload = JSONObject()
@@ -37,9 +38,9 @@ class)
         val latch = CountDownLatch(1)
 
         val threadSpy: ThreadSpy<*> = ThreadSpy<Any?>()
-        whenever(mockEventHandler.handleEvent(anyOrNull(), anyOrNull(), anyOrNull())).doAnswer(
-            threadSpy
-        )
+        every { mockEventHandler.handleEvent(any(), any(), any()) } answers {
+            threadSpy.call()
+        }
 
         AppEventCommand(
             applicationContext,
@@ -53,13 +54,12 @@ class)
         }
         latch.await()
 
-        verify(mockEventHandler).handleEvent(applicationContext, name, payload)
+        verify { mockEventHandler.handleEvent(applicationContext, name, payload) }
         threadSpy.verifyCalledOnMainThread()
     }
 
     @Test
-    @Throws(JSONException::
-class)
+    @Throws(JSONException::class)
     fun testRun_invokeHandleEventMethod_onNotificationEventHandler_whenThereIsNoPayload() {
         val name = "nameOfTheEvent"
 
@@ -77,7 +77,7 @@ class)
         }
         latch.await()
 
-        verify(mockEventHandler).handleEvent(applicationContext, name, null)
+        verify { mockEventHandler.handleEvent(applicationContext, name, null) }
     }
 
     @Test

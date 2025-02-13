@@ -94,6 +94,7 @@ object Emarsys {
             registerDatabaseTriggers()
 
             if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)) {
+                trackLocalPushToken()
                 initializeMobileEngageContact()
             }
         }
@@ -268,6 +269,11 @@ object Emarsys {
                 .proxyWithLogExceptions()
                 .clearContact(null)
         }
+    }
+
+    private fun trackLocalPushToken() {
+        val localToken = emarsys().localPushTokenStorage.get()
+        localToken?.let { EmarsysDependencyInjection.push().proxyWithLogExceptions().setPushToken(it) }
     }
 
     private fun refreshRemoteConfig(applicationCode: String?) {

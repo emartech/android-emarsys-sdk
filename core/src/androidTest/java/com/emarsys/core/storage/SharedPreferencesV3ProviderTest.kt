@@ -1,9 +1,8 @@
+package com.emarsys.core.storage
+
 import android.content.Context
 import android.content.SharedPreferences
 import com.emarsys.core.crypto.SharedPreferenceCrypto
-import com.emarsys.core.storage.EmarsysEncryptedSharedPreferencesV3
-import com.emarsys.core.storage.EncryptedSharedPreferencesToSharedPreferencesMigration
-import com.emarsys.core.storage.SharedPreferencesV3Provider
 import com.emarsys.testUtil.ReflectionTestUtils
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
@@ -14,7 +13,7 @@ import io.mockk.verify
 import org.junit.Before
 import org.junit.Test
 
-class SharedPreferencesV3ProviderTest  {
+class SharedPreferencesV3ProviderTest {
 
     private lateinit var mockContext: Context
     private lateinit var mockOldSharedPreferences: SharedPreferences
@@ -36,14 +35,13 @@ class SharedPreferencesV3ProviderTest  {
                 any()
             )
         } returns mockRealSharedPrefs
-        every { mockCrypto.getOrCreateSecretKey() } returns mockk()
         every { mockMigration.migrate(any(), any()) } just Runs
 
     }
 
     @Test
     fun testInitialization() {
-        val provider = SharedPreferencesV3Provider(
+        SharedPreferencesV3Provider(
             mockContext,
             "test_file",
             mockOldSharedPreferences,

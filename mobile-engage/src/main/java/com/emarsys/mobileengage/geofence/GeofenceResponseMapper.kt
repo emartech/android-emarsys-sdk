@@ -22,11 +22,16 @@ class GeofenceResponseMapper : Mapper<ResponseModel, GeofenceResponse> {
         val geofenceGroups = mutableListOf<GeofenceGroup>()
         var refreshRadiusRatio: Double = GeofenceResponse.DEFAULT_REFRESH_RADIUS_RATIO
         try {
-            val jsonResponse = JSONObject(responseModel.body)
-            refreshRadiusRatio = jsonResponse.optDouble("refreshRadiusRatio", GeofenceResponse.DEFAULT_REFRESH_RADIUS_RATIO)
-            val groupJsonArray = jsonResponse.getJSONArray("groups")
+            responseModel.body?.let { body ->
+                val jsonResponse = JSONObject(body)
+                refreshRadiusRatio = jsonResponse.optDouble(
+                    "refreshRadiusRatio",
+                    GeofenceResponse.DEFAULT_REFRESH_RADIUS_RATIO
+                )
+                val groupJsonArray = jsonResponse.getJSONArray("groups")
 
-            geofenceGroups.addAll(extractGroupsFromJsonArray(groupJsonArray))
+                geofenceGroups.addAll(extractGroupsFromJsonArray(groupJsonArray))
+            }
         } catch (exception: Exception) {
             when (exception) {
                 is JSONException -> {

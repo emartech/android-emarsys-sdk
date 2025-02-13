@@ -2,17 +2,21 @@ package com.emarsys.mobileengage.notification.command
 
 import com.emarsys.mobileengage.event.EventServiceInternal
 import io.kotest.assertions.throwables.shouldThrow
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito
 
-class CustomEventCommandTest  {
+class CustomEventCommandTest {
+    companion object {
+        private const val EVENT_NAME = "eventName"
+    }
+
     private lateinit var mockEventServiceInternal: EventServiceInternal
 
     @Before
     fun setUp() {
-        mockEventServiceInternal = Mockito.mock(EventServiceInternal::
-class.java)
+        mockEventServiceInternal = mockk(relaxed = true)
     }
 
     @Test
@@ -36,8 +40,7 @@ class.java)
         val customEventCommand: Runnable =
             CustomEventCommand(mockEventServiceInternal, EVENT_NAME, eventAttributes)
         customEventCommand.run()
-        Mockito.verify(mockEventServiceInternal)
-            .trackCustomEventAsync(EVENT_NAME, eventAttributes, null)
+        verify { mockEventServiceInternal.trackCustomEventAsync(EVENT_NAME, eventAttributes, null) }
     }
 
     @Test
@@ -45,10 +48,6 @@ class.java)
         val customEventCommand: Runnable =
             CustomEventCommand(mockEventServiceInternal, EVENT_NAME, null)
         customEventCommand.run()
-        Mockito.verify(mockEventServiceInternal).trackCustomEventAsync(EVENT_NAME, null, null)
-    }
-
-    companion object {
-        private const val EVENT_NAME = "eventName"
+        verify { mockEventServiceInternal.trackCustomEventAsync(EVENT_NAME, null, null) }
     }
 }

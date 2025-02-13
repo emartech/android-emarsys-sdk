@@ -32,6 +32,7 @@ import com.emarsys.core.provider.clientid.ClientIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseHandlersProcessor
+import com.emarsys.core.storage.Storage
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.deeplink.DeepLinkApi
 import com.emarsys.di.DefaultEmarsysComponent
@@ -92,7 +93,7 @@ import org.junit.Rule
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
-class EmarsysTest  {
+class EmarsysTest {
     @Rule
     @JvmField
     val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
@@ -109,6 +110,7 @@ class EmarsysTest  {
         private const val SDK_VERSION = "sdkVersion"
         private const val CONTACT_FIELD_VALUE = "CONTACT_ID"
         private const val OPEN_ID_TOKEN = "testIdToken"
+        private const val LOCAL_PUSH_TOKEN = "testPushToken"
     }
 
     private lateinit var mockActivityLifecycleWatchdog: ActivityLifecycleWatchdog
@@ -155,6 +157,7 @@ class EmarsysTest  {
     private lateinit var mobileEngageConfig: EmarsysConfig
     private lateinit var predictConfig: EmarsysConfig
     private lateinit var mobileEngageAndPredictConfig: EmarsysConfig
+    private lateinit var mockLocalPushTokenStorage: Storage<String?>
     private lateinit var deviceInfo: DeviceInfo
     private lateinit var latch: CountDownLatch
     private lateinit var predictResultListenerCallback: (Try<List<Product>>) -> Unit
@@ -185,6 +188,8 @@ class EmarsysTest  {
         mockContactTokenStorage = mockk(relaxed = true)
         mockClientStateStorage = mockk(relaxed = true)
         mockNotificationManagerHelper = mockk(relaxed = true)
+        mockLocalPushTokenStorage = mockk(relaxed = true)
+        every { mockLocalPushTokenStorage.get() } returns LOCAL_PUSH_TOKEN
 
         baseConfig = createConfig().build()
         mobileEngageConfig = createConfig()
@@ -274,6 +279,7 @@ class EmarsysTest  {
                 config = mockConfig,
                 configInternal = mockConfigInternal,
                 eventService = mockEventServiceApi,
+                localPushTokenStorage = mockLocalPushTokenStorage,
                 loggingEventService = mockLoggingEventServiceApi,
                 deepLink = mockDeepLinkApi,
                 logger = mockk(relaxed = true)
@@ -601,6 +607,23 @@ class EmarsysTest  {
 
         runBlockingOnCoreSdkThread()
         verify { mockMobileEngageApi.clearContact(null) }
+    }
+
+    @Test
+    fun testSetup_shouldCall_trackPushToken_ifLocalPushStorage_isNotEmpty() {
+
+        setup(mobileEngageConfig)
+
+        verify { mockPush.setPushToken(LOCAL_PUSH_TOKEN) }
+    }
+
+    @Test
+    fun testSetup_shouldNotCall_trackPushToken_ifLocalPushStorage_isEmpty() {
+        every { mockLocalPushTokenStorage.get() } returns null
+
+        setup(mobileEngageConfig)
+
+        confirmVerified(mockPush)
     }
 
     @Test
