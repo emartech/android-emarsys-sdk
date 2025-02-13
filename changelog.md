@@ -1,20 +1,17 @@
-# What's changed
+# What's fixed
 
-### [Config](https://github.com/emartech/android-emarsys-sdk/wiki/Config#hardwareid)
+### [SetPushToken](https://github.com/emartech/android-emarsys-sdk/wiki#21-setpushtoken)
 
-* Introduced clientId as a clearer alternative to the now-deprecated hardwareId; both refer to the same property, and while we encourage using clientId, this is not a breaking change as hardwareId remains available for backward compatibility.
+* Fix an issue where the push token was not tracked automatically by the SDK.
 
-### [Geofence](https://github.com/emartech/android-emarsys-sdk/wiki#8-geofence)
+* ### [Inapp](https://github.com/emartech/android-emarsys-sdk/wiki#3-inapp)
 
-* Improved support for Roboelectric tests.
+* Fix an issue where the content of the inapp message was not reloaded when the activity was recreated from a destroyed state, or after an orientation change.
 
+### [Emarsys SDK](https://github.com/emartech/android-emarsys-sdk/wiki)
 
-* # What's fixed
+* Fix an issue where on certain devices encryption-decryption failed due to a KeyStore error.
 
-### [ChangeApplicationCode](https://github.com/emartech/android-emarsys-sdk/wiki/Config#changeapplicationcode)
+### [Emarsys SDK](https://github.com/emartech/android-emarsys-sdk/wiki)
 
-* Fix an issue where changeApplicationCode was not working properly with anonymous contacts.
-
-### [Push](https://github.com/emartech/android-emarsys-sdk/wiki#2-push)
-
-* Fix an issue where on Android API level 35 clicking on the push message would not start the application.
+* Fix an issue where on initialization the current activity was null and caused a crash.
