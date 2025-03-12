@@ -6,22 +6,28 @@ import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Context
 import android.content.Intent
+import com.emarsys.core.util.AndroidVersionUtils.isUpsideDownCake
 import com.emarsys.core.util.AndroidVersionUtils.isUpsideDownCakeOrHigher
 import com.emarsys.mobileengage.di.mobileEngage
 
 object IntentUtils {
     @JvmStatic
     fun createLaunchPendingIntent(remoteIntent: Intent, context: Context): PendingIntent? {
-        val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+        val packageName = context.packageName
+        val launchIntent = context.packageManager.getLaunchIntentForPackage(packageName)
         val remoteExtras = remoteIntent.extras
         if (remoteExtras != null && launchIntent != null) {
             launchIntent.putExtras(remoteIntent.extras!!)
         }
 
         val activityOptions = if (isUpsideDownCakeOrHigher) {
-            ActivityOptions.makeBasic()
-                .setPendingIntentCreatorBackgroundActivityStartMode(ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED)
-                .toBundle()
+            ActivityOptions.makeBasic().apply {
+                if (isUpsideDownCake) {
+                    this.setPendingIntentBackgroundActivityStartMode(ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED)
+                } else {
+                    this.setPendingIntentCreatorBackgroundActivityStartMode(ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED)
+                }
+            }.toBundle()
         } else null
 
         return if (launchIntent != null) PendingIntent.getActivity(
