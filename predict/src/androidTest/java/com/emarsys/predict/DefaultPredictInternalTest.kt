@@ -32,24 +32,18 @@ import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.request.PredictRequestModelBuilder
 import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
-import com.emarsys.testUtil.mockito.anyNotNull
-import com.emarsys.testUtil.mockito.whenever
+
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.verify
 import org.junit.Before
 import org.junit.Test
-import org.mockito.kotlin.any
-import org.mockito.kotlin.anyOrNull
-import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.doAnswer
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.doReturnConsecutively
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
 import java.util.concurrent.CountDownLatch
 
-class DefaultPredictInternalTest  {
+class DefaultPredictInternalTest {
 
     companion object {
         const val TTL = Long.MAX_VALUE
@@ -89,52 +83,48 @@ class DefaultPredictInternalTest  {
     fun init() {
         latch = CountDownLatch(1)
 
-        mockRequestModel = mock {
-            on { id } doReturn ID1
-        }
-        mockResponseModel = mock()
-        mockKeyValueStore = mock()
-        mockRequestManager = mock()
+        mockRequestModel = mockk(relaxed = true)
+        every { mockRequestModel.id } returns ID1
+        mockResponseModel = mockk(relaxed = true)
+        mockKeyValueStore = mockk(relaxed = true)
+        mockRequestManager = mockk(relaxed = true)
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
-        mockPredictResponseMapper = mock()
-        mockLogic = mock()
-        mockRecommendationFilter = mock {
-            on { field } doReturn FIELD
-            on { comparison } doReturn COMPARISON
-            on { type } doReturn TYPE
-            on { expectations } doReturn EXPECTATIONS
-        }
+        mockPredictResponseMapper = mockk(relaxed = true)
+        mockLogic = mockk(relaxed = true)
+        mockRecommendationFilter = mockk(relaxed = true)
+        every { mockRecommendationFilter.field } returns FIELD
+        every { mockRecommendationFilter.comparison } returns COMPARISON
+        every { mockRecommendationFilter.type } returns TYPE
+        every { mockRecommendationFilter.expectations } returns EXPECTATIONS
         mockRecommendationFilters = listOf(mockRecommendationFilter)
+        mockRequestModelBuilder = mockk(relaxed = true)
+        mockResultListener = mockk<ResultListener<Try<List<Product>>>>(relaxed = true)
+        mockTimestampProvider = mockk(relaxed = true)
+        every { mockTimestampProvider.provideTimestamp() } returns TIMESTAMP
 
-        mockResultListener = mock() as ResultListener<Try<List<Product>>>
-        mockTimestampProvider = mock {
-            on { provideTimestamp() } doReturn TIMESTAMP
-        }
+        mockUuidProvider = mockk(relaxed = true)
+        every { mockUuidProvider.provideId() } returnsMany listOf(ID1, ID2)
 
-        mockUuidProvider = mock {
-            on { provideId() } doReturnConsecutively listOf(ID1, ID2)
-        }
+        mockRequestContext = mockk(relaxed = true)
 
-        mockRequestContext = mock {
-            on { keyValueStore } doReturn mockKeyValueStore
-            on { timestampProvider } doReturn mockTimestampProvider
-            on { uuidProvider } doReturn mockUuidProvider
-        }
+        every { mockRequestContext.keyValueStore } returns mockKeyValueStore
+        every { mockRequestContext.timestampProvider } returns mockTimestampProvider
+        every { mockRequestContext.uuidProvider } returns mockUuidProvider
 
-        mockRequestModelBuilder = mock {
-            on { withLogic(anyNotNull(), anyNotNull()) } doReturn it
-            on { withLimit(anyOrNull()) } doReturn it
-            on { withAvailabilityZone(anyOrNull()) } doReturn it
-            on { withShardData(anyOrNull()) } doReturn it
-            on { withFilters(anyOrNull()) } doReturn it
-            on { build() } doReturn mockRequestModel
-        }
 
-        mockRequestModelBuilderProvider = mock {
-            on { providePredictRequestModelBuilder() } doReturn mockRequestModelBuilder
-        }
+        mockRequestModelBuilder = mockk(relaxed = true)
+        every { mockRequestModelBuilder.withLogic(any(), any()) } returns mockRequestModelBuilder
+        every { mockRequestModelBuilder.withLimit(anyNullable()) } returns mockRequestModelBuilder
+        every { mockRequestModelBuilder.withAvailabilityZone(anyNullable()) } returns mockRequestModelBuilder
+        every { mockRequestModelBuilder.withShardData(anyNullable()) } returns mockRequestModelBuilder
+        every { mockRequestModelBuilder.withFilters(any()) } returns mockRequestModelBuilder
+        every { mockRequestModelBuilder.build() } returns mockRequestModel
 
-        mockLastTrackedItemContainer = mock()
+
+        mockRequestModelBuilderProvider = mockk(relaxed = true)
+        every { mockRequestModelBuilderProvider.providePredictRequestModelBuilder() } returns mockRequestModelBuilder
+
+        mockLastTrackedItemContainer = mockk(relaxed = true)
 
         predictInternal = DefaultPredictInternal(
             mockRequestContext,
@@ -157,21 +147,21 @@ class DefaultPredictInternalTest  {
 
         predictInternal.setContact(CONTACT_FIELD_ID, contactId)
 
-        verify(mockKeyValueStore).putString("predict_contact_id", contactId)
+        verify { mockKeyValueStore.putString("predict_contact_id", contactId) }
     }
 
     @Test
     fun testClearContact_shouldRemove_contactIdFromKeyValueStore() {
         predictInternal.clearContact()
 
-        verify(mockKeyValueStore).remove("predict_contact_id")
+        verify { mockKeyValueStore.remove("predict_contact_id") }
     }
 
     @Test
     fun testClearContact_shouldRemove_visitorIdFromKeyValueStore() {
         predictInternal.clearContact()
 
-        verify(mockKeyValueStore).remove("predict_visitor_id")
+        verify { mockKeyValueStore.remove("predict_visitor_id") }
     }
 
     @Test
@@ -200,7 +190,7 @@ class DefaultPredictInternalTest  {
             )
         )
 
-        verify(mockRequestManager).submit(expectedShardModel)
+        verify { mockRequestManager.submit(expectedShardModel) }
     }
 
     @Test
@@ -233,7 +223,7 @@ class DefaultPredictInternalTest  {
             )
         )
 
-        verify(mockRequestManager).submit(expectedShardModel)
+        verify { mockRequestManager.submit(expectedShardModel) }
     }
 
     @Test
@@ -263,7 +253,7 @@ class DefaultPredictInternalTest  {
 
         predictInternal.trackItemView(itemId)
 
-        verify(mockRequestManager).submit(expectedShardModel)
+        verify { mockRequestManager.submit(expectedShardModel) }
     }
 
     @Test
@@ -285,7 +275,7 @@ class DefaultPredictInternalTest  {
 
         predictInternal.trackCategoryView(categoryPath)
 
-        verify(mockRequestManager).submit(expectedShardModel)
+        verify { mockRequestManager.submit(expectedShardModel) }
     }
 
     @Test
@@ -307,7 +297,7 @@ class DefaultPredictInternalTest  {
 
         predictInternal.trackSearchTerm(searchTerm)
 
-        verify(mockRequestManager).submit(expectedShardModel)
+        verify { mockRequestManager.submit(expectedShardModel) }
     }
 
     @Test
@@ -324,7 +314,7 @@ class DefaultPredictInternalTest  {
 
         predictInternal.trackTag(tag, mapOf("testKey" to "testValue"))
 
-        verify(mockRequestManager).submit(expectedShardModel)
+        verify { mockRequestManager.submit(expectedShardModel) }
     }
 
     @Test
@@ -341,7 +331,7 @@ class DefaultPredictInternalTest  {
 
         predictInternal.trackTag(tag, null)
 
-        verify(mockRequestManager).submit(expectedShardModel)
+        verify { mockRequestManager.submit(expectedShardModel) }
     }
 
     @Test
@@ -353,7 +343,7 @@ class DefaultPredictInternalTest  {
             mockLastTrackedItemContainer
         )
         predictInternal.trackSearchTerm(searchTerm)
-        verify(mockLastTrackedItemContainer).lastSearchTerm = searchTerm
+        verify { mockLastTrackedItemContainer.lastSearchTerm = searchTerm }
     }
 
     @Test
@@ -368,7 +358,7 @@ class DefaultPredictInternalTest  {
             mockLastTrackedItemContainer
         )
         predictInternal.trackCart(cartList)
-        verify(mockLastTrackedItemContainer).lastCartItems = cartList
+        verify { mockLastTrackedItemContainer.lastCartItems = cartList }
     }
 
     @Test
@@ -383,7 +373,7 @@ class DefaultPredictInternalTest  {
             mockLastTrackedItemContainer
         )
         predictInternal.trackPurchase("testOrderId", cartList)
-        verify(mockLastTrackedItemContainer).lastCartItems = cartList
+        verify { mockLastTrackedItemContainer.lastCartItems = cartList }
     }
 
     @Test
@@ -395,7 +385,7 @@ class DefaultPredictInternalTest  {
             mockLastTrackedItemContainer
         )
         predictInternal.trackItemView(itemId)
-        verify(mockLastTrackedItemContainer).lastItemView = itemId
+        verify { mockLastTrackedItemContainer.lastItemView = itemId }
     }
 
     @Test
@@ -407,7 +397,7 @@ class DefaultPredictInternalTest  {
             mockLastTrackedItemContainer
         )
         predictInternal.trackCategoryView(categoryPath)
-        verify(mockLastTrackedItemContainer).lastCategoryPath = categoryPath
+        verify { mockLastTrackedItemContainer.lastCategoryPath = categoryPath }
     }
 
     @Test
@@ -420,11 +410,11 @@ class DefaultPredictInternalTest  {
             mockResultListener
         )
 
-        verify(mockRequestModelBuilder).withLogic(mockLogic, mockLastTrackedItemContainer)
-        verify(mockRequestModelBuilder).withLimit(10)
-        verify(mockRequestModelBuilder).build()
+        verify { mockRequestModelBuilder.withLogic(mockLogic, mockLastTrackedItemContainer) }
+        verify { mockRequestModelBuilder.withLimit(10) }
+        verify { mockRequestModelBuilder.build() }
 
-        verify(mockRequestManager).submitNow(eq(mockRequestModel), any())
+        verify { mockRequestManager.submitNow(eq(mockRequestModel), any()) }
     }
 
     @Test
@@ -437,11 +427,11 @@ class DefaultPredictInternalTest  {
             mockResultListener
         )
 
-        verify(mockRequestModelBuilder).withLogic(mockLogic, mockLastTrackedItemContainer)
-        verify(mockRequestModelBuilder).withAvailabilityZone("hu")
-        verify(mockRequestModelBuilder).build()
+        verify { mockRequestModelBuilder.withLogic(mockLogic, mockLastTrackedItemContainer) }
+        verify { mockRequestModelBuilder.withAvailabilityZone("hu") }
+        verify { mockRequestModelBuilder.build() }
 
-        verify(mockRequestManager).submitNow(eq(mockRequestModel), any())
+        verify { mockRequestManager.submitNow(eq(mockRequestModel), any()) }
     }
 
     @Test
@@ -454,29 +444,29 @@ class DefaultPredictInternalTest  {
             mockResultListener
         )
 
-        verify(mockRequestModelBuilder).withLogic(mockLogic, mockLastTrackedItemContainer)
-        verify(mockRequestModelBuilder).withLimit(10)
-        verify(mockRequestModelBuilder).withFilters(listOf(mockRecommendationFilter))
-        verify(mockRequestModelBuilder).build()
+        verify { mockRequestModelBuilder.withLogic(mockLogic, mockLastTrackedItemContainer) }
+        verify { mockRequestModelBuilder.withLimit(10) }
+        verify { mockRequestModelBuilder.withFilters(listOf(mockRecommendationFilter)) }
+        verify { mockRequestModelBuilder.build() }
 
-        verify(mockRequestManager).submitNow(eq(mockRequestModel), any())
+        verify { mockRequestManager.submitNow(eq(mockRequestModel), any()) }
     }
 
     @Test
     fun testRecommendProducts_shouldCallRequestManager_withCorrectRequestModel() {
         predictInternal.recommendProducts(mockLogic, resultListener = mockResultListener)
 
-        verify(mockRequestModelBuilder).withLogic(mockLogic, mockLastTrackedItemContainer)
-        verify(mockRequestModelBuilder).withLimit(null)
-        verify(mockRequestModelBuilder).build()
+        verify { mockRequestModelBuilder.withLogic(mockLogic, mockLastTrackedItemContainer) }
+        verify { mockRequestModelBuilder.withLimit(null) }
+        verify { mockRequestModelBuilder.build() }
 
-        verify(mockRequestManager).submitNow(eq(mockRequestModel), any())
+        verify { mockRequestManager.submitNow(eq(mockRequestModel), any()) }
     }
 
     @Test
     fun testRecommendProducts_shouldCallRequestManager_success_shouldBeCalledOnMainThread() {
         val expectedResult = listOf(PRODUCT)
-        whenever(mockPredictResponseMapper.map(mockResponseModel)).thenReturn(expectedResult)
+        every { mockPredictResponseMapper.map(mockResponseModel) } returns expectedResult
 
         predictInternal = DefaultPredictInternal(
             mockRequestContext,
@@ -491,7 +481,7 @@ class DefaultPredictInternalTest  {
             mockPredictResponseMapper
         )
 
-        val mockResultListener: ResultListener<Try<List<Product>>> = mock()
+        val mockResultListener: ResultListener<Try<List<Product>>> = mockk(relaxed = true)
         predictInternal.recommendProducts(
             mockLogic,
             5,
@@ -500,17 +490,17 @@ class DefaultPredictInternalTest  {
         )
 
         val threadSpy: ThreadSpy<*> = ThreadSpy<Any?>()
-        whenever(mockResultListener.onResult(any())).doAnswer {
-            threadSpy.answer(it)
+        every { mockResultListener.onResult(any()) } answers {
+            threadSpy.answer(it.invocation)
             latch.countDown()
         }
         latch.await()
-        argumentCaptor<Try<List<Product>>>().apply {
-            verify(mockResultListener).onResult(capture())
-            firstValue.result shouldBe expectedResult
-        }
+        val slot = slot<Try<List<Product>>>()
+        verify { mockResultListener.onResult(capture(slot)) }
+        slot.captured.result shouldBe expectedResult
+
         threadSpy.verifyCalledOnMainThread()
-        verify(mockPredictResponseMapper).map(mockResponseModel)
+        verify { mockPredictResponseMapper.map(mockResponseModel) }
     }
 
     @Test
@@ -553,7 +543,7 @@ class DefaultPredictInternalTest  {
             mockRequestModelBuilderProvider,
             mockPredictResponseMapper
         )
-        val mockResultListener: ResultListener<Try<List<Product>>> = mock()
+        val mockResultListener: ResultListener<Try<List<Product>>> = mockk(relaxed = true)
         predictInternal.recommendProducts(
             mockLogic,
             5,
@@ -561,8 +551,8 @@ class DefaultPredictInternalTest  {
             resultListener = mockResultListener
         )
         val threadSpy: ThreadSpy<*> = ThreadSpy<Any?>()
-        whenever(mockResultListener.onResult(any())).doAnswer {
-            threadSpy.answer(it)
+        every { mockResultListener.onResult(any()) } answers {
+            threadSpy.answer(it.invocation)
             latch.countDown()
         }
         latch.await()
@@ -571,7 +561,7 @@ class DefaultPredictInternalTest  {
 
     @Test
     fun testRecommendProducts_shouldCallRequestManager_failureWithException_shouldBeCalled() {
-        val mockException: Exception = mock()
+        val mockException: Exception = mockk(relaxed = true)
 
         predictInternal = DefaultPredictInternal(
             mockRequestContext,
@@ -594,7 +584,7 @@ class DefaultPredictInternalTest  {
 
     @Test
     fun testRecommendProducts_shouldCallRequestManager_failureWithException_shouldBeCalledOnMainThread() {
-        val mockException: Exception = mock()
+        val mockException: Exception = mockk(relaxed = true)
 
         predictInternal = DefaultPredictInternal(
             mockRequestContext,
@@ -603,7 +593,7 @@ class DefaultPredictInternalTest  {
             mockRequestModelBuilderProvider,
             mockPredictResponseMapper
         )
-        val mockResultListener: ResultListener<Try<List<Product>>> = mock()
+        val mockResultListener: ResultListener<Try<List<Product>>> = mockk(relaxed = true)
         predictInternal.recommendProducts(
             mockLogic,
             5,
@@ -611,8 +601,8 @@ class DefaultPredictInternalTest  {
             resultListener = mockResultListener
         )
         val threadSpy: ThreadSpy<*> = ThreadSpy<Any?>()
-        whenever(mockResultListener.onResult(any())).doAnswer {
-            threadSpy.answer(it)
+        every { mockResultListener.onResult(any()) } answers {
+            threadSpy.answer(it.invocation)
             latch.countDown()
         }
         latch.await()
@@ -636,7 +626,7 @@ class DefaultPredictInternalTest  {
 
         predictInternal.trackRecommendationClick(PRODUCT)
 
-        verify(mockRequestManager).submit(expectedShardModel)
+        verify { mockRequestManager.submit(expectedShardModel) }
     }
 
     @Test
@@ -647,30 +637,29 @@ class DefaultPredictInternalTest  {
             mockLastTrackedItemContainer
         )
         predictInternal.trackRecommendationClick(PRODUCT)
-        verify(mockLastTrackedItemContainer).lastItemView = PRODUCT.productId
+        verify { mockLastTrackedItemContainer.lastItemView = PRODUCT.productId }
     }
 
-    @Suppress("UNCHECKED_CAST")
     private fun requestManagerWithRestClient(restClient: RestClient): RequestManager {
         val mockDelegatorCompletionHandlerProvider: DelegatorCompletionHandlerProvider =
-            mock {
-                on { provide(anyOrNull(), any()) } doAnswer {
-                    it.arguments[1] as CoreCompletionHandler
+            mockk {
+                every { provide(anyNullable(), any()) } answers {
+                    secondArg()
                 }
             }
-        val mockProvider: CompletionHandlerProxyProvider = mock {
-            on { provideProxy(anyOrNull(), any()) } doAnswer {
-                it.arguments[1] as CoreCompletionHandler
+        val mockProvider: CompletionHandlerProxyProvider = mockk {
+            every { provideProxy(anyNullable(), any()) } answers {
+                secondArg()
             }
         }
         return RequestManager(
             concurrentHandlerHolder,
-            mock() as Repository<RequestModel, SqlSpecification>,
-            mock() as Repository<ShardModel, SqlSpecification>,
-            mock(),
+            mockk<Repository<RequestModel, SqlSpecification>>(),
+            mockk<Repository<ShardModel, SqlSpecification>>(),
+            mockk(relaxed = true),
             restClient,
-            mock() as Registry<RequestModel, CompletionListener?>,
-            mock(),
+            mockk<Registry<RequestModel, CompletionListener?>>(),
+            mockk<CoreCompletionHandler>(relaxed = true),
             mockProvider,
             mockDelegatorCompletionHandlerProvider
         )

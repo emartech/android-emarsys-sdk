@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.kapt)
     alias(libs.plugins.androidx.navigation.safeargs)
     alias(libs.plugins.google.services)
+    alias(libs.plugins.compose.compiler)
+
 //    alias(libs.plugins.huawei.agconnect)
 }
 val sdkVersion: GitVersion by rootProject.extra

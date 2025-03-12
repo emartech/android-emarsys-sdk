@@ -21,12 +21,17 @@ class RecommendationFilter {
         }
     }
 
-    val type: String
-    val field: String
-    val comparison: String
-    val expectations: List<String?>
+    final val type: String
+    final val field: String
+    final val comparison: String
+    final val expectations: List<String?>
 
-    internal constructor(type: String, field: String, comparison: String, expectations: List<String?>) {
+    internal constructor(
+        type: String,
+        field: String,
+        comparison: String,
+        expectations: List<String?>
+    ) {
         this.type = type
         this.field = field
         this.comparison = comparison

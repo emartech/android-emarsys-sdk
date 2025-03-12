@@ -19,20 +19,15 @@ import com.emarsys.core.util.log.entry.MethodNotAllowed
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.mockito.ThreadSpy
 import io.kotest.matchers.shouldBe
+import io.mockk.confirmVerified
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.mockito.ArgumentCaptor
-import org.mockito.kotlin.any
-import org.mockito.kotlin.capture
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.timeout
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoInteractions
-import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
 class LoggerTest {
@@ -58,14 +53,15 @@ class LoggerTest {
     @Suppress("UNCHECKED_CAST")
     fun init() {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
-        mockShardRepository = mock()
-        timestampProviderMock = mock<TimestampProvider>().apply {
-            whenever(provideTimestamp()).thenReturn(TIMESTAMP)
+        mockShardRepository = mockk(relaxed = true)
+        timestampProviderMock = mockk<TimestampProvider>(relaxed = true).apply {
+            every { provideTimestamp() } returns TIMESTAMP
         }
-        uuidProviderMock = mock<UUIDProvider>().apply {
-            whenever(provideId()).thenReturn(UUID)
+        uuidProviderMock = mockk<UUIDProvider>(relaxed = true).apply {
+            every { provideId() } returns UUID
         }
-        mockLogLevelStorage = mock()
+        mockLogLevelStorage = mockk(relaxed = true)
+        every { mockLogLevelStorage.get() } returns "ERROR"
 
         context = InstrumentationRegistry.getTargetContext()
         loggerInstance = Logger(
@@ -77,7 +73,7 @@ class LoggerTest {
             false,
             context
         )
-        loggerMock = mock()
+        loggerMock = mockk(relaxed = true)
 
         dependencyContainer = FakeCoreDependencyContainer(
             concurrentHandlerHolder = concurrentHandlerHolder,
@@ -118,10 +114,10 @@ class LoggerTest {
             ), "testThreadName", null
         )
 
-        val captor = ArgumentCaptor.forClass(ShardModel::class.java)
+        val captor = mutableListOf<ShardModel>()
 
         runBlocking {
-            verify(mockShardRepository, timeout(100)).add(capture<ShardModel>(captor))
+            verify(timeout = 200, exactly = 1) { mockShardRepository.add(capture(captor)) }
         }
         val expected = ShardModel(
             UUID,
@@ -137,7 +133,7 @@ class LoggerTest {
             TIMESTAMP,
             TTL
         )
-        val result = captor.value
+        val result = captor.last()
         result.id shouldBe expected.id
         result.timestamp shouldBe expected.timestamp
         result.ttl shouldBe expected.ttl
@@ -146,7 +142,7 @@ class LoggerTest {
 
     @Test
     fun testPersistLog_DoesntAddBreadcumbs_toNonErrorLog() {
-        whenever(mockLogLevelStorage.get()).thenReturn("INFO")
+        every { mockLogLevelStorage.get() } returns "INFO"
 
         for (i in 0..13) {
             loggerInstance.handleLog(
@@ -168,12 +164,13 @@ class LoggerTest {
                 )
             ), "testThreadName", null
         )
-
-        val captor = ArgumentCaptor.forClass(ShardModel::class.java)
-
+        val slot = slot<ShardModel>()
         runBlocking {
-            verify(mockShardRepository, timeout(100)).add(capture<ShardModel>(captor))
+            verify(timeout = 100) {
+                mockShardRepository.add(capture(slot))
+            }
         }
+
         val expected = ShardModel(
             UUID,
             "log_request",
@@ -187,7 +184,7 @@ class LoggerTest {
             TIMESTAMP,
             TTL
         )
-        val result = captor.value
+        val result = slot.captured
         result.id shouldBe expected.id
         result.timestamp shouldBe expected.timestamp
         result.ttl shouldBe expected.ttl
@@ -217,11 +214,10 @@ class LoggerTest {
                 )
             ), "testThreadName", null
         )
-
-        val captor = ArgumentCaptor.forClass(ShardModel::class.java)
+        val slot = mutableListOf<ShardModel>()
 
         runBlocking {
-            verify(mockShardRepository, timeout(100)).add(capture<ShardModel>(captor))
+            verify(timeout = 500, exactly = 1) { mockShardRepository.add(capture(slot)) }
         }
         val expected = ShardModel(
             UUID,
@@ -249,7 +245,7 @@ class LoggerTest {
             TIMESTAMP,
             TTL
         )
-        val result = captor.value
+        val result = slot.last()
         result.id shouldBe expected.id
         result.timestamp shouldBe expected.timestamp
         result.ttl shouldBe expected.ttl
@@ -264,7 +260,7 @@ class LoggerTest {
 
         waitForTask()
 
-        verify(mockShardRepository, times(0)).add(any())
+        verify(exactly = 0) { mockShardRepository.add(any()) }
     }
 
     @Test
@@ -275,10 +271,10 @@ class LoggerTest {
             "testThreadName",
             null
         )
+        val slot = slot<ShardModel>()
 
-        val captor = ArgumentCaptor.forClass(ShardModel::class.java)
         runBlocking {
-            verify(mockShardRepository, timeout(100)).add(capture<ShardModel>(captor))
+            verify(timeout = 100) { mockShardRepository.add(capture(slot)) }
         }
         val expected = ShardModel(
             UUID,
@@ -292,7 +288,7 @@ class LoggerTest {
             TIMESTAMP,
             TTL
         )
-        val result = captor.value
+        val result = slot.captured
         result.id shouldBe expected.id
         result.timestamp shouldBe expected.timestamp
         result.ttl shouldBe expected.ttl
@@ -303,7 +299,11 @@ class LoggerTest {
     fun testPersistLog_addsLog_toShardRepository_viaCoreSdkHandler() {
         val threadSpy = ThreadSpy<Unit>()
         runBlocking {
-            org.mockito.Mockito.doAnswer(threadSpy).`when`(mockShardRepository).add(any())
+            every {
+                mockShardRepository.add(any())
+            } answers {
+                threadSpy.answer(it.invocation)
+            }
         }
         loggerInstance.persistLog(LogLevel.ERROR, logEntryMock(), "testThreadName", null)
 
@@ -312,7 +312,7 @@ class LoggerTest {
 
     @Test
     fun testLog_delegatesToInstance_withINFOLogLevel() {
-        whenever(mockLogLevelStorage.get()).thenReturn("INFO")
+        every { mockLogLevelStorage.get() } returns ("INFO")
 
         val logEntry =
             logEntryMock(testTopic = "testTopic", testData = mapOf("testKey" to "testValue"))
@@ -321,14 +321,14 @@ class LoggerTest {
 
         waitForTask()
 
-        verify(loggerMock).handleLog(LogLevel.INFO, logEntry)
+        verify { loggerMock.handleLog(LogLevel.INFO, logEntry) }
     }
 
     @Test
     fun testLog_doesNotLogAnything_ifDependencyInjection_isNotSetup() {
         tearDownCoreComponent()
 
-        dependencyContainer = mock()
+        dependencyContainer = mockk()
 
         setupCoreComponent(dependencyContainer)
         tearDownCoreComponent()
@@ -337,7 +337,7 @@ class LoggerTest {
 
         waitForTask()
 
-        verifyNoInteractions(dependencyContainer)
+        confirmVerified(dependencyContainer)
     }
 
     @Test
@@ -358,7 +358,7 @@ class LoggerTest {
         ) { latch.countDown() }
         latch.await()
         runBlocking {
-            verify(mockShardRepository, timeout(100).times(0)).add(any())
+            verify(timeout = 100, exactly = 0) { mockShardRepository.add(any()) }
         }
     }
 
@@ -366,7 +366,7 @@ class LoggerTest {
     fun testPersistLog_shouldNotPersist_whenLogLevelIsBelowStoredLogLevel() {
         val latch = CountDownLatch(1)
 
-        whenever(mockLogLevelStorage.get()).thenReturn("INFO")
+        every { mockLogLevelStorage.get() } returns ("INFO")
 
         loggerInstance.persistLog(
             LogLevel.TRACE,
@@ -375,33 +375,37 @@ class LoggerTest {
         ) { latch.countDown() }
         latch.await()
         runBlocking {
-            verify(mockShardRepository, times(0)).add(any())
+            verify(exactly = 0) { mockShardRepository.add(any()) }
         }
     }
 
     @Test
     fun testPersistLog_shouldPersist_whenAppStartEvent() {
         val latch = CountDownLatch(1)
-        whenever(mockLogLevelStorage.get()).thenReturn("ERROR")
+        every { mockLogLevelStorage.get() } returns "ERROR"
+        val logEntry: LogEntry = mockk(relaxed = true)
+        every { logEntry.data } returns (mapOf())
+        every { logEntry.topic } returns ("app:start")
         loggerInstance.persistLog(
             LogLevel.INFO,
-            mock {
-                on { data }.doReturn(mapOf())
-                on { topic }.doReturn("app:start")
-            },
+            logEntry,
             "testThreadName"
         ) { latch.countDown() }
         latch.await()
         runBlocking {
-            verify(mockShardRepository, times(1)).add(any())
+            verify(exactly = 1) { mockShardRepository.add(any()) }
         }
     }
 
-    private fun logEntryMock(testTopic: String = "", testData: Map<String, Any?> = mapOf()) =
-        mock<LogEntry> {
-            on { data }.doReturn(testData)
-            on { topic }.doReturn(testTopic)
-        }
+    private fun logEntryMock(
+        testTopic: String = "",
+        testData: Map<String, Any?> = mapOf()
+    ): LogEntry {
+        val mock = mockk<LogEntry>()
+        every { mock.topic } returns testTopic
+        every { mock.data } returns testData
+        return mock
+    }
 
     private fun waitForTask() {
         val latch = CountDownLatch(1)

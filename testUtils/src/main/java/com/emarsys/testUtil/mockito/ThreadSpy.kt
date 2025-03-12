@@ -2,6 +2,7 @@ package com.emarsys.testUtil.mockito
 
 import android.os.Looper
 import io.kotest.matchers.shouldBe
+import io.mockk.Invocation
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import java.util.concurrent.CountDownLatch
@@ -17,6 +18,12 @@ class ThreadSpy<T> @JvmOverloads constructor(private val result: T? = null) : An
         }
 
     override fun answer(invocation: InvocationOnMock): T? {
+        thread = Thread.currentThread()
+        latch.countDown()
+        return result
+    }
+
+    fun answer(invocation: Invocation): T? {
         thread = Thread.currentThread()
         latch.countDown()
         return result
