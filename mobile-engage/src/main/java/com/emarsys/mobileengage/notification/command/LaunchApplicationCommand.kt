@@ -31,6 +31,8 @@ class LaunchApplicationCommand(
                 error(CrashLog(e, null))
             } catch (e: InterruptedException) {
                 error(CrashLog(e, null))
+            } catch (e: Throwable) {
+                error(CrashLog(e, null))
             }
         }
 

@@ -45,7 +45,7 @@ open class RequestTask(
             responseModel = readResponse(connection)
 
             debug(RequestLog(responseModel, dbEnd, requestModel))
-            info(RequestLog(responseModel, dbEnd), strict = true)
+            info(RequestLog(responseModel, dbEnd))
 
         } catch (e: Exception) {
             exception = e

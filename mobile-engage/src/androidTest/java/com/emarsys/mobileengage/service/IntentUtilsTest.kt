@@ -9,7 +9,9 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import com.emarsys.core.util.AndroidVersionUtils.isBelowUpsideDownCake
+import com.emarsys.core.util.AndroidVersionUtils.isUpsideDownCake
 import com.emarsys.core.util.AndroidVersionUtils.isUpsideDownCakeOrHigher
+import com.emarsys.core.util.AndroidVersionUtils.isVanillaIceCreamOrHigher
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.service.IntentUtils.createLaunchPendingIntent
@@ -28,7 +30,8 @@ import org.junit.Test
 
 class IntentUtilsTest  {
     private companion object {
-        const val BACKGROUND_ACTIVITY_START_MODE_KEY = "android.activity.pendingIntentCreatorBackgroundActivityStartMode"
+        const val BACKGROUND_ACTIVITY_CREATOR_START_MODE_KEY = "android.activity.pendingIntentCreatorBackgroundActivityStartMode"
+        const val BACKGROUND_ACTIVITY_START_MODE_KEY = "android.pendingIntent.backgroundActivityAllowed"
         const val TITLE = "title"
         const val BODY = "body"
         const val CHANNEL_ID = "channelId"
@@ -121,7 +124,7 @@ class IntentUtilsTest  {
 
     @Test
     fun testCreateLaunchIntent_shouldCreatePendingIntentWithApplicationOptionsAboveApiLevel34() {
-        if(isUpsideDownCakeOrHigher) {
+        if(isVanillaIceCreamOrHigher) {
             val remoteIntent = Intent()
             val expectedExtras = Bundle()
             expectedExtras.putString("key", "value")
@@ -139,7 +142,32 @@ class IntentUtilsTest  {
                 )
             }
 
-            bundleCaptor.captured.getInt(BACKGROUND_ACTIVITY_START_MODE_KEY) shouldBe 1
+            bundleCaptor.captured.getInt(BACKGROUND_ACTIVITY_CREATOR_START_MODE_KEY) shouldBe 1
+            intentCaptor.captured.extras?.getString("key") shouldBe "value"
+        }
+    }
+
+    @Test
+    fun testCreateLaunchIntent_shouldCreatePendingIntentWithApplicationOptionsOnLevel34() {
+        if(isUpsideDownCake) {
+            val remoteIntent = Intent()
+            val expectedExtras = Bundle()
+            expectedExtras.putString("key", "value")
+            remoteIntent.putExtras(expectedExtras)
+
+            createLaunchPendingIntent(remoteIntent, mockActivity)
+
+            verify {
+                PendingIntent.getActivity(
+                    mockActivity,
+                    0,
+                    capture(intentCaptor),
+                    FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE,
+                    capture(bundleCaptor)
+                )
+            }
+
+            bundleCaptor.captured.getBoolean(BACKGROUND_ACTIVITY_START_MODE_KEY) shouldBe true
             intentCaptor.captured.extras?.getString("key") shouldBe "value"
         }
     }
@@ -166,7 +194,7 @@ class IntentUtilsTest  {
 
     @Test
     fun testCreateLaunchIntent_withNoBundleInIntent_aboveApiLevel34() {
-        if (isUpsideDownCakeOrHigher) {
+        if (isVanillaIceCreamOrHigher) {
             createLaunchPendingIntent(Intent(), mockActivity)
             launchIntentForPackage.extras shouldBe null
 
@@ -180,7 +208,28 @@ class IntentUtilsTest  {
                 )
             }
 
-            bundleCaptor.captured.getInt(BACKGROUND_ACTIVITY_START_MODE_KEY) shouldBe 1
+            bundleCaptor.captured.getInt(BACKGROUND_ACTIVITY_CREATOR_START_MODE_KEY) shouldBe 1
+            intentCaptor.captured.extras shouldBe null
+        }
+    }
+
+    @Test
+    fun testCreateLaunchIntent_withNoBundleInIntent_onApiLevel34() {
+        if (isUpsideDownCake) {
+            createLaunchPendingIntent(Intent(), mockActivity)
+            launchIntentForPackage.extras shouldBe null
+
+            verify {
+                PendingIntent.getActivity(
+                    mockActivity,
+                    0,
+                    capture(intentCaptor),
+                    FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE,
+                    capture(bundleCaptor)
+                )
+            }
+
+            bundleCaptor.captured.getBoolean(BACKGROUND_ACTIVITY_START_MODE_KEY) shouldBe true
             intentCaptor.captured.extras shouldBe null
         }
     }

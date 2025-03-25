@@ -91,7 +91,7 @@ class RequestManagerOfflineTest  {
         completionHandler.latch = CountDownLatch(1)
 
         concurrentHandlerHolder.postOnMain {
-            watchDog.connectionChangeListener.onConnectionChanged(
+            watchDog.connectionChangeListener?.onConnectionChanged(
                 ConnectionState.CONNECTED,
                 true
             )

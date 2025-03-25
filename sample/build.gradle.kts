@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.kapt)
     alias(libs.plugins.androidx.navigation.safeargs)
     alias(libs.plugins.google.services)
+    alias(libs.plugins.compose.compiler)
+
 //    alias(libs.plugins.huawei.agconnect)
 }
 val sdkVersion: GitVersion by rootProject.extra
@@ -122,19 +124,19 @@ android {
 }
 
 dependencies {
-    if (env.fetch(
-            "USE_LOCAL_DEPENDENCY",
-            (System.getenv("USE_LOCAL_DEPENDENCY") ?: "false")
-        ) == "true"
-    ) {
+//    if (env.fetch(
+//            "USE_LOCAL_DEPENDENCY",
+//            (System.getenv("USE_LOCAL_DEPENDENCY") ?: "false")
+//        ) == "true"
+//    ) {
         implementation(project(":emarsys-sdk"))
         implementation(project(":emarsys-firebase"))
         implementation(project(":emarsys-huawei"))
-    } else {
-        implementation("com.emarsys:emarsys-sdk:+")
-        implementation("com.emarsys:emarsys-firebase:+")
-        implementation("com.emarsys:emarsys-huawei:+")
-    }
+//    } else {
+//        implementation("com.emarsys:emarsys-sdk:+")
+//        implementation("com.emarsys:emarsys-firebase:+")
+//        implementation("com.emarsys:emarsys-huawei:+")
+//    }
     // Getting a "Could not find firebase-core" error? Make sure you have
     // the latest Google Repository in the Android SDK manager
 

@@ -15,6 +15,8 @@ plugins {
     alias(libs.plugins.dotenv)
     alias(libs.plugins.ben.manes.versions)
     alias(libs.plugins.nexus.publish)
+    alias(libs.plugins.compose.compiler) apply false
+
     id("maven-publish")
     id("signing")
 }
