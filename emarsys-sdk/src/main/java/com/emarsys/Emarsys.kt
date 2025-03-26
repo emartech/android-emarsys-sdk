@@ -115,14 +115,21 @@ object Emarsys {
         openIdToken: String,
         completionListener: CompletionListener? = null
     ) {
-        if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
-            || (!FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
-                    && !FeatureRegistry.isFeatureEnabled(PREDICT))
-        ) {
-            EmarsysDependencyInjection.mobileEngageApi()
-                .proxyApi(mobileEngage().concurrentHandlerHolder)
-                .setAuthenticatedContact(contactFieldId, openIdToken, completionListener)
-        }
+        executeMobileEngageOrPredictOnlyLogic(
+            mobileEngageLogic = {
+                EmarsysDependencyInjection.mobileEngageApi()
+                    .proxyApi(mobileEngage().concurrentHandlerHolder)
+                    .setAuthenticatedContact(contactFieldId, openIdToken, completionListener)
+            },
+            predictOnlyLogic = {
+                setPredictOnlyContact(
+                    contactFieldId,
+                    null,
+                    openIdToken,
+                    completionListener
+                )
+            }
+        )
     }
 
     @JvmStatic
@@ -144,6 +151,7 @@ object Emarsys {
                 setPredictOnlyContact(
                     contactFieldId,
                     contactFieldValue,
+                    null,
                     completionListener
                 )
             }
@@ -162,12 +170,13 @@ object Emarsys {
 
     private fun setPredictOnlyContact(
         contactFieldId: Int,
-        contactFieldValue: String,
+        contactFieldValue: String?,
+        openIdToken: String?,
         completionListener: CompletionListener?
     ) {
         EmarsysDependencyInjection.predictRestrictedApi()
             .proxyApi(mobileEngage().concurrentHandlerHolder)
-            .setContact(contactFieldId, contactFieldValue, completionListener)
+            .setContact(contactFieldId, contactFieldValue, openIdToken, completionListener)
     }
 
     @JvmStatic

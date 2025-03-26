@@ -14,12 +14,14 @@ import com.emarsys.predict.api.model.RecommendationFilter
 class LoggingPredictInternal(private val klass: Class<*>) : PredictInternal {
     override fun setContact(
         contactFieldId: Int,
-        contactFieldValue: String,
+        contactFieldValue: String?,
+        openIdToken: String?,
         completionListener: CompletionListener?
     ) {
         val parameters: Map<String, Any?> = mapOf(
             "contact_field_value" to contactFieldValue,
             "contact_field_id" to contactFieldId,
+            "open_id_token" to openIdToken,
             "completion_listener" to (completionListener != null)
         )
         val callerMethodName = SystemUtils.getCallerMethodName()

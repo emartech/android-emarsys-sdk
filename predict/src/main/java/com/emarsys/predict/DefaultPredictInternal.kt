@@ -34,7 +34,7 @@ class DefaultPredictInternal(
     private val requestModelBuilderProvider: PredictRequestModelBuilderProvider,
     private val responseMapper: PredictResponseMapper,
     private val lastTrackedContainer: LastTrackedItemContainer = LastTrackedItemContainer()
-) : PredictInternal {
+): PredictInternal {
 
     companion object {
         const val VISITOR_ID_KEY = "predict_visitor_id"
@@ -52,14 +52,16 @@ class DefaultPredictInternal(
 
     override fun setContact(
         contactFieldId: Int,
-        contactFieldValue: String,
+        contactFieldValue: String?,
+        openIdToken: String?,
         completionListener: CompletionListener?
     ) {
         try {
             val requestModel =
                 predictMultiIdRequestModelFactory.createSetContactRequestModel(
                     contactFieldId,
-                    contactFieldValue
+                    contactFieldValue,
+                    openIdToken
                 )
             requestManager.submit(requestModel, completionListener)
         } catch (e: Exception) {

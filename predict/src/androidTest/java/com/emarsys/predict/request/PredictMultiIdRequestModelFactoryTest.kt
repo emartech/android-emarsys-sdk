@@ -21,6 +21,7 @@ class PredictMultiIdRequestModelFactoryTest {
         const val CLIENT_HOST = "https://me-client.eservice.emarsys.net"
         const val CONTACT_FIELD_ID = 3
         const val CONTACT_FIELD_VALUE = "contactFieldValue"
+        const val OPEN_ID_TOKEN = "testOpenIdToken"
         const val REFRESH_TOKEN = "refreshToken"
     }
 
@@ -76,6 +77,27 @@ class PredictMultiIdRequestModelFactoryTest {
 
         val requestModel =
             factory.createSetContactRequestModel(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE)
+
+        requestModel shouldBe expected
+    }
+
+    @Test
+    fun testCreateSetContactRequestModel_whenOpenIdToken_isAvailable() {
+        val expected = RequestModel(
+            "https://me-client.eservice.emarsys.net/v3/contact-token",
+            RequestMethod.POST,
+            mapOf(
+                "contactFieldId" to CONTACT_FIELD_ID,
+                "openIdToken" to OPEN_ID_TOKEN
+            ),
+            mapOf(),
+            TIMESTAMP,
+            Long.MAX_VALUE,
+            REQUEST_ID
+        )
+
+        val requestModel =
+            factory.createSetContactRequestModel(CONTACT_FIELD_ID, null, OPEN_ID_TOKEN)
 
         requestModel shouldBe expected
     }

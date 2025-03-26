@@ -44,8 +44,8 @@ class PredictRestrictedTest  {
 
     @Test
     fun testPredict_setContact_delegatesTo_Predict_Internal() {
-        predictRestricted.setContact(CONTACT_FIELD_ID, "contactId", null)
-        Mockito.verify(mockPredictInternal).setContact(CONTACT_FIELD_ID, "contactId", null)
+        predictRestricted.setContact(CONTACT_FIELD_ID, "contactId", null, null)
+        Mockito.verify(mockPredictInternal).setContact(CONTACT_FIELD_ID, "contactId", null, null)
     }
 
     @Test

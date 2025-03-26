@@ -12,7 +12,7 @@ class PredictMultiIdRequestModelFactory(
     private val clientServiceEndpointProvider: ServiceEndpointProvider,
 ) {
 
-    fun createSetContactRequestModel(contactFieldId: Int, contactFieldValue: String): RequestModel {
+    fun createSetContactRequestModel(contactFieldId: Int, contactFieldValue: String? = null, openIdToken: String? = null): RequestModel {
         validateMerchantId()
         return RequestModel.Builder(predictRequestContext.timestampProvider, predictRequestContext.uuidProvider)
             .url(
@@ -20,10 +20,15 @@ class PredictMultiIdRequestModelFactory(
             )
             .method(RequestMethod.POST)
             .payload(
-                mapOf(
-                    "contactFieldId" to contactFieldId,
-                    "contactFieldValue" to contactFieldValue
-                )
+                buildMap {
+                    put("contactFieldId", contactFieldId)
+                    contactFieldValue?.let {
+                        put("contactFieldValue", contactFieldValue)
+                    }
+                    openIdToken?.let {
+                        put("openIdToken", openIdToken)
+                    }
+                }
             )
             .build()
     }

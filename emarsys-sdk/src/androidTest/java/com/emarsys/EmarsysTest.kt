@@ -690,6 +690,7 @@ class EmarsysTest {
                 mockPredictRestricted.setContact(
                     CONTACT_FIELD_ID,
                     CONTACT_FIELD_VALUE,
+                    null,
                     completionListener
                 )
             }
@@ -744,6 +745,7 @@ class EmarsysTest {
         runBlockingOnCoreSdkThread()
 
         verify { mockMobileEngageApi wasNot Called }
+        verify { mockPredictRestricted.setContact(CONTACT_FIELD_ID, null, OPEN_ID_TOKEN, completionListener) }
     }
 
     @Test
