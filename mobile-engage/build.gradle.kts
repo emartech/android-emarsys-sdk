@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.kotlin)
     alias(libs.plugins.kotlin.allopen)
     alias(libs.plugins.kotlin.parcelize)
-    alias(libs.plugins.kapt)
 }
 apply(from = "../gradle/release.gradle")
 

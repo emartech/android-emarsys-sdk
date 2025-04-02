@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin)
     alias(libs.plugins.kotlin.allopen)
-    alias(libs.plugins.kapt)
     //   alias(libs.plugins.huawei.agconnect)
 }
 apply(from = "../gradle/release.gradle")
