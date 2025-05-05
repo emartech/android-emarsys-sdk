@@ -425,20 +425,21 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         Context.MODE_PRIVATE
     )
 
-    final override val sharedPreferences: SharedPreferences =
+    final override val sharedPreferences: SharedPreferences by lazy {
         SecureSharedPreferencesProvider(
             config.application,
             EMARSYS_SECURE_SHARED_PREFERENCES_NAME,
             oldSharedPrefs
         ).provide()
+    }
 
-    override val sharedPreferencesV3: SharedPreferences =
+    override val sharedPreferencesV3: SharedPreferences by lazy {
         SharedPreferencesV3Provider(
             config.application, EMARSYS_SECURE_SHARED_PREFERENCES_V3_NAME, sharedPreferences,
             SharedPreferenceCrypto(),
             EncryptedSharedPreferencesToSharedPreferencesMigration()
         ).provide()
-
+    }
 
     override val contactTokenStorage: Storage<String?> by lazy {
         StringStorage(MobileEngageStorageKey.CONTACT_TOKEN, sharedPreferencesV3)
