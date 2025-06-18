@@ -1,5 +1,5 @@
-# What's fixed
+# What's new
 
-### [Emarsys SDK](https://github.com/emartech/android-emarsys-sdk/wiki)
+### [MessageInbox](https://github.com/emartech/android-emarsys-sdk/wiki#7-messageinbox)
 
-* Improved stability of SDK by fixing reoccurring ANR errors caused by crypto related operations on Android 12 and below.
+* Added optional imageAltText property to MessageInbox Message model.
