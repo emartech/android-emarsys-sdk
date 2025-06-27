@@ -141,7 +141,7 @@ class LoggerTest {
     }
 
     @Test
-    fun testPersistLog_DoesntAddBreadcumbs_toNonErrorLog() {
+    fun testPersistLog_DoesntAddBreadcrumbs_toNonErrorLog() {
         every { mockLogLevelStorage.get() } returns "INFO"
 
         for (i in 0..13) {
@@ -192,7 +192,7 @@ class LoggerTest {
     }
 
     @Test
-    fun testPersistLog_addsBreadcumbs_toErrorLog() {
+    fun testPersistLog_addsBreadcrumbs_toErrorLog() {
 
         for (i in 0..13) {
             loggerInstance.handleLog(
