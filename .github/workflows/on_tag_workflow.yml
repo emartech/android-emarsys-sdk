@@ -37,6 +37,7 @@ env:
   SIGNING_SECRET_KEY_RING_FILE: /home/runner/work/android-emarsys-sdk/android-emarsys-sdk/secring.asc.gpg
   SIGNING_KEYID: ${{ secrets.SIGNING_KEYID }}
   SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+  IS_SNAPSHOT: false
 
 jobs:
   Release:

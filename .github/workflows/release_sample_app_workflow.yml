@@ -31,6 +31,7 @@ env:
   SLACK_TITLE: Commit status
   SLACK_USERNAME: Emarsys SDK - Android
   SLACK_WEBHOOK: ${{ secrets.SLACK_MOBILE_TEAM_CI_CHANNEL_WEBHOOK }}
+  IS_SNAPSHOT: false
 
 jobs:
   ReleaseSampleApp:

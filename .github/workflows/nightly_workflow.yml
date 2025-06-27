@@ -38,6 +38,7 @@ env:
   SLACK_TITLE: Nightly build status
   SLACK_USERNAME: Emarsys SDK - Android
   SLACK_WEBHOOK: ${{ secrets.SLACK_MOBILE_TEAM_CI_CHANNEL_WEBHOOK }}
+  IS_SNAPSHOT: false
 
 jobs:
   Build:

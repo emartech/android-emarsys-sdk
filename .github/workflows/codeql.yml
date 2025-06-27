@@ -38,6 +38,7 @@ env:
   ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SONATYPE_SIGNING_PASSWORD }}
   SONATYPE_SIGNING_SECRET_KEY_RING_FILE_BASE64: ${{ secrets.SONATYPE_SIGNING_SECRET_KEY_RING_FILE_BASE64 }}
   ORG_GRADLE_PROJECT_signingInMemoryKey: ./secring.asc.gpg
+  IS_SNAPSHOT: false
 
 jobs:
   analyze:
