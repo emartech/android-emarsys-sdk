@@ -13,11 +13,8 @@ plugins {
     alias(libs.plugins.grgit)
     alias(libs.plugins.dotenv)
     alias(libs.plugins.ben.manes.versions)
-    alias(libs.plugins.nexus.publish)
+    alias(libs.plugins.nexus.publish) apply false
     alias(libs.plugins.compose.compiler) apply false
-
-    id("maven-publish")
-    id("signing")
 }
 
 versionData()
@@ -39,9 +36,9 @@ fun versionData() {
         }
         GitVersion(
             versionName =
-            if (System.getenv("RELEASE_VERSION") == null) git.describe() else System.getenv(
-                "RELEASE_VERSION"
-            ),
+                (if (System.getenv("RELEASE_VERSION") == null) git.describe() else System.getenv(
+                    "RELEASE_VERSION"
+                )),
             versionCode = ((System.currentTimeMillis() - 1602845230) / 10000).toInt(),
             versionCodeTime = git.head().dateTime.toEpochSecond()
         )
@@ -54,13 +51,6 @@ fun versionData() {
         )
     }
     val sdkVersion by extra(v)
-
-    ext["signing.keyId"] =
-        env.fetchOrNull("SONATYPE_SIGNING_KEY_ID") ?: System.getenv("SONATYPE_SIGNING_KEY_ID")
-    ext["signing.password"] =
-        env.fetchOrNull("SONATYPE_SIGNING_PASSWORD") ?: System.getenv("SONATYPE_SIGNING_PASSWORD")
-    ext["signing.secretKeyRingFile"] = "./secring.asc.gpg"
-
 
     println("versionName: ${sdkVersion.versionName}")
     println("versionCode: ${sdkVersion.versionCode}")
@@ -89,17 +79,5 @@ allprojects {
     // Exclude Kotlin files from Javadoc generation because Kotlin files are not supported by Dokka
     tasks.withType(Javadoc::class).all {
         enabled = false
-    }
-}
-
-nexusPublishing {
-    packageGroup = "com.emarsys"
-    repositories {
-        sonatype {
-            stagingProfileId = env.fetchOrNull("SONATYPE_STAGING_PROFILE_ID")
-                ?: System.getenv("SONATYPE_STAGING_PROFILE_ID")
-            username = env.fetchOrNull("OSSRH_USERNAME") ?: System.getenv("OSSRH_USERNAME")
-            password = env.fetchOrNull("OSSRH_PASSWORD") ?: System.getenv("OSSRH_PASSWORD")
-        }
     }
 }
