@@ -932,26 +932,27 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val configInternal: ConfigInternal by lazy {
         val emarsysRequestModelFactory = EmarsysRequestModelFactory(requestContext)
-
-        DefaultConfigInternal(
-            requestContext,
-            mobileEngageInternal,
-            pushInternal,
-            predictRequestContext,
-            deviceInfo,
-            requestManager,
-            emarsysRequestModelFactory,
-            RemoteConfigResponseMapper(RandomProvider(), clientIdProvider),
-            clientServiceStorage,
-            eventServiceStorage,
-            deepLinkServiceStorage,
-            predictServiceStorage,
-            messageInboxServiceStorage,
-            logLevelStorage,
-            crypto,
-            clientServiceInternal,
-            concurrentHandlerHolder
-        )
+        concurrentHandlerHolder.run {
+            DefaultConfigInternal(
+                requestContext,
+                mobileEngageInternal,
+                pushInternal,
+                predictRequestContext,
+                deviceInfo,
+                requestManager,
+                emarsysRequestModelFactory,
+                RemoteConfigResponseMapper(RandomProvider(), clientIdProvider),
+                clientServiceStorage,
+                eventServiceStorage,
+                deepLinkServiceStorage,
+                predictServiceStorage,
+                messageInboxServiceStorage,
+                logLevelStorage,
+                crypto,
+                clientServiceInternal,
+                concurrentHandlerHolder
+            )
+        }
     }
 
 
