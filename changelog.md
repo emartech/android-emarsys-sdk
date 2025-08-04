@@ -1,5 +1,5 @@
-# What's new
+# What's fixed
 
-### [MessageInbox](https://github.com/emartech/android-emarsys-sdk/wiki#7-messageinbox)
+### [Emarsys SDK](https://github.com/emartech/android-emarsys-sdk/wiki)
 
-* Added optional imageAltText property to MessageInbox Message model.
+* adjust thread usage during SDK config initialization
