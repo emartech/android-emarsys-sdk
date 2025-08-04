@@ -1,7 +1,11 @@
+import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin)
     alias(libs.plugins.kotlin.allopen)
+    alias(libs.plugins.nexus.publish)
+
 }
 apply(from = "../gradle/release.gradle")
 
@@ -50,4 +54,48 @@ allOpen {
 
 kotlin {
     jvmToolchain(17)
+}
+
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
+
+    configure(
+        AndroidSingleVariantLibrary(
+            // the published variant
+            variant = "release",
+            // whether to publish a sources jar
+            sourcesJar = true,
+            // whether to publish a javadoc jar
+            publishJavadocJar = true,
+        )
+    )
+    coordinates(group.toString(), "emarsys-firebase", version.toString())
+
+    pom {
+        name = "emarsys-firebase"
+        description = "emarsys-firebase module of the EmarsysSDK"
+        url.set("https://github.com/emartech/android-emarsys-sdk")
+        licenses {
+            license {
+                name.set("Mozilla Public License 2.0")
+                url.set("https://github.com/emartech/android-emarsys-sdk/blob/master/LICENSE")
+            }
+        }
+        organization {
+            name.set("Emarsys")
+            url.set("https://emarsys.com")
+        }
+        developers {
+            developer {
+                organization.set("Emarsys")
+                organizationUrl.set("https://emarsys.com")
+            }
+        }
+        scm {
+            connection.set("scm:git:https://github.com/emartech/android-emarsys-sdk.git")
+            developerConnection.set("scm:git:https://github.com/emartech/android-emarsys-sdk.git")
+            url.set("https://github.com/emartech/android-emarsys-sdk")
+        }
+    }
 }
