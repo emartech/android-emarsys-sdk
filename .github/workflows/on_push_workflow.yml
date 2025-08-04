@@ -35,7 +35,7 @@ env:
   ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.SONATYPE_SIGNING_KEY_ID }}
   ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SONATYPE_SIGNING_PASSWORD }}
   SONATYPE_SIGNING_SECRET_KEY_RING_FILE_BASE64: ${{ secrets.SONATYPE_SIGNING_SECRET_KEY_RING_FILE_BASE64 }}
-  ORG_GRADLE_PROJECT_signingInMemoryKey: ./secring.asc.gpg
+  ORG_GRADLE_PROJECT_signingInMemoryKey: /home/runner/work/android-emarsys-sdk/android-emarsys-sdk/secring.asc.gpg
   SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
   SLACK_ICON: https://icons.iconarchive.com/icons/martz90/circle/256/android-icon.png
   SLACK_TITLE: Commit status
