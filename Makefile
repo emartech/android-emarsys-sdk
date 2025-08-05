@@ -48,9 +48,6 @@ prepare-ci: check-env ## setup prerequisites for pipeline
 	@echo $ANDROID_HOME > local.properties
 	@./gradlew base64EnvToFile -PpropertyName=GOOGLE_SERVICES_JSON_BASE64 -Pfile=./sample/google-services.json
 
-prepare-release: check-env ## setup prerequisites for release
-	@./gradlew base64EnvToFile -PpropertyName=SONATYPE_SIGNING_SECRET_KEY_RING_FILE_BASE64 -Pfile=./secring.asc.gpg
-
 prepare-sample-release: check-env ## prepares .jks file for sample release
 	@./gradlew base64EnvToFile -PpropertyName=ANDROID_RELEASE_STORE_FILE_BASE64 -Pfile=sample/mobile-team-android.jks \
 	&& ./gradlew base64EnvToFile -PpropertyName=GOOGLE_PLAY_STORE_SERVICE_ACCOUNT_JSON_BASE64 -Pfile=sample/google-play-store-service-account.json
@@ -81,7 +78,7 @@ test-android-firebase: check-env ## run Android Instrumented tests on real devic
 run-github-workflow-locally: check-env ## needs act to be installed: `brew install act` and docker running. Pass in workflow path to run
 	@act --secret-file ./workflow.secrets  -W $(WORKFLOW_PATH) --container-architecture linux/amd64
 
-release: check-env prepare-release prepare-sample-release ## release to sonatype
+release: check-env prepare-sample-release ## release to sonatype
 	@./gradlew assembleRelease && ./gradlew publishToMavenCentral
-release-locally: check-env prepare-release prepare-sample-release ## release to mavenLocal
+release-locally: check-env prepare-sample-release ## release to mavenLocal
 	@./gradlew assembleRelease && ./gradlew publishToMavenLocal
