@@ -13,11 +13,11 @@ dependencies {
     api(project(":mobile-engage-api"))
     api(project(":predict-api"))
 
-    implementation(project(":common"))
-    implementation(project(":core"))
-    implementation(project(":mobile-engage"))
-    implementation(project(":predict"))
-    implementation(project(":emarsys"))
+    api(project(":common"))
+    api(project(":core"))
+    api(project(":mobile-engage"))
+    api(project(":predict"))
+    api(project(":emarsys"))
 
     androidTestImplementation(project(":testUtils"))
 
