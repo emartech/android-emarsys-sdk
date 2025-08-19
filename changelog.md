@@ -1,5 +1,5 @@
-# What's fixed
+# What's changed
 
 ### [Emarsys SDK](https://github.com/emartech/android-emarsys-sdk/wiki)
 
-* Adjust thread usage during SDK config initialization
+* Modified scopes of internal dependencies in the SDK
