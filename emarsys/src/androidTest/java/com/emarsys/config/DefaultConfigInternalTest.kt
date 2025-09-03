@@ -369,6 +369,8 @@ class DefaultConfigInternalTest  {
         confirmVerified(mockMobileEngageInternal)
         FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe false
         FeatureRegistry.isFeatureEnabled(InnerFeature.EVENT_SERVICE_V4) shouldBe false
+
+        verify { mockMobileEngageRequestContext.reset() }
         verify { mockMobileEngageRequestContext.applicationCode = null }
     }
 
