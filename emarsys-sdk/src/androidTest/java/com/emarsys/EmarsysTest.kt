@@ -609,9 +609,8 @@ class EmarsysTest {
 
     @Test
     fun testSetup_shouldCall_trackPushToken_ifLocalPushStorage_isNotEmpty() {
-
         setup(mobileEngageConfig)
-
+        runBlockingOnCoreSdkThread()
         verify { mockPush.setPushToken(LOCAL_PUSH_TOKEN) }
     }
 
