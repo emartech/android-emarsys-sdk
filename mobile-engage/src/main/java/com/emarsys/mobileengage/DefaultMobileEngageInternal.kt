@@ -23,7 +23,8 @@ class DefaultMobileEngageInternal(
         contactFieldValue: String?,
         completionListener: CompletionListener?
     ) {
-        val shouldRestartSession = requestContext.contactFieldValue != contactFieldValue
+        val shouldRestartSession =
+            requestContext.contactFieldValue != contactFieldValue || requestContext.contactFieldId != contactFieldId
 
         if (shouldRestartSession) {
             doSetContact(contactFieldId, contactFieldValue, completionListener = completionListener)
