@@ -54,7 +54,7 @@ grGit = "5.3.3"
 byte-buddy = "1.17.7"
 dotEnv = "4.0.0"
 android-tools-desugar = "2.1.5"
-benManesVersions = "0.52.0"
+benManesVersions = "0.53.0"
 nexus-publish = "0.34.0"
 
 [libraries]
