@@ -160,6 +160,17 @@ class EmarsysConfigTest  {
     }
 
     @Test
+    fun testBuilder_whenSharedSecret_isEmpty() {
+        val config = EmarsysConfig.Builder()
+            .application(application)
+            .applicationCode(APP_ID)
+            .sharedSecret("")
+            .build()
+
+        config.sharedSecret shouldBe null
+    }
+
+    @Test
     fun testBuilder_verboseConsoleLoggingEnabled() {
         val config = EmarsysConfig.Builder()
             .application(application)
