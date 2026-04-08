@@ -13,6 +13,8 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    cooldown:
+      default-days: 3
     commit-message:
       prefix: "chore(dependabot)"
     open-pull-requests-limit: 5

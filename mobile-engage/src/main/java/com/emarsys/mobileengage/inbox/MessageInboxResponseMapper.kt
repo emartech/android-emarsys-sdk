@@ -49,6 +49,7 @@ class MessageInboxResponseMapper : Mapper<ResponseModel, InboxResult> {
             inboxMessageResponse.getString("title"),
             inboxMessageResponse.getString("body"),
             inboxMessageResponse.getNullableString("imageUrl"),
+            inboxMessageResponse.getNullableString("imageAltText"),
             inboxMessageResponse.getLong("receivedAt"),
             inboxMessageResponse.getLong("updatedAt"),
             inboxMessageResponse.getNullableLong("expiresAt"),

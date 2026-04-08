@@ -2,7 +2,9 @@ package com.emarsys.core.handler
 
 import android.os.Handler
 import android.os.Looper
+import com.emarsys.core.Callable
 import com.emarsys.core.Mockable
+import java.util.concurrent.CountDownLatch
 
 @Mockable
 class ConcurrentHandlerHolder(
@@ -24,6 +26,21 @@ class ConcurrentHandlerHolder(
                 coreHandler.post(runnable)
             }
         }
+    }
+
+    fun <T> run(callable: Callable<T>): T {
+        var result: T? = null
+        if (Thread.currentThread().name != coreHandler.handler.looper.thread.name) {
+            val latch = CountDownLatch(1)
+            post {
+                result = callable.call()
+                latch.countDown()
+            }
+            latch.await()
+        } else {
+            result = callable.call()
+        }
+        return result!!
     }
 
     fun postOnMain(runnable: Runnable) {

@@ -63,6 +63,7 @@ class DefaultMessageInboxInternalTest  {
             title = "testTitle",
             body = "testBody",
             imageUrl = null,
+            imageAltText = null,
             receivedAt = 12345,
             updatedAt = null,
             expiresAt = null,

@@ -4,6 +4,7 @@ pluginManagement {
         gradlePluginPortal()
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        maven("https://central.sonatype.com/repository/maven-snapshots/")
         maven("https://developer.huawei.com/repo/")
     }
     resolutionStrategy {
@@ -22,6 +23,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        maven("https://central.sonatype.com/repository/maven-snapshots/")
         maven("https://developer.huawei.com/repo/")
     }
 }

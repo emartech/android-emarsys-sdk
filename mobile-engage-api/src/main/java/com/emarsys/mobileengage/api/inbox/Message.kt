@@ -9,6 +9,7 @@ data class Message(
         val title: String,
         val body: String,
         val imageUrl: String?,
+        val imageAltText: String?,
         val receivedAt: Long,
         val updatedAt: Long?,
         val expiresAt: Long?,

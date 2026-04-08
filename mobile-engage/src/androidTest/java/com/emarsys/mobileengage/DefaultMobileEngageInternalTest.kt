@@ -28,6 +28,7 @@ class DefaultMobileEngageInternalTest {
 
     private companion object {
         const val CONTACT_FIELD_ID = 999
+        const val OTHER_CONTACT_FIELD_ID = 998
         const val TIMESTAMP = 123456789L
         const val REQUEST_ID = "request_id"
         const val CLIENT_ID = "clientId"
@@ -62,6 +63,7 @@ class DefaultMobileEngageInternalTest {
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockRequestModelWithNullContactFieldValue: RequestModel
     private lateinit var mockRequestModelWithNullContactFieldValueAndNullContactFieldId: RequestModel
+    private lateinit var mockRequestModelWithNewContactFieldId: RequestModel
     private lateinit var mockRefreshTokenStorage: StringStorage
     private lateinit var mockContactTokenStorage: StringStorage
     private lateinit var mockClientStateStorage: StringStorage
@@ -116,17 +118,21 @@ class DefaultMobileEngageInternalTest {
         mockRequestModel = mockk(relaxed = true)
         mockRequestModelWithNullContactFieldValue = mockk(relaxed = true)
         mockRequestModelWithNullContactFieldValueAndNullContactFieldId = mockk(relaxed = true)
+        mockRequestModelWithNewContactFieldId = mockk(relaxed = true)
 
         mockRequestModelFactory = mockk(relaxed = true)
         every { mockRequestModelFactory.createSetContactRequest(CONTACT_FIELD_ID, null) } returns
                 mockRequestModelWithNullContactFieldValue
         every { mockRequestModelFactory.createSetContactRequest(null, null) } returns
                 mockRequestModelWithNullContactFieldValueAndNullContactFieldId
-
         every {
             mockRequestModelFactory.createSetContactRequest(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE)
         } returns
                 mockRequestModel
+        every {
+            mockRequestModelFactory.createSetContactRequest(OTHER_CONTACT_FIELD_ID, CONTACT_FIELD_VALUE)
+        } returns
+                mockRequestModelWithNewContactFieldId
 
         every { mockRequestModelFactory.createSetPushTokenRequest(PUSH_TOKEN) } returns mockRequestModel
         every {
@@ -171,6 +177,7 @@ class DefaultMobileEngageInternalTest {
     @Test
     fun testSetContact_shouldNotCallRequestManager_whenSessionIsNotChanging() {
         every { mockRequestContext.contactFieldValue } returns CONTACT_FIELD_VALUE
+        every { mockRequestContext.contactFieldId } returns CONTACT_FIELD_ID
 
         mobileEngageInternal.setContact(
             CONTACT_FIELD_ID,
@@ -180,6 +187,20 @@ class DefaultMobileEngageInternalTest {
 
         confirmVerified(mockRequestManager)
         verify { mockCompletionListener.onCompleted(null) }
+    }
+
+    @Test
+    fun testSetContact_shouldCallRequestManager_whenOnlyContactFieldIdChanged() {
+        every { mockRequestContext.contactFieldValue } returns CONTACT_FIELD_VALUE
+        every { mockRequestContext.contactFieldId } returns CONTACT_FIELD_ID
+
+        mobileEngageInternal.setContact(
+            OTHER_CONTACT_FIELD_ID,
+            CONTACT_FIELD_VALUE,
+            mockCompletionListener
+        )
+
+        verify { mockRequestManager.submit(mockRequestModelWithNewContactFieldId, mockCompletionListener) }
     }
 
     @Test
@@ -222,12 +243,27 @@ class DefaultMobileEngageInternalTest {
     }
 
     @Test
-    fun testSetContact_shouldStartNewSession_onlyWhenItIsDifferentFromPreviousContact() {
+    fun testSetContact_shouldStartNewSession_onlyWhenContactIsDifferent_testedWithDifferentContactFieldValue() {
         every { mockRequestContext.contactFieldValue } returns CONTACT_FIELD_VALUE
+        every { mockRequestContext.contactFieldId } returns CONTACT_FIELD_ID
 
         mobileEngageInternal.setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE, null)
 
         mobileEngageInternal.setContact(CONTACT_FIELD_ID, OTHER_CONTACT_FIELD_VALUE, null)
+
+        verify(exactly = 1) {
+            mockSession.startSession(any())
+        }
+    }
+
+    @Test
+    fun testSetContact_shouldStartNewSession_onlyWhenContactIsDifferent_testedWithDifferentContactFieldId() {
+        every { mockRequestContext.contactFieldValue } returns CONTACT_FIELD_VALUE
+        every { mockRequestContext.contactFieldId } returns CONTACT_FIELD_ID
+
+        mobileEngageInternal.setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE, null)
+
+        mobileEngageInternal.setContact(OTHER_CONTACT_FIELD_ID, CONTACT_FIELD_VALUE, null)
 
         verify(exactly = 1) {
             mockSession.startSession(any())
