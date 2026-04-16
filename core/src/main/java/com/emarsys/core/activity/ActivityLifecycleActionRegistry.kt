@@ -34,11 +34,16 @@ class ActivityLifecycleActionRegistry(
 
     fun addTriggerOnActivityAction(activityLifecycleAction: ActivityLifecycleAction) {
         concurrentHandlerHolder.post {
-            val currentActivity = currentActivityProvider.get()
             triggerOnActivityActions.add(activityLifecycleAction)
-            if (currentActivity != null) {
-                triggerOnActivityActions.forEach { action ->
-                    action.execute(currentActivity)
+            executePendingOnActivityActions()
+        }
+    }
+
+    private fun executePendingOnActivityActions() {
+        currentActivityProvider.get()?.let { activity ->
+            if (triggerOnActivityActions.isNotEmpty()) {
+                triggerOnActivityActions.toList().forEach { action ->
+                    action.execute(activity)
                 }
                 triggerOnActivityActions.clear()
             }
