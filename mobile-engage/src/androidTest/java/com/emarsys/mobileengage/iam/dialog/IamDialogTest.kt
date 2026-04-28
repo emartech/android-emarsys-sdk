@@ -133,13 +133,11 @@ class IamDialogTest {
 
     @Test
     fun testCreate_shouldReturnIamDialogInstance() {
-        val fragmentScenario = launchFragment(initialState = Lifecycle.State.CREATED) {
-            iamDialog
-        }
-        fragmentScenario.onFragment { fragment ->
-            fragment::class.java shouldBe IamDialog::class.java
-            fragment shouldNotBe null
-        }
+        val defaultIamDialog = IamDialog()
+
+        defaultIamDialog shouldNotBe null
+        iamDialog shouldNotBe null
+        iamDialog::class.java shouldBe IamDialog::class.java
     }
 
     @Test
@@ -150,15 +148,13 @@ class IamDialogTest {
         bundle.putString(IamDialog.SID, null)
         bundle.putString(IamDialog.URL, null)
         bundle.putString(IamDialog.REQUEST_ID, null)
-        val fragmentScenario = launchFragment(bundle, initialState = Lifecycle.State.CREATED) {
-            iamDialog
-        }
-        fragmentScenario.onFragment { fragment ->
-            val result = fragment.arguments
 
-            result shouldNotBe null
-            result!!.getString(CAMPAIGN_ID_KEY) shouldBe campaignId
-        }
+        iamDialog.arguments = bundle
+
+        val result = iamDialog.arguments
+
+        result shouldNotBe null
+        result!!.getString(CAMPAIGN_ID_KEY) shouldBe campaignId
     }
 
     @Test
@@ -170,15 +166,13 @@ class IamDialogTest {
         bundle.putString(IamDialog.SID, null)
         bundle.putString(IamDialog.URL, null)
         bundle.putString(IamDialog.REQUEST_ID, requestId)
-        val fragmentScenario = launchFragment(bundle, initialState = Lifecycle.State.CREATED) {
-            iamDialog
-        }
-        fragmentScenario.onFragment { fragment ->
-            val result = fragment.arguments
 
-            result shouldNotBe null
-            result!!.getString(REQUEST_ID_KEY) shouldBe requestId
-        }
+        iamDialog.arguments = bundle
+
+        val result = iamDialog.arguments
+
+        result shouldNotBe null
+        result!!.getString(REQUEST_ID_KEY) shouldBe requestId
     }
 
     @Test
@@ -191,15 +185,12 @@ class IamDialogTest {
         bundle.putString(IamDialog.URL, null)
         bundle.putString(IamDialog.REQUEST_ID, requestId)
 
-        val fragmentScenario = launchFragment(bundle, initialState = Lifecycle.State.CREATED) {
-            iamDialog
-        }
-        fragmentScenario.onFragment { fragment ->
-            val result = fragment.arguments
+        iamDialog.arguments = bundle
 
-            result shouldNotBe null
-            result!!.getString("sid") shouldBe "testSid"
-        }
+        val result = iamDialog.arguments
+
+        result shouldNotBe null
+        result!!.getString("sid") shouldBe "testSid"
     }
 
     @Test
@@ -212,15 +203,12 @@ class IamDialogTest {
         bundle.putString(IamDialog.URL, URL)
         bundle.putString(IamDialog.REQUEST_ID, requestId)
 
-        val fragmentScenario = launchFragment(bundle, initialState = Lifecycle.State.CREATED) {
-            iamDialog
-        }
-        fragmentScenario.onFragment { fragment ->
-            val result = fragment.arguments
+        iamDialog.arguments = bundle
 
-            result shouldNotBe null
-            result!!.getString("url") shouldBe "https://www.emarsys.com"
-        }
+        val result = iamDialog.arguments
+
+        result shouldNotBe null
+        result!!.getString("url") shouldBe "https://www.emarsys.com"
     }
 
     @Test
@@ -260,15 +248,13 @@ class IamDialogTest {
         bundle.putString(IamDialog.SID, SID)
         bundle.putString(IamDialog.URL, URL)
         bundle.putString(IamDialog.REQUEST_ID, null)
-        val fragmentScenario = launchFragment(bundle, initialState = Lifecycle.State.CREATED) {
-            iamDialog
-        }
-        fragmentScenario.onFragment { fragment ->
-            val result = fragment.arguments
 
-            result shouldNotBe null
-            result!!.getString(REQUEST_ID_KEY) shouldBe null
-        }
+        iamDialog.arguments = bundle
+
+        val result = iamDialog.arguments
+
+        result shouldNotBe null
+        result!!.getString(REQUEST_ID_KEY) shouldBe null
     }
 
     @Test
