@@ -25,11 +25,13 @@ class RequestModelHelperTest  {
         const val INBOX_HOST = "https://mobile-events.eservice.emarsys.net/v3"
         const val INBOX_BASE = "$INBOX_HOST/apps/%s/inbox"
         const val REMOTE_CONFIG_HOST = "https://mobile-sdk-config.gservice.emarsys.net"
+        const val PREDICT_HOST = "https://recommender.scarabresearch.com/merchants"
     }
 
     private lateinit var mockClientServiceProvider: ServiceEndpointProvider
     private lateinit var mockEventServiceProvider: ServiceEndpointProvider
     private lateinit var mockMessageInboxServiceProvider: ServiceEndpointProvider
+    private lateinit var mockPredictServiceEndpointProvider: ServiceEndpointProvider
     private lateinit var mockRequestModel: RequestModel
     private lateinit var requestModelHelper: RequestModelHelper
 
@@ -46,8 +48,16 @@ class RequestModelHelperTest  {
         mockMessageInboxServiceProvider = mock {
             on { provideEndpointHost() } doReturn INBOX_HOST
         }
+        mockPredictServiceEndpointProvider = mock {
+            on { provideEndpointHost() } doReturn PREDICT_HOST
+        }
 
-        requestModelHelper = RequestModelHelper(mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
+        requestModelHelper = RequestModelHelper(
+            mockClientServiceProvider,
+            mockEventServiceProvider,
+            mockMessageInboxServiceProvider,
+            mockPredictServiceEndpointProvider
+        )
     }
 
 
@@ -145,7 +155,7 @@ class.java).apply {
 class.java).apply {
             whenever(url).thenReturn(URL("$CLIENT_BASE/contact-token"))
         }
-        val result = requestModelHelper.isRefreshContactTokenRequest(mockRequestModel)
+        val result = requestModelHelper.isMobileEngageRefreshContactTokenRequest(mockRequestModel)
 
         result shouldBe true
     }
@@ -156,7 +166,124 @@ class.java).apply {
 class.java).apply {
             whenever(url).thenReturn(URL("$CLIENT_BASE/contact"))
         }
-        val result = requestModelHelper.isRefreshContactTokenRequest(mockRequestModel)
+        val result = requestModelHelper.isMobileEngageRefreshContactTokenRequest(mockRequestModel)
+
+        result shouldBe false
+    }
+
+    @Test
+    fun testIsPredictMultiIdContactRequest_true_whenItIsPredictMultiIdSetContactRequest() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL("$CLIENT_HOST/contact-token"))
+        }
+        val result = requestModelHelper.isPredictMultiIdContactRequest(mockRequestModel)
+
+        result shouldBe true
+    }
+
+    @Test
+    fun testIsPredictMultiIdContactRequest_false_whenItIsNotPredictMultiIdSetContactRequest() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL("$CLIENT_BASE/contact-token"))
+        }
+        val result = requestModelHelper.isPredictMultiIdContactRequest(mockRequestModel)
+
+        result shouldBe false
+    }
+
+    @Test
+    fun testIsPredictMultiIdSetContactRequest_true_whenItIsPredictMultiIdSetContactRequest() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL("$CLIENT_HOST/contact-token"))
+            whenever(payload).thenReturn(
+                mapOf(
+                    "contactFieldId" to 1,
+                    "contactFieldValue" to "test"
+                )
+            )
+        }
+        val result = requestModelHelper.isPredictMultiIdSetContactRequest(mockRequestModel)
+
+        result shouldBe true
+    }
+
+    @Test
+    fun testIsPredictMultiIdSetContactRequest_false_whenUrlIsNotPredictMultiIdSetContactRequest() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL("$CLIENT_BASE/contact-token"))
+            whenever(payload).thenReturn(
+                mapOf(
+                    "contactFieldId" to 1,
+                    "contactFieldValue" to "test"
+                )
+            )
+        }
+        val result = requestModelHelper.isPredictMultiIdSetContactRequest(mockRequestModel)
+
+        result shouldBe false
+    }
+
+    @Test
+    fun testIsPredictMultiIdSetContactRequest_false_whenPayloadDoesNotContainContactFieldId() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL("$CLIENT_HOST/contact-token"))
+            whenever(payload).thenReturn(
+                mapOf(
+                    "contactFieldValue" to "test"
+                )
+            )
+        }
+        val result = requestModelHelper.isPredictMultiIdSetContactRequest(mockRequestModel)
+
+        result shouldBe false
+    }
+
+    @Test
+    fun testIsPredictMultiIdSetContactRequest_false_whenPayloadDoesNotContainContactFieldValue() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL("$CLIENT_HOST/contact-token"))
+            whenever(payload).thenReturn(
+                mapOf(
+                    "contactFieldId" to 1
+                )
+            )
+        }
+        val result = requestModelHelper.isPredictMultiIdSetContactRequest(mockRequestModel)
+
+        result shouldBe false
+    }
+
+
+    @Test
+    fun testIsPredictMultiIdRefreshTokenRequest_true_whenItIsPredictMultiIdRefreshTokenRequest() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL("$CLIENT_HOST/contact-token"))
+            whenever(payload).thenReturn(mapOf("refreshToken" to "test"))
+        }
+        val result = requestModelHelper.isPredictMultiIdRefreshContactTokenRequest(mockRequestModel)
+
+        result shouldBe true
+    }
+
+    @Test
+    fun testIsPredictMultiIdRefreshTokenRequest_false_whenUrlIsNotPredictMultiIdSetContactRequest() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL("$CLIENT_BASE/contact-token"))
+            whenever(payload).thenReturn(mapOf("refreshToken" to "test"))
+        }
+
+        val result = requestModelHelper.isPredictMultiIdRefreshContactTokenRequest(mockRequestModel)
+
+        result shouldBe false
+    }
+
+    @Test
+    fun testIsPredictMultiIdSetContactRequest_false_whenPayloadDoesNotContainRefreshToken() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL("$CLIENT_HOST/contact-token"))
+            whenever(payload).thenReturn(mapOf())
+        }
+        val result = requestModelHelper.isPredictMultiIdRefreshContactTokenRequest(mockRequestModel)
 
         result shouldBe false
     }
@@ -216,6 +343,28 @@ class.java).apply {
         val result = requestModelHelper.isInlineInAppRequest(mockRequestModel)
 
         result shouldBe true
+    }
+
+    @Test
+    fun testIsPredictRequest_true_whenItIsPredictRequest() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL("$PREDICT_HOST/1428C8EE286EC34B"))
+        }
+
+        val result = requestModelHelper.isPredictRequest(mockRequestModel)
+
+        result shouldBe true
+    }
+
+    @Test
+    fun testIsPredictRequest_true_whenItisNotPredictRequest() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL(INLINE_IN_APP_V3))
+        }
+
+        val result = requestModelHelper.isPredictRequest(mockRequestModel)
+
+        result shouldBe false
     }
 
 }

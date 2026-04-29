@@ -115,16 +115,21 @@ object Emarsys {
         openIdToken: String,
         completionListener: CompletionListener? = null
     ) {
-        if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
-            || (!FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
-                    && !FeatureRegistry.isFeatureEnabled(PREDICT))
-        ) {
-            EmarsysDependencyInjection.mobileEngageApi()
-                .proxyApi(mobileEngage().concurrentHandlerHolder)
-                .setAuthenticatedContact(contactFieldId, openIdToken, completionListener)
-        }
-
-        FeatureRegistry.disableFeature(PREDICT)
+        executeMobileEngageOrPredictOnlyLogic(
+            mobileEngageLogic = {
+                EmarsysDependencyInjection.mobileEngageApi()
+                    .proxyApi(mobileEngage().concurrentHandlerHolder)
+                    .setAuthenticatedContact(contactFieldId, openIdToken, completionListener)
+            },
+            predictOnlyLogic = {
+                setPredictOnlyContact(
+                    contactFieldId,
+                    null,
+                    openIdToken,
+                    completionListener
+                )
+            }
+        )
     }
 
     @JvmStatic
@@ -134,36 +139,78 @@ object Emarsys {
         contactFieldValue: String,
         completionListener: CompletionListener? = null
     ) {
-        if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
-            || (!FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
-                    && !FeatureRegistry.isFeatureEnabled(PREDICT))
-        ) {
-            EmarsysDependencyInjection.mobileEngageApi()
-                .proxyApi(mobileEngage().concurrentHandlerHolder)
-                .setContact(contactFieldId, contactFieldValue, completionListener)
-        }
-        if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
-            EmarsysDependencyInjection.predictRestrictedApi()
-                .proxyApi(mobileEngage().concurrentHandlerHolder)
-                .setContact(contactFieldId, contactFieldValue)
-        }
+        executeMobileEngageOrPredictOnlyLogic(
+            mobileEngageLogic = {
+                setMobileEngageContact(
+                    contactFieldId,
+                    contactFieldValue,
+                    completionListener
+                )
+            },
+            predictOnlyLogic = {
+                setPredictOnlyContact(
+                    contactFieldId,
+                    contactFieldValue,
+                    null,
+                    completionListener
+                )
+            }
+        )
+    }
+
+    private fun setMobileEngageContact(
+        contactFieldId: Int,
+        contactFieldValue: String,
+        completionListener: CompletionListener?
+    ) {
+        EmarsysDependencyInjection.mobileEngageApi()
+            .proxyApi(mobileEngage().concurrentHandlerHolder)
+            .setContact(contactFieldId, contactFieldValue, completionListener)
+    }
+
+    private fun setPredictOnlyContact(
+        contactFieldId: Int,
+        contactFieldValue: String?,
+        openIdToken: String?,
+        completionListener: CompletionListener?
+    ) {
+        EmarsysDependencyInjection.predictRestrictedApi()
+            .proxyApi(mobileEngage().concurrentHandlerHolder)
+            .setContact(contactFieldId, contactFieldValue, openIdToken, completionListener)
     }
 
     @JvmStatic
     @JvmOverloads
     fun clearContact(completionListener: CompletionListener? = null) {
+        executeMobileEngageOrPredictOnlyLogic(
+            mobileEngageLogic = { clearMobileEngageContact(completionListener) },
+            predictOnlyLogic = { clearPredictOnlyContact(completionListener) }
+        )
+    }
+
+    private fun clearMobileEngageContact(completionListener: CompletionListener?) {
+        EmarsysDependencyInjection.mobileEngageApi()
+            .proxyApi(mobileEngage().concurrentHandlerHolder)
+            .clearContact(completionListener)
+    }
+
+    private fun clearPredictOnlyContact(completionListener: CompletionListener?) {
+        EmarsysDependencyInjection.predictRestrictedApi()
+            .proxyApi(mobileEngage().concurrentHandlerHolder)
+            .clearPredictOnlyContact(completionListener)
+    }
+
+    private fun executeMobileEngageOrPredictOnlyLogic(
+        mobileEngageLogic: () -> Unit,
+        predictOnlyLogic: () -> Unit
+    ) {
         if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
             || (!FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
                     && !FeatureRegistry.isFeatureEnabled(PREDICT))
         ) {
-            EmarsysDependencyInjection.mobileEngageApi()
-                .proxyApi(mobileEngage().concurrentHandlerHolder)
-                .clearContact(completionListener)
-        }
-        if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
-            EmarsysDependencyInjection.predictRestrictedApi()
-                .proxyApi(mobileEngage().concurrentHandlerHolder)
-                .clearContact()
+            mobileEngageLogic()
+        } else if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
+            predictOnlyLogic()
         }
     }
 

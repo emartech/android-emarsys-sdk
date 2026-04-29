@@ -23,7 +23,7 @@ interface ConfigInternal {
 
     fun changeApplicationCode(applicationCode: String?, completionListener: CompletionListener?)
 
-    fun changeMerchantId(merchantId: String?)
+    fun changeMerchantId(merchantId: String?, completionListener: CompletionListener?)
 
     fun refreshRemoteConfig(completionListener: CompletionListener?)
 

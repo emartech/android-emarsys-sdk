@@ -28,6 +28,7 @@ import com.emarsys.predict.fake.FakeRestClient
 import com.emarsys.predict.fake.FakeResultListener
 import com.emarsys.predict.model.LastTrackedItemContainer
 import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
+import com.emarsys.predict.request.PredictMultiIdRequestModelFactory
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.request.PredictRequestModelBuilder
 import com.emarsys.testUtil.ReflectionTestUtils
@@ -77,6 +78,7 @@ class DefaultPredictInternalTest {
     private lateinit var latch: CountDownLatch
     private lateinit var mockResultListener: ResultListener<Try<List<Product>>>
     private lateinit var mockLastTrackedItemContainer: LastTrackedItemContainer
+    private lateinit var mockPredictMultiIdRequestModelFactory: PredictMultiIdRequestModelFactory
 
     @Before
     @Suppress("UNCHECKED_CAST")
@@ -126,12 +128,16 @@ class DefaultPredictInternalTest {
 
         mockLastTrackedItemContainer = mockk(relaxed = true)
 
+        mockPredictMultiIdRequestModelFactory = mockk(relaxed = true)
+
         predictInternal = DefaultPredictInternal(
             mockRequestContext,
             mockRequestManager,
+            mockPredictMultiIdRequestModelFactory,
             concurrentHandlerHolder,
             mockRequestModelBuilderProvider,
-            mockPredictResponseMapper
+            mockPredictResponseMapper,
+            mockk(relaxed = true)
         )
 
         ReflectionTestUtils.setInstanceField(
@@ -139,29 +145,6 @@ class DefaultPredictInternalTest {
             "lastTrackedContainer",
             mockLastTrackedItemContainer
         )
-    }
-
-    @Test
-    fun testSetContact_shouldPersistsWithKeyValueStore() {
-        val contactId = "contactId"
-
-        predictInternal.setContact(CONTACT_FIELD_ID, contactId)
-
-        verify { mockKeyValueStore.putString("predict_contact_id", contactId) }
-    }
-
-    @Test
-    fun testClearContact_shouldRemove_contactIdFromKeyValueStore() {
-        predictInternal.clearContact()
-
-        verify { mockKeyValueStore.remove("predict_contact_id") }
-    }
-
-    @Test
-    fun testClearContact_shouldRemove_visitorIdFromKeyValueStore() {
-        predictInternal.clearContact()
-
-        verify { mockKeyValueStore.remove("predict_visitor_id") }
     }
 
     @Test
@@ -476,6 +459,7 @@ class DefaultPredictInternalTest {
                     FakeRestClient.Mode.SUCCESS
                 )
             ),
+            mockPredictMultiIdRequestModelFactory,
             concurrentHandlerHolder,
             mockRequestModelBuilderProvider,
             mockPredictResponseMapper
@@ -513,6 +497,7 @@ class DefaultPredictInternalTest {
                     FakeRestClient.Mode.ERROR_RESPONSE_MODEL
                 )
             ),
+            mockPredictMultiIdRequestModelFactory,
             concurrentHandlerHolder,
             mockRequestModelBuilderProvider,
             mockPredictResponseMapper
@@ -539,6 +524,7 @@ class DefaultPredictInternalTest {
                     FakeRestClient.Mode.ERROR_RESPONSE_MODEL
                 )
             ),
+            mockPredictMultiIdRequestModelFactory,
             concurrentHandlerHolder,
             mockRequestModelBuilderProvider,
             mockPredictResponseMapper
@@ -566,6 +552,7 @@ class DefaultPredictInternalTest {
         predictInternal = DefaultPredictInternal(
             mockRequestContext,
             requestManagerWithRestClient(FakeRestClient(mockException)),
+            mockPredictMultiIdRequestModelFactory,
             concurrentHandlerHolder,
             mockRequestModelBuilderProvider,
             mockPredictResponseMapper
@@ -589,6 +576,7 @@ class DefaultPredictInternalTest {
         predictInternal = DefaultPredictInternal(
             mockRequestContext,
             requestManagerWithRestClient(FakeRestClient(mockException)),
+            mockPredictMultiIdRequestModelFactory,
             concurrentHandlerHolder,
             mockRequestModelBuilderProvider,
             mockPredictResponseMapper

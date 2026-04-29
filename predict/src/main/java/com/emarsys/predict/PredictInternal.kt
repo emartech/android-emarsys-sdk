@@ -1,5 +1,6 @@
 package com.emarsys.predict
 
+import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
 import com.emarsys.predict.api.model.CartItem
@@ -8,8 +9,8 @@ import com.emarsys.predict.api.model.Product
 import com.emarsys.predict.api.model.RecommendationFilter
 
 interface PredictInternal {
-    fun setContact(contactFieldId: Int, contactFieldValue: String)
-    fun clearContact()
+    fun setContact(contactFieldId: Int, contactFieldValue: String?, openIdToken: String?, completionListener: CompletionListener?)
+    fun clearPredictOnlyContact(completionListener: CompletionListener?)
     fun trackCart(items: List<CartItem>): String
     fun trackPurchase(orderId: String, items: List<CartItem>): String
     fun trackItemView(itemId: String): String

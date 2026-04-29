@@ -2,15 +2,19 @@ package com.emarsys.config
 
 import android.app.Application
 import com.emarsys.core.api.experimental.FlipperFeature
+import com.emarsys.core.util.log.Logger
+import com.emarsys.core.util.log.entry.StatusLog
 
-data class EmarsysConfig(val application: Application,
-                                     val applicationCode: String? = null,
-                                     val merchantId: String? = null,
-                                     val experimentalFeatures: List<FlipperFeature> = listOf(),
-                                     val automaticPushTokenSendingEnabled: Boolean = true,
-                                     val sharedPackageNames: List<String>? = null,
-                                     val sharedSecret: String? = null,
-                                     val verboseConsoleLoggingEnabled: Boolean = false) {
+data class EmarsysConfig(
+    val application: Application,
+    val applicationCode: String? = null,
+    val merchantId: String? = null,
+    val experimentalFeatures: List<FlipperFeature> = listOf(),
+    val automaticPushTokenSendingEnabled: Boolean = true,
+    val sharedPackageNames: List<String>? = null,
+    val sharedSecret: String? = null,
+    val verboseConsoleLoggingEnabled: Boolean = false
+) {
 
     class Builder {
         private lateinit var application: Application
@@ -60,7 +64,22 @@ data class EmarsysConfig(val application: Application,
         }
 
         fun sharedSecret(sharedSecret: String): Builder {
-            this.sharedSecret = sharedSecret
+            if (sharedSecret.isEmpty()) {
+                Logger.info(
+                    StatusLog(
+                        klass = this::class.java,
+                        callerMethodName = "sharedSecret",
+                        parameters = mapOf("sharedSecret" to sharedSecret),
+                        status = mapOf(
+                            "message" to
+                                    "Shared secret is empty, it will be set to null."
+                        )
+                    )
+                )
+                this.sharedSecret = null
+            } else {
+                this.sharedSecret = sharedSecret
+            }
             return this
         }
 
@@ -75,16 +94,18 @@ data class EmarsysConfig(val application: Application,
         }
 
         fun build(): EmarsysConfig {
-            experimentalFeatures = if (experimentalFeatures == null) emptyList() else experimentalFeatures
+            experimentalFeatures =
+                if (experimentalFeatures == null) emptyList() else experimentalFeatures
             return EmarsysConfig(
-                    application,
-                    applicationCode,
-                    merchantId,
-                    experimentalFeatures!!,
-                    automaticPushTokenSending,
-                    sharedPackageNames,
-                    sharedSecret,
-                    verboseConsoleLoggingEnabled)
+                application,
+                applicationCode,
+                merchantId,
+                experimentalFeatures!!,
+                automaticPushTokenSending,
+                sharedPackageNames,
+                sharedSecret,
+                verboseConsoleLoggingEnabled
+            )
         }
     }
 }

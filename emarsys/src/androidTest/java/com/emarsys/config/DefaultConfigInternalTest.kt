@@ -45,7 +45,7 @@ import org.junit.Before
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
-class DefaultConfigInternalTest  {
+class DefaultConfigInternalTest {
     private companion object {
         const val APPLICATION_CODE = "applicationCode"
         const val MERCHANT_ID = "merchantId"
@@ -165,7 +165,8 @@ class DefaultConfigInternalTest  {
                 mockLogLevelStorage,
                 mockCrypto,
                 mockClientServiceInternal,
-                concurrentHandlerHolder
+                concurrentHandlerHolder,
+                mockPredictInternal
             )
         )
     }
@@ -259,7 +260,8 @@ class DefaultConfigInternalTest  {
             mockLogLevelStorage,
             mockCrypto,
             mockClientServiceInternal,
-            concurrentHandlerHolder
+            concurrentHandlerHolder,
+            mockPredictInternal
         )
         val latch = CountDownLatch(1)
         val completionListener = CompletionListener {
@@ -310,7 +312,8 @@ class DefaultConfigInternalTest  {
             mockLogLevelStorage,
             mockCrypto,
             mockClientServiceInternal,
-            concurrentHandlerHolder
+            concurrentHandlerHolder,
+            mockPredictInternal
         )
 
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE) {
@@ -357,7 +360,8 @@ class DefaultConfigInternalTest  {
             mockLogLevelStorage,
             mockCrypto,
             mockClientServiceInternal,
-            concurrentHandlerHolder
+            concurrentHandlerHolder,
+            mockPredictInternal
         )
 
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE) {
@@ -369,6 +373,8 @@ class DefaultConfigInternalTest  {
         confirmVerified(mockMobileEngageInternal)
         FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe false
         FeatureRegistry.isFeatureEnabled(InnerFeature.EVENT_SERVICE_V4) shouldBe false
+
+        verify { mockMobileEngageRequestContext.reset() }
         verify { mockMobileEngageRequestContext.applicationCode = null }
     }
 
@@ -555,16 +561,52 @@ class DefaultConfigInternalTest  {
 
     @Test
     fun testChangeMerchantId_shouldEnableFeature() {
-        configInternal.changeMerchantId(MERCHANT_ID)
+        configInternal.changeMerchantId(MERCHANT_ID, null)
 
         FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe true
+        verify { mockPredictRequestContext.merchantId = MERCHANT_ID }
+    }
+
+    @Test
+    fun testChangeMerchantId_whenMobileEngageDisabled_andPredictEnabled_shouldEnablePredict_andShouldClearPredictOnlyContact() {
+        FeatureRegistry.enableFeature(InnerFeature.PREDICT)
+
+        configInternal.changeMerchantId(MERCHANT_ID, null)
+
+        FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe true
+        verify { mockPredictRequestContext.merchantId = MERCHANT_ID }
+        verify { mockPredictInternal.clearPredictOnlyContact(null) }
+        confirmVerified(mockMobileEngageInternal)
+    }
+
+    @Test
+    fun testChangeMerchantId_whenMobileEngageDisabled_andPredictDisabled_shouldEnablePredict_andShouldNotClearContact() {
+        configInternal.changeMerchantId(MERCHANT_ID, null)
+
+        FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe true
+        verify { mockPredictRequestContext.merchantId = MERCHANT_ID }
+        confirmVerified(mockPredictInternal)
+        confirmVerified(mockMobileEngageInternal)
+    }
+
+    @Test
+    fun testChangeMerchantId_whenMobileEngageEnabled_shouldClearContact() {
+        val latch = CountDownLatch(1)
+
+        FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
+        configInternal.changeMerchantId(MERCHANT_ID) { latch.countDown() }
+
+        latch.await()
+
+        FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe true
+        verify { mockMobileEngageInternal.clearContact(null) }
     }
 
     @Test
     fun testChangeMerchantId_shouldDisableFeature() {
         FeatureRegistry.enableFeature(InnerFeature.PREDICT)
 
-        configInternal.changeMerchantId(null)
+        configInternal.changeMerchantId(null, null)
 
         verify { mockPredictRequestContext.merchantId = null }
         FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe false
@@ -572,7 +614,7 @@ class DefaultConfigInternalTest  {
 
     @Test
     fun testChangeMerchantId_shouldSaveMerchantId() {
-        configInternal.changeMerchantId(MERCHANT_ID)
+        configInternal.changeMerchantId(MERCHANT_ID, null)
 
         verify { mockPredictRequestContext.merchantId = MERCHANT_ID }
     }
@@ -676,7 +718,8 @@ class DefaultConfigInternalTest  {
             mockLogLevelStorage,
             mockCrypto,
             mockClientServiceInternal,
-            concurrentHandlerHolder
+            concurrentHandlerHolder,
+            mockPredictInternal
         )
 
         configInternal.fetchRemoteConfig(resultListener)
@@ -711,7 +754,8 @@ class DefaultConfigInternalTest  {
             mockLogLevelStorage,
             mockCrypto,
             mockClientServiceInternal,
-            concurrentHandlerHolder
+            concurrentHandlerHolder,
+            mockPredictInternal
         )
 
         val resultListener =
@@ -744,7 +788,8 @@ class DefaultConfigInternalTest  {
             mockLogLevelStorage,
             mockCrypto,
             mockClientServiceInternal,
-            concurrentHandlerHolder
+            concurrentHandlerHolder,
+            mockPredictInternal
         )
 
         val resultListener =
@@ -785,7 +830,8 @@ class DefaultConfigInternalTest  {
             mockLogLevelStorage,
             mockCrypto,
             mockClientServiceInternal,
-            concurrentHandlerHolder
+            concurrentHandlerHolder,
+            mockPredictInternal
         )
 
         configInternal.fetchRemoteConfigSignature(resultListener)
@@ -820,7 +866,8 @@ class DefaultConfigInternalTest  {
             mockLogLevelStorage,
             mockCrypto,
             mockClientServiceInternal,
-            concurrentHandlerHolder
+            concurrentHandlerHolder,
+            mockPredictInternal
         )
 
         val resultListener = FakeResultListener<String>(latch, FakeResultListener.Mode.MAIN_THREAD)
@@ -852,7 +899,8 @@ class DefaultConfigInternalTest  {
             mockLogLevelStorage,
             mockCrypto,
             mockClientServiceInternal,
-            concurrentHandlerHolder
+            concurrentHandlerHolder,
+            mockPredictInternal
         )
 
         val resultListener = FakeResultListener<String>(latch, FakeResultListener.Mode.MAIN_THREAD)

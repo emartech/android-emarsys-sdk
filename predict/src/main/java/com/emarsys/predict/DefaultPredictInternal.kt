@@ -2,6 +2,7 @@ package com.emarsys.predict
 
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.ResponseErrorException
+import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.api.result.Try.Companion.failure
@@ -12,7 +13,6 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.shard.ShardModel
-import com.emarsys.core.storage.KeyValueStore
 import com.emarsys.core.util.Assert
 import com.emarsys.core.util.JsonUtils.fromMap
 import com.emarsys.predict.api.model.CartItem
@@ -21,6 +21,7 @@ import com.emarsys.predict.api.model.Product
 import com.emarsys.predict.api.model.RecommendationFilter
 import com.emarsys.predict.model.LastTrackedItemContainer
 import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
+import com.emarsys.predict.request.PredictMultiIdRequestModelFactory
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.util.CartItemUtils
 import java.net.URLEncoder
@@ -28,17 +29,16 @@ import java.net.URLEncoder
 class DefaultPredictInternal(
     requestContext: PredictRequestContext,
     private val requestManager: RequestManager,
+    private val predictMultiIdRequestModelFactory: PredictMultiIdRequestModelFactory,
     private val concurrentHandlerHolder: ConcurrentHandlerHolder,
     private val requestModelBuilderProvider: PredictRequestModelBuilderProvider,
     private val responseMapper: PredictResponseMapper,
     private val lastTrackedContainer: LastTrackedItemContainer = LastTrackedItemContainer()
-) : PredictInternal {
+): PredictInternal {
 
     companion object {
         const val VISITOR_ID_KEY = "predict_visitor_id"
         const val XP_KEY = "xp"
-        const val CONTACT_FIELD_VALUE_KEY = "predict_contact_id"
-        const val CONTACT_FIELD_ID_KEY = "predict_contact_field_id"
         private const val TYPE_CART = "predict_cart"
         private const val TYPE_PURCHASE = "predict_purchase"
         private const val TYPE_ITEM_VIEW = "predict_item_view"
@@ -49,18 +49,33 @@ class DefaultPredictInternal(
 
     private val uuidProvider: UUIDProvider = requestContext.uuidProvider
     private val timestampProvider: TimestampProvider = requestContext.timestampProvider
-    private val keyValueStore: KeyValueStore = requestContext.keyValueStore
 
-
-    override fun setContact(contactFieldId: Int, contactFieldValue: String) {
-        keyValueStore.putString(CONTACT_FIELD_VALUE_KEY, contactFieldValue)
-        keyValueStore.putInt(CONTACT_FIELD_ID_KEY, contactFieldId)
+    override fun setContact(
+        contactFieldId: Int,
+        contactFieldValue: String?,
+        openIdToken: String?,
+        completionListener: CompletionListener?
+    ) {
+        try {
+            val requestModel =
+                predictMultiIdRequestModelFactory.createSetContactRequestModel(
+                    contactFieldId,
+                    contactFieldValue,
+                    openIdToken
+                )
+            requestManager.submit(requestModel, completionListener)
+        } catch (e: Exception) {
+            completionListener?.onCompleted(e)
+        }
     }
 
-    override fun clearContact() {
-        keyValueStore.remove(CONTACT_FIELD_VALUE_KEY)
-        keyValueStore.remove(CONTACT_FIELD_ID_KEY)
-        keyValueStore.remove(VISITOR_ID_KEY)
+    override fun clearPredictOnlyContact(completionListener: CompletionListener?) {
+        try {
+            val requestModel = predictMultiIdRequestModelFactory.createClearContactRequestModel()
+            requestManager.submit(requestModel, completionListener)
+        } catch (e: Exception) {
+            completionListener?.onCompleted(e)
+        }
     }
 
     override fun trackCart(items: List<CartItem>): String {

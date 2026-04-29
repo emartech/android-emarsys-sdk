@@ -65,7 +65,7 @@ import com.emarsys.mobileengage.push.NotificationInformationListenerProvider
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvider
-import com.emarsys.mobileengage.request.CoreCompletionHandlerRefreshTokenProxyProvider
+import com.emarsys.request.CoreCompletionHandlerRefreshTokenProxyProvider
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperFactory
@@ -77,6 +77,7 @@ import com.emarsys.predict.PredictApi
 import com.emarsys.predict.PredictInternal
 import com.emarsys.predict.PredictRestrictedApi
 import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
+import com.emarsys.predict.request.PredictMultiIdRequestModelFactory
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.push.PushApi
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -203,6 +204,7 @@ class FakeDependencyContainer(
     override val jsOnAppEventListener: OnAppEventListener = mock(),
     override val remoteMessageMapperFactory: RemoteMessageMapperFactory = mock(),
     override val transitionSafeCurrentActivityWatchdog: TransitionSafeCurrentActivityWatchdog = mock(),
+    override val predictMultiIdRequestModelFactory: PredictMultiIdRequestModelFactory = mock(),
     override val sharedPreferencesV3: SharedPreferences = mock(),
 ) : EmarsysComponent {
     override fun logInitialSetup(emarsysConfig: EmarsysConfig) {

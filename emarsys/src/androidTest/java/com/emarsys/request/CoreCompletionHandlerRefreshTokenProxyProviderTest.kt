@@ -1,4 +1,4 @@
-package com.emarsys.mobileengage.request
+package com.emarsys.request
 
 
 import com.emarsys.core.CoreCompletionHandler
@@ -8,8 +8,11 @@ import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.worker.CoreCompletionHandlerMiddleware
 import com.emarsys.core.worker.Worker
+import com.emarsys.mobileengage.MobileEngageRequestContext
+import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.util.RequestModelHelper
+import com.emarsys.predict.request.PredictMultiIdRequestModelFactory
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -21,6 +24,7 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest  {
     private lateinit var mockCoreCompletionHandlerMiddleware: CoreCompletionHandlerMiddleware
     private lateinit var mockRestClient: RestClient
     private lateinit var mockContactTokenStorage: StringStorage
+    private lateinit var mcokRefreshTokenStorage: StringStorage
     private lateinit var mockPushTokenStorage: StringStorage
     private lateinit var coreCompletionHandlerRefreshTokenProxyProvider: CoreCompletionHandlerRefreshTokenProxyProvider
     private lateinit var mockClientServiceProvider: ServiceEndpointProvider
@@ -30,8 +34,10 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest  {
     private lateinit var mockCoreCompletionHandler: CoreCompletionHandler
     private lateinit var mockDefaultCoreCompletionHandler: CoreCompletionHandler
     private lateinit var mockRequestModelHelper: RequestModelHelper
+    private lateinit var mockMobileEngageRequestContext: MobileEngageRequestContext
     private lateinit var mockTokenResponseHandler: MobileEngageTokenResponseHandler
     private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
+    private lateinit var mockPredictMultiIdRequestModelFactory: PredictMultiIdRequestModelFactory
 
     @Before
     @Suppress("UNCHECKED_CAST")
@@ -40,6 +46,7 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest  {
         mockCoreCompletionHandlerMiddleware = mockk(relaxed = true)
         mockRestClient = mockk(relaxed = true)
         mockContactTokenStorage = mockk(relaxed = true)
+        mcokRefreshTokenStorage = mockk(relaxed = true)
         mockPushTokenStorage = mockk(relaxed = true)
         mockClientServiceProvider = mockk(relaxed = true)
         mockEventServiceProvider = mockk(relaxed = true)
@@ -50,17 +57,21 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest  {
         mockRequestModelHelper = mockk(relaxed = true)
         mockTokenResponseHandler = mockk(relaxed = true)
         mockRequestModelFactory = mockk(relaxed = true)
+        mockMobileEngageRequestContext =  mockk(relaxed = true)
+        mockPredictMultiIdRequestModelFactory =  mockk(relaxed = true)
 
         coreCompletionHandlerRefreshTokenProxyProvider =
             CoreCompletionHandlerRefreshTokenProxyProvider(
                 mockCoreCompletionHandlerMiddlewareProvider,
                 mockRestClient,
                 mockContactTokenStorage,
+                mcokRefreshTokenStorage,
                 mockPushTokenStorage,
                 mockDefaultCoreCompletionHandler,
                 mockRequestModelHelper,
                 mockTokenResponseHandler,
-                mockRequestModelFactory
+                mockRequestModelFactory,
+                mockPredictMultiIdRequestModelFactory
             )
     }
 
@@ -78,10 +89,12 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest  {
             mockCoreCompletionHandlerMiddleware,
             mockRestClient,
             mockContactTokenStorage,
+            mcokRefreshTokenStorage,
             mockPushTokenStorage,
             mockTokenResponseHandler,
             mockRequestModelHelper,
-            mockRequestModelFactory
+            mockRequestModelFactory,
+            mockPredictMultiIdRequestModelFactory
         )
 
         val result = coreCompletionHandlerRefreshTokenProxyProvider.provideProxy(

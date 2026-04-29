@@ -94,6 +94,7 @@ import com.emarsys.inapp.InApp
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.MessageInbox
 import com.emarsys.inbox.MessageInboxApi
+import com.emarsys.mapper.MerchantIdHeaderMapper
 import com.emarsys.mobileengage.DefaultMobileEngageInternal
 import com.emarsys.mobileengage.LoggingMobileEngageInternal
 import com.emarsys.mobileengage.MobileEngage
@@ -149,7 +150,6 @@ import com.emarsys.mobileengage.push.NotificationInformationListenerProvider
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvider
-import com.emarsys.mobileengage.request.CoreCompletionHandlerRefreshTokenProxyProvider
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.request.mapper.ContactTokenHeaderMapper
 import com.emarsys.mobileengage.request.mapper.DefaultRequestHeaderMapper
@@ -179,8 +179,10 @@ import com.emarsys.predict.PredictInternal
 import com.emarsys.predict.PredictResponseMapper
 import com.emarsys.predict.PredictRestricted
 import com.emarsys.predict.PredictRestrictedApi
+import com.emarsys.predict.endpoint.Endpoint.PREDICT_BASE_URL
 import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
 import com.emarsys.predict.request.PredictHeaderFactory
+import com.emarsys.predict.request.PredictMultiIdRequestModelFactory
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.response.VisitorIdResponseHandler
 import com.emarsys.predict.response.XPResponseHandler
@@ -188,6 +190,7 @@ import com.emarsys.predict.shard.PredictShardListMerger
 import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.push.Push
 import com.emarsys.push.PushApi
+import com.emarsys.request.CoreCompletionHandlerRefreshTokenProxyProvider
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailabilityLight
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -615,7 +618,8 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         RequestModelHelper(
             clientServiceEndpointProvider,
             eventServiceEndpointProvider,
-            messageInboxServiceProvider
+            messageInboxServiceProvider,
+            predictServiceProvider
         )
     }
 
@@ -628,11 +632,13 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             coreCompletionHandlerMiddlewareProvider,
             restClient,
             contactTokenStorage,
+            refreshTokenStorage,
             pushTokenStorage,
             coreCompletionHandler,
             requestModelHelper,
             contactTokenResponseHandler,
-            mobileEngageRequestModelFactory
+            mobileEngageRequestModelFactory,
+            predictMultiIdRequestModelFactory
         )
     }
 
@@ -932,29 +938,28 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val configInternal: ConfigInternal by lazy {
         val emarsysRequestModelFactory = EmarsysRequestModelFactory(requestContext)
-        concurrentHandlerHolder.run {
-            DefaultConfigInternal(
-                requestContext,
-                mobileEngageInternal,
-                pushInternal,
-                predictRequestContext,
-                deviceInfo,
-                requestManager,
-                emarsysRequestModelFactory,
-                RemoteConfigResponseMapper(RandomProvider(), clientIdProvider),
-                clientServiceStorage,
-                eventServiceStorage,
-                deepLinkServiceStorage,
-                predictServiceStorage,
-                messageInboxServiceStorage,
-                logLevelStorage,
-                crypto,
-                clientServiceInternal,
-                concurrentHandlerHolder
-            )
-        }
-    }
 
+        DefaultConfigInternal(
+            requestContext,
+            mobileEngageInternal,
+            pushInternal,
+            predictRequestContext,
+            deviceInfo,
+            requestManager,
+            emarsysRequestModelFactory,
+            RemoteConfigResponseMapper(RandomProvider(), clientIdProvider),
+            clientServiceStorage,
+            eventServiceStorage,
+            deepLinkServiceStorage,
+            predictServiceStorage,
+            messageInboxServiceStorage,
+            logLevelStorage,
+            crypto,
+            clientServiceInternal,
+            concurrentHandlerHolder,
+            predictInternal
+        )
+    }
 
     override val coreSQLiteDatabase: CoreSQLiteDatabase by lazy {
         coreDbHelper.writableCoreDatabase
@@ -1003,6 +1008,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         DefaultPredictInternal(
             predictRequestContext,
             requestManager,
+            predictMultiIdRequestModelFactory,
             concurrentHandlerHolder,
             predictRequestModelBuilderProvider,
             PredictResponseMapper()
@@ -1029,12 +1035,19 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     override val predictServiceProvider: ServiceEndpointProvider by lazy {
         ServiceEndpointProvider(
             predictServiceStorage,
-            com.emarsys.predict.endpoint.Endpoint.PREDICT_BASE_URL
+            PREDICT_BASE_URL
         )
     }
 
     override val predictServiceStorage: Storage<String?> by lazy {
         StringStorage(PredictStorageKey.PREDICT_SERVICE_URL, sharedPreferencesV3)
+    }
+
+    override val predictMultiIdRequestModelFactory: PredictMultiIdRequestModelFactory by lazy {
+        PredictMultiIdRequestModelFactory(
+            predictRequestContext,
+            clientServiceEndpointProvider
+        )
     }
 
     private fun createRequestModelRepository(
@@ -1067,6 +1080,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             MobileEngageHeaderMapper(requestContext, requestModelHelper),
             OpenIdTokenRequestMapper(requestContext, requestModelHelper),
             ContactTokenHeaderMapper(requestContext, requestModelHelper),
+            MerchantIdHeaderMapper(requestContext, requestModelHelper, predictRequestContext),
             DefaultRequestHeaderMapper(requestContext),
             DeviceEventStateRequestMapper(
                 requestContext,

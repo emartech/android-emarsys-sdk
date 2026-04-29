@@ -21,10 +21,10 @@ class RecommendationFilter {
         }
     }
 
-    final val type: String
-    final val field: String
-    final val comparison: String
-    final val expectations: List<String?>
+    lateinit var type: String
+    lateinit var field: String
+    lateinit var comparison: String
+    lateinit var expectations: List<String?>
 
     internal constructor(
         type: String,

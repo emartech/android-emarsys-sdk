@@ -56,7 +56,6 @@ import com.emarsys.mobileengage.push.NotificationInformationListenerProvider
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvider
-import com.emarsys.mobileengage.request.CoreCompletionHandlerRefreshTokenProxyProvider
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperFactory
@@ -122,7 +121,6 @@ class FakeFirebaseDependencyContainer(
     override val appLifecycleObserver: AppLifecycleObserver = mockk(relaxed = true),
     override val requestModelHelper: RequestModelHelper = mockk(relaxed = true),
     override val sessionIdHolder: SessionIdHolder = mockk(relaxed = true),
-    override val coreCompletionHandlerRefreshTokenProxyProvider: CoreCompletionHandlerRefreshTokenProxyProvider = mockk(relaxed = true),
     override val mobileEngageRequestModelFactory: MobileEngageRequestModelFactory = mockk(relaxed = true),
     override val mobileEngageSession: MobileEngageSession = mockk(relaxed = true),
     override val activityLifecycleWatchdog: ActivityLifecycleWatchdog = mockk(relaxed = true),
@@ -156,5 +154,5 @@ class FakeFirebaseDependencyContainer(
     override val jsOnAppEventListener: OnAppEventListener = mockk(relaxed = true),
     override val remoteMessageMapperFactory: RemoteMessageMapperFactory = mockk(relaxed = true),
     override val transitionSafeCurrentActivityWatchdog: TransitionSafeCurrentActivityWatchdog = mockk(relaxed = true),
-    override val sharedPreferencesV3: SharedPreferences = mockk(relaxed = true),
+    override val sharedPreferencesV3: SharedPreferences = mockk(relaxed = true)
 ) : MobileEngageComponent

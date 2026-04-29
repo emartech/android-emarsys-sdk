@@ -52,7 +52,7 @@ class PredictIntegrationTest  {
     val connectionRule = ConnectionRule(application)
 
     companion object {
-        private const val CONTACT_FIELD_ID = 3
+        private const val CONTACT_FIELD_ID = 62470
         private const val MERCHANT_ID = "1428C8EE286EC34B"
         private const val OTHER_MERCHANT_ID = "test_1428C8EE286EC34B"
         const val ITEM1 = "12800"
@@ -522,8 +522,7 @@ class PredictIntegrationTest  {
             clientStateStorage.set("predict-integration-test")
         }
 
-
-        Emarsys.setContact(CONTACT_FIELD_ID, "test@test.com")
+        Emarsys.setContact(CONTACT_FIELD_ID, "test2@test.com")
         testMultipleInvocations()
     }
 
@@ -531,7 +530,7 @@ class PredictIntegrationTest  {
     fun testConfig_changeMerchantId() {
         val originalMerchantId = Emarsys.config.merchantId
         Emarsys.config.changeMerchantId(OTHER_MERCHANT_ID)
-        originalMerchantId shouldNotBe Emarsys.config.applicationCode
+        originalMerchantId shouldNotBe Emarsys.config.merchantId
         Emarsys.config.merchantId shouldBe OTHER_MERCHANT_ID
     }
 

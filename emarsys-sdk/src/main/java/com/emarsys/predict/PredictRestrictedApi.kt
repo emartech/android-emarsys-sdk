@@ -1,7 +1,10 @@
 package com.emarsys.predict
 
+import com.emarsys.core.api.result.CompletionListener
+
 interface PredictRestrictedApi {
 
-    fun setContact(contactFieldId: Int, contactFieldValue: String)
-    fun clearContact()
+    fun setContact(contactFieldId: Int, contactFieldValue: String?, openIdToken: String?, completionListener: CompletionListener?)
+
+    fun clearPredictOnlyContact(completionListener: CompletionListener?)
 }
