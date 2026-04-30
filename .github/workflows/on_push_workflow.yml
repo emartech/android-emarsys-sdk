@@ -61,7 +61,7 @@ jobs:
           - task: emarsys-sdk
           - task: lint
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: dev
           submodules: true
