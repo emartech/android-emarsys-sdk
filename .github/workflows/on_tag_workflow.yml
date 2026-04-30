@@ -119,7 +119,7 @@ jobs:
         run: make prepare-sample-release
 
       - name: PlayStore upload
-        uses: r0adkll/upload-google-play@v1.1.3
+        uses: r0adkll/upload-google-play@v1.1.5
         with:
           serviceAccountJson: ./sample/google-play-store-service-account.json
           packageName: com.emarsys.sample
