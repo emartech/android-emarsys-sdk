@@ -128,7 +128,7 @@ jobs:
     steps:
       - name: Report on Slack (Error)
         if: ${{ !cancelled() && contains(needs.*.result, 'failure') }}
-        uses: megamegax/slack_action@0.3.1
+        uses: megamegax/slack_action@0.3.2
         with:
           webhook_url: '${{env.SLACK_WEBHOOK}}'
           channel: '${{env.SLACK_CHANNEL}}'
@@ -140,7 +140,7 @@ jobs:
 
       - name: Report on Slack (Success)
         if: ${{ !contains(needs.*.result, 'cancelled') && !contains(needs.*.result, 'failure') }}
-        uses: megamegax/slack_action@0.3.1
+        uses: megamegax/slack_action@0.3.2
         with:
           webhook_url: '${{env.SLACK_WEBHOOK}}'
           channel: '${{env.SLACK_CHANNEL}}'
