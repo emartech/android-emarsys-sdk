@@ -1,4 +1,4 @@
-.PHONY: base64-secret-to-file build-test check-env help create-sample-release-bundle create-testing-apks lint prepare-ci run-github-workflow-locally test-android-firebase test-android-firebase-emulator release-to-sonatype prepare-sample-release
+.PHONY: build-test check-env help create-sample-release-bundle create-testing-apks lint prepare-ci run-github-workflow-locally test-android-firebase test-android-firebase-emulator release-to-sonatype prepare-sample-release
 .DEFAULT_GOAL := help
 SHELL := /bin/bash
 
@@ -26,9 +26,6 @@ help: check-env ## Show this help
 	@fgrep -h "##" $(MAKEFILE_LIST) | grep ":" | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/\(.*\):.*##[ \t]*/    \1 ## /' | sort | column -t -s '##'
 	@echo
 
-base64-secret-to-file: check-env ## decode base64 secret to path
-	@./gradlew base64EnvToFile -PpropertyName=$(SECRET) -Pfile=$(FILE)
-
 build-test: check-env ## builds android tests excluding and lint
 	@./gradlew clean assembleAndroidTest -x lint
 
@@ -45,12 +42,12 @@ lint: check-env ## run lint
 	@./gradlew lint
 
 prepare-ci: check-env ## setup prerequisites for pipeline
-	@echo $ANDROID_HOME > local.properties
-	@./gradlew base64EnvToFile -PpropertyName=GOOGLE_SERVICES_JSON_BASE64 -Pfile=./sample/google-services.json
+	@echo $$ANDROID_HOME > local.properties
+	@echo "$$GOOGLE_SERVICES_JSON_BASE64" | base64 -d > ./sample/google-services.json
 
 prepare-sample-release: check-env ## prepares .jks file for sample release
-	@./gradlew base64EnvToFile -PpropertyName=ANDROID_RELEASE_STORE_FILE_BASE64 -Pfile=sample/mobile-team-android.jks \
-	&& ./gradlew base64EnvToFile -PpropertyName=GOOGLE_PLAY_STORE_SERVICE_ACCOUNT_JSON_BASE64 -Pfile=sample/google-play-store-service-account.json
+	@echo "$$ANDROID_RELEASE_STORE_FILE_BASE64" | base64 -d > sample/mobile-team-android.jks \
+	&& echo "$$GOOGLE_PLAY_STORE_SERVICE_ACCOUNT_JSON_BASE64" | base64 -d > sample/google-play-store-service-account.json
 
 test-android-firebase-emulator: check-env ## run Android Instrumented tests on emulators on Firebase Test Lab
 	@gcloud firebase test android run \
