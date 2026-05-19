@@ -75,7 +75,6 @@ jobs:
         with:
           gradle-version: 8.6
           cache-overwrite-existing: true
-          gradle-home-cache-cleanup: true
 
       - name: Prepare CI
         run: make prepare-ci
@@ -128,7 +127,7 @@ jobs:
     steps:
       - name: Report on Slack (Error)
         if: ${{ !cancelled() && contains(needs.*.result, 'failure') }}
-        uses: megamegax/slack_action@0.3.1
+        uses: megamegax/slack_action@0.3.2
         with:
           webhook_url: '${{env.SLACK_WEBHOOK}}'
           channel: '${{env.SLACK_CHANNEL}}'
@@ -140,7 +139,7 @@ jobs:
 
       - name: Report on Slack (Success)
         if: ${{ !contains(needs.*.result, 'cancelled') && !contains(needs.*.result, 'failure') }}
-        uses: megamegax/slack_action@0.3.1
+        uses: megamegax/slack_action@0.3.2
         with:
           webhook_url: '${{env.SLACK_WEBHOOK}}'
           channel: '${{env.SLACK_CHANNEL}}'
