@@ -116,9 +116,10 @@ class MobileEngageRequestModelFactory(
 
     fun createCustomEventRequest(
         eventName: String,
-        eventAttributes: Map<String, String>?
+        eventAttributes: Map<String, String>?,
+        triggerTimestamp: Long? = null
     ): RequestModel {
-        val payload = createCustomEventPayload(eventName, eventAttributes, requestContext)
+        val payload = createCustomEventPayload(eventName, eventAttributes, requestContext, triggerTimestamp)
         return createEvent(payload, requestContext)
     }
 

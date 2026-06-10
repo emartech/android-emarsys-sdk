@@ -23,7 +23,7 @@ class ActionCommandFactory(
     private val concurrentHandlerHolder: ConcurrentHandlerHolder
 ) {
 
-    fun createActionCommand(action: JSONObject): Runnable? {
+    fun createActionCommand(action: JSONObject, triggerTimestamp: Long? = null): Runnable? {
         var result: Runnable? = null
         val type: String
         try {
@@ -35,7 +35,7 @@ class ActionCommandFactory(
                 result = createOpenExternalUrlCommand(action)
             }
             if ("MECustomEvent" == type) {
-                result = createCustomEventCommand(action)
+                result = createCustomEventCommand(action, triggerTimestamp)
             }
         } catch (ignored: JSONException) {
         }
@@ -73,13 +73,13 @@ class ActionCommandFactory(
     }
 
     @Throws(JSONException::class)
-    private fun createCustomEventCommand(action: JSONObject): Runnable? {
+    private fun createCustomEventCommand(action: JSONObject, triggerTimestamp: Long? = null): Runnable? {
         val name = action.getString("name")
         val payload = action.optJSONObject("payload")
         var eventAttribute: Map<String, String>? = null
         if (payload != null) {
             eventAttribute = JsonUtils.toFlatMap(payload)
         }
-        return CustomEventCommand(eventServiceInternal, name, eventAttribute)
+        return CustomEventCommand(eventServiceInternal, name, eventAttribute, triggerTimestamp)
     }
 }

@@ -3,6 +3,7 @@ package com.emarsys.mobileengage.request
 
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.api.notification.NotificationSettings
+import com.emarsys.core.util.TimestampUtils
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.feature.FeatureRegistry
@@ -371,5 +372,16 @@ class MobileEngageRequestModelFactoryTest  {
         val result = requestFactory.createFetchInlineInAppMessagesRequest(viewId)
 
         result shouldBe expected
+    }
+
+    @Test
+    fun testCreateCustomEventRequest_withTriggerTimestamp_stampsPayloadTimestamp() {
+        val triggerTimestamp = 1_748_476_658_000L
+
+        val result = requestFactory.createCustomEventRequest("eventName", null, triggerTimestamp)
+
+        val events = result.payload!!["events"] as List<*>
+        val event = events[0] as Map<*, *>
+        event["timestamp"] shouldBe TimestampUtils.formatTimestampWithUTC(triggerTimestamp)
     }
 }

@@ -17,10 +17,19 @@ class DefaultEventServiceInternal(
         eventAttributes: Map<String, String>?,
         completionListener: CompletionListener?
     ): String? {
+        return trackCustomEvent(eventName, eventAttributes, completionListener, null)
+    }
+
+    fun trackCustomEvent(
+        eventName: String,
+        eventAttributes: Map<String, String>?,
+        completionListener: CompletionListener?,
+        triggerTimestamp: Long?
+    ): String? {
         Assert.notNull(eventName, "EventName must not be null!")
         val requestId = try {
             val requestModel =
-                requestModelFactory.createCustomEventRequest(eventName, eventAttributes)
+                requestModelFactory.createCustomEventRequest(eventName, eventAttributes, triggerTimestamp)
             requestManager.submit(requestModel, completionListener)
             requestModel.id
         } catch (e: IllegalArgumentException) {
@@ -35,7 +44,16 @@ class DefaultEventServiceInternal(
         eventAttributes: Map<String, String>?,
         completionListener: CompletionListener?
     ) {
-        trackCustomEvent(eventName, eventAttributes, completionListener)
+        trackCustomEvent(eventName, eventAttributes, completionListener, null)
+    }
+
+    override fun trackCustomEventAsync(
+        eventName: String,
+        eventAttributes: Map<String, String>?,
+        completionListener: CompletionListener?,
+        triggerTimestamp: Long?
+    ) {
+        trackCustomEvent(eventName, eventAttributes, completionListener, triggerTimestamp)
     }
 
     override fun trackInternalCustomEvent(

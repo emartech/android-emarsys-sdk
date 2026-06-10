@@ -305,7 +305,8 @@ class DefaultGeofenceInternal(
             .flatMap { nearestTriggeredGeofencesWithTrigger ->
                 createActionsFromTriggers(
                     nearestTriggeredGeofencesWithTrigger.first,
-                    nearestTriggeredGeofencesWithTrigger.second
+                    nearestTriggeredGeofencesWithTrigger.second,
+                    nearestTriggeredGeofencesWithTrigger.third
                 )
             }
     }
@@ -318,12 +319,12 @@ class DefaultGeofenceInternal(
         }
     }
 
-    private fun collectTriggeredGeofencesWithTriggerType(triggeringGeofence: TriggeringEmarsysGeofence): List<Pair<MEGeofence, TriggerType>> {
+    private fun collectTriggeredGeofencesWithTriggerType(triggeringGeofence: TriggeringEmarsysGeofence): List<Triple<MEGeofence, TriggerType, Long>> {
         return nearestGeofences
             .filter {
                 it.id == triggeringGeofence.geofenceId
                         && it.triggers.any { trigger -> trigger.type == triggeringGeofence.triggerType }
-            }.map { geofence -> Pair(geofence, triggeringGeofence.triggerType) }
+            }.map { geofence -> Triple(geofence, triggeringGeofence.triggerType, triggeringGeofence.triggerTimestamp) }
     }
 
     override fun setEventHandler(eventHandler: EventHandler) {
@@ -337,11 +338,12 @@ class DefaultGeofenceInternal(
 
     private fun createActionsFromTriggers(
         geofence: MEGeofence,
-        triggerType: TriggerType
+        triggerType: TriggerType,
+        triggerTimestamp: Long
     ): List<Runnable?> {
         return geofence.triggers.filter { trigger ->
             trigger.type == triggerType
-        }.mapNotNull { actionCommandFactory.createActionCommand(it.action) }
+        }.mapNotNull { actionCommandFactory.createActionCommand(it.action, triggerTimestamp.takeIf { it != 0L }) }
     }
 
     private fun sendStatusLog(

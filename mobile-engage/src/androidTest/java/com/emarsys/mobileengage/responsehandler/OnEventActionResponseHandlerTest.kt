@@ -138,14 +138,14 @@ class OnEventActionResponseHandlerTest  {
 
         responseHandler.handleResponse(responseModel)
 
-        verify(mockActionCommandFactory).createActionCommand(captor.capture())
+        verify(mockActionCommandFactory).createActionCommand(captor.capture(), anyOrNull())
 
         captor.firstValue.toString() shouldBe JSONObject(appEventAction).toString()
     }
 
     @Test
     fun testHandleResponse_shouldRunActionCommand() {
-        whenever(mockActionCommandFactory.createActionCommand(anyNotNull())).thenReturn(
+        whenever(mockActionCommandFactory.createActionCommand(anyNotNull(), anyOrNull())).thenReturn(
             mockAppEventCommand
         )
 

@@ -50,4 +50,14 @@ class CustomEventCommandTest {
         customEventCommand.run()
         verify { mockEventServiceInternal.trackCustomEventAsync(EVENT_NAME, null, null) }
     }
+
+    @Test
+    fun testRun_withTriggerTimestamp_passesTimestampToEventService() {
+        val triggerTimestamp = 1_748_476_658_000L
+        val command = CustomEventCommand(mockEventServiceInternal, EVENT_NAME, null, triggerTimestamp)
+
+        command.run()
+
+        verify { mockEventServiceInternal.trackCustomEventAsync(EVENT_NAME, null, null, triggerTimestamp) }
+    }
 }

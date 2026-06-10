@@ -17,15 +17,19 @@ class GeofenceBroadcastReceiver :
     private val concurrentHandlerHolder by lazy {
         mobileEngage().concurrentHandlerHolder
     }
+    private val timestampProvider by lazy {
+        mobileEngage().timestampProvider
+    }
 
     override fun onReceive(context: Context, intent: Intent) {
         val geofencingEvent = GeofencingEvent.fromIntent(intent)
         if (geofencingEvent?.triggeringGeofences != null) {
+            val triggerTimestamp = timestampProvider.provideTimestamp()
             concurrentHandlerHolder.coreHandler.post {
                 val geofenceInternal = mobileEngage().geofenceInternal
 
                 val triggeringEmarsysGeofences =
-                    geofencingEvent.convertToTriggeringEmarsysGeofences()
+                    geofencingEvent.convertToTriggeringEmarsysGeofences(triggerTimestamp)
                 geofenceInternal.onGeofenceTriggered(triggeringEmarsysGeofences)
 
                 logTriggeringGeofences(triggeringEmarsysGeofences)
@@ -33,11 +37,12 @@ class GeofenceBroadcastReceiver :
         }
     }
 
-    private fun GeofencingEvent.convertToTriggeringEmarsysGeofences(): List<TriggeringEmarsysGeofence> {
+    private fun GeofencingEvent.convertToTriggeringEmarsysGeofences(triggerTimestamp: Long): List<TriggeringEmarsysGeofence> {
         return this.triggeringGeofences?.map {
             TriggeringEmarsysGeofence(
                 it.requestId,
-                convertTransitionToTriggerType(this.geofenceTransition)
+                convertTransitionToTriggerType(this.geofenceTransition),
+                triggerTimestamp
             )
         } ?: emptyList()
     }

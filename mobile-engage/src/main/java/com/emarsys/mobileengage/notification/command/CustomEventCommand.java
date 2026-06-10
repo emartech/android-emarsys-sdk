@@ -10,18 +10,28 @@ public class CustomEventCommand implements Runnable {
     private final EventServiceInternal eventServiceInternal;
     private final String eventName;
     private final Map<String, String> eventAttributes;
+    private final Long triggerTimestamp;
 
     public CustomEventCommand(EventServiceInternal eventServiceInternal, String eventName, Map<String, String> eventAttributes) {
+        this(eventServiceInternal, eventName, eventAttributes, null);
+    }
+
+    public CustomEventCommand(EventServiceInternal eventServiceInternal, String eventName, Map<String, String> eventAttributes, Long triggerTimestamp) {
         Assert.notNull(eventServiceInternal, "EventServiceInternal must not be null!");
         Assert.notNull(eventName, "EventName must not be null!");
         this.eventServiceInternal = eventServiceInternal;
         this.eventName = eventName;
         this.eventAttributes = eventAttributes;
+        this.triggerTimestamp = triggerTimestamp;
     }
 
     @Override
     public void run() {
-        eventServiceInternal.trackCustomEventAsync(eventName, eventAttributes, null);
+        if (triggerTimestamp != null) {
+            eventServiceInternal.trackCustomEventAsync(eventName, eventAttributes, null, triggerTimestamp);
+        } else {
+            eventServiceInternal.trackCustomEventAsync(eventName, eventAttributes, null);
+        }
     }
 
     public String getEventName() {

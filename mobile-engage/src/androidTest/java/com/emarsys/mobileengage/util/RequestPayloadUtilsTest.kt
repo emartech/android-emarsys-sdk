@@ -16,6 +16,7 @@ import com.emarsys.mobileengage.session.SessionIdHolder
 import com.emarsys.mobileengage.testUtil.RandomMETestUtils
 import com.emarsys.testUtil.RandomTestUtils
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.doReturn
@@ -433,6 +434,18 @@ class RequestPayloadUtilsTest  {
         val resultPayload = RequestPayloadUtils.createInlineInAppPayload(viewId, clicks)
 
         resultPayload shouldBe expectedPayload
+    }
+
+    @Test
+    fun testCreateCustomEventPayload_withTriggerTimestamp_usesTriggerTimestampNotProvider() {
+        val triggerTimestamp = 1_748_476_658_000L
+
+        val result = RequestPayloadUtils.createCustomEventPayload(EVENT_NAME, null, mockRequestContext, triggerTimestamp)
+
+        val events = result["events"] as List<*>
+        val event = events[0] as Map<*, *>
+        event["timestamp"] shouldBe TimestampUtils.formatTimestampWithUTC(triggerTimestamp)
+        event["timestamp"] shouldNotBe TimestampUtils.formatTimestampWithUTC(TIMESTAMP)
     }
 
     @Test

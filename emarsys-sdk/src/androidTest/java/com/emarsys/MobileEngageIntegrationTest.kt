@@ -67,7 +67,7 @@ class MobileEngageIntegrationTest  {
 
     @Before
     fun setup() {
-        DatabaseTestUtils.deleteCoreDatabase()
+        DatabaseTestUtils.deleteCoreDatabaseExceptClientId()
 
         application.getSharedPreferences("emarsys_secure_shared_preferences", Context.MODE_PRIVATE)
             .edit()
@@ -91,7 +91,7 @@ class MobileEngageIntegrationTest  {
                 every { provideClientId() } returns "mobileengage_integration_hwid"
             },
             mockk<VersionProvider>(relaxed = true).apply {
-                every { provideSdkVersion() } returns "0.0.0-mobileengage_integration_version"
+                every { provideSdkVersion() } returns "0.0.0"
             },
             mockk<LanguageProvider>(relaxed = true).apply {
                 every { provideLanguage(any()) } returns "en-US"

@@ -15,6 +15,15 @@ interface EventServiceInternal {
         completionListener: CompletionListener?
     )
 
+    fun trackCustomEventAsync(
+        eventName: String,
+        eventAttributes: Map<String, String>?,
+        completionListener: CompletionListener?,
+        triggerTimestamp: Long?
+    ) {
+        trackCustomEventAsync(eventName, eventAttributes, completionListener)
+    }
+
     fun trackInternalCustomEvent(
         eventName: String,
         eventAttributes: Map<String, String>?,

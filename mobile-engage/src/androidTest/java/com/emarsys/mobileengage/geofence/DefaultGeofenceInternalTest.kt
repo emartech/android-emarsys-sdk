@@ -1,3 +1,5 @@
+package com.emarsys.mobileengage.geofence
+
 import android.Manifest
 import android.app.PendingIntent
 import android.content.pm.PackageManager
@@ -68,7 +70,7 @@ class DefaultGeofenceInternalTest {
             action = JSONObject()
         )
         val trigger =
-            Trigger(id = "refreshAreaTriggerId", type = TriggerType.ENTER, action = JSONObject())
+            Trigger(id = "refreshAreaTriggerId", type = TriggerType.ENTER, action = appEventAction)
         val refreshArea = MEGeofence(
             "refreshArea",
             47.493160,
@@ -745,6 +747,32 @@ class DefaultGeofenceInternalTest {
 
         slot.captured.size shouldBe 2
         slot.captured[1].toString() shouldBe refreshArea.toString()
+    }
+
+    @Test
+    fun onGeofenceTriggered_passesTimestampToActionCommandFactory() {
+        val triggerTimestamp = 1_748_476_658_000L
+        val mockAction = mockk<Runnable>(relaxed = true)
+        every { mockActionCommandFactory.createActionCommand(appEventAction, triggerTimestamp) } returns mockAction
+
+        val latch = CountDownLatch(1)
+        every { mockAction.run() } answers { latch.countDown() }
+
+        geofenceInternal.onGeofenceTriggered(
+            listOf(TriggeringEmarsysGeofence("geofenceId1", TriggerType.ENTER, triggerTimestamp))
+        )
+        latch.await(2, java.util.concurrent.TimeUnit.SECONDS)
+
+        verify { mockActionCommandFactory.createActionCommand(appEventAction, triggerTimestamp) }
+    }
+
+    @Test
+    fun triggeringEmarsysGeofence_hasTriggerTimestamp() {
+        val triggerTimestamp = 1_748_476_658_000L
+
+        val geofence = TriggeringEmarsysGeofence("geoId", TriggerType.ENTER, triggerTimestamp)
+
+        geofence.triggerTimestamp shouldBe triggerTimestamp
     }
 
     private fun createGeofence(geofence: MEGeofence): Geofence {

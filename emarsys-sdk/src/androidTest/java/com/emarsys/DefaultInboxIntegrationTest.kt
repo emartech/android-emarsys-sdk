@@ -52,7 +52,7 @@ class DefaultInboxIntegrationTest {
 
     @Before
     fun setup() {
-        DatabaseTestUtils.deleteCoreDatabase()
+        DatabaseTestUtils.deleteCoreDatabaseExceptClientId()
 
         baseConfig = EmarsysConfig.Builder()
             .application(application)

@@ -21,6 +21,17 @@ object IntegrationTestUtils {
         contactFieldValue: String = "test@test.com",
         pushToken: String = "integration_test_push_token"
     ) {
+        if (emarsys().clientStateStorage.get() == null) {
+            val latch = CountDownLatch(1)
+            var trackDeviceInfoError: Throwable? = null
+            emarsys().clientServiceInternal.trackDeviceInfo {
+                trackDeviceInfoError = it
+                latch.countDown()
+            }
+            latch.await()
+            trackDeviceInfoError shouldBe null
+        }
+
         val latchForPushToken = CountDownLatch(2)
         var errorCause: Throwable? = null
         Emarsys.push.setPushToken(pushToken) { throwable ->

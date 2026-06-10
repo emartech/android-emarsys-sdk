@@ -40,6 +40,7 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
@@ -959,7 +960,7 @@ class MessagingServiceUtilsTest  {
             "MEAppEvent",
             JSONObject(mapOf("key" to "value"))
         )
-        whenever(mockActionCommandFactory.createActionCommand(any())).thenReturn(expectedCommand1)
+        whenever(mockActionCommandFactory.createActionCommand(any(), anyOrNull())).thenReturn(expectedCommand1)
             .thenReturn(expectedCommand2)
         val actions = JSONArray(
             listOf(
@@ -1021,7 +1022,7 @@ class MessagingServiceUtilsTest  {
             "MEAppEvent",
             JSONObject(mapOf("key" to "value"))
         )
-        whenever(mockActionCommandFactory.createActionCommand(any())).thenReturn(expectedCommand1)
+        whenever(mockActionCommandFactory.createActionCommand(any(), anyOrNull())).thenReturn(expectedCommand1)
             .thenReturn(expectedCommand2)
         val actions = JSONArray(
             listOf(

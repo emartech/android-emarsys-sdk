@@ -51,8 +51,9 @@ object RequestPayloadUtils {
     }
 
     @JvmStatic
-    fun createCustomEventPayload(eventName: String, eventAttributes: Map<String, String>?, requestContext: MobileEngageRequestContext): Map<String, Any> {
-        return createEventPayload(EventType.CUSTOM, eventName, eventAttributes, requestContext)
+    @JvmOverloads
+    fun createCustomEventPayload(eventName: String, eventAttributes: Map<String, String>?, requestContext: MobileEngageRequestContext, triggerTimestamp: Long? = null): Map<String, Any> {
+        return createEventPayload(EventType.CUSTOM, eventName, eventAttributes, requestContext, triggerTimestamp)
     }
 
     @JvmStatic
@@ -60,8 +61,8 @@ object RequestPayloadUtils {
         return createEventPayload(EventType.INTERNAL, eventName, eventAttributes, requestContext)
     }
 
-    private fun createEventPayload(eventType: EventType, eventName: String, eventAttributes: Map<String, String>?, requestContext: MobileEngageRequestContext): Map<String, Any> {
-        val event = createEvent(eventType, eventName, eventAttributes, requestContext)
+    private fun createEventPayload(eventType: EventType, eventName: String, eventAttributes: Map<String, String>?, requestContext: MobileEngageRequestContext, triggerTimestamp: Long? = null): Map<String, Any> {
+        val event = createEvent(eventType, eventName, eventAttributes, requestContext, triggerTimestamp)
         return mapOf(
                 "clicks" to emptyList(),
                 "viewedMessages" to emptyList(),
@@ -69,11 +70,11 @@ object RequestPayloadUtils {
         )
     }
 
-    private fun createEvent(eventType: EventType, eventName: String, eventAttributes: Map<String, String>?, requestContext: MobileEngageRequestContext): Map<String, Any> {
+    private fun createEvent(eventType: EventType, eventName: String, eventAttributes: Map<String, String>?, requestContext: MobileEngageRequestContext, triggerTimestamp: Long? = null): Map<String, Any> {
         val event: MutableMap<String, Any> = mutableMapOf(
                 "type" to eventType.eventType(),
                 "name" to eventName,
-                "timestamp" to TimestampUtils.formatTimestampWithUTC(requestContext.timestampProvider.provideTimestamp())
+                "timestamp" to TimestampUtils.formatTimestampWithUTC(triggerTimestamp ?: requestContext.timestampProvider.provideTimestamp())
         )
         if (!eventAttributes.isNullOrEmpty()) {
             event["attributes"] = eventAttributes

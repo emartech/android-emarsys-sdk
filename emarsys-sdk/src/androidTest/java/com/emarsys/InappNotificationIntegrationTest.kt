@@ -50,7 +50,7 @@ class InappNotificationIntegrationTest  {
     fun setup() {
         completionListenerLatch = CountDownLatch(1)
 
-        DatabaseTestUtils.deleteCoreDatabase()
+        DatabaseTestUtils.deleteCoreDatabaseExceptClientId()
 
         application.getSharedPreferences("emarsys_secret_shared_prefs", Context.MODE_PRIVATE)
             .edit()

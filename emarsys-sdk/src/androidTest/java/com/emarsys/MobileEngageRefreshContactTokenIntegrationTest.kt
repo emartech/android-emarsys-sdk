@@ -58,7 +58,7 @@ class MobileEngageRefreshContactTokenIntegrationTest  {
 
     @Before
     fun setup() {
-        DatabaseTestUtils.deleteCoreDatabase()
+        DatabaseTestUtils.deleteCoreDatabaseExceptClientId()
 
         baseConfig = EmarsysConfig.Builder()
             .application(application)
@@ -73,7 +73,7 @@ class MobileEngageRefreshContactTokenIntegrationTest  {
                 every { provideClientId() } returns "mobileengage_integration_hwid"
             },
             mockk<VersionProvider>(relaxed = true).apply {
-                every { provideSdkVersion() } returns "0.0.0-mobileengage_integration_version"
+                every { provideSdkVersion() } returns "0.0.0"
             },
             mockk<LanguageProvider>(relaxed = true).apply {
                 every { provideLanguage(any()) } returns "en-US"

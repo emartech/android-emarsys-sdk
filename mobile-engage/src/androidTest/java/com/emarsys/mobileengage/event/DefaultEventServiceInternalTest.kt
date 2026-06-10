@@ -54,12 +54,11 @@ class.java).apply {
 
     @Test
     fun testTrackCustomEventAsync_shouldDelegateToTrackCustomEvent() {
-        val eventServiceInternal = spy(this.eventServiceInternal)
         val completionListener = CompletionListener { }
 
         eventServiceInternal.trackCustomEventAsync(EVENT_NAME, EVENT_ATTRIBUTES, completionListener)
 
-        verify(eventServiceInternal).trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, completionListener)
+        verify(mockRequestManager).submit(mockRequestModel, completionListener)
     }
 
     @Test
