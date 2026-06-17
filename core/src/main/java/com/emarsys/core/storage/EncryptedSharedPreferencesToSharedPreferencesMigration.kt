@@ -1,6 +1,8 @@
 package com.emarsys.core.storage
 
 import android.content.SharedPreferences
+import com.emarsys.core.util.log.Logger
+import com.emarsys.core.util.log.entry.StatusLog
 
 class EncryptedSharedPreferencesToSharedPreferencesMigration {
 
@@ -24,7 +26,24 @@ class EncryptedSharedPreferencesToSharedPreferencesMigration {
             editor.apply()
             oldSharedPreferences.edit().clear().apply()
         } catch (e: Exception) {
-            e.printStackTrace()
+            Logger.error(
+                StatusLog(
+                    EncryptedSharedPreferencesToSharedPreferencesMigration::class.java,
+                    "migrate",
+                    mapOf("exception" to e.message)
+                )
+            )
+            try {
+                oldSharedPreferences.edit().clear().apply()
+            } catch (clearException: Exception) {
+                Logger.error(
+                    StatusLog(
+                        EncryptedSharedPreferencesToSharedPreferencesMigration::class.java,
+                        "migrate#clear",
+                        mapOf("exception" to clearException.message)
+                    )
+                )
+            }
         }
     }
 }

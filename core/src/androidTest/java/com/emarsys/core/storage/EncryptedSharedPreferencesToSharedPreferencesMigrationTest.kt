@@ -10,7 +10,7 @@ import io.mockk.verify
 import org.junit.Test
 import java.security.GeneralSecurityException
 
-class EncryptedSharedPreferencesToSharedPreferencesMigrationTest  {
+class EncryptedSharedPreferencesToSharedPreferencesMigrationTest {
 
     private val mockOldSharedPreferences = mockk<SharedPreferences>()
     private val mockNewSharedPreferences = mockk<SharedPreferences>()
@@ -58,22 +58,58 @@ class EncryptedSharedPreferencesToSharedPreferencesMigrationTest  {
     }
 
     @Test
-    fun shouldHandleGeneralSecurityExceptionDuringMigration() {
+    fun shouldClearOldPrefs_whenGetAllThrows_preventingBrokenStateOnRestart() {
+        every { mockOldSharedPreferences.all } throws SecurityException("Could not decrypt key. decryption failed")
+        every { mockOldSharedPreferences.edit() } returns mockEditor
+        every { mockEditor.clear() } returns mockEditor
+        every { mockEditor.apply() } just Runs
+
+        EncryptedSharedPreferencesToSharedPreferencesMigration().migrate(
+            mockOldSharedPreferences,
+            mockNewSharedPreferences
+        )
+
+        verify { mockOldSharedPreferences.edit() }
+        verify { mockEditor.clear() }
+        verify { mockEditor.apply() }
+        verify(exactly = 0) { mockNewSharedPreferences.edit() }
+    }
+
+    @Test
+    fun shouldClearOldPrefs_whenGetAllThrowsIllegalArgumentException_badBase64() {
+        every { mockOldSharedPreferences.all } throws IllegalArgumentException("bad base-64")
+        every { mockOldSharedPreferences.edit() } returns mockEditor
+        every { mockEditor.clear() } returns mockEditor
+        every { mockEditor.apply() } just Runs
+
+        EncryptedSharedPreferencesToSharedPreferencesMigration().migrate(
+            mockOldSharedPreferences,
+            mockNewSharedPreferences
+        )
+
+        verify { mockOldSharedPreferences.edit() }
+        verify { mockEditor.clear() }
+        verify { mockEditor.apply() }
+        verify(exactly = 0) { mockNewSharedPreferences.edit() }
+    }
+
+    @Test
+    fun shouldClearOldPrefs_whenExceptionThrownDuringWrite() {
         every { mockOldSharedPreferences.all } returns mapOf("key" to "value")
         every { mockNewSharedPreferences.edit() } returns mockEditor
-        every {
-            mockEditor.putString(
-                any(),
-                any()
-            )
-        } throws GeneralSecurityException("Encryption error")
+        every { mockEditor.putString(any(), any()) } throws GeneralSecurityException("Encryption error")
+        every { mockOldSharedPreferences.edit() } returns mockEditor
+        every { mockEditor.clear() } returns mockEditor
+        every { mockEditor.apply() } just Runs
 
-        val migration = EncryptedSharedPreferencesToSharedPreferencesMigration()
+        EncryptedSharedPreferencesToSharedPreferencesMigration().migrate(
+            mockOldSharedPreferences,
+            mockNewSharedPreferences
+        )
 
-        migration.migrate(mockOldSharedPreferences, mockNewSharedPreferences)
-
-        verify(exactly = 0) { mockEditor.apply() }
-        verify(exactly = 0) { mockOldSharedPreferences.edit().clear() }
+        verify { mockOldSharedPreferences.edit() }
+        verify { mockEditor.clear() }
+        verify { mockEditor.apply() }
     }
 
     @Test
@@ -86,10 +122,8 @@ class EncryptedSharedPreferencesToSharedPreferencesMigrationTest  {
         every { mockEditor.clear() } returns mockEditor
         every { mockEditor.apply() } just Runs
 
-        val encryptedSharedPreferencesToSharedPreferencesMigration =
-            EncryptedSharedPreferencesToSharedPreferencesMigration()
         shouldNotThrowAny {
-            encryptedSharedPreferencesToSharedPreferencesMigration.migrate(
+            EncryptedSharedPreferencesToSharedPreferencesMigration().migrate(
                 mockOldSharedPreferences,
                 mockNewSharedPreferences
             )
