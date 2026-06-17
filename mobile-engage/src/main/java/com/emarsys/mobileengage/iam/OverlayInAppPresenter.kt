@@ -32,33 +32,28 @@ class OverlayInAppPresenter(
             showingInProgress = true
             concurrentHandlerHolder.postOnMain {
                 try {
-                    val iamDialog =
-                        dialogProvider.provideDialog(campaignId, sid, url, requestId)
+                    val iamDialog = dialogProvider.provideDialog(campaignId, sid, url, requestId)
                     val activity = currentActivityWatchdog.activity()
+
+                    val onPageLoaded = MessageLoadedListener {
+                        val endTimestamp = timestampProvider.provideTimestamp()
+                        iamDialog.setInAppLoadingTime(InAppLoadingTime(startTimestamp, endTimestamp))
+                        concurrentHandlerHolder.coreHandler.post {
+                            messageLoadedListener?.onMessageLoaded()
+                            showingInProgress = false
+                        }
+                    }
+
                     iamDialog.loadInApp(
                         html, InAppMetaData(campaignId, sid, url),
-                        {
-                            activity.fragmentManager()?.let {
-                                if (it.findFragmentByTag(IamDialog.TAG) == null) {
-                                    val endTimestamp = timestampProvider.provideTimestamp()
-                                    iamDialog.setInAppLoadingTime(
-                                        InAppLoadingTime(
-                                            startTimestamp,
-                                            endTimestamp
-                                        )
-                                    )
-                                    if (!it.isStateSaved) {
-                                        iamDialog.showNow(it, IamDialog.TAG)
-                                    }
-                                }
-                            }
-                            concurrentHandlerHolder.coreHandler.post {
-                                messageLoadedListener?.onMessageLoaded()
-                                showingInProgress = false
-                            }
-                        },
+                        onPageLoaded,
                         activity
                     )
+
+                    val fragmentManager = activity.fragmentManager() ?: return@postOnMain
+                    if (fragmentManager.findFragmentByTag(IamDialog.TAG) == null && !fragmentManager.isStateSaved) {
+                        iamDialog.showNow(fragmentManager, IamDialog.TAG)
+                    }
                 } catch (e: Exception) {
                     concurrentHandlerHolder.coreHandler.post {
                         Logger.error(CrashLog(e))

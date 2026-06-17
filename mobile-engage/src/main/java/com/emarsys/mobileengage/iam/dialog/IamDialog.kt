@@ -56,6 +56,8 @@ class IamDialog(
 
     private var html: String? = null
     private var inAppMetaData: InAppMetaData? = null
+    private var pendingPageLoadedListener: MessageLoadedListener? = null
+    private var webViewLoadTriggered: Boolean = false
 
     private var activityReference: WeakReference<Activity>? = null
 
@@ -70,10 +72,10 @@ class IamDialog(
         this.activityReference = WeakReference(activity)
         this.html = html
         this.inAppMetaData = inAppMetaData
+        this.pendingPageLoadedListener = messageLoadedListener
         if (iamWebView == null) {
             iamWebView = webViewFactory.create(activity)
         }
-        this.iamWebView?.load(html, inAppMetaData, messageLoadedListener)
     }
 
     fun setActions(actions: List<OnDialogShownAction>?) {
@@ -95,9 +97,6 @@ class IamDialog(
             else getInAppMetaDataFromBundle(savedInstanceState)
         if (iamWebView == null && activity != null) {
             iamWebView = webViewFactory.create(activity)
-            if (html != null && inAppMetaData != null) {
-                iamWebView?.load(html!!, inAppMetaData!!) {}
-            }
         }
     }
 
@@ -134,6 +133,18 @@ class IamDialog(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.MATCH_PARENT
         )
+
+        triggerWebViewLoadOnce()
+    }
+
+    private fun triggerWebViewLoadOnce() {
+        if (webViewLoadTriggered) return
+        val htmlToLoad = html ?: return
+        val metaToLoad = inAppMetaData ?: return
+        webViewLoadTriggered = true
+        val listener = pendingPageLoadedListener ?: MessageLoadedListener {}
+        iamWebView?.load(htmlToLoad, metaToLoad, listener)
+        pendingPageLoadedListener = null
     }
 
     override fun onResume() {
