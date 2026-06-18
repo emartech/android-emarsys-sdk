@@ -14,13 +14,28 @@ class EncryptedSharedPreferencesToSharedPreferencesMigration {
             val encryptedData = oldSharedPreferences.all
             val editor = newSharedPreferences.edit()
             for ((key, value) in encryptedData) {
-                when (value) {
-                    is String -> editor.putString(key, value)
-                    is Int -> editor.putInt(key, value)
-                    is Boolean -> editor.putBoolean(key, value)
-                    is Float -> editor.putFloat(key, value)
-                    is Long -> editor.putLong(key, value)
-                    is Set<*> -> editor.putStringSet(key, value as Set<String>)
+                try {
+                    when (value) {
+                        is String -> editor.putString(key, value)
+                        is Int -> editor.putInt(key, value)
+                        is Boolean -> editor.putBoolean(key, value)
+                        is Float -> editor.putFloat(key, value)
+                        is Long -> editor.putLong(key, value)
+                        is Set<*> -> editor.putStringSet(key, value as Set<String>)
+                    }
+                } catch (e: Exception) {
+                    Logger.error(
+                        StatusLog(
+                            EncryptedSharedPreferencesToSharedPreferencesMigration::class.java,
+                            "migrate#perKey",
+                            mapOf(
+                                "key" to key,
+                                "value" to value,
+                                "exception" to e.message
+                            )
+                        )
+                    )
+                    throw e
                 }
             }
             editor.apply()
@@ -39,7 +54,18 @@ class EncryptedSharedPreferencesToSharedPreferencesMigration {
                 Logger.error(
                     StatusLog(
                         EncryptedSharedPreferencesToSharedPreferencesMigration::class.java,
-                        "migrate#clear",
+                        "migrate#clearOld",
+                        mapOf("exception" to clearException.message)
+                    )
+                )
+            }
+            try {
+                newSharedPreferences.edit().clear().apply()
+            } catch (clearException: Exception) {
+                Logger.error(
+                    StatusLog(
+                        EncryptedSharedPreferencesToSharedPreferencesMigration::class.java,
+                        "migrate#clearNew",
                         mapOf("exception" to clearException.message)
                     )
                 )

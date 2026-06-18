@@ -14,7 +14,8 @@ class EncryptedSharedPreferencesToSharedPreferencesMigrationTest {
 
     private val mockOldSharedPreferences = mockk<SharedPreferences>()
     private val mockNewSharedPreferences = mockk<SharedPreferences>()
-    private val mockEditor = mockk<SharedPreferences.Editor>()
+    private val mockOldEditor = mockk<SharedPreferences.Editor>()
+    private val mockNewEditor = mockk<SharedPreferences.Editor>()
 
     @Test
     fun shouldMigrateData_from_oldSharedPreferences_to_newSharedPreferences() {
@@ -26,101 +27,152 @@ class EncryptedSharedPreferencesToSharedPreferencesMigrationTest {
             "long_key" to 1234L,
             "set_key" to setOf("item1", "item2")
         )
-        every { mockNewSharedPreferences.edit() } returns mockEditor
-        every { mockEditor.putString(any(), any()) } returns mockEditor
-        every { mockEditor.putInt(any(), any()) } returns mockEditor
-        every { mockEditor.putBoolean(any(), any()) } returns mockEditor
-        every { mockEditor.putFloat(any(), any()) } returns mockEditor
-        every { mockEditor.putLong(any(), any()) } returns mockEditor
-        every { mockEditor.putStringSet(any(), any()) } returns mockEditor
-        every { mockEditor.apply() } just Runs
-        every { mockOldSharedPreferences.edit() } returns mockEditor
-        every { mockEditor.clear() } returns mockEditor
+        every { mockNewSharedPreferences.edit() } returns mockNewEditor
+        every { mockNewEditor.putString(any(), any()) } returns mockNewEditor
+        every { mockNewEditor.putInt(any(), any()) } returns mockNewEditor
+        every { mockNewEditor.putBoolean(any(), any()) } returns mockNewEditor
+        every { mockNewEditor.putFloat(any(), any()) } returns mockNewEditor
+        every { mockNewEditor.putLong(any(), any()) } returns mockNewEditor
+        every { mockNewEditor.putStringSet(any(), any()) } returns mockNewEditor
+        every { mockNewEditor.apply() } just Runs
+        every { mockOldSharedPreferences.edit() } returns mockOldEditor
+        every { mockOldEditor.clear() } returns mockOldEditor
+        every { mockOldEditor.apply() } just Runs
 
-        val encryptedSharedPreferencesToSharedPreferencesMigration =
-            EncryptedSharedPreferencesToSharedPreferencesMigration()
-        encryptedSharedPreferencesToSharedPreferencesMigration.migrate(
+        EncryptedSharedPreferencesToSharedPreferencesMigration().migrate(
             mockOldSharedPreferences,
             mockNewSharedPreferences
         )
 
-        verify { mockNewSharedPreferences.edit() }
-        verify { mockEditor.putString("string_key", "value") }
-        verify { mockEditor.putInt("int_key", 42) }
-        verify { mockEditor.putBoolean("boolean_key", true) }
-        verify { mockEditor.putFloat("float_key", 3.14f) }
-        verify { mockEditor.putLong("long_key", 1234L) }
-        verify { mockEditor.putStringSet("set_key", setOf("item1", "item2")) }
-        verify { mockEditor.apply() }
-        verify { mockOldSharedPreferences.edit() }
-        verify { mockEditor.clear() }
-        verify { mockEditor.apply() }
+        verify { mockNewEditor.putString("string_key", "value") }
+        verify { mockNewEditor.putInt("int_key", 42) }
+        verify { mockNewEditor.putBoolean("boolean_key", true) }
+        verify { mockNewEditor.putFloat("float_key", 3.14f) }
+        verify { mockNewEditor.putLong("long_key", 1234L) }
+        verify { mockNewEditor.putStringSet("set_key", setOf("item1", "item2")) }
+        verify { mockNewEditor.apply() }
+        verify { mockOldEditor.clear() }
+        verify { mockOldEditor.apply() }
     }
 
     @Test
-    fun shouldClearOldPrefs_whenGetAllThrows_preventingBrokenStateOnRestart() {
+    fun shouldClearBothOldAndNewPrefs_whenGetAllThrows_preventingBrokenStateOnRestart() {
         every { mockOldSharedPreferences.all } throws SecurityException("Could not decrypt key. decryption failed")
-        every { mockOldSharedPreferences.edit() } returns mockEditor
-        every { mockEditor.clear() } returns mockEditor
-        every { mockEditor.apply() } just Runs
+        every { mockOldSharedPreferences.edit() } returns mockOldEditor
+        every { mockOldEditor.clear() } returns mockOldEditor
+        every { mockOldEditor.apply() } just Runs
+        every { mockNewSharedPreferences.edit() } returns mockNewEditor
+        every { mockNewEditor.clear() } returns mockNewEditor
+        every { mockNewEditor.apply() } just Runs
 
         EncryptedSharedPreferencesToSharedPreferencesMigration().migrate(
             mockOldSharedPreferences,
             mockNewSharedPreferences
         )
 
-        verify { mockOldSharedPreferences.edit() }
-        verify { mockEditor.clear() }
-        verify { mockEditor.apply() }
-        verify(exactly = 0) { mockNewSharedPreferences.edit() }
+        verify { mockOldEditor.clear() }
+        verify { mockOldEditor.apply() }
+        verify { mockNewEditor.clear() }
+        verify { mockNewEditor.apply() }
     }
 
     @Test
-    fun shouldClearOldPrefs_whenGetAllThrowsIllegalArgumentException_badBase64() {
+    fun shouldClearBothOldAndNewPrefs_whenGetAllThrowsIllegalArgumentException_badBase64() {
         every { mockOldSharedPreferences.all } throws IllegalArgumentException("bad base-64")
-        every { mockOldSharedPreferences.edit() } returns mockEditor
-        every { mockEditor.clear() } returns mockEditor
-        every { mockEditor.apply() } just Runs
+        every { mockOldSharedPreferences.edit() } returns mockOldEditor
+        every { mockOldEditor.clear() } returns mockOldEditor
+        every { mockOldEditor.apply() } just Runs
+        every { mockNewSharedPreferences.edit() } returns mockNewEditor
+        every { mockNewEditor.clear() } returns mockNewEditor
+        every { mockNewEditor.apply() } just Runs
 
         EncryptedSharedPreferencesToSharedPreferencesMigration().migrate(
             mockOldSharedPreferences,
             mockNewSharedPreferences
         )
 
-        verify { mockOldSharedPreferences.edit() }
-        verify { mockEditor.clear() }
-        verify { mockEditor.apply() }
-        verify(exactly = 0) { mockNewSharedPreferences.edit() }
+        verify { mockOldEditor.clear() }
+        verify { mockOldEditor.apply() }
+        verify { mockNewEditor.clear() }
+        verify { mockNewEditor.apply() }
     }
 
     @Test
-    fun shouldClearOldPrefs_whenExceptionThrownDuringWrite() {
-        every { mockOldSharedPreferences.all } returns mapOf("key" to "value")
-        every { mockNewSharedPreferences.edit() } returns mockEditor
-        every { mockEditor.putString(any(), any()) } throws GeneralSecurityException("Encryption error")
-        every { mockOldSharedPreferences.edit() } returns mockEditor
-        every { mockEditor.clear() } returns mockEditor
-        every { mockEditor.apply() } just Runs
+    fun shouldClearBothPrefs_whenPerKeyWriteThrows() {
+        every { mockOldSharedPreferences.all } returns linkedMapOf(
+            "key_before" to "value_before",
+            "key_bad" to "value_bad",
+            "key_after" to "value_after"
+        )
+        every { mockNewSharedPreferences.edit() } returns mockNewEditor
+        every { mockNewEditor.putString("key_before", "value_before") } returns mockNewEditor
+        every { mockNewEditor.putString("key_bad", "value_bad") } throws GeneralSecurityException("Encryption error")
+        every { mockNewEditor.clear() } returns mockNewEditor
+        every { mockNewEditor.apply() } just Runs
+        every { mockOldSharedPreferences.edit() } returns mockOldEditor
+        every { mockOldEditor.clear() } returns mockOldEditor
+        every { mockOldEditor.apply() } just Runs
 
         EncryptedSharedPreferencesToSharedPreferencesMigration().migrate(
             mockOldSharedPreferences,
             mockNewSharedPreferences
         )
 
-        verify { mockOldSharedPreferences.edit() }
-        verify { mockEditor.clear() }
-        verify { mockEditor.apply() }
+        verify { mockNewEditor.putString("key_before", "value_before") }
+        verify(exactly = 0) { mockNewEditor.putString("key_after", "value_after") }
+        verify { mockOldEditor.clear() }
+        verify { mockOldEditor.apply() }
+        verify { mockNewEditor.clear() }
+    }
+
+    @Test
+    fun shouldNotCrash_whenClearingNewPrefsFailsInOuterCatch() {
+        every { mockOldSharedPreferences.all } throws SecurityException("decryption failed")
+        every { mockOldSharedPreferences.edit() } returns mockOldEditor
+        every { mockOldEditor.clear() } returns mockOldEditor
+        every { mockOldEditor.apply() } just Runs
+        every { mockNewSharedPreferences.edit() } returns mockNewEditor
+        every { mockNewEditor.clear() } returns mockNewEditor
+        every { mockNewEditor.apply() } throws IllegalStateException("apply failed")
+
+        shouldNotThrowAny {
+            EncryptedSharedPreferencesToSharedPreferencesMigration().migrate(
+                mockOldSharedPreferences,
+                mockNewSharedPreferences
+            )
+        }
+
+        verify { mockOldEditor.clear() }
+        verify { mockOldEditor.apply() }
+        verify { mockNewEditor.clear() }
+    }
+
+    @Test
+    fun shouldStillClearOldPrefs_whenClearingNewPrefsFailsInOuterCatch() {
+        every { mockOldSharedPreferences.all } throws SecurityException("decryption failed")
+        every { mockOldSharedPreferences.edit() } returns mockOldEditor
+        every { mockOldEditor.clear() } returns mockOldEditor
+        every { mockOldEditor.apply() } just Runs
+        every { mockNewSharedPreferences.edit() } throws IllegalStateException("cannot edit")
+
+        EncryptedSharedPreferencesToSharedPreferencesMigration().migrate(
+            mockOldSharedPreferences,
+            mockNewSharedPreferences
+        )
+
+        verify { mockOldEditor.clear() }
+        verify { mockOldEditor.apply() }
     }
 
     @Test
     fun shouldNotThrowAnyExceptionsDuringSuccessfulMigration() {
         every { mockOldSharedPreferences.all } returns mapOf("key" to "value")
-        every { mockNewSharedPreferences.edit() } returns mockEditor
-        every { mockEditor.putString(any(), any()) } returns mockEditor
-        every { mockEditor.apply() } just Runs
-        every { mockOldSharedPreferences.edit() } returns mockEditor
-        every { mockEditor.clear() } returns mockEditor
-        every { mockEditor.apply() } just Runs
+        every { mockNewSharedPreferences.edit() } returns mockNewEditor
+        every { mockNewEditor.putString(any(), any()) } returns mockNewEditor
+        every { mockNewEditor.apply() } just Runs
+        every { mockOldSharedPreferences.edit() } returns mockOldEditor
+        every { mockOldEditor.clear() } returns mockOldEditor
+        every { mockOldEditor.apply() } just Runs
 
         shouldNotThrowAny {
             EncryptedSharedPreferencesToSharedPreferencesMigration().migrate(
