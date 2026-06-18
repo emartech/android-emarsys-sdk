@@ -11,6 +11,7 @@ import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
+import com.emarsys.core.connection.ConnectionWatchDog
 import com.emarsys.core.crypto.Crypto
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.feature.FeatureRegistry
@@ -48,8 +49,12 @@ class DefaultConfigInternal(
     private val crypto: Crypto,
     private val clientServiceInternal: ClientServiceInternal,
     private val concurrentHandlerHolder: ConcurrentHandlerHolder,
-    private val predictInternal: PredictInternal
+    private val predictInternal: PredictInternal,
+    private val connectionWatchDog: ConnectionWatchDog
 ) : ConfigInternal {
+
+    var hasFetchedThisSession: Boolean = false
+        internal set
 
     override val applicationCode: String?
         get() = mobileEngageRequestContext.applicationCode
@@ -180,6 +185,9 @@ class DefaultConfigInternal(
     }
 
     override fun refreshRemoteConfig(completionListener: CompletionListener?) {
+        if (!connectionWatchDog.isConnected) {
+            return
+        }
         mobileEngageRequestContext.applicationCode?.let { applicationCode ->
             fetchRemoteConfigSignature(ResultListener { signatureResponse ->
                 signatureResponse.result?.let { signature ->
@@ -191,6 +199,7 @@ class DefaultConfigInternal(
                                 )
                             ) {
                                 applyRemoteConfig(configResponseMapper.map(remoteConfigResponseModel))
+                                hasFetchedThisSession = true
                                 completionListener?.onCompleted(null)
                             } else {
                                 resetRemoteConfig()

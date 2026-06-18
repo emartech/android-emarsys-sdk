@@ -4,6 +4,7 @@ import com.emarsys.clientservice.ClientServiceApi
 import com.emarsys.config.ConfigApi
 import com.emarsys.config.ConfigInternal
 import com.emarsys.config.EmarsysConfig
+import com.emarsys.config.RemoteConfigForegroundRefresher
 import com.emarsys.core.di.CoreComponent
 import com.emarsys.deeplink.DeepLinkApi
 import com.emarsys.eventservice.EventServiceApi
@@ -84,6 +85,8 @@ interface EmarsysComponent : MobileEngageComponent, PredictComponent {
     val loggingMobileEngage: MobileEngageApi
 
     val configInternal: ConfigInternal
+
+    val remoteConfigForegroundRefresher: RemoteConfigForegroundRefresher
 
     val clientService: ClientServiceApi
 

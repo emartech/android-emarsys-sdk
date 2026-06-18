@@ -61,18 +61,12 @@ open class ConnectionWatchDog(
                 val network = connectivityManager.activeNetwork ?: return false
                 val networkCapabilities =
                     connectivityManager.getNetworkCapabilities(network) ?: return false
-                return when {
-                    networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-                    networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-                    networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN) -> true
-                    networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
-                    else -> false
-                }
+                networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                        networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
             } catch (ignored: Exception) {
                 false
             }
         }
-
 
     open fun registerReceiver(connectionChangeListener: ConnectionChangeListener) {
         try {

@@ -322,7 +322,7 @@ class EmarsysTest {
         runBlockingOnCoreSdkThread()
 
         FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe true
-        verify { mockConfigInternal.refreshRemoteConfig(any()) }
+        verify { mockConfigInternal.refreshRemoteConfig(null) }
     }
 
     @Test

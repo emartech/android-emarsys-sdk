@@ -88,6 +88,10 @@ class ConnectionWatchDogTest  {
             true,
             NetworkCapabilities.TRANSPORT_WIFI
         )
+        val capabilities = networkCapabilitiesOf(contextMock)
+        every { capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) } returns true
+        every { capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) } returns true
+
         val watchDog = ConnectionWatchDog(contextMock, concurrentHandlerHolder)
 
         watchDog.isConnected shouldBe true
@@ -98,5 +102,54 @@ class ConnectionWatchDogTest  {
         val contextMock = getContextMockWithAppContextWithConnectivityManager(false, -1)
         val watchDog = ConnectionWatchDog(contextMock, concurrentHandlerHolder)
         watchDog.isConnected shouldBe false
+    }
+
+    @Test
+    fun testIsConnected_returnsFalse_whenValidationIsMissing() {
+        val contextMock = getContextMockWithAppContextWithConnectivityManager(
+            true,
+            NetworkCapabilities.TRANSPORT_WIFI
+        )
+        val capabilities = networkCapabilitiesOf(contextMock)
+        every { capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) } returns true
+        every { capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) } returns false
+
+        val watchDog = ConnectionWatchDog(contextMock, concurrentHandlerHolder)
+
+        watchDog.isConnected shouldBe false
+    }
+
+    @Test
+    fun testIsConnected_returnsFalse_whenInternetCapabilityIsMissing() {
+        val contextMock = getContextMockWithAppContextWithConnectivityManager(
+            true,
+            NetworkCapabilities.TRANSPORT_WIFI
+        )
+        val capabilities = networkCapabilitiesOf(contextMock)
+        every { capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) } returns false
+        every { capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) } returns true
+
+        val watchDog = ConnectionWatchDog(contextMock, concurrentHandlerHolder)
+
+        watchDog.isConnected shouldBe false
+    }
+
+    @Test
+    fun testIsConnected_returnsFalse_whenNoActiveNetwork() {
+        val contextMock = getContextMockWithAppContextWithConnectivityManager(false, -1)
+        val manager =
+            contextMock.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        every { manager.activeNetwork } returns null
+
+        val watchDog = ConnectionWatchDog(contextMock, concurrentHandlerHolder)
+
+        watchDog.isConnected shouldBe false
+    }
+
+    private fun networkCapabilitiesOf(contextMock: Context): NetworkCapabilities {
+        val manager =
+            contextMock.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = manager.activeNetwork
+        return manager.getNetworkCapabilities(network)!!
     }
 }

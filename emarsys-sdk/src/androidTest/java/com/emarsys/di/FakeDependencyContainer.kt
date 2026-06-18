@@ -7,6 +7,7 @@ import com.emarsys.clientservice.ClientServiceApi
 import com.emarsys.config.ConfigApi
 import com.emarsys.config.ConfigInternal
 import com.emarsys.config.EmarsysConfig
+import com.emarsys.config.RemoteConfigForegroundRefresher
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
@@ -104,6 +105,7 @@ class FakeDependencyContainer(
     override val mobileEngage: MobileEngageApi = mock(),
     override val loggingMobileEngage: MobileEngageApi = mock(),
     override val configInternal: ConfigInternal = mock(),
+    override val remoteConfigForegroundRefresher: RemoteConfigForegroundRefresher = mock(),
     override val clientService: ClientServiceApi = mock(),
     override val loggingClientService: ClientServiceApi = mock(),
     override val eventService: EventServiceApi = mock(),

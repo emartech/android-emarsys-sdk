@@ -10,6 +10,7 @@ import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
+import com.emarsys.core.connection.ConnectionWatchDog
 import com.emarsys.core.crypto.Crypto
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.feature.FeatureRegistry
@@ -85,6 +86,7 @@ class DefaultConfigInternalTest {
     private lateinit var mockClientServiceInternal: ClientServiceInternal
     private lateinit var mockCompletionListener: CompletionListener
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
+    private lateinit var mockConnectionWatchDog: ConnectionWatchDog
 
     @Before
     fun setUp() {
@@ -147,6 +149,9 @@ class DefaultConfigInternalTest {
             (args[0] as CompletionListener?)?.onCompleted(null)
         }
 
+        mockConnectionWatchDog = mockk(relaxed = true)
+        every { mockConnectionWatchDog.isConnected } returns true
+
         configInternal = spyk(
             DefaultConfigInternal(
                 mockMobileEngageRequestContext,
@@ -166,7 +171,8 @@ class DefaultConfigInternalTest {
                 mockCrypto,
                 mockClientServiceInternal,
                 concurrentHandlerHolder,
-                mockPredictInternal
+                mockPredictInternal,
+                mockConnectionWatchDog
             )
         )
     }
@@ -261,7 +267,8 @@ class DefaultConfigInternalTest {
             mockCrypto,
             mockClientServiceInternal,
             concurrentHandlerHolder,
-            mockPredictInternal
+            mockPredictInternal,
+            mockConnectionWatchDog
         )
         val latch = CountDownLatch(1)
         val completionListener = CompletionListener {
@@ -313,7 +320,8 @@ class DefaultConfigInternalTest {
             mockCrypto,
             mockClientServiceInternal,
             concurrentHandlerHolder,
-            mockPredictInternal
+            mockPredictInternal,
+            mockConnectionWatchDog
         )
 
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE) {
@@ -361,7 +369,8 @@ class DefaultConfigInternalTest {
             mockCrypto,
             mockClientServiceInternal,
             concurrentHandlerHolder,
-            mockPredictInternal
+            mockPredictInternal,
+            mockConnectionWatchDog
         )
 
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE) {
@@ -719,7 +728,8 @@ class DefaultConfigInternalTest {
             mockCrypto,
             mockClientServiceInternal,
             concurrentHandlerHolder,
-            mockPredictInternal
+            mockPredictInternal,
+            mockConnectionWatchDog
         )
 
         configInternal.fetchRemoteConfig(resultListener)
@@ -755,7 +765,8 @@ class DefaultConfigInternalTest {
             mockCrypto,
             mockClientServiceInternal,
             concurrentHandlerHolder,
-            mockPredictInternal
+            mockPredictInternal,
+            mockConnectionWatchDog
         )
 
         val resultListener =
@@ -789,7 +800,8 @@ class DefaultConfigInternalTest {
             mockCrypto,
             mockClientServiceInternal,
             concurrentHandlerHolder,
-            mockPredictInternal
+            mockPredictInternal,
+            mockConnectionWatchDog
         )
 
         val resultListener =
@@ -831,7 +843,8 @@ class DefaultConfigInternalTest {
             mockCrypto,
             mockClientServiceInternal,
             concurrentHandlerHolder,
-            mockPredictInternal
+            mockPredictInternal,
+            mockConnectionWatchDog
         )
 
         configInternal.fetchRemoteConfigSignature(resultListener)
@@ -867,7 +880,8 @@ class DefaultConfigInternalTest {
             mockCrypto,
             mockClientServiceInternal,
             concurrentHandlerHolder,
-            mockPredictInternal
+            mockPredictInternal,
+            mockConnectionWatchDog
         )
 
         val resultListener = FakeResultListener<String>(latch, FakeResultListener.Mode.MAIN_THREAD)
@@ -900,7 +914,8 @@ class DefaultConfigInternalTest {
             mockCrypto,
             mockClientServiceInternal,
             concurrentHandlerHolder,
-            mockPredictInternal
+            mockPredictInternal,
+            mockConnectionWatchDog
         )
 
         val resultListener = FakeResultListener<String>(latch, FakeResultListener.Mode.MAIN_THREAD)
@@ -1127,6 +1142,100 @@ class DefaultConfigInternalTest {
 
         latch.await()
         threadSpy.verifyCalledOnMainThread()
+    }
+
+    @Test
+    fun testRefreshRemoteConfig_shouldNotFetch_whenNotConnected() {
+        every { mockConnectionWatchDog.isConnected } returns false
+
+        configInternal.refreshRemoteConfig(mockCompletionListener)
+
+        verify(exactly = 0) { (configInternal as DefaultConfigInternal).fetchRemoteConfigSignature(any()) }
+        verify(exactly = 0) { mockCompletionListener.onCompleted(any()) }
+        confirmVerified(mockEmarsysRequestModelFactory)
+        confirmVerified(mockRequestManager)
+    }
+
+    @Test
+    fun testRefreshRemoteConfig_shouldFetchSignature_whenConnected() {
+        every { mockConnectionWatchDog.isConnected } returns true
+
+        configInternal.refreshRemoteConfig(mockCompletionListener)
+
+        verify { (configInternal as DefaultConfigInternal).fetchRemoteConfigSignature(any()) }
+    }
+
+    @Test
+    fun testHasFetchedThisSession_isFalse_initially() {
+        (configInternal as DefaultConfigInternal).hasFetchedThisSession shouldBe false
+    }
+
+    @Test
+    fun testHasFetchedThisSession_isTrue_afterSuccessfulRefresh() {
+        val expectedRemoteConfig = RemoteConfig(eventServiceUrl = "https://test.emarsys.com")
+        val expectedResponseModel = ResponseModel.Builder()
+            .body("""{"serviceUrls":{"eventService":"https://test.emarsys.com"}}""")
+            .statusCode(200)
+            .requestModel(mockRequestModel)
+            .message("responseMessage").build()
+        every { mockConfigResponseMapper.map(expectedResponseModel) } returns expectedRemoteConfig
+
+        every { (configInternal as DefaultConfigInternal).fetchRemoteConfigSignature(any()) } answers {
+            args[0]?.tryCast<ResultListener<Try<String>>> { onResult(Try.success("signature")) }
+        }
+        every { (configInternal as DefaultConfigInternal).fetchRemoteConfig(any()) } answers {
+            args[0]?.tryCast<ResultListener<Try<ResponseModel>>> { onResult(Try.success(expectedResponseModel)) }
+        }
+        every {
+            mockCrypto.verify(expectedResponseModel.body!!.toByteArray(), "signature")
+        } returns true
+
+        configInternal.refreshRemoteConfig(mockCompletionListener)
+
+        (configInternal as DefaultConfigInternal).hasFetchedThisSession shouldBe true
+    }
+
+    @Test
+    fun testHasFetchedThisSession_remainsFalse_whenSignatureFetchFails() {
+        every { (configInternal as DefaultConfigInternal).fetchRemoteConfigSignature(any()) } answers {
+            args[0]?.tryCast<ResultListener<Try<String>>> { onResult(Try.failure(mockk(relaxed = true))) }
+        }
+
+        configInternal.refreshRemoteConfig(mockCompletionListener)
+
+        (configInternal as DefaultConfigInternal).hasFetchedThisSession shouldBe false
+    }
+
+    @Test
+    fun testHasFetchedThisSession_remainsFalse_whenVerifyFails() {
+        val expectedResponseModel = ResponseModel.Builder()
+            .body("""{"serviceUrls":{"eventService":"https://test.emarsys.com"}}""")
+            .statusCode(200)
+            .requestModel(mockRequestModel)
+            .message("responseMessage").build()
+
+        every { (configInternal as DefaultConfigInternal).fetchRemoteConfigSignature(any()) } answers {
+            args[0]?.tryCast<ResultListener<Try<String>>> { onResult(Try.success("signature")) }
+        }
+        every { (configInternal as DefaultConfigInternal).fetchRemoteConfig(any()) } answers {
+            args[0]?.tryCast<ResultListener<Try<ResponseModel>>> { onResult(Try.success(expectedResponseModel)) }
+        }
+        every {
+            mockCrypto.verify(expectedResponseModel.body!!.toByteArray(), "signature")
+        } returns false
+
+        configInternal.refreshRemoteConfig(mockCompletionListener)
+
+        (configInternal as DefaultConfigInternal).hasFetchedThisSession shouldBe false
+    }
+
+    @Test
+    fun testHasFetchedThisSession_remainsFalse_whenNotConnected() {
+        every { mockConnectionWatchDog.isConnected } returns false
+
+        configInternal.refreshRemoteConfig(mockCompletionListener)
+
+        (configInternal as DefaultConfigInternal).hasFetchedThisSession shouldBe false
     }
 
     private fun requestManagerWithRestClient(restClient: RestClient): RequestManager {

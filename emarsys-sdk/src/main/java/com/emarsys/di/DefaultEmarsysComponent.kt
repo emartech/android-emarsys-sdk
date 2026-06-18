@@ -20,6 +20,7 @@ import com.emarsys.config.ConfigInternal
 import com.emarsys.config.DefaultConfigInternal
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.config.RemoteConfigResponseMapper
+import com.emarsys.config.RemoteConfigForegroundRefresher
 import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.Mapper
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
@@ -957,7 +958,16 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             crypto,
             clientServiceInternal,
             concurrentHandlerHolder,
-            predictInternal
+            predictInternal,
+            connectionWatchdog
+        )
+    }
+
+    override val remoteConfigForegroundRefresher: RemoteConfigForegroundRefresher by lazy {
+        RemoteConfigForegroundRefresher(
+            configInternal as DefaultConfigInternal,
+            connectionWatchdog,
+            concurrentHandlerHolder
         )
     }
 

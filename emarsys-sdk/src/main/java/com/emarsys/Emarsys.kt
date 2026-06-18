@@ -106,6 +106,7 @@ object Emarsys {
     private fun registerLifecycleObservers() {
         val appLifecycleObserver = emarsys().appLifecycleObserver
         ProcessLifecycleOwner.get().lifecycle.addObserver(appLifecycleObserver)
+        ProcessLifecycleOwner.get().lifecycle.addObserver(emarsys().remoteConfigForegroundRefresher)
     }
 
     @JvmStatic
@@ -294,16 +295,7 @@ object Emarsys {
             ).contains(applicationCode?.lowercase()) && applicationCode != null
         ) {
             emarsys().configInternal.proxyApi(mobileEngage().concurrentHandlerHolder)
-                .refreshRemoteConfig {
-                    it?.let {
-                        val logEntry = StatusLog(
-                            Emarsys::class.java,
-                            "refreshRemoteConfig",
-                            mapOf("applicationCode" to applicationCode, "exception" to it.message)
-                        )
-                        Logger.error(logEntry)
-                    }
-                }
+                .refreshRemoteConfig(null)
         } else {
             Log.w("EmarsysSdk", "Invalid applicationCode: $applicationCode")
             val logEntry = StatusLog(
