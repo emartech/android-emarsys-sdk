@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.iam.dialog
 
+import android.annotation.TargetApi
 import android.app.Activity
 import android.content.DialogInterface
 import android.graphics.Color
@@ -9,7 +10,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
-import androidx.annotation.RequiresApi
 import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.DialogFragment
 import com.emarsys.core.Mockable
@@ -100,7 +100,7 @@ class IamDialog(
         }
     }
 
-    @RequiresApi(33)
+    @TargetApi(33)
     private fun getInAppMetaDataFromBundle(savedInstanceState: Bundle?) =
         savedInstanceState?.getSerializable("inAppMetaData", InAppMetaData::class.java)
 
