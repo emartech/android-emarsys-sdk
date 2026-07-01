@@ -37,7 +37,12 @@ class OverlayInAppPresenter(
 
                     val onPageLoaded = MessageLoadedListener {
                         val endTimestamp = timestampProvider.provideTimestamp()
-                        iamDialog.setInAppLoadingTime(InAppLoadingTime(startTimestamp, endTimestamp))
+                        iamDialog.setInAppLoadingTime(
+                            InAppLoadingTime(
+                                startTimestamp,
+                                endTimestamp
+                            )
+                        )
                         concurrentHandlerHolder.coreHandler.post {
                             messageLoadedListener?.onMessageLoaded()
                             showingInProgress = false
@@ -50,20 +55,29 @@ class OverlayInAppPresenter(
                         activity
                     )
 
-                    val fragmentManager = activity.fragmentManager() ?: return@postOnMain
-                    if (fragmentManager.findFragmentByTag(IamDialog.TAG) == null && !fragmentManager.isStateSaved) {
-                        iamDialog.showNow(fragmentManager, IamDialog.TAG)
+                    val fragmentManager = activity.fragmentManager()
+                    if (fragmentManager == null) {
+                        handleError(messageLoadedListener)
+                        return@postOnMain
+                    } else {
+                        if (fragmentManager.findFragmentByTag(IamDialog.TAG) == null && !fragmentManager.isStateSaved) {
+                            iamDialog.showNow(fragmentManager, IamDialog.TAG)
+                        }
                     }
                 } catch (e: Exception) {
-                    concurrentHandlerHolder.coreHandler.post {
-                        Logger.error(CrashLog(e))
-                        messageLoadedListener?.onMessageLoaded()
-                        showingInProgress = false
-                    }
+                    Logger.error(CrashLog(e))
+                    handleError(messageLoadedListener)
                 }
             }
         } else {
             messageLoadedListener?.onMessageLoaded()
+        }
+    }
+
+    private fun handleError(messageLoadedListener: MessageLoadedListener?) {
+        concurrentHandlerHolder.coreHandler.post {
+            messageLoadedListener?.onMessageLoaded()
+            showingInProgress = false
         }
     }
 }

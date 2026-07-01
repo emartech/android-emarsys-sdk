@@ -1,16 +1,16 @@
 package com.emarsys.mobileengage.iam.dialog
 
-import android.annotation.TargetApi
 import android.app.Activity
 import android.content.DialogInterface
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
+import androidx.annotation.RequiresApi
+import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.DialogFragment
 import com.emarsys.core.Mockable
 import com.emarsys.core.provider.timestamp.TimestampProvider
@@ -100,7 +100,7 @@ class IamDialog(
         }
     }
 
-    @TargetApi(33)
+    @RequiresApi(33)
     private fun getInAppMetaDataFromBundle(savedInstanceState: Bundle?) =
         savedInstanceState?.getSerializable("inAppMetaData", InAppMetaData::class.java)
 
@@ -125,7 +125,7 @@ class IamDialog(
 
         val window = dialog?.window
 
-        dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog?.window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
         val windowParams = window?.attributes
         windowParams?.dimAmount = 0.0f
         window?.attributes = windowParams

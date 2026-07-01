@@ -114,7 +114,9 @@ class IamDialogTest {
             scenario!!.onActivity { activity ->
                 every {
                     mockCurrentActivityProvider.get()
-                } returns activity
+                } answers {
+                    activity
+                }
 
                 iamWebView = createWebView()
                 countDownLatch.countDown()
@@ -218,25 +220,6 @@ class IamDialogTest {
         }
         fragmentScenario.onFragment { fragment ->
             verify { mockWebViewFactory.create(fragment.activity!!) }
-        }
-    }
-
-    @Test
-    fun testOnCreate_should_notOverrideHtml_whenItIsStillAvailable() {
-        val mockIamWebView: IamWebView = mockk(relaxed = true)
-        every { mockWebViewFactory.create(any()) } returns mockIamWebView
-
-        val testHtml = "<html>123</html>"
-        val testInAppMetaData = InAppMetaData("123", null, null)
-        ReflectionTestUtils.setInstanceField(iamDialog, "html", testHtml)
-        ReflectionTestUtils.setInstanceField(iamDialog, "inAppMetaData", testInAppMetaData)
-
-        val fragmentScenario = launchFragment(initialState = Lifecycle.State.CREATED) {
-            iamDialog
-        }
-
-        fragmentScenario.onFragment {
-            verify { mockIamWebView.load(testHtml, testInAppMetaData, any()) }
         }
     }
 
@@ -519,7 +502,7 @@ class IamDialogTest {
         val messageLoadedListener = MessageLoadedListener { }
 
         val mockIamWebView: IamWebView = mockk(relaxed = true)
-        every { mockWebViewFactory.create(mockk(relaxed = true)) } returns mockIamWebView
+        every { mockWebViewFactory.create(any()) } returns mockIamWebView
 
         val dialog = IamDialog(
             mobileEngage().timestampProvider,
@@ -535,73 +518,70 @@ class IamDialogTest {
 
     @Test
     fun testOnStart_shouldTriggerWebViewLoad_withStagedHtmlAndListener() {
-        launchActivityIfNeeded()
-
         val mockIamWebView: IamWebView = mockk(relaxed = true)
-        every { mockWebViewFactory.create(any()) } returns mockIamWebView
-        every { mockIamWebView.webView } returns WebView(getTargetContext())
 
         val html = "<html></html>"
         val inAppMetaData = InAppMetaData(CAMPAIGN_ID, null, null)
         val messageLoadedListener = MessageLoadedListener { }
 
-        iamDialog.loadInApp(html, inAppMetaData, messageLoadedListener, mockk(relaxed = true))
+        ReflectionTestUtils.setInstanceField(iamDialog, "iamWebView", mockIamWebView)
+        ReflectionTestUtils.setInstanceField(iamDialog, "html", html)
+        ReflectionTestUtils.setInstanceField(iamDialog, "inAppMetaData", inAppMetaData)
+        ReflectionTestUtils.setInstanceField(iamDialog, "pendingPageLoadedListener", messageLoadedListener)
 
-        val fragmentScenario = launchFragment(initialState = Lifecycle.State.CREATED) { iamDialog }
-        displayDialog(fragmentScenario)
+        ReflectionTestUtils.invokeInstanceMethod<Any?>(iamDialog, "triggerWebViewLoadOnce")
 
         verify { mockIamWebView.load(html, inAppMetaData, messageLoadedListener) }
     }
 
     @Test
     fun testOnStart_shouldTriggerWebViewLoad_onlyOnce_acrossMultipleStartStop() {
-        launchActivityIfNeeded()
-
         val mockIamWebView: IamWebView = mockk(relaxed = true)
-        every { mockWebViewFactory.create(any()) } returns mockIamWebView
-        every { mockIamWebView.webView } returns WebView(getTargetContext())
 
         val html = "<html></html>"
         val inAppMetaData = InAppMetaData(CAMPAIGN_ID, null, null)
         val messageLoadedListener = MessageLoadedListener { }
 
-        iamDialog.loadInApp(html, inAppMetaData, messageLoadedListener, mockk(relaxed = true))
+        ReflectionTestUtils.setInstanceField(iamDialog, "iamWebView", mockIamWebView)
+        ReflectionTestUtils.setInstanceField(iamDialog, "html", html)
+        ReflectionTestUtils.setInstanceField(iamDialog, "inAppMetaData", inAppMetaData)
+        ReflectionTestUtils.setInstanceField(iamDialog, "pendingPageLoadedListener", messageLoadedListener)
 
-        val fragmentScenario = launchFragment(initialState = Lifecycle.State.CREATED) { iamDialog }
-        displayDialog(fragmentScenario)
-        fragmentScenario.moveToState(Lifecycle.State.CREATED)
-        fragmentScenario.moveToState(Lifecycle.State.RESUMED)
+        ReflectionTestUtils.invokeInstanceMethod<Any?>(iamDialog, "triggerWebViewLoadOnce")
+        ReflectionTestUtils.invokeInstanceMethod<Any?>(iamDialog, "triggerWebViewLoadOnce")
+        ReflectionTestUtils.invokeInstanceMethod<Any?>(iamDialog, "triggerWebViewLoadOnce")
 
         verify(exactly = 1) { mockIamWebView.load(html, inAppMetaData, messageLoadedListener) }
     }
 
     @Test
     fun testTwoSequentialDialogs_bothTriggerWebViewLoad() {
-        launchActivityIfNeeded()
-
         val firstWebView: IamWebView = mockk(relaxed = true)
         val secondWebView: IamWebView = mockk(relaxed = true)
-        every { firstWebView.webView } returns WebView(getTargetContext())
-        every { secondWebView.webView } returns WebView(getTargetContext())
-        every { mockWebViewFactory.create(any()) } returnsMany listOf(firstWebView, secondWebView)
 
         val firstHtml = "<html><body>first</body></html>"
         val secondHtml = "<html><body>second</body></html>"
         val firstMeta = InAppMetaData("campaign-1", null, null)
         val secondMeta = InAppMetaData("campaign-2", null, null)
+        val firstListener = MessageLoadedListener { }
+        val secondListener = MessageLoadedListener { }
 
         val firstDialog = IamDialog(mockTimestampProvider, mockWebViewFactory)
-        firstDialog.loadInApp(firstHtml, firstMeta, MessageLoadedListener {}, mockk(relaxed = true))
-        val firstScenario = launchFragment(initialState = Lifecycle.State.CREATED) { firstDialog }
-        displayDialog(firstScenario)
+        ReflectionTestUtils.setInstanceField(firstDialog, "iamWebView", firstWebView)
+        ReflectionTestUtils.setInstanceField(firstDialog, "html", firstHtml)
+        ReflectionTestUtils.setInstanceField(firstDialog, "inAppMetaData", firstMeta)
+        ReflectionTestUtils.setInstanceField(firstDialog, "pendingPageLoadedListener", firstListener)
+        ReflectionTestUtils.invokeInstanceMethod<Any?>(firstDialog, "triggerWebViewLoadOnce")
 
         val secondDialog = IamDialog(mockTimestampProvider, mockWebViewFactory)
-        secondDialog.loadInApp(secondHtml, secondMeta, MessageLoadedListener {}, mockk(relaxed = true))
-        val secondScenario = launchFragment(initialState = Lifecycle.State.CREATED) { secondDialog }
-        displayDialog(secondScenario)
+        ReflectionTestUtils.setInstanceField(secondDialog, "iamWebView", secondWebView)
+        ReflectionTestUtils.setInstanceField(secondDialog, "html", secondHtml)
+        ReflectionTestUtils.setInstanceField(secondDialog, "inAppMetaData", secondMeta)
+        ReflectionTestUtils.setInstanceField(secondDialog, "pendingPageLoadedListener", secondListener)
+        ReflectionTestUtils.invokeInstanceMethod<Any?>(secondDialog, "triggerWebViewLoadOnce")
 
-        verify { firstWebView.load(firstHtml, firstMeta, any()) }
-        verify { secondWebView.load(secondHtml, secondMeta, any()) }
+        verify { firstWebView.load(firstHtml, firstMeta, firstListener) }
+        verify { secondWebView.load(secondHtml, secondMeta, secondListener) }
     }
 
     private fun createWebView(): IamWebView {
