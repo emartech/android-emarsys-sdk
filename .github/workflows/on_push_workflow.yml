@@ -95,29 +95,53 @@ jobs:
       - name: Build
         run: make build-test
 
-      - name: Test core
+      - name: Test core API 28
         if: matrix.task == 'core'
-        run: make test-android-firebase-emulator MODULE_NAME=core
+        run: make test-android-firebase-emulator-api28 MODULE_NAME=core
 
-      - name: Test mobile-engage
+      - name: Test core API 35
+        if: matrix.task == 'core'
+        run: make test-android-firebase-emulator-api35 MODULE_NAME=core
+
+      - name: Test mobile-engage API 28
         if: matrix.task == 'mobile-engage'
-        run: make test-android-firebase-emulator MODULE_NAME=mobile-engage
+        run: make test-android-firebase-emulator-api28 MODULE_NAME=mobile-engage
 
-      - name: Test predict
+      - name: Test mobile-engage API 35
+        if: matrix.task == 'mobile-engage'
+        run: make test-android-firebase-emulator-api35 MODULE_NAME=mobile-engage
+
+      - name: Test predict API 28
         if: matrix.task == 'predict'
-        run: make test-android-firebase-emulator MODULE_NAME=predict
+        run: make test-android-firebase-emulator-api28 MODULE_NAME=predict
 
-      - name: Test emarsys-firebase
+      - name: Test predict API 35
+        if: matrix.task == 'predict'
+        run: make test-android-firebase-emulator-api35 MODULE_NAME=predict
+
+      - name: Test emarsys-firebase API 28
         if: matrix.task == 'emarsys-firebase'
-        run: make test-android-firebase-emulator MODULE_NAME=emarsys-firebase
+        run: make test-android-firebase-emulator-api28 MODULE_NAME=emarsys-firebase
 
-      - name: Test emarsys-huawei
+      - name: Test emarsys-firebase API 35
+        if: matrix.task == 'emarsys-firebase'
+        run: make test-android-firebase-emulator-api35 MODULE_NAME=emarsys-firebase
+
+      - name: Test emarsys-huawei API 28
         if: matrix.module == 'emarsys-huawei'
-        run: make task-android-firebase-emulator MODULE_NAME=emarsys-huawei
+        run: make test-android-firebase-emulator-api28 MODULE_NAME=emarsys-huawei
 
-      - name: Test emarsys-sdk
+      - name: Test emarsys-huawei API 35
+        if: matrix.module == 'emarsys-huawei'
+        run: make test-android-firebase-emulator-api35 MODULE_NAME=emarsys-huawei
+
+      - name: Test emarsys-sdk API 28
         if: matrix.task == 'emarsys-sdk'
-        run: make test-android-firebase-emulator MODULE_NAME=emarsys-sdk
+        run: make test-android-firebase-emulator-api28 MODULE_NAME=emarsys-sdk
+
+      - name: Test emarsys-sdk API 35
+        if: matrix.task == 'emarsys-sdk'
+        run: make test-android-firebase-emulator-api35 MODULE_NAME=emarsys-sdk
 
       - name: Run lint
         if: matrix.task == 'lint'
