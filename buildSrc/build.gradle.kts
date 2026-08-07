@@ -1,9 +1,5 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.9.0"
-    id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
-    id("co.uzzu.dotenv.gradle") version "4.0.0"
-    id("maven-publish")
-    signing
+    id("org.jetbrains.kotlin.jvm") version "2.4.10"
 }
 
 repositories {
