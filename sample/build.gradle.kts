@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin)
     alias(libs.plugins.kotlin.allopen)
     alias(libs.plugins.androidx.navigation.safeargs)
     alias(libs.plugins.google.services)
