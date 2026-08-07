@@ -95,7 +95,7 @@ jobs:
       - name: Build
         run: make build-test
 
-      - name: Test core API 28
+      - name: Test core API 29
         if: matrix.task == 'core'
         run: make test-android-firebase-emulator-api29 MODULE_NAME=core
 
