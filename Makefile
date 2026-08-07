@@ -49,12 +49,12 @@ prepare-sample-release: check-env ## prepares .jks file for sample release
 	@echo "$$ANDROID_RELEASE_STORE_FILE_BASE64" | base64 -d > sample/mobile-team-android.jks \
 	&& echo "$$GOOGLE_PLAY_STORE_SERVICE_ACCOUNT_JSON_BASE64" | base64 -d > sample/google-play-store-service-account.json
 
-test-android-firebase-emulator-api28: check-env ## run Android Instrumented tests on API 28 emulator on Firebase Test Lab
+test-android-firebase-emulator-api29: check-env ## run Android Instrumented tests on API 29 emulator on Firebase Test Lab
 	@gcloud firebase test android run \
        --type instrumentation \
        --app ./sample/build/outputs/apk/androidTest/debug/sample-debug-androidTest.apk \
        --test ./$(MODULE_NAME)/build/outputs/apk/androidTest/debug/$(MODULE_NAME)-debug-androidTest.apk \
-       --device model=Pixel2.arm,version=28,locale=en,orientation=portrait \
+       --device model=Pixel2.arm,version=29,locale=en,orientation=portrait \
        --client-details matrixLabel="Android Emarsys SDK - virtual devices"
 
 test-android-firebase-emulator-api35: check-env ## run Android Instrumented tests on API 35 emulator on Firebase Test Lab
