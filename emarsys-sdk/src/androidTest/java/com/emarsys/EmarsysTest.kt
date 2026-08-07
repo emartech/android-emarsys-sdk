@@ -516,8 +516,8 @@ class EmarsysTest {
         setup(mobileEngageConfig)
 
         runBlockingOnCoreSdkThread {
-            verify(exactly = 2) { application.registerActivityLifecycleCallbacks(any<ActivityLifecycleWatchdog>()) }
-
+            verify(exactly = 1) { application.registerActivityLifecycleCallbacks(any<ActivityLifecycleWatchdog>()) }
+            verify(exactly = 1) { application.registerActivityLifecycleCallbacks(any<TransitionSafeCurrentActivityWatchdog>()) }
         }
     }
 
