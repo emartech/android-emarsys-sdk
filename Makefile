@@ -1,4 +1,4 @@
-.PHONY: build-test check-env help create-sample-release-bundle create-testing-apks lint prepare-ci run-github-workflow-locally test-android-firebase test-android-firebase-emulator-api28 test-android-firebase-emulator-api35 release-to-sonatype prepare-sample-release
+.PHONY: build-test check-env help create-sample-release-bundle create-testing-apks lint prepare-ci run-github-workflow-locally test-android-firebase test-android-firebase-emulator-api29 test-android-firebase-emulator-api35 release-to-sonatype prepare-sample-release
 .DEFAULT_GOAL := help
 SHELL := /bin/bash
 
