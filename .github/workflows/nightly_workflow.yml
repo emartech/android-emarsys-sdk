@@ -76,6 +76,9 @@ jobs:
           gradle-version: 8.6
           cache-overwrite-existing: true
 
+      - name: Install Android SDK platform 37
+        run: $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-37"
+
       - name: Prepare CI
         run: make prepare-ci
 
