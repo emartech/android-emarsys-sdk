@@ -1,11 +1,9 @@
 # What's fixed
 
-### [Emarsys SDK](https://github.com/emartech/android-emarsys-sdk/wiki)
-
-* Added validation to the EmarsysConfig to prevent InvalidKeySpecException.
+### [Emarsys SDK](https://github.com/emartech/android-emarsys-sdk/wiki#8-geofence)
+* Fixed an issue where some geofence events may have an incorrect timestamp
 
 # What's changed
 
 ### [Emarsys SDK](https://github.com/emartech/android-emarsys-sdk/wiki)
-
-* Added multi-ID support to enable a contact's Product Recommendations (Predict) profile to be linked to their Mobile Engage profile
+* Fine tune encrypted shared preference migration

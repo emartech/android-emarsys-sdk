@@ -2,7 +2,6 @@ import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
 
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin)
     alias(libs.plugins.kotlin.allopen)
     alias(libs.plugins.nexus.publish)
 }

@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin)
     alias(libs.plugins.kotlin.allopen)
     alias(libs.plugins.androidx.navigation.safeargs)
     alias(libs.plugins.google.services)
@@ -54,6 +53,7 @@ android {
     buildFeatures {
         buildConfig = true
         compose = true
+        resValues = true
     }
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
@@ -96,7 +96,7 @@ android {
                 signingConfig = signingConfigs.getByName("release")
                 isMinifyEnabled = false
                 isDebuggable = false
-                proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+                proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             }
         }
     }
