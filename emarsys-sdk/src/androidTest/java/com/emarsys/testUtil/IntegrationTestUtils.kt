@@ -4,6 +4,7 @@ package com.emarsys.testUtil
 import android.app.Application
 import android.os.Handler
 import android.os.Looper
+import androidx.arch.core.internal.FastSafeIterableMap
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ProcessLifecycleOwner
@@ -47,7 +48,7 @@ object IntegrationTestUtils {
 
     @Synchronized
     fun tearDownEmarsys(application: Application? = null) {
-        val latch = CountDownLatch(1)
+        var latch = CountDownLatch(1)
         emarsys().concurrentHandlerHolder.coreHandler.post {
             if (application != null) {
                 application.unregisterActivityLifecycleCallbacks(emarsys().activityLifecycleWatchdog)
@@ -71,7 +72,27 @@ object IntegrationTestUtils {
         emarsys().concurrentHandlerHolder.coreLooper.quitSafely()
         latch.await()
 
-        removeLifecycleObservers()
+        latch = CountDownLatch(1)
+        emarsys().concurrentHandlerHolder.postOnMain {
+            val lifecycle = ProcessLifecycleOwner.get().lifecycle
+            if (lifecycle is LifecycleRegistry) {
+                val observerMap =
+                    ReflectionTestUtils.getInstanceField<FastSafeIterableMap<Any, Any>>(
+                        lifecycle,
+                        "observerMap"
+                    )
+                if (observerMap != null) {
+                    ReflectionTestUtils.getInstanceField<HashMap<Any, Any>>(
+                        observerMap,
+                        "mHashMap"
+                    )?.entries?.toMutableList()?.forEach {
+                        ProcessLifecycleOwner.get().lifecycle.removeObserver(it.key as LifecycleObserver)
+                    }
+                }
+            }
+            latch.countDown()
+        }
+        latch.await()
 
         emarsys().concurrentHandlerHolder.backgroundLooper.quit()
         emarsys().concurrentHandlerHolder.networkLooper.quit()
@@ -107,25 +128,4 @@ object IntegrationTestUtils {
             }
         }
     }
-
-    private fun removeLifecycleObservers() {
-        val latch = CountDownLatch(1)
-        emarsys().concurrentHandlerHolder.postOnMain {
-            val lifecycle = ProcessLifecycleOwner.get().lifecycle
-            if (lifecycle is LifecycleRegistry) {
-                val observerMap =
-                    ReflectionTestUtils.getInstanceField<Any>(lifecycle, "observerMap")
-                if (observerMap != null) {
-                    val firstMethod = observerMap.javaClass.getMethod("first")
-                    while (lifecycle.observerCount > 0) {
-                        val entry = firstMethod.invoke(observerMap) as? Map.Entry<*, *> ?: break
-                        ProcessLifecycleOwner.get().lifecycle.removeObserver(entry.key as LifecycleObserver)
-                    }
-                }
-            }
-            latch.countDown()
-        }
-        latch.await()
-    }
 }
-
