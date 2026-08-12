@@ -1,5 +1,6 @@
 package com.emarsys.core.api
 
+import com.emarsys.core.util.isNetworkException
 import com.emarsys.core.util.log.Logger.Companion.error
 import com.emarsys.core.util.log.entry.CrashLog
 import com.emarsys.core.util.rootCause
@@ -36,8 +37,11 @@ class LogExceptionProxy<T>(private val apiObject: T) : InvocationHandler {
             }
         } catch (exception: Exception) {
             if (exception is InvocationTargetException && exception.cause != null) {
-                error(CrashLog(exception.rootCause()))
-            } else {
+                val root = exception.rootCause()
+                if (root != null && !root.isNetworkException()) {
+                    error(CrashLog(root))
+                }
+            } else if (!exception.isNetworkException()) {
                 error(CrashLog(exception))
             }
         }
