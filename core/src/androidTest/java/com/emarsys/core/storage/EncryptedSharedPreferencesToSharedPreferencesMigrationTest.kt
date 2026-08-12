@@ -1,12 +1,20 @@
 package com.emarsys.core.storage
 
 import android.content.SharedPreferences
+import com.emarsys.core.di.FakeCoreDependencyContainer
+import com.emarsys.core.di.setupCoreComponent
+import com.emarsys.core.di.tearDownCoreComponent
+import com.emarsys.core.util.log.Logger
+import com.emarsys.core.util.log.entry.LogEntry
 import io.kotest.assertions.throwables.shouldNotThrowAny
+import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
+import org.junit.After
 import org.junit.Test
 import java.security.GeneralSecurityException
 
@@ -16,6 +24,11 @@ class EncryptedSharedPreferencesToSharedPreferencesMigrationTest {
     private val mockNewSharedPreferences = mockk<SharedPreferences>()
     private val mockOldEditor = mockk<SharedPreferences.Editor>()
     private val mockNewEditor = mockk<SharedPreferences.Editor>()
+
+    @After
+    fun tearDown() {
+        tearDownCoreComponent()
+    }
 
     @Test
     fun shouldMigrateData_from_oldSharedPreferences_to_newSharedPreferences() {
@@ -180,5 +193,32 @@ class EncryptedSharedPreferencesToSharedPreferencesMigrationTest {
                 mockNewSharedPreferences
             )
         }
+    }
+
+    @Test
+    fun perKeyErrorLog_doesNotContainRawPreferenceValue() {
+        val logEntrySlot = slot<LogEntry>()
+        val mockLogger = mockk<Logger>(relaxed = true) {
+            every { handleLog(any(), capture(logEntrySlot), any()) } just Runs
+        }
+        setupCoreComponent(FakeCoreDependencyContainer(logger = mockLogger))
+
+        every { mockOldSharedPreferences.all } returns linkedMapOf("secret_key" to "sensitive_token")
+        every { mockNewSharedPreferences.edit() } returns mockNewEditor
+        every { mockNewEditor.putString(any(), any()) } throws GeneralSecurityException("write failed")
+        every { mockNewEditor.clear() } returns mockNewEditor
+        every { mockNewEditor.apply() } just Runs
+        every { mockOldSharedPreferences.edit() } returns mockOldEditor
+        every { mockOldEditor.clear() } returns mockOldEditor
+        every { mockOldEditor.apply() } just Runs
+
+        EncryptedSharedPreferencesToSharedPreferencesMigration().migrate(
+            mockOldSharedPreferences,
+            mockNewSharedPreferences
+        )
+
+        @Suppress("UNCHECKED_CAST")
+        val parameters = logEntrySlot.captured.data["parameters"] as Map<String, Any?>
+        parameters.containsKey("value") shouldBe false
     }
 }

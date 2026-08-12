@@ -30,7 +30,6 @@ class EncryptedSharedPreferencesToSharedPreferencesMigration {
                             "migrate#perKey",
                             mapOf(
                                 "key" to key,
-                                "value" to value,
                                 "exception" to e.message
                             )
                         )

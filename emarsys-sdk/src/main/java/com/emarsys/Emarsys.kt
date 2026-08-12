@@ -100,7 +100,9 @@ object Emarsys {
         }
 
         refreshRemoteConfig(emarsysConfig.applicationCode)
-        emarsys().logInitialSetup(emarsysConfig)
+        emarsys().concurrentHandlerHolder.coreHandler.post {
+            emarsys().logInitialSetup(emarsysConfig)
+        }
     }
 
     private fun registerLifecycleObservers() {

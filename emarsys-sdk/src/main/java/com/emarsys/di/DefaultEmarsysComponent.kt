@@ -19,8 +19,8 @@ import com.emarsys.config.ConfigApi
 import com.emarsys.config.ConfigInternal
 import com.emarsys.config.DefaultConfigInternal
 import com.emarsys.config.EmarsysConfig
-import com.emarsys.config.RemoteConfigResponseMapper
 import com.emarsys.config.RemoteConfigForegroundRefresher
+import com.emarsys.config.RemoteConfigResponseMapper
 import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.Mapper
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
@@ -70,7 +70,6 @@ import com.emarsys.core.shard.specification.FilterByShardType
 import com.emarsys.core.storage.BooleanStorage
 import com.emarsys.core.storage.CoreStorageKey
 import com.emarsys.core.storage.DefaultKeyValueStore
-import com.emarsys.core.storage.EncryptedSharedPreferencesToSharedPreferencesMigration
 import com.emarsys.core.storage.KeyValueStore
 import com.emarsys.core.storage.SecureSharedPreferencesProvider
 import com.emarsys.core.storage.SharedPreferencesV3Provider
@@ -439,9 +438,8 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val sharedPreferencesV3: SharedPreferences by lazy {
         SharedPreferencesV3Provider(
-            config.application, EMARSYS_SECURE_SHARED_PREFERENCES_V3_NAME, sharedPreferences,
-            SharedPreferenceCrypto(),
-            EncryptedSharedPreferencesToSharedPreferencesMigration()
+            config.application, EMARSYS_SECURE_SHARED_PREFERENCES_V3_NAME,
+            SharedPreferenceCrypto()
         ).provide()
     }
 

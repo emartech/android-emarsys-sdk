@@ -7,19 +7,10 @@ import com.emarsys.core.crypto.SharedPreferenceCrypto
 class SharedPreferencesV3Provider(
     context: Context,
     fileName: String,
-    oldSharedPreferences: SharedPreferences,
-    crypto: SharedPreferenceCrypto,
-    migration: EncryptedSharedPreferencesToSharedPreferencesMigration
+    crypto: SharedPreferenceCrypto
 ) {
-
-    private var sharedPreferences: SharedPreferences =
+    private val sharedPreferences: SharedPreferences =
         EmarsysEncryptedSharedPreferencesV3(context, fileName, crypto)
 
-    init {
-        migration.migrate(oldSharedPreferences, sharedPreferences)
-    }
-
-    fun provide(): SharedPreferences {
-        return sharedPreferences
-    }
+    fun provide(): SharedPreferences = sharedPreferences
 }
