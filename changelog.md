@@ -1,9 +1,7 @@
 # What's fixed
-
-### [Emarsys SDK](https://github.com/emartech/android-emarsys-sdk/wiki#8-geofence)
-* Fixed an issue where some geofence events may have an incorrect timestamp
+### [Emarsys SDK](https://github.com/emartech/android-emarsys-sdk/wiki)
+* Fixed an issue which could cause crash in rare edge cases related to sharedPreferences migration during setup
 
 # What's changed
-
 ### [Emarsys SDK](https://github.com/emartech/android-emarsys-sdk/wiki)
-* Fine tune encrypted shared preference migration
+* Improved log filtering
