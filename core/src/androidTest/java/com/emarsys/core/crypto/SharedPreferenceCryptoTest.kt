@@ -4,6 +4,7 @@ import android.security.keystore.KeyProperties
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
@@ -12,6 +13,7 @@ import org.junit.Before
 import org.junit.Test
 import java.security.GeneralSecurityException
 import java.security.KeyStore
+import java.security.UnrecoverableKeyException
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 
@@ -128,5 +130,21 @@ class SharedPreferenceCryptoTest {
 
         val testCrypto = SharedPreferenceCrypto()
         testCrypto.decrypt(testValue) shouldBe null
+    }
+
+    @Test
+    fun decrypt_shouldCreateNewSecretKeyIfExistingIsNotRecoverable() {
+        mockkStatic(KeyGenerator::class)
+
+        val mockedKeyStore = mockk<KeyStore>(relaxUnitFun = true)
+        every { mockedKeyStore.containsAlias("emarsys_sdk_key_shared_pref_key_v3") } returns true
+        every { mockedKeyStore.getKey("emarsys_sdk_key_shared_pref_key_v3", null) } throws UnrecoverableKeyException()
+
+        mockkStatic(KeyStore::class)
+        every { KeyStore.getInstance("AndroidKeyStore") } returns mockedKeyStore
+
+        SharedPreferenceCrypto()
+
+        verify { KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES) }
     }
 }

@@ -7,6 +7,7 @@ import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.log.entry.StatusLog
 import java.security.GeneralSecurityException
 import java.security.KeyStore
+import java.security.UnrecoverableKeyException
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
@@ -64,11 +65,17 @@ class SharedPreferenceCrypto {
         val keyStore = KeyStore.getInstance("AndroidKeyStore")
         keyStore.load(null)
 
-        if (!keyStore.containsAlias(KEYSTORE_ALIAS)) {
+        try {
+            return if (keyStore.containsAlias(KEYSTORE_ALIAS)) {
+                keyStore.getKey(KEYSTORE_ALIAS, null) as SecretKey
+            } else {
+                createSecretKey()
+            }
+        } catch (_: UnrecoverableKeyException) {
+            // If the secret key was unrecoverable (e.g. after backup restore), just create a new one.
+            keyStore.deleteEntry(KEYSTORE_ALIAS)
             return createSecretKey()
         }
-
-        return keyStore.getKey(KEYSTORE_ALIAS, null) as SecretKey
     }
 
     private fun createSecretKey(): SecretKey {
