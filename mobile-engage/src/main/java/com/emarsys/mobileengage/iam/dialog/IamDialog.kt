@@ -16,6 +16,7 @@ import com.emarsys.core.Mockable
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.util.AndroidVersionUtils
 import com.emarsys.core.util.log.Logger.Companion.error
+import com.emarsys.core.util.log.Logger.Companion.info
 import com.emarsys.core.util.log.Logger.Companion.metric
 import com.emarsys.core.util.log.entry.AppEventLog
 import com.emarsys.core.util.log.entry.InAppLoadingTime
@@ -219,18 +220,39 @@ class IamDialog(
         updateOnScreenTime()
         val args = arguments
         if (args != null) {
-            metric(
-                InAppLog(
-                    args.getSerializable(LOADING_TIME)!! as InAppLoadingTime,
-                    OnScreenTime(
-                        args.getLong(ON_SCREEN_TIME),
-                        startTime,
-                        args.getLong(END_SCREEN_TIME)
-                    ),
-                    args.getString(CAMPAIGN_ID)!!,
-                    args.getString(REQUEST_ID)
+            val loadingTime = args.getSerializable(LOADING_TIME) as? InAppLoadingTime
+            val campaignId = args.getString(CAMPAIGN_ID)
+            if (campaignId == null) {
+                error(
+                    AppEventLog(
+                        "reporting iamDialog",
+                        mapOf("error" to "iamDialog - campaignId is null")
+                    )
                 )
-            )
+            } else if (loadingTime == null) {
+                info(
+                    AppEventLog(
+                        "reporting iamDialog",
+                        mapOf(
+                            "message" to "iamDialog - loadingTime is null",
+                            "campaignId" to campaignId
+                        )
+                    )
+                )
+            } else {
+                metric(
+                    InAppLog(
+                        loadingTime,
+                        OnScreenTime(
+                            args.getLong(ON_SCREEN_TIME),
+                            startTime,
+                            args.getLong(END_SCREEN_TIME)
+                        ),
+                        campaignId,
+                        args.getString(REQUEST_ID)
+                    )
+                )
+            }
         } else {
             error(
                 AppEventLog(
