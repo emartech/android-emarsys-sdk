@@ -598,10 +598,11 @@ class IamDialogTest {
         every { mockTimestampProvider.provideTimestamp() } returns 100L
         val loadingTime = InAppLoadingTime(0L, 150L)
 
-        val args = Bundle()
-        args.putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
-        args.putSerializable(IamDialog.LOADING_TIME, loadingTime)
-        args.putString(IamDialog.REQUEST_ID, REQUEST_ID_KEY)
+        val args = Bundle().apply {
+            putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
+            putSerializable(IamDialog.LOADING_TIME, loadingTime)
+            putString(IamDialog.REQUEST_ID, REQUEST_ID_KEY)
+        }
 
         iamDialog.arguments = args
 
@@ -618,12 +619,10 @@ class IamDialogTest {
 
         try {
             iamDialog.dismiss()
-        } catch (e: IllegalStateException) {
-            // Testing private fun saveOnScreenTime() here
-            // Catch and ignore IllegalStateException thrown by super.dismiss()
+        } catch (ignoredExceptionFromSuper: IllegalStateException) {
         }
 
-        verify { Logger.metric(match { it.data == expectedLog.data }) }
+        verify { Logger.metric(match { it.topic == expectedLog.topic && it.data == expectedLog.data }) }
     }
 
     @Test
@@ -639,20 +638,19 @@ class IamDialogTest {
 
         try {
             iamDialog.dismiss()
-        } catch (e: IllegalStateException) {
-            // Testing private fun saveOnScreenTime() here
-            // Catch and ignore IllegalStateException thrown by super.dismiss()
+        } catch (ignoredExceptionFromSuper: IllegalStateException) {
         }
 
-        verify { Logger.error(match { it.data == expectedLog.data }) }
+        verify { Logger.error(match { it.topic == expectedLog.topic && it.data == expectedLog.data }) }
     }
 
     @Test
     fun testSaveOnScreenTime_shouldLogAppEventLogWithError_whenCampaignIdIsNull() {
         every { mockTimestampProvider.provideTimestamp() } returns 100L
 
-        val args = Bundle()
-        args.putString(IamDialog.REQUEST_ID, REQUEST_ID_KEY)
+        val args = Bundle().apply {
+            putString(IamDialog.REQUEST_ID, REQUEST_ID_KEY)
+        }
 
         iamDialog.arguments = args
 
@@ -663,21 +661,20 @@ class IamDialogTest {
 
         try {
             iamDialog.dismiss()
-        } catch (e: IllegalStateException) {
-            // Testing private fun saveOnScreenTime() here
-            // Catch and ignore IllegalStateException thrown by super.dismiss()
+        } catch (ignoredExceptionFromSuper: IllegalStateException) {
         }
 
-        verify { Logger.error(match { it.data == expectedLog.data }) }
+        verify { Logger.error(match { it.topic == expectedLog.topic && it.data == expectedLog.data }) }
     }
 
     @Test
     fun testSaveOnScreenTime_shouldLogAppEventLogWithInfo_whenLoadingTimeIsNull() {
         every { mockTimestampProvider.provideTimestamp() } returns 100L
 
-        val args = Bundle()
-        args.putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
-        args.putString(IamDialog.REQUEST_ID, REQUEST_ID_KEY)
+        val args = Bundle().apply {
+            putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
+            putString(IamDialog.REQUEST_ID, REQUEST_ID_KEY)
+        }
 
         iamDialog.arguments = args
 
@@ -691,12 +688,10 @@ class IamDialogTest {
 
         try {
             iamDialog.dismiss()
-        } catch (e: IllegalStateException) {
-            // Testing private fun saveOnScreenTime() here
-            // Catch and ignore IllegalStateException thrown by super.dismiss()
+        } catch (ignoredExceptionFromSuper: IllegalStateException) {
         }
 
-        verify { Logger.info(match { it.data == expectedLog.data }) }
+        verify { Logger.info(match { it.topic == expectedLog.topic && it.data == expectedLog.data }) }
     }
 
     private fun createWebView(): IamWebView {
