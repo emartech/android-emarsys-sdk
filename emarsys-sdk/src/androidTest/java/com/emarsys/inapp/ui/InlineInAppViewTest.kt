@@ -1,6 +1,7 @@
 package com.emarsys.inapp.ui
 
 
+import android.os.Looper
 import androidx.test.core.app.ActivityScenario
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.ResponseErrorException
@@ -11,6 +12,7 @@ import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.di.FakeDependencyContainer
+import com.emarsys.di.emarsys
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
@@ -315,6 +317,52 @@ class InlineInAppViewTest {
             appEventListener shouldBe mockAppEventListener
             null
         }
+    }
+
+    @Test
+    fun testConstructor_webViewFactory_isCalledOnMainThread_evenWhenConstructedOnBackgroundThread() {
+        val mainLatch = CountDownLatch(1)
+        IntegrationTestUtils.runOnMain {
+            mainLatch.countDown()
+        }
+        mainLatch.await()
+
+        val coreLatch = CountDownLatch(1)
+        emarsys().concurrentHandlerHolder.coreHandler.post {
+            coreLatch.countDown()
+        }
+        coreLatch.await()
+
+        var webViewFactoryCalledOnMainThread: Boolean? = null
+        scenario.onActivity { activity ->
+            val freshIamWebView = spyk(runOnMain {
+                IamWebView(concurrentHandlerHolder, mockIamJsBridgeFactory, mockJsCommandFactory, activity)
+            })
+            val capturingFactory = mockk<IamWebViewFactory>(relaxed = true) {
+                every { create(any()) } answers {
+                    webViewFactoryCalledOnMainThread = Looper.myLooper() == Looper.getMainLooper()
+                    freshIamWebView
+                }
+            }
+            setupEmarsysComponent(
+                FakeDependencyContainer(
+                    webViewFactory = capturingFactory,
+                    concurrentHandlerHolder = concurrentHandlerHolder,
+                    requestManager = mockRequestManager,
+                    mobileEngageRequestModelFactory = mockRequestModelFactory,
+                )
+            )
+
+            val latch = CountDownLatch(1)
+            concurrentHandlerHolder.coreHandler.post {
+                InlineInAppView(activity)
+                latch.countDown()
+            }
+            latch.await()
+        }
+        runOnMain {}
+
+        webViewFactoryCalledOnMainThread shouldBe true
     }
 
     private fun requestManagerRespond(
