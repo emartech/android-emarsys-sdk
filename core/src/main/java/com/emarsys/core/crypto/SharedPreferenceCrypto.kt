@@ -24,8 +24,8 @@ class SharedPreferenceCrypto {
             tryEncrypt(value)
         } catch (exception: GeneralSecurityException) {
             logCryptoError(value, "encrypt", exception)
-            secretKey = createSecretKey()
             try {
+                secretKey = createSecretKey()
                 tryEncrypt(value)
             } catch (exception: Exception) {
                 logCryptoError(value, "encrypt", exception)
@@ -45,7 +45,11 @@ class SharedPreferenceCrypto {
             String(decrypted)
         } catch (exception: GeneralSecurityException) {
             logCryptoError(value, "decrypt", exception)
-            secretKey = createSecretKey()
+            try {
+                secretKey = createSecretKey()
+            } catch (exception: Exception) {
+                logCryptoError(value, "decrypt", exception)
+            }
             null
         } catch (exception: IllegalArgumentException) {
             logCryptoError(value, "decrypt", exception)
