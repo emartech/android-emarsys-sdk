@@ -80,4 +80,19 @@ class LogExceptionProxyTest  {
         verify { mockLogger.handleLog(LogLevel.ERROR, capture(slot), null) }
         slot.captured.throwable shouldBe expectedCause
     }
+
+    @Test
+    fun testInvoke_shouldNotLogCrash_whenResponseErrorExceptionIsThrown() {
+        val callback = Runnable {
+            throw ResponseErrorException(502, "Bad Gateway", "<html>Bad Gateway</html>")
+        }
+
+        callback.proxyWithLogExceptions().run()
+        val latch = CountDownLatch(1)
+        concurrentHandlerHolder.coreHandler.post {
+            latch.countDown()
+        }
+        latch.await()
+        verify(exactly = 0) { mockLogger.handleLog(LogLevel.ERROR, any(), null) }
+    }
 }

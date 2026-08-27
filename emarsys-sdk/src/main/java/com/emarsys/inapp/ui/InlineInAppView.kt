@@ -1,6 +1,7 @@
 package com.emarsys.inapp.ui
 
 import android.content.Context
+import android.os.Looper
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
@@ -67,21 +68,30 @@ class InlineInAppView : LinearLayout {
         val attributes = context.obtainStyledAttributes(attrs, intArray)
         viewId = attributes.getString(0)
 
-        try {
-            iamWebView = webViewFactory.create(context)
-        } catch (e: IamWebViewCreationFailedException) {
-            onCompletionListener?.onCompleted(IllegalArgumentException("WebView can not be created, please try again later!"))
-        }
-        val iamWebView = iamWebView ?: return
-        iamWebView.onAppEventTriggered = onAppEventListener
-        iamWebView.onCloseTriggered = onCloseListener
-        concurrentHandlerHolder.postOnMain {
+        runOnMain {
+            try {
+                iamWebView = webViewFactory.create(context)
+            } catch (e: IamWebViewCreationFailedException) {
+                onCompletionListener?.onCompleted(IllegalArgumentException("WebView can not be created, please try again later!"))
+                return@runOnMain
+            }
+            val iamWebView = iamWebView ?: return@runOnMain
+            iamWebView.onAppEventTriggered = onAppEventListener
+            iamWebView.onCloseTriggered = onCloseListener
             setupViewHierarchy(iamWebView)
             if (viewId != null) {
                 loadInApp(viewId!!)
             }
         }
         attributes.recycle()
+    }
+
+    private fun runOnMain(runnable: () -> Unit) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            runnable()
+        } else {
+            concurrentHandlerHolder.postOnMain(runnable)
+        }
     }
 
     private fun setupViewHierarchy(iamWebView: IamWebView) {

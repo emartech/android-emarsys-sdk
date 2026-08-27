@@ -13,7 +13,11 @@ import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
+import com.emarsys.core.util.log.Logger
+import com.emarsys.core.util.log.entry.AppEventLog
 import com.emarsys.core.util.log.entry.InAppLoadingTime
+import com.emarsys.core.util.log.entry.InAppLog
+import com.emarsys.core.util.log.entry.OnScreenTime
 import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
@@ -35,6 +39,8 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.unmockkAll
 import io.mockk.verify
 import org.junit.After
 import org.junit.Before
@@ -99,12 +105,15 @@ class IamDialogTest {
             )
         )
         iamDialog = IamDialog(mockTimestampProvider, mockWebViewFactory)
+
+        mockkStatic(Logger::class)
     }
 
     @After
     fun tearDown() {
         tearDownMobileEngageComponent()
         scenario?.close()
+        unmockkAll()
     }
 
     private fun launchActivityIfNeeded() {
@@ -582,6 +591,107 @@ class IamDialogTest {
 
         verify { firstWebView.load(firstHtml, firstMeta, firstListener) }
         verify { secondWebView.load(secondHtml, secondMeta, secondListener) }
+    }
+
+    @Test
+    fun testSaveOnScreenTime_shouldLogInAppLogWithMetric() {
+        every { mockTimestampProvider.provideTimestamp() } returns 100L
+        val loadingTime = InAppLoadingTime(0L, 150L)
+
+        val args = Bundle().apply {
+            putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
+            putSerializable(IamDialog.LOADING_TIME, loadingTime)
+            putString(IamDialog.REQUEST_ID, REQUEST_ID_KEY)
+        }
+
+        iamDialog.arguments = args
+
+        val expectedLog = InAppLog(
+            loadingTime,
+            OnScreenTime(
+                100L,
+                0,
+                100L
+            ),
+            CAMPAIGN_ID,
+            REQUEST_ID_KEY
+        )
+
+        try {
+            iamDialog.dismiss()
+        } catch (ignoredExceptionFromSuper: IllegalStateException) {
+        }
+
+        verify { Logger.metric(match { it.topic == expectedLog.topic && it.data == expectedLog.data }) }
+    }
+
+    @Test
+    fun testSaveOnScreenTime_shouldLogAppEventLogWithError_whenArgIsNull() {
+        every { mockTimestampProvider.provideTimestamp() } returns 100L
+
+        iamDialog.arguments = null
+
+        val expectedLog = AppEventLog(
+            "reporting iamDialog",
+            mapOf("error" to "iamDialog - arguments has been null")
+        )
+
+        try {
+            iamDialog.dismiss()
+        } catch (ignoredExceptionFromSuper: IllegalStateException) {
+        }
+
+        verify { Logger.error(match { it.topic == expectedLog.topic && it.data == expectedLog.data }) }
+    }
+
+    @Test
+    fun testSaveOnScreenTime_shouldLogAppEventLogWithError_whenCampaignIdIsNull() {
+        every { mockTimestampProvider.provideTimestamp() } returns 100L
+
+        val args = Bundle().apply {
+            putString(IamDialog.REQUEST_ID, REQUEST_ID_KEY)
+        }
+
+        iamDialog.arguments = args
+
+        val expectedLog = AppEventLog(
+            "reporting iamDialog",
+            mapOf("error" to "iamDialog - campaignId is null")
+        )
+
+        try {
+            iamDialog.dismiss()
+        } catch (ignoredExceptionFromSuper: IllegalStateException) {
+        }
+
+        verify { Logger.error(match { it.topic == expectedLog.topic && it.data == expectedLog.data }) }
+    }
+
+    @Test
+    fun testSaveOnScreenTime_shouldLogAppEventLogWithInfo_whenLoadingTimeIsNull() {
+        every { mockTimestampProvider.provideTimestamp() } returns 100L
+
+        val args = Bundle().apply {
+            putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
+            putString(IamDialog.REQUEST_ID, REQUEST_ID_KEY)
+        }
+
+        iamDialog.arguments = args
+
+        val expectedLog = AppEventLog(
+            "reporting iamDialog",
+            mapOf(
+                "message" to "iamDialog - loadingTime is null",
+                "campaignId" to CAMPAIGN_ID
+            )
+        )
+
+        try {
+            iamDialog.dismiss()
+        } catch (ignoredExceptionFromSuper: IllegalStateException) {
+        }
+
+        verify { Logger.debug(match { it.topic == expectedLog.topic && it.data == expectedLog.data }) }
     }
 
     private fun createWebView(): IamWebView {

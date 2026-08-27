@@ -255,4 +255,15 @@ class EmarsysConfigTest  {
         result.sharedPackageNames shouldBe expected.sharedPackageNames
         result.verboseConsoleLoggingEnabled shouldBe false
     }
+
+    @Test
+    fun testBuilder_withEmptyApplicationCode_shouldProduceNullApplicationCode() {
+        val result = EmarsysConfig.Builder()
+            .application(application)
+            .applicationCode("")
+            .build()
+
+        result.applicationCode shouldBe null
+    }
+
 }

@@ -98,7 +98,7 @@ data class EmarsysConfig(
                 if (experimentalFeatures == null) emptyList() else experimentalFeatures
             return EmarsysConfig(
                 application,
-                applicationCode,
+                applicationCode?.takeIf { it.isNotBlank() },
                 merchantId,
                 experimentalFeatures!!,
                 automaticPushTokenSending,

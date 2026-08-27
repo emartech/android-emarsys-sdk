@@ -4,6 +4,7 @@ import android.security.keystore.KeyProperties
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
@@ -12,6 +13,7 @@ import org.junit.Before
 import org.junit.Test
 import java.security.GeneralSecurityException
 import java.security.KeyStore
+import java.security.ProviderException
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 
@@ -128,5 +130,50 @@ class SharedPreferenceCryptoTest {
 
         val testCrypto = SharedPreferenceCrypto()
         testCrypto.decrypt(testValue) shouldBe null
+    }
+
+    @Test
+    fun encrypt_shouldNotThrow_whenCreateSecretKey_throwsProviderException_duringRecovery() {
+        val testValue = "testValue"
+        val testCrypto = SharedPreferenceCrypto()
+        mockkStatic(KeyGenerator::class)
+        mockkStatic(Cipher::class)
+        every { Cipher.getInstance("AES/GCM/NoPadding") } throws GeneralSecurityException("Keystore operation failed")
+        every { KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES) } throws ProviderException("Keystore key generation failed")
+
+        val result = testCrypto.encrypt(testValue)
+
+        result shouldBe testValue
+    }
+
+    @Test
+    fun decrypt_shouldNotThrow_whenCreateSecretKey_throwsProviderException_duringRecovery() {
+        val testValue = "dGVzdFZhbHVlU2hvdWxkQmVTaXh0ZWVuQ2hhcnNMb25n"
+        val testCrypto = SharedPreferenceCrypto()
+        mockkStatic(KeyGenerator::class)
+        mockkStatic(Cipher::class)
+        every { Cipher.getInstance("AES/GCM/NoPadding") } throws GeneralSecurityException("Keystore operation failed")
+        every { KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES) } throws ProviderException("Keystore key generation failed")
+
+        val result = testCrypto.decrypt(testValue)
+
+        result shouldBe null
+    }
+
+    @Test
+    fun init_shouldNotThrow_whenKeyStore_load_throwsKeyStoreException() {
+        mockkStatic(KeyStore::class)
+        val mockKeyStore = mockk<KeyStore>(relaxed = true)
+        every { KeyStore.getInstance("AndroidKeyStore") } returns mockKeyStore
+        every { mockKeyStore.load(null) } throws java.security.KeyStoreException("Keystore unavailable")
+
+        var thrownException: Exception? = null
+        try {
+            SharedPreferenceCrypto()
+        } catch (e: Exception) {
+            thrownException = e
+        }
+
+        thrownException shouldBe null
     }
 }
