@@ -1,5 +1,6 @@
 package com.emarsys.core.util
 
+import com.emarsys.core.api.ResponseErrorException
 import java.net.ConnectException
 import java.net.SocketException
 import java.net.SocketTimeoutException
@@ -21,7 +22,8 @@ fun Throwable.isNetworkException(): Boolean {
         if (cause is UnknownHostException ||
             cause is SocketException ||
             cause is SocketTimeoutException ||
-            cause is ConnectException
+            cause is ConnectException ||
+            cause is ResponseErrorException
         ) return true
         cause = cause.cause
     }
