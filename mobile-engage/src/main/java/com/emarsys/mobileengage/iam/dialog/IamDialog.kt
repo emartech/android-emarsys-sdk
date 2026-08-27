@@ -15,8 +15,8 @@ import androidx.fragment.app.DialogFragment
 import com.emarsys.core.Mockable
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.util.AndroidVersionUtils
+import com.emarsys.core.util.log.Logger.Companion.debug
 import com.emarsys.core.util.log.Logger.Companion.error
-import com.emarsys.core.util.log.Logger.Companion.info
 import com.emarsys.core.util.log.Logger.Companion.metric
 import com.emarsys.core.util.log.entry.AppEventLog
 import com.emarsys.core.util.log.entry.InAppLoadingTime
@@ -230,7 +230,7 @@ class IamDialog(
                     )
                 )
             } else if (loadingTime == null) {
-                info(
+                debug(
                     AppEventLog(
                         "reporting iamDialog",
                         mapOf(

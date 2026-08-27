@@ -691,7 +691,7 @@ class IamDialogTest {
         } catch (ignoredExceptionFromSuper: IllegalStateException) {
         }
 
-        verify { Logger.info(match { it.topic == expectedLog.topic && it.data == expectedLog.data }) }
+        verify { Logger.debug(match { it.topic == expectedLog.topic && it.data == expectedLog.data }) }
     }
 
     private fun createWebView(): IamWebView {

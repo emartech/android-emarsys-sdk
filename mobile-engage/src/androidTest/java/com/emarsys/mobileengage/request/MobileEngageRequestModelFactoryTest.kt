@@ -3,7 +3,6 @@ package com.emarsys.mobileengage.request
 
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.api.notification.NotificationSettings
-import com.emarsys.core.util.TimestampUtils
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.feature.FeatureRegistry
@@ -12,6 +11,7 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.StringStorage
+import com.emarsys.core.util.TimestampUtils
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository
@@ -383,5 +383,28 @@ class MobileEngageRequestModelFactoryTest  {
         val events = result.payload!!["events"] as List<*>
         val event = events[0] as Map<*, *>
         event["timestamp"] shouldBe TimestampUtils.formatTimestampWithUTC(triggerTimestamp)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateTrackDeviceInfoRequest_throwsIllegalArgumentException_whenApplicationCodeIsEmptyString() {
+        val contextWithEmptyCode = mock<MobileEngageRequestContext> {
+            on { timestampProvider } doReturn mockTimestampProvider
+            on { uuidProvider } doReturn mockUuidProvider
+            on { deviceInfo } doReturn mockDeviceInfo
+            on { applicationCode } doReturn ""
+            on { refreshTokenStorage } doReturn mockRefreshTokenStorage
+            on { contactFieldValue } doReturn null
+            on { contactFieldId } doReturn CONTACT_FIELD_ID
+            on { sessionIdHolder } doReturn mock()
+        }
+        val factory = MobileEngageRequestModelFactory(
+            contextWithEmptyCode,
+            mockClientServiceProvider,
+            mockEventServiceProvider,
+            mockMessageInboxServiceProvider,
+            mockButtonClickedRepository
+        )
+
+        factory.createTrackDeviceInfoRequest()
     }
 }

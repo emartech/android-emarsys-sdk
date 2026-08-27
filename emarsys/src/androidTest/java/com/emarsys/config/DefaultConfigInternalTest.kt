@@ -1238,6 +1238,107 @@ class DefaultConfigInternalTest {
         (configInternal as DefaultConfigInternal).hasFetchedThisSession shouldBe false
     }
 
+    @Test
+    fun testChangeApplicationCode_withEmptyString_shouldTreatAsNull() {
+        val mockContactFieldValueStorage = mockk<StringStorage>(relaxed = true)
+        every { mockContactFieldValueStorage.get() } returns null
+        val realRequestContext = MobileEngageRequestContext(
+            applicationCode = APPLICATION_CODE,
+            contactFieldId = null,
+            openIdToken = null,
+            deviceInfo = mockDeviceInfo,
+            timestampProvider = mockk(relaxed = true),
+            uuidProvider = mockk(relaxed = true),
+            clientStateStorage = mockk(relaxed = true),
+            contactTokenStorage = mockk(relaxed = true),
+            refreshTokenStorage = mockk(relaxed = true),
+            pushTokenStorage = mockk(relaxed = true),
+            contactFieldValueStorage = mockContactFieldValueStorage,
+            sessionIdHolder = mockk(relaxed = true)
+        )
+        val configInternalWithRealContext = DefaultConfigInternal(
+            realRequestContext,
+            mockMobileEngageInternal,
+            mockPushInternal,
+            mockPredictRequestContext,
+            mockDeviceInfo,
+            mockRequestManager,
+            mockEmarsysRequestModelFactory,
+            mockConfigResponseMapper,
+            mockClientServiceStorage,
+            mockEventServiceStorage,
+            mockDeeplinkServiceStorage,
+            mockPredictServiceStorage,
+            mockMessageInboxServiceStorage,
+            mockLogLevelStorage,
+            mockCrypto,
+            mockClientServiceInternal,
+            concurrentHandlerHolder,
+            mockPredictInternal,
+            mockConnectionWatchDog
+        )
+        val latch = CountDownLatch(1)
+
+        configInternalWithRealContext.changeApplicationCode("") { latch.countDown() }
+        latch.await()
+
+        realRequestContext.applicationCode shouldBe null
+    }
+
+    @Test
+    fun testChangeApplicationCode_withEmptyString_doesNotThrowOnSubsequentSdkCalls() {
+        val mockContactFieldValueStorage = mockk<StringStorage>(relaxed = true)
+        every { mockContactFieldValueStorage.get() } returns null
+        val realRequestContext = MobileEngageRequestContext(
+            applicationCode = APPLICATION_CODE,
+            contactFieldId = null,
+            openIdToken = null,
+            deviceInfo = mockDeviceInfo,
+            timestampProvider = mockk(relaxed = true),
+            uuidProvider = mockk(relaxed = true),
+            clientStateStorage = mockk(relaxed = true),
+            contactTokenStorage = mockk(relaxed = true),
+            refreshTokenStorage = mockk(relaxed = true),
+            pushTokenStorage = mockk(relaxed = true),
+            contactFieldValueStorage = mockContactFieldValueStorage,
+            sessionIdHolder = mockk(relaxed = true)
+        )
+        val configInternalWithRealContext = DefaultConfigInternal(
+            realRequestContext,
+            mockMobileEngageInternal,
+            mockPushInternal,
+            mockPredictRequestContext,
+            mockDeviceInfo,
+            mockRequestManager,
+            mockEmarsysRequestModelFactory,
+            mockConfigResponseMapper,
+            mockClientServiceStorage,
+            mockEventServiceStorage,
+            mockDeeplinkServiceStorage,
+            mockPredictServiceStorage,
+            mockMessageInboxServiceStorage,
+            mockLogLevelStorage,
+            mockCrypto,
+            mockClientServiceInternal,
+            concurrentHandlerHolder,
+            mockPredictInternal,
+            mockConnectionWatchDog
+        )
+        val latch = CountDownLatch(1)
+        var caughtException: Throwable? = null
+
+        configInternalWithRealContext.changeApplicationCode("") { latch.countDown() }
+        latch.await()
+
+        try {
+            configInternalWithRealContext.refreshRemoteConfig(null)
+        } catch (e: IllegalArgumentException) {
+            caughtException = e
+        }
+
+        caughtException shouldBe null
+    }
+
     private fun requestManagerWithRestClient(restClient: RestClient): RequestManager {
         val mockDelegatorCompletionHandlerProvider: DelegatorCompletionHandlerProvider =
             mockk(relaxed = true)

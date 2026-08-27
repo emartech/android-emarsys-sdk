@@ -131,9 +131,10 @@ class DefaultConfigInternal(
     }
 
     private fun handleAppCodeChange(applicationCode: String?) {
+        val normalizedCode = applicationCode?.takeIf { it.isNotBlank() }
         mobileEngageRequestContext.reset()
-        mobileEngageRequestContext.applicationCode = applicationCode
-        if (applicationCode != null) {
+        mobileEngageRequestContext.applicationCode = normalizedCode
+        if (normalizedCode != null) {
             FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
             FeatureRegistry.enableFeature(InnerFeature.EVENT_SERVICE_V4)
         } else {
