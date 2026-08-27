@@ -66,4 +66,14 @@ class DeepLinkActionTest  {
 
         verify(exactly = 0) { (mockDeepLinkInternal.trackDeepLinkOpen(any(), any(), any())) }
     }
+
+    @Test
+    fun testExecute_doesNotThrow_whenIntentBecomesNull_betweenCheckAndUse() {
+        val intent: Intent = mockk(relaxed = true)
+        val mockActivity: Activity = mockk(relaxed = true)
+        every { mockActivity.intent } returnsMany listOf(intent, null)
+
+        action.execute(mockActivity)
+        waitForTask()
+    }
 }
