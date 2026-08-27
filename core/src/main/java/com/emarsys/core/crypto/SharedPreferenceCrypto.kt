@@ -17,16 +17,23 @@ class SharedPreferenceCrypto {
         private const val KEYSTORE_ALIAS = "emarsys_sdk_key_shared_pref_key_v3"
     }
 
-    private var secretKey: SecretKey = getOrCreateSecretKey()
+    private var secretKey: SecretKey? = try {
+        getOrCreateSecretKey()
+    } catch (exception: Exception) {
+        logCryptoError("init", "getOrCreateSecretKey", exception)
+        null
+    }
 
     fun encrypt(value: String): String {
+        val key = secretKey ?: return value
         return try {
-            tryEncrypt(value)
+            tryEncrypt(value, key)
         } catch (exception: GeneralSecurityException) {
             logCryptoError(value, "encrypt", exception)
             try {
-                secretKey = createSecretKey()
-                tryEncrypt(value)
+                val newKey = createSecretKey()
+                secretKey = newKey
+                tryEncrypt(value, newKey)
             } catch (exception: Exception) {
                 logCryptoError(value, "encrypt", exception)
                 value
@@ -35,12 +42,13 @@ class SharedPreferenceCrypto {
     }
 
     fun decrypt(value: String): String? {
+        val key = secretKey ?: return null
         return try {
             val ivBytes = Base64.decode(value.substring(0, 16), Base64.DEFAULT)
             val encryptedBytes = Base64.decode(value.substring(16), Base64.DEFAULT)
 
             val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-            cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(128, ivBytes))
+            cipher.init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(128, ivBytes))
             val decrypted = cipher.doFinal(encryptedBytes)
             String(decrypted)
         } catch (exception: GeneralSecurityException) {
@@ -90,9 +98,9 @@ class SharedPreferenceCrypto {
         return keyGenerator.generateKey()
     }
 
-    private fun tryEncrypt(value: String): String {
+    private fun tryEncrypt(value: String, key: SecretKey): String {
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey)
+        cipher.init(Cipher.ENCRYPT_MODE, key)
         val encrypted = cipher.doFinal(value.toByteArray())
         val iv = cipher.iv
         val ivBase64 = Base64.encodeToString(iv, Base64.DEFAULT)

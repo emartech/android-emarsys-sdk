@@ -4,6 +4,7 @@ import android.security.keystore.KeyProperties
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
@@ -157,5 +158,22 @@ class SharedPreferenceCryptoTest {
         val result = testCrypto.decrypt(testValue)
 
         result shouldBe null
+    }
+
+    @Test
+    fun init_shouldNotThrow_whenKeyStore_load_throwsKeyStoreException() {
+        mockkStatic(KeyStore::class)
+        val mockKeyStore = mockk<KeyStore>(relaxed = true)
+        every { KeyStore.getInstance("AndroidKeyStore") } returns mockKeyStore
+        every { mockKeyStore.load(null) } throws java.security.KeyStoreException("Keystore unavailable")
+
+        var thrownException: Exception? = null
+        try {
+            SharedPreferenceCrypto()
+        } catch (e: Exception) {
+            thrownException = e
+        }
+
+        thrownException shouldBe null
     }
 }
