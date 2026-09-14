@@ -49,13 +49,6 @@ class StringStorageTest  {
     }
 
     @Test
-    fun testConstructor_valueReturnedByKey_mustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            StringStorage(mock(StorageKey::class.java), sharedPreferences)
-        }
-    }
-
-    @Test
     fun testConstructor_sharedPreference_mustNotBeNull() {
         shouldThrow<IllegalArgumentException> {
             StringStorage(storageKey, null)

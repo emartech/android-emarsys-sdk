@@ -1,12 +1,11 @@
 package com.emarsys.core.storage
 
-import java.util.*
+import java.util.Locale
 
 enum class CoreStorageKey : StorageKey {
     HARDWARE_ID,
     LOG_LEVEL;
 
-    override fun getKey(): String {
-        return "core_" + name.lowercase(Locale.getDefault())
-    }
+    override val key: String
+        get() = "core_" + name.lowercase(Locale.getDefault())
 }

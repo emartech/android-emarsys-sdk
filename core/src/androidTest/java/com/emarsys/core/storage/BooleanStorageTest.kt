@@ -2,7 +2,6 @@ package com.emarsys.core.storage
 
 import android.content.SharedPreferences
 import com.emarsys.testUtil.mockito.whenever
-import io.kotest.assertions.throwables.shouldThrow
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.anyBoolean
@@ -40,13 +39,6 @@ class BooleanStorageTest  {
         }
 
         storage = BooleanStorage(storageKey, sharedPreferences)
-    }
-
-    @Test
-    fun testConstructor_valueReturnedByKey_mustNotBeNull() {
-        shouldThrow<NullPointerException> {
-            BooleanStorage(mock(StorageKey::class.java), sharedPreferences)
-        }
     }
 
     @Test
