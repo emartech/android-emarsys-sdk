@@ -70,13 +70,13 @@ data class ResponseModel(
 
         fun build(): ResponseModel {
             return ResponseModel(
-                statusCode!!,
-                message!!,
+                checkNotNull(statusCode) { "statusCode must be set" },
+                checkNotNull(message) { "message must be set" },
                 headers,
                 cookies,
                 body,
                 timestampProvider.provideTimestamp(),
-                requestModel!!
+                checkNotNull(requestModel) { "requestModel must be set" }
             )
         }
 

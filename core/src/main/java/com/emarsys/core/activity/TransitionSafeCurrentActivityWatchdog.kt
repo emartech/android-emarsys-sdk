@@ -27,8 +27,8 @@ class TransitionSafeCurrentActivityWatchdog(
     private var mCurrentActivity: Activity? = null
 
     private val callback: Runnable = Runnable {
-        if (mCurrentActivity != null) {
-            notify(mCurrentActivity!!)
+        mCurrentActivity?.let {
+            notify(it)
         }
     }
 
@@ -102,8 +102,8 @@ class TransitionSafeCurrentActivityWatchdog(
     }
 
     fun activity(): Activity {
-        if (mCurrentActivity != null) {
-            return mCurrentActivity!!
+        mCurrentActivity?.let {
+            return it
         }
         lateinit var result: Activity
         val latch = CountDownLatch(1)

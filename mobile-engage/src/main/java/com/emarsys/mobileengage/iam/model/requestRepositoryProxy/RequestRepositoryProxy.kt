@@ -83,7 +83,7 @@ class RequestRepositoryProxy(
     private fun createCompositePayload(models: List<RequestModel>): Map<String, Any?> {
         val events: MutableList<Any> = ArrayList()
         for (model in models) {
-            val individualEvents = model.payload!!["events"]
+            val individualEvents = model.payload?.get("events")
             if (individualEvents != null && individualEvents is List<*>) {
                 events.addAll(individualEvents as Collection<Any>)
             }

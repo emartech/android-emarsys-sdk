@@ -11,9 +11,9 @@ class ClientIdentificationCrypto(
 
     fun encrypt(clientIdentification: ClientIdentification): ClientIdentification {
         var result = clientIdentification
-        if (secret != null) {
+        secret?.let {
             val encryptedClientIdentification =
-                crypto.encrypt(clientIdentification.clientId, secret!!)
+                crypto.encrypt(clientIdentification.clientId, it)
             result = result.copy(
                 encryptedClientId = encryptedClientIdentification["encryptedValue"],
                 salt = encryptedClientIdentification["salt"],

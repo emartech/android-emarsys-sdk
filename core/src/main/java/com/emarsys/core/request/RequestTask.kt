@@ -71,8 +71,8 @@ open class RequestTask(
     }
 
     private fun sendBody(connection: HttpsURLConnection, model: RequestModel) {
-        if (model.payload != null) {
-            val payload = fromMap(model.payload!!.filterNotNull()).toString()
+        model.payload?.let {
+            val payload = fromMap(it.filterNotNull()).toString()
                 .toByteArray(StandardCharsets.UTF_8)
             val writer = BufferedOutputStream(connection.outputStream)
             writer.write(payload)
@@ -80,8 +80,8 @@ open class RequestTask(
         }
     }
 
-    private fun readResponse(connection: HttpsURLConnection?): ResponseModel {
-        val statusCode = connection!!.responseCode
+    private fun readResponse(connection: HttpsURLConnection): ResponseModel {
+        val statusCode = connection.responseCode
         val message = connection.responseMessage
         val headers = connection.headerFields
         val body = readBody(connection)
@@ -94,8 +94,8 @@ open class RequestTask(
             .build()
     }
 
-    private fun readBody(connection: HttpsURLConnection?): String {
-        val responseCode = connection!!.responseCode
+    private fun readBody(connection: HttpsURLConnection): String {
+        val responseCode = connection.responseCode
         val inputStream: InputStream = if (isStatusCodeOK(responseCode)) {
             connection.inputStream
         } else {

@@ -65,10 +65,12 @@ class PredictRequestModelBuilder(private val requestContext: PredictRequestConte
                 .method(RequestMethod.GET)
                 .headers(headerFactory.createBaseHeader())
 
+        val logic = logic
+        val shardData = shardData
         if (logic != null) {
-            requestModelBuilder.url(createRecommendationUrl(logic!!))
-        } else {
-            requestModelBuilder.url(createUrl(shardData!!))
+            requestModelBuilder.url(createRecommendationUrl(logic))
+        } else if (shardData != null) {
+            requestModelBuilder.url(createUrl(shardData))
         }
         return requestModelBuilder.build()
     }
@@ -111,23 +113,23 @@ class PredictRequestModelBuilder(private val requestContext: PredictRequestConte
 
         if (data.isEmpty()) {
             when (logic.logicName) {
-                RecommendationLogic.SEARCH -> if (lastTrackedItemContainer!!.lastSearchTerm != null) {
-                    data.putAll(RecommendationLogic.search(lastTrackedItemContainer!!.lastSearchTerm).data)
+                RecommendationLogic.SEARCH -> lastTrackedItemContainer?.lastSearchTerm?.let {
+                    data.putAll(RecommendationLogic.search(it).data)
                 }
-                RecommendationLogic.CART -> if (lastTrackedItemContainer!!.lastCartItems != null) {
-                    data.putAll(RecommendationLogic.cart(lastTrackedItemContainer!!.lastCartItems).data)
+                RecommendationLogic.CART -> lastTrackedItemContainer?.lastCartItems?.let {
+                    data.putAll(RecommendationLogic.cart(it).data)
                 }
-                RecommendationLogic.CATEGORY -> if (lastTrackedItemContainer!!.lastCategoryPath != null) {
-                    data.putAll(RecommendationLogic.category(lastTrackedItemContainer!!.lastCategoryPath).data)
+                RecommendationLogic.CATEGORY -> lastTrackedItemContainer?.lastCategoryPath?.let {
+                    data.putAll(RecommendationLogic.category(it).data)
                 }
-                RecommendationLogic.POPULAR -> if (lastTrackedItemContainer!!.lastCategoryPath != null) {
-                    data.putAll(RecommendationLogic.popular(lastTrackedItemContainer!!.lastCategoryPath).data)
+                RecommendationLogic.POPULAR -> lastTrackedItemContainer?.lastCategoryPath?.let {
+                    data.putAll(RecommendationLogic.popular(it).data)
                 }
-                RecommendationLogic.RELATED -> if (lastTrackedItemContainer!!.lastItemView != null) {
-                    data.putAll(RecommendationLogic.related(lastTrackedItemContainer!!.lastItemView).data)
+                RecommendationLogic.RELATED -> lastTrackedItemContainer?.lastItemView?.let {
+                    data.putAll(RecommendationLogic.related(it).data)
                 }
-                RecommendationLogic.ALSO_BOUGHT -> if (lastTrackedItemContainer!!.lastItemView != null) {
-                    data.putAll(RecommendationLogic.alsoBought(lastTrackedItemContainer!!.lastItemView).data)
+                RecommendationLogic.ALSO_BOUGHT -> lastTrackedItemContainer?.lastItemView?.let {
+                    data.putAll(RecommendationLogic.alsoBought(it).data)
                 }
             }
         }

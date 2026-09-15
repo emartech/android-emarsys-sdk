@@ -17,7 +17,9 @@ class DeviceEventStateRequestMapper(
         val updatedPayload: MutableMap<String, Any?> = requestModel.payload?.toMutableMap()
                 ?: mutableMapOf()
 
-        updatedPayload["deviceEventState"] = JSONObject(deviceEventStateStorage.get()!!)
+        deviceEventStateStorage.get()?.let {
+            updatedPayload["deviceEventState"] = JSONObject(it)
+        }
 
         return updatedPayload
     }

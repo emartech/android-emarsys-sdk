@@ -31,8 +31,9 @@ class PredictResponseMapper : Mapper<ResponseModel, List<Product>> {
                                 productOrder.getJSONObject(i).getString("id")
                             )
                             val productFields = toFlatMapIncludingNulls(productJson)
-                            val product = createProductFromFields(logicName, cohort, productFields)
-                            result.add(product)
+                            createProductFromFields(logicName, cohort, productFields)?.let { product ->
+                                result.add(product)
+                            }
                         }
                     }
                 }
@@ -47,15 +48,18 @@ class PredictResponseMapper : Mapper<ResponseModel, List<Product>> {
         feature: String,
         cohort: String,
         productFields: Map<String, String?>
-    ): Product {
+    ): Product? {
         val mutableProductFields = productFields.toMutableMap()
+        val item: String = mutableProductFields.remove("item") ?: return null
+        val title: String = mutableProductFields.remove("title") ?: return null
+        val link: String = mutableProductFields.remove("link") ?: return null
         val msrp: String? = mutableProductFields.remove("msrp")
         val price: String? = mutableProductFields.remove("price")
         val available: String? = mutableProductFields.remove("available")
         return Product(
-            productId = mutableProductFields.remove("item")!!,
-            title = mutableProductFields.remove("title")!!,
-            linkUrl = mutableProductFields.remove("link")!!,
+            productId = item,
+            title = title,
+            linkUrl = link,
             feature = feature,
             cohort = cohort,
             categoryPath = mutableProductFields.remove("category"),
