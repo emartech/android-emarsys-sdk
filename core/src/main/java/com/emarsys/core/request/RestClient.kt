@@ -40,12 +40,13 @@ open class RestClient(
         if (result.errorCause != null) {
             completionHandler.onError(requestId, result.errorCause as Exception)
         } else {
-            val responseModel = result.result!!
-            responseHandlersProcessor.process(result.result)
-            if (isStatusCodeOK(responseModel.statusCode)) {
-                completionHandler.onSuccess(requestId, responseModel)
-            } else {
-                completionHandler.onError(requestId, responseModel)
+            result.result?.let {
+                responseHandlersProcessor.process(it)
+                if (isStatusCodeOK(it.statusCode)) {
+                    completionHandler.onSuccess(requestId, it)
+                } else {
+                    completionHandler.onError(requestId, it)
+                }
             }
         }
     }

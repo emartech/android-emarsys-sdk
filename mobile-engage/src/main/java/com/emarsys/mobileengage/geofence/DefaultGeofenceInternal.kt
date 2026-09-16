@@ -18,6 +18,7 @@ import com.emarsys.core.util.AndroidVersionUtils
 import com.emarsys.core.util.SystemUtils
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.log.entry.StatusLog
+import com.emarsys.core.util.safeLet
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.api.geofence.Trigger
 import com.emarsys.mobileengage.api.geofence.TriggerType
@@ -152,9 +153,9 @@ class DefaultGeofenceInternal(
             lastLocation?.addOnSuccessListener { loc: Location? ->
                 currentLocation = loc
 
-                if (currentLocation != null && geofenceResponse != null) {
+                Pair(currentLocation, geofenceResponse).safeLet { currentLocation, geofenceResponse ->
                     nearestGeofences =
-                        geofenceFilter.findNearestGeofences(currentLocation!!, geofenceResponse!!)
+                        geofenceFilter.findNearestGeofences(currentLocation, geofenceResponse)
                             .toMutableList()
                     nearestGeofences.add(createRefreshAreaGeofence(nearestGeofences))
                     registerGeofences(nearestGeofences)
@@ -222,18 +223,20 @@ class DefaultGeofenceInternal(
 
     private fun createRefreshAreaGeofence(nearestGeofences: List<MEGeofence>): MEGeofence {
         val furthestGeofence = nearestGeofences.last()
+        val location = checkNotNull(currentLocation) { "currentLocation must not be null" }
+        val response = checkNotNull(geofenceResponse) { "geofenceResponse must not be null" }
         val result = floatArrayOf(1F)
         Location.distanceBetween(
-            currentLocation!!.latitude,
-            currentLocation!!.longitude,
+            location.latitude,
+            location.longitude,
             furthestGeofence.lat,
             furthestGeofence.lon,
             result
         )
         val radius =
-            abs((result[0] - furthestGeofence.radius) * geofenceResponse!!.refreshRadiusRatio)
+            abs((result[0] - furthestGeofence.radius) * response.refreshRadiusRatio)
         return MEGeofence(
-            "refreshArea", currentLocation!!.latitude, currentLocation!!.longitude, radius, null,
+            "refreshArea", location.latitude, location.longitude, radius, null,
             listOf(Trigger("refreshAreaTriggerId", TriggerType.EXIT, 0, JSONObject()))
         )
     }

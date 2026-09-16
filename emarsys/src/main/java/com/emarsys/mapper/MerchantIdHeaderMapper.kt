@@ -18,8 +18,8 @@ class MerchantIdHeaderMapper(
 
     override fun createHeaders(requestModel: RequestModel): Map<String, String> {
         val headers: MutableMap<String, String> = requestModel.headers.toMutableMap()
-        if (!predictRequestContext.merchantId.isNullOrBlank()) {
-            headers[MERCHANT_ID_HEADER] = predictRequestContext.merchantId!!
+        predictRequestContext.merchantId?.takeIf { it.isNotBlank() }?.let {
+            headers[MERCHANT_ID_HEADER] = it
         }
         return headers
     }

@@ -194,11 +194,12 @@ class DefaultConfigInternal(
                 signatureResponse.result?.let { signature ->
                     fetchRemoteConfig(ResultListener {
                         it.result?.let { remoteConfigResponseModel ->
-                            if (crypto.verify(
-                                    remoteConfigResponseModel.body!!.toByteArray(),
+                            if (remoteConfigResponseModel.body?.let { responseBody ->
+                                crypto.verify(
+                                    responseBody.toByteArray(),
                                     signature
                                 )
-                            ) {
+                            } ?: false) {
                                 applyRemoteConfig(configResponseMapper.map(remoteConfigResponseModel))
                                 hasFetchedThisSession = true
                                 completionListener?.onCompleted(null)
@@ -223,7 +224,8 @@ class DefaultConfigInternal(
         val requestModel = emarsysRequestModelFactory.createRemoteConfigSignatureRequest()
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
             override fun onSuccess(id: String, responseModel: ResponseModel) {
-                val remoteConfigSignature = Try.success(responseModel.body!!)
+                val responseBody = checkNotNull(responseModel.body) { "Remote Config Signature response must not be null" }
+                val remoteConfigSignature = Try.success(responseBody)
 
                 resultListener.onResult(remoteConfigSignature)
             }

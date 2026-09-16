@@ -38,8 +38,9 @@ class MobileEngageSession(
     }
 
     override fun endSession(completionListener: CompletionListener) {
-        if (sessionIdHolder.sessionId != null && sessionStart != null && mobileEngageRequestContext.applicationCode != null) {
-            val sessionEnd = (timestampProvider.provideTimestamp() - sessionStart!!).toString()
+        val currentSessionStart = sessionStart
+        if (sessionIdHolder.sessionId != null && currentSessionStart != null && mobileEngageRequestContext.applicationCode != null) {
+            val sessionEnd = (timestampProvider.provideTimestamp() - currentSessionStart).toString()
             val attributes = mapOf(
                 "duration" to sessionEnd
             )

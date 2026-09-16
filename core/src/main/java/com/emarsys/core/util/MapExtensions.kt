@@ -14,8 +14,10 @@ fun <T> Map<String?, T?>.getCaseInsensitive(key: String?): T? {
 
 fun <K, V> Map<out K?, V?>.filterNotNull(): Map<K, V> {
     val result = HashMap<K, V>()
-    filter { it.key != null && it.value != null }.forEach {
-        result[it.key!!] = it.value!!
+    forEach {
+        Pair(it.key, it.value).safeLet { key, value ->
+            result[key] = value
+        }
     }
     return result
 }

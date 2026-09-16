@@ -11,6 +11,7 @@ import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.util.getNullableString
+import com.emarsys.core.util.safeLet
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.model.InAppMetaData
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
@@ -49,26 +50,26 @@ class JSCommandFactory(
             }
             CommandType.ON_BUTTON_CLICKED -> {
                 { property, _ ->
-                    if (inAppMetaData != null && property != null) {
+                    Pair(inAppMetaData, property).safeLet { inAppMetaData, property ->
                         concurrentHandlerHolder.coreHandler.post {
                             buttonClickedRepository.add(
                                 ButtonClicked(
-                                    inAppMetaData!!.campaignId,
+                                    inAppMetaData.campaignId,
                                     property,
                                     timestampProvider.provideTimestamp()
                                 )
                             )
                             val eventName = "inapp:click"
                             val attributes: MutableMap<String, String> = mutableMapOf(
-                                "campaignId" to inAppMetaData!!.campaignId,
+                                "campaignId" to inAppMetaData.campaignId,
                                 "buttonId" to property
                             )
 
-                            if (inAppMetaData!!.sid != null) {
-                                attributes["sid"] = inAppMetaData!!.sid as String
+                            inAppMetaData.sid?.let {
+                                attributes["sid"] = it
                             }
-                            if (inAppMetaData!!.url != null) {
-                                attributes["url"] = inAppMetaData!!.url as String
+                            inAppMetaData.url?.let {
+                                attributes["url"] = it
                             }
 
                             inAppInternal.trackInternalCustomEvent(eventName, attributes, null)
@@ -105,11 +106,13 @@ class JSCommandFactory(
             }
             CommandType.ON_ME_EVENT -> {
                 { property, json ->
-                    concurrentHandlerHolder.coreHandler.post {
-                        val payload = json.optJSONObject("payload")
-                        val attributes = payload?.keys()?.asSequence()
-                            ?.associateBy({ it }) { payload.getString(it) }
-                        inAppInternal.trackCustomEventAsync(property!!, attributes, null)
+                    if (property != null) {
+                        concurrentHandlerHolder.coreHandler.post {
+                            val payload = json.optJSONObject("payload")
+                            val attributes = payload?.keys()?.asSequence()
+                                ?.associateBy({ it }) { payload.getString(it) }
+                            inAppInternal.trackCustomEventAsync(property, attributes, null)
+                        }
                     }
                 }
             }

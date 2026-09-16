@@ -23,9 +23,9 @@ class MobileEngageTokenResponseHandler(
     }
 
     override fun handleResponse(responseModel: ResponseModel) {
-        val body = responseModel.parsedBody
+        val body = responseModel.parsedBody ?: return
         try {
-            tokenStorage.set(body!!.getString(tokenKey))
+            tokenStorage.set(body.getString(tokenKey))
         } catch (ignore: JSONException) {
         }
 

@@ -85,9 +85,9 @@ open class RequestModel @JvmOverloads constructor(
 
         fun buildUrl(): String {
             val uriBuilder = Uri.parse(url).buildUpon()
-            if (queryParams != null && queryParams!!.isNotEmpty()) {
-                for (key in queryParams!!.keys) {
-                    uriBuilder.appendQueryParameter(key, queryParams!![key])
+            queryParams?.let {
+                for (key in it.keys) {
+                    uriBuilder.appendQueryParameter(key, it[key])
                 }
             }
             return uriBuilder.build().toString()
