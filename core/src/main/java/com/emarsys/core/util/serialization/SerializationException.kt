@@ -1,4 +1,3 @@
-package com.emarsys.core.util.serialization;
+package com.emarsys.core.util.serialization
 
-public class SerializationException extends Exception {
-}
+class SerializationException : Exception()

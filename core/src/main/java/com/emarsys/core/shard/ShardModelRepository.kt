@@ -10,7 +10,6 @@ import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.util.serialization.SerializationException
 import com.emarsys.core.util.serialization.SerializationUtils
 import com.emarsys.core.util.tryCastOrException
-import java.util.*
 
 @Mockable
 class ShardModelRepository(
@@ -41,7 +40,7 @@ class ShardModelRepository(
         var data: Map<String?, Any?> = HashMap()
         try {
             data = SerializationUtils
-                .blobToSerializable(cursor.getBlob(cursor.getColumnIndexOrThrow(DatabaseContract.SHARD_COLUMN_DATA))).tryCastOrException()
+                .blobToSerializable(cursor.getBlob(cursor.getColumnIndexOrThrow(DatabaseContract.SHARD_COLUMN_DATA)))?.tryCastOrException() ?: HashMap()
         } catch (ignored: SerializationException) {
         } catch (ignored: ClassCastException) {
         }
