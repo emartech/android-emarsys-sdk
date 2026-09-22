@@ -1,5 +1,5 @@
-package com.emarsys.core.util.predicate;
+package com.emarsys.core.util.predicate
 
-public interface Predicate<T> {
-    boolean evaluate(T input);
+fun interface Predicate<T> {
+    fun evaluate(input: T): Boolean
 }

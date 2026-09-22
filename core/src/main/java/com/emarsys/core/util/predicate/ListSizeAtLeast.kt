@@ -1,16 +1,5 @@
-package com.emarsys.core.util.predicate;
+package com.emarsys.core.util.predicate
 
-import java.util.List;
-
-public class ListSizeAtLeast<T> implements Predicate<List<T>> {
-    private final int count;
-
-    public ListSizeAtLeast(int count) {
-        this.count = count;
-    }
-
-    @Override
-    public boolean evaluate(List<T> input) {
-        return input.size() >= count;
-    }
+class ListSizeAtLeast<T>(private val count: Int) : Predicate<List<T>> {
+    override fun evaluate(input: List<T>): Boolean = input.size >= count
 }
