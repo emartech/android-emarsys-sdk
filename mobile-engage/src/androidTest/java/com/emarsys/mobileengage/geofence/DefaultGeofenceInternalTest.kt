@@ -18,12 +18,6 @@ import com.emarsys.mobileengage.api.geofence.Trigger
 import com.emarsys.mobileengage.api.geofence.TriggerType
 import com.emarsys.mobileengage.event.CacheableEventHandler
 import com.emarsys.mobileengage.fake.FakeRequestManager
-import com.emarsys.mobileengage.geofence.DefaultGeofenceInternal
-import com.emarsys.mobileengage.geofence.FakeLocationTask
-import com.emarsys.mobileengage.geofence.GeofenceFilter
-import com.emarsys.mobileengage.geofence.GeofenceInternal
-import com.emarsys.mobileengage.geofence.GeofencePendingIntentProvider
-import com.emarsys.mobileengage.geofence.GeofenceResponseMapper
 import com.emarsys.mobileengage.geofence.model.GeofenceGroup
 import com.emarsys.mobileengage.geofence.model.GeofenceResponse
 import com.emarsys.mobileengage.geofence.model.TriggeringEmarsysGeofence
@@ -107,7 +101,7 @@ class DefaultGeofenceInternalTest {
     private lateinit var mockActionCommandFactory: ActionCommandFactory
     private lateinit var mockCacheableEventHandler: CacheableEventHandler
     private lateinit var mockEnabledStorage: Storage<Boolean>
-    private lateinit var mockInitialEnterTriggerEnabledStorage: Storage<Boolean?>
+    private lateinit var mockInitialEnterTriggerEnabledStorage: Storage<Boolean>
     private lateinit var mockPendingIntentProvider: GeofencePendingIntentProvider
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var pendingIntent: PendingIntent

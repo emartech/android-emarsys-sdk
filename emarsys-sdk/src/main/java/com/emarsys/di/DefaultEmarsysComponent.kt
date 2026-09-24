@@ -593,7 +593,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         StringStorage(MobileEngageStorageKey.DEVICE_EVENT_STATE, sharedPreferencesV3)
     }
 
-    override val geofenceInitialEnterTriggerEnabledStorage: Storage<Boolean?> by lazy {
+    override val geofenceInitialEnterTriggerEnabledStorage: Storage<Boolean> by lazy {
         BooleanStorage(MobileEngageStorageKey.GEOFENCE_INITIAL_ENTER_TRIGGER, sharedPreferencesV3)
     }
 

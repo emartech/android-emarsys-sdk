@@ -1,37 +1,21 @@
-package com.emarsys.core.storage;
+package com.emarsys.core.storage
 
-import androidx.annotation.Nullable;
+abstract class AbstractStorage<T, S>(private val store: S) : PersistentStorage<T, S> {
 
-import com.emarsys.core.util.Assert;
+    private var value: T? = null
 
-public abstract class AbstractStorage<T, S> implements PersistentStorage<T, S> {
-
-    private final S store;
-
-    private T value;
-
-    public AbstractStorage(S store) {
-        Assert.notNull(store, "Store must not be null!");
-
-        this.store = store;
+    override fun set(item: T) {
+        value = item
+        persistValue(store, item)
     }
 
-    @Override
-    public void set(T item) {
-        value = item;
-        persistValue(store, item);
+    override fun get(): T? {
+        value = value ?: readPersistedValue(store)
+        return value
     }
 
-    @Override
-    public @Nullable T get() {
-        value = value != null ? value : readPersistedValue(store);
-        return value;
+    override fun remove() {
+        value = null
+        removePersistedValue(store)
     }
-
-    @Override
-    public void remove() {
-        value = null;
-        removePersistedValue(store);
-    }
-
 }

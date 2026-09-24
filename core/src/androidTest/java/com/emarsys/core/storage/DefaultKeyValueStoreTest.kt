@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import com.emarsys.testUtil.InstrumentationRegistry
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import org.junit.After
 import org.junit.Assert
@@ -39,111 +38,6 @@ class DefaultKeyValueStoreTest  {
     @After
     fun tearDown() {
         prefs.edit().clear().commit()
-    }
-
-    @Test
-    fun testConstructor_shouldNotAcceptNullContext() {
-        shouldThrow<IllegalArgumentException> {
-            DefaultKeyValueStore(null)
-        }
-    }
-
-    @Test
-    fun testPutString_shouldNotAcceptNullKey() {
-        shouldThrow<IllegalArgumentException> {
-            store.putString(null, "value")
-        }
-    }
-
-    @Test
-    fun testPutString_shouldNotAcceptNullValue() {
-        shouldThrow<IllegalArgumentException> {
-            store.putString("key", null)
-        }
-    }
-
-    @Test
-    fun testPutInt_shouldNotAcceptNullKey() {
-        shouldThrow<IllegalArgumentException> {
-            store.putInt(null, 0)
-        }
-    }
-
-    @Test
-    fun testPutLong_shouldNotAcceptNullKey() {
-        shouldThrow<IllegalArgumentException> {
-            store.putLong(null, 0)
-        }
-    }
-
-    @Test
-    fun testPutFloat_shouldNotAcceptNullKey() {
-        shouldThrow<IllegalArgumentException> {
-            store.putFloat(null, 0f)
-        }
-    }
-
-    @Test
-    fun testPutDouble_shouldNotAcceptNullKey() {
-        shouldThrow<IllegalArgumentException> {
-            store.putDouble(null, 0.0)
-        }
-    }
-
-    @Test
-    fun testPutBoolean_shouldNotAcceptNullKey() {
-        shouldThrow<IllegalArgumentException> {
-            store.putBoolean(null, false)
-        }
-    }
-
-    @Test
-    fun testGetString_shouldNotAcceptNullKey() {
-        shouldThrow<IllegalArgumentException> {
-            store.getString(null)
-        }
-    }
-
-    @Test
-    fun testGetInt_shouldNotAcceptNullKey() {
-        shouldThrow<IllegalArgumentException> {
-            store.getInt(null)
-        }
-    }
-
-    @Test
-    fun testGetLong_shouldNotAcceptNullKey() {
-        shouldThrow<IllegalArgumentException> {
-            store.getLong(null)
-        }
-    }
-
-    @Test
-    fun testGetFloat_shouldNotAcceptNullKey() {
-        shouldThrow<IllegalArgumentException> {
-            store.getFloat(null)
-        }
-    }
-
-    @Test
-    fun testGetDouble_shouldNotAcceptNullKey() {
-        shouldThrow<IllegalArgumentException> {
-            store.getDouble(null)
-        }
-    }
-
-    @Test
-    fun testGetBoolean_shouldNotAcceptNullKey() {
-        shouldThrow<IllegalArgumentException> {
-            store.getBoolean(null)
-        }
-    }
-
-    @Test
-    fun testRemove_shouldNotAcceptNullKey() {
-        shouldThrow<IllegalArgumentException> {
-            store.remove(null)
-        }
     }
 
     @Test

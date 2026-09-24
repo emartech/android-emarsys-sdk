@@ -123,7 +123,7 @@ interface MobileEngageComponent : CoreComponent {
 
     val deviceEventStateStorage: Storage<String?>
 
-    val geofenceInitialEnterTriggerEnabledStorage: Storage<Boolean?>
+    val geofenceInitialEnterTriggerEnabledStorage: Storage<Boolean>
 
     val fusedLocationProviderClient: FusedLocationProviderClient
 

@@ -1,9 +1,7 @@
-package com.emarsys.core.storage;
+package com.emarsys.core.storage
 
-public interface PersistentStorage<T, S> extends Storage<T>{
-    void persistValue(S store, T value);
-
-    T readPersistedValue(S store);
-
-    void removePersistedValue(S store);
+interface PersistentStorage<T, S> : Storage<T> {
+    fun persistValue(store: S, value: T)
+    fun readPersistedValue(store: S): T?
+    fun removePersistedValue(store: S)
 }

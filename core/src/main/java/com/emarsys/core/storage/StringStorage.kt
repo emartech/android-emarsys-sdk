@@ -1,34 +1,24 @@
-package com.emarsys.core.storage;
+package com.emarsys.core.storage
 
-import android.content.SharedPreferences;
+import android.content.SharedPreferences
+import androidx.core.content.edit
+import com.emarsys.core.Mockable
 
-import com.emarsys.core.util.Assert;
+@Mockable
+class StringStorage(key: StorageKey, store: SharedPreferences) :
+    AbstractStorage<String?, SharedPreferences>(store) {
 
-public class StringStorage extends AbstractStorage<String, SharedPreferences> {
+    private val key: String = key.key
 
-    private final String key;
-
-    public StringStorage(StorageKey key, SharedPreferences store) {
-        super(store);
-        Assert.notNull(key, "Key must not be null!");
-        Assert.notNull(store, "Store must not be null!");
-        Assert.notNull(key.getKey(), "Key.getKey() must not be null!");
-
-        this.key = key.getKey();
+    override fun persistValue(store: SharedPreferences, value: String?) {
+        store.edit { putString(key, value) }
     }
 
-    @Override
-    public void persistValue(SharedPreferences store, String value) {
-        store.edit().putString(key, value).apply();
+    override fun readPersistedValue(store: SharedPreferences): String? {
+        return store.getString(key, null)
     }
 
-    @Override
-    public String readPersistedValue(SharedPreferences store) {
-        return store.getString(key, null);
-    }
-
-    @Override
-    public void removePersistedValue(SharedPreferences store) {
-        store.edit().remove(key).apply();
+    override fun removePersistedValue(store: SharedPreferences) {
+        store.edit { remove(key) }
     }
 }

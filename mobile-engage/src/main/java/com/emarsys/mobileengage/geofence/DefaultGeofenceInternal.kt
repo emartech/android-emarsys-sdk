@@ -27,7 +27,13 @@ import com.emarsys.mobileengage.geofence.model.GeofenceResponse
 import com.emarsys.mobileengage.geofence.model.TriggeringEmarsysGeofence
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
-import com.google.android.gms.location.*
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.Geofence
+import com.google.android.gms.location.GeofencingClient
+import com.google.android.gms.location.GeofencingRequest
+import com.google.android.gms.location.Granularity
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.Task
 import org.json.JSONObject
 import kotlin.math.abs
@@ -47,7 +53,7 @@ class DefaultGeofenceInternal(
     private val geofenceEnabledStorage: Storage<Boolean>,
     private val geofencePendingIntentProvider: GeofencePendingIntentProvider,
     private val concurrentHandlerHolder: ConcurrentHandlerHolder,
-    private val initialEnterTriggerEnabledStorage: Storage<Boolean?>
+    private val initialEnterTriggerEnabledStorage: Storage<Boolean>
 ) : GeofenceInternal {
     private companion object {
         const val FASTEST_INTERNAL: Long = 15_000
@@ -70,7 +76,7 @@ class DefaultGeofenceInternal(
     private var initialExitTriggerEnabled = false
 
     override fun fetchGeofences(completionListener: CompletionListener?) {
-        if (!geofenceEnabledStorage.get()) {
+        if (geofenceEnabledStorage.get() != true) {
             return
         }
         try {
@@ -97,7 +103,7 @@ class DefaultGeofenceInternal(
         val missingPermissions = findMissingPermissions()
 
         if (missingPermissions == null) {
-            if (!geofenceEnabledStorage.get()) {
+            if (geofenceEnabledStorage.get() != true) {
                 geofenceEnabledStorage.set(true)
 
                 sendStatusLog(
@@ -117,7 +123,7 @@ class DefaultGeofenceInternal(
     }
 
     override fun disable() {
-        if (geofenceEnabledStorage.get()) {
+        if (geofenceEnabledStorage.get() == true) {
             try {
                 fusedLocationProviderClient.removeLocationUpdates(geofencePendingIntent)
             } catch (ignored: IllegalArgumentException) {
@@ -134,7 +140,7 @@ class DefaultGeofenceInternal(
     }
 
     override fun isEnabled(): Boolean {
-        return geofenceEnabledStorage.get()
+        return geofenceEnabledStorage.get() ?: false
     }
 
     @RequiresPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)

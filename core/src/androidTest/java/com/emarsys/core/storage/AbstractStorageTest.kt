@@ -3,7 +3,6 @@ package com.emarsys.core.storage
 import android.content.SharedPreferences
 import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.mockito.whenever
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import org.junit.Before
 import org.junit.Test
@@ -27,19 +26,6 @@ class AbstractStorageTest  {
         mockStorage =
             (mock(defaultAnswer = CALLS_REAL_METHODS) as AbstractStorage<String, SharedPreferences>)
         ReflectionTestUtils.setInstanceField(mockStorage, "store", mockSharedPreferences)
-    }
-
-    @Test
-    fun testConstructor_storeMustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            object : AbstractStorage<String, SharedPreferences>(null) {
-                override fun persistValue(store: SharedPreferences?, value: String?) = TODO()
-
-                override fun readPersistedValue(store: SharedPreferences?) = TODO()
-
-                override fun removePersistedValue(store: SharedPreferences?) = TODO()
-            }
-        }
     }
 
     @Test

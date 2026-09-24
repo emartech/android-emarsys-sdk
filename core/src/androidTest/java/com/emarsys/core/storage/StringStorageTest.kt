@@ -2,7 +2,6 @@ package com.emarsys.core.storage
 
 import android.content.SharedPreferences
 import com.emarsys.testUtil.mockito.whenever
-import io.kotest.assertions.throwables.shouldThrow
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.anyString
@@ -39,20 +38,6 @@ class StringStorageTest  {
         }
 
         storage = StringStorage(storageKey, sharedPreferences)
-    }
-
-    @Test
-    fun testConstructor_key_mustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            StringStorage(null, sharedPreferences)
-        }
-    }
-
-    @Test
-    fun testConstructor_sharedPreference_mustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            StringStorage(storageKey, null)
-        }
     }
 
     @Test
