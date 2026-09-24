@@ -1,5 +1,5 @@
-package com.emarsys.core.request.factory;
+package com.emarsys.core.request.factory
 
-public interface RunnableFactory {
-    Runnable runnableFrom(Runnable runnable);
+fun interface RunnableFactory {
+    fun runnableFrom(runnable: Runnable): Runnable
 }

@@ -1,19 +1,8 @@
-package com.emarsys.core.request.model.specification;
+package com.emarsys.core.request.model.specification
 
-import com.emarsys.core.database.repository.AbstractSqlSpecification;
+import com.emarsys.core.database.repository.AbstractSqlSpecification
 
-public class QueryLatestRequestModel extends AbstractSqlSpecification {
-
-    public QueryLatestRequestModel() {
-    }
-
-    @Override
-    public String getOrderBy() {
-        return "ROWID ASC";
-    }
-
-    @Override
-    public String getLimit() {
-        return "1";
-    }
+class QueryLatestRequestModel : AbstractSqlSpecification() {
+    override val orderBy: String get() = "ROWID ASC"
+    override val limit: String get() = "1"
 }

@@ -25,7 +25,6 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
-import java.util.*
 
 class RequestModelRepositoryTest  {
 
@@ -42,10 +41,10 @@ class RequestModelRepositoryTest  {
         }
     }
 
-    private var request: RequestModel? = null
-    private var repository: RequestModelRepository? = null
+    private lateinit var request: RequestModel
+    private lateinit var repository: RequestModelRepository
     private var context: Context? = null
-    private var concurrentHandlerHolder: ConcurrentHandlerHolder? = null
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private var headers: HashMap<String, String>? = null
     private var payload: HashMap<String, Any?>? = null
 
