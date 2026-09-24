@@ -8,7 +8,6 @@ import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -45,13 +44,6 @@ class FilterByShardTypeTest  {
             shardList.forEach {
                 repository.add(it)
             }
-        }
-    }
-
-    @Test
-    fun testConstructor_mustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            FilterByShardType(null)
         }
     }
 

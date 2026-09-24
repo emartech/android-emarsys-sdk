@@ -37,7 +37,7 @@ class ShardModelRepository(
 
         val id = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.SHARD_COLUMN_ID))
         val type = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.SHARD_COLUMN_TYPE))
-        var data: Map<String?, Any?> = HashMap()
+        var data: Map<String, Any?> = HashMap()
         try {
             data = SerializationUtils
                 .blobToSerializable(cursor.getBlob(cursor.getColumnIndexOrThrow(DatabaseContract.SHARD_COLUMN_DATA)))?.tryCastOrException() ?: HashMap()

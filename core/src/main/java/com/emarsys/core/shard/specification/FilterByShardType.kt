@@ -1,49 +1,27 @@
-package com.emarsys.core.shard.specification;
+package com.emarsys.core.shard.specification
 
-import com.emarsys.core.database.DatabaseContract;
-import com.emarsys.core.database.repository.AbstractSqlSpecification;
-import com.emarsys.core.util.Assert;
+import com.emarsys.core.database.DatabaseContract
+import com.emarsys.core.database.repository.AbstractSqlSpecification
 
+class FilterByShardType(private val type: String) : AbstractSqlSpecification() {
 
-public class FilterByShardType extends AbstractSqlSpecification {
-
-    public static final String SHARD_TYPE_PREDICT = "predict_%";
-    public static final String SHARD_TYPE_LOG = "log_%";
-
-    private final String type;
-
-    public FilterByShardType(String type) {
-        Assert.notNull(type, "Type must not be null!");
-        this.type = type;
+    companion object {
+        const val SHARD_TYPE_PREDICT = "predict_%"
+        const val SHARD_TYPE_LOG = "log_%"
     }
 
-    @Override
-    public String getSelection() {
-        return DatabaseContract.SHARD_COLUMN_TYPE + " LIKE ?";
+    override val selection: String
+        get() = DatabaseContract.SHARD_COLUMN_TYPE + " LIKE ?"
+    override val orderBy: String
+        get() = "ROWID ASC"
+    override val selectionArgs: Array<String>
+        get() = arrayOf(type)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        return type == (other as FilterByShardType).type
     }
 
-    @Override
-    public String getOrderBy() {
-        return "ROWID ASC";
-    }
-
-    @Override
-    public String[] getSelectionArgs() {
-        return new String[]{type};
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        FilterByShardType that = (FilterByShardType) o;
-
-        return type != null ? type.equals(that.type) : that.type == null;
-    }
-
-    @Override
-    public int hashCode() {
-        return type != null ? type.hashCode() : 0;
-    }
+    override fun hashCode(): Int = type.hashCode()
 }

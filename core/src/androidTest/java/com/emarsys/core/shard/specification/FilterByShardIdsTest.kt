@@ -9,7 +9,6 @@ import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -39,15 +38,6 @@ class FilterByShardIdsTest  {
 
         val coreDbHelper = CoreDbHelper(context, mutableMapOf())
         shardModelRepository = ShardModelRepository(coreDbHelper, concurrentHadlerHolder)
-    }
-
-    @Test
-    fun testDeleteRow_withInvalidArgument() {
-        shouldThrow<IllegalArgumentException> {
-            runBlocking {
-                shardModelRepository.remove(FilterByShardIds(null))
-            }
-        }
     }
 
     @Test

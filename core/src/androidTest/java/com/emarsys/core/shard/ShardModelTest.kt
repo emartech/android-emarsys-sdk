@@ -34,41 +34,6 @@ class ShardModelTest  {
     }
 
     @Test
-    fun testConstructor_idMustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            ShardModel(null, TYPE, mapOf(), 0, 0)
-        }
-    }
-
-    @Test
-    fun testConstructor_typeMustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            ShardModel(ID, null, mapOf(), 0, 0)
-        }
-    }
-
-    @Test
-    fun testConstructor_dataMustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            ShardModel(ID, TYPE, null, 0, 0)
-        }
-    }
-
-    @Test
-    fun testBuilder_timestampProvider_mustBeNotNull() {
-        shouldThrow<IllegalArgumentException> {
-            ShardModel.Builder(null, uuidProvider)
-        }
-    }
-
-    @Test
-    fun testBuilder_uuidProvider_mustBeNotNull() {
-        shouldThrow<IllegalArgumentException> {
-            ShardModel.Builder(timestampProvider, null)
-        }
-    }
-
-    @Test
     fun testBuilder_type_mustBeSet() {
         shouldThrow<IllegalArgumentException> {
             ShardModel.Builder(timestampProvider, uuidProvider)
