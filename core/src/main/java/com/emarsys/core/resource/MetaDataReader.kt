@@ -1,35 +1,24 @@
-package com.emarsys.core.resource;
+package com.emarsys.core.resource
 
-import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
+import android.content.Context
+import android.content.pm.PackageManager
 
-import com.emarsys.core.util.Assert;
+class MetaDataReader {
 
-public class MetaDataReader {
-
-    public int getInt(Context context, String key) {
-        Assert.notNull(context, "Context must not be null!");
-        Assert.notNull(key, "Key must not be null!");
-
-        int result = 0;
+    fun getInt(context: Context, key: String): Int {
+        var result = 0
         try {
-            ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+            val ai = context.packageManager.getApplicationInfo(context.packageName, PackageManager.GET_META_DATA)
             if (ai.metaData.containsKey(key)) {
-                result = ai.metaData.getInt(key);
+                result = ai.metaData.getInt(key)
             }
-        } catch (PackageManager.NameNotFoundException ignore) {
+        } catch (ignored: PackageManager.NameNotFoundException) {
         }
-        return result;
+        return result
     }
 
-    public int getInt(Context context, String key, int defaultValue) {
-        Assert.notNull(context, "Context must not be null!");
-        Assert.notNull(key, "Key must not be null!");
-
-        int result = getInt(context, key);
-
-        return result == 0 ? defaultValue : result;
+    fun getInt(context: Context, key: String, defaultValue: Int): Int {
+        val result = getInt(context, key)
+        return if (result == 0) defaultValue else result
     }
-
 }

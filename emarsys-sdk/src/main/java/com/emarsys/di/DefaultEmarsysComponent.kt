@@ -310,7 +310,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         (EventService(true) as EventServiceApi).proxyApi(concurrentHandlerHolder)
 
     override val responseHandlersProcessor: ResponseHandlersProcessor by lazy {
-        ResponseHandlersProcessor(mutableListOf())
+        ResponseHandlersProcessor()
     }
 
     override val clipboardManager: ClipboardManager by lazy {
@@ -357,7 +357,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     fun initializeResponseHandlers(config: EmarsysConfig) {
-        val responseHandlers: MutableList<AbstractResponseHandler?> = ArrayList()
+        val responseHandlers: MutableList<AbstractResponseHandler> = ArrayList()
         responseHandlers.add(VisitorIdResponseHandler(keyValueStore, predictServiceProvider))
         responseHandlers.add(XPResponseHandler(keyValueStore, predictServiceProvider))
         responseHandlers.add(

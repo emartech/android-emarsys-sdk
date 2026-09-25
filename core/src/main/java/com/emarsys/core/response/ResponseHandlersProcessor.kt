@@ -1,37 +1,19 @@
-package com.emarsys.core.response;
+package com.emarsys.core.response
 
-import com.emarsys.core.util.Assert;
+import com.emarsys.core.Mockable
 
-import java.util.ArrayList;
-import java.util.List;
+@Mockable
+class ResponseHandlersProcessor(
+    responseHandlers: List<AbstractResponseHandler> = emptyList()
+) {
+    private val responseHandlers: MutableList<AbstractResponseHandler> = responseHandlers.toMutableList()
+    fun getResponseHandlers(): List<AbstractResponseHandler> = responseHandlers
 
-public class ResponseHandlersProcessor {
-
-    private final List<AbstractResponseHandler> responseHandlers;
-
-    public ResponseHandlersProcessor(List<AbstractResponseHandler> responseHandlers) {
-        Assert.notNull(responseHandlers, "ResponseHandlers must not be null!");
-
-        this.responseHandlers = responseHandlers;
+    fun process(responseModel: ResponseModel) {
+        responseHandlers.forEach { it.processResponse(responseModel) }
     }
 
-    public ResponseHandlersProcessor() {
-        this.responseHandlers = new ArrayList<>();
-    }
-
-    public List<AbstractResponseHandler> getResponseHandlers() {
-        return responseHandlers;
-    }
-
-    public void process(ResponseModel responseModel) {
-        for (AbstractResponseHandler responseHandler : responseHandlers) {
-            responseHandler.processResponse(responseModel);
-        }
-    }
-
-    public void addResponseHandlers(List<AbstractResponseHandler> responseHandlers) {
-        Assert.notNull(responseHandlers, "ResponseHandlers must not be null!");
-
-        this.responseHandlers.addAll(responseHandlers);
+    fun addResponseHandlers(responseHandlers: List<AbstractResponseHandler>) {
+        this.responseHandlers.addAll(responseHandlers)
     }
 }
