@@ -1,31 +1,19 @@
-package com.emarsys.mobileengage.iam;
+package com.emarsys.mobileengage.iam
 
-import com.emarsys.mobileengage.api.event.EventHandler;
+import com.emarsys.core.Mockable
+import com.emarsys.mobileengage.api.event.EventHandler
 
+@Mockable
+class InAppEventHandlerInternal : InAppEventHandler {
 
-public class InAppEventHandlerInternal implements InAppEventHandler {
+    override var isPaused: Boolean = false
+    override var eventHandler: EventHandler? = null
 
-    private boolean isPaused;
-    private EventHandler eventHandler;
-
-    public void pause() {
-        isPaused = true;
+    override fun pause() {
+        isPaused = true
     }
 
-    public void resume() {
-        isPaused = false;
+    override fun resume() {
+        isPaused = false
     }
-
-    public boolean isPaused() {
-        return isPaused;
-    }
-
-    public void setEventHandler(EventHandler eventHandler) {
-        this.eventHandler = eventHandler;
-    }
-
-    public EventHandler getEventHandler() {
-        return eventHandler;
-    }
-
 }

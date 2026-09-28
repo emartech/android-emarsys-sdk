@@ -1,45 +1,25 @@
-package com.emarsys.mobileengage.iam.model;
+package com.emarsys.mobileengage.iam.model
 
-import com.emarsys.core.util.TimestampUtils;
-import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
-import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
+import com.emarsys.core.util.TimestampUtils
+import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
+import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+object IamConversionUtils {
 
-public class IamConversionUtils {
+    fun buttonClicksToArray(buttonClicks: List<ButtonClicked>): List<Map<String, Any>> =
+        buttonClicks.map { buttonClickToJson(it) }
 
-    public static List<Map<String, Object>> buttonClicksToArray(List<ButtonClicked> buttonClicks) {
-        List<Map<String, Object>> result = new ArrayList<>();
-        for (ButtonClicked buttonClick : buttonClicks) {
-            result.add(buttonClickToJson(buttonClick));
-        }
-        return result;
-    }
+    fun buttonClickToJson(buttonClicked: ButtonClicked): Map<String, Any> = mapOf(
+        "campaignId" to buttonClicked.campaignId,
+        "buttonId" to buttonClicked.buttonId,
+        "timestamp" to TimestampUtils.formatTimestampWithUTC(buttonClicked.timestamp)
+    )
 
-    public static Map<String, Object> buttonClickToJson(ButtonClicked buttonClicked) {
-        Map<String, Object> result = new HashMap<>();
-            result.put("campaignId", buttonClicked.getCampaignId());
-            result.put("buttonId", buttonClicked.getButtonId());
-            result.put("timestamp", TimestampUtils.formatTimestampWithUTC(buttonClicked.getTimestamp()));
-        return result;
-    }
+    fun displayedIamsToArray(displayedIams: List<DisplayedIam>): List<Map<String, Any>> =
+        displayedIams.map { displayedIamToJson(it) }
 
-    public static List<Map<String, Object>> displayedIamsToArray(List<DisplayedIam> displayedIams) {
-        List<Map<String, Object>> result = new ArrayList<>();
-        for (DisplayedIam displayedIam : displayedIams) {
-            result.add(displayedIamToJson(displayedIam));
-        }
-        return result;
-    }
-
-    public static Map<String, Object> displayedIamToJson(DisplayedIam displayedIam) {
-        Map<String, Object> result = new HashMap<>();
-            result.put("campaignId", displayedIam.getCampaignId());
-            result.put("timestamp", TimestampUtils.formatTimestampWithUTC(displayedIam.getTimestamp()));
-        return result;
-    }
-
+    fun displayedIamToJson(displayedIam: DisplayedIam): Map<String, Any> = mapOf(
+        "campaignId" to displayedIam.campaignId,
+        "timestamp" to TimestampUtils.formatTimestampWithUTC(displayedIam.timestamp)
+    )
 }

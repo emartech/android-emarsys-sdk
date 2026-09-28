@@ -1,5 +1,5 @@
-package com.emarsys.mobileengage.iam.webview;
+package com.emarsys.mobileengage.iam.webview
 
-public interface MessageLoadedListener {
-    void onMessageLoaded();
+fun interface MessageLoadedListener {
+    fun onMessageLoaded()
 }

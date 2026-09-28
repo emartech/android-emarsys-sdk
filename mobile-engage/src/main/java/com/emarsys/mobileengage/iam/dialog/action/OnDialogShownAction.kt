@@ -1,5 +1,5 @@
-package com.emarsys.mobileengage.iam.dialog.action;
+package com.emarsys.mobileengage.iam.dialog.action
 
-public interface OnDialogShownAction {
-    void execute(String campaignId, String sid, String url);
+fun interface OnDialogShownAction {
+    fun execute(campaignId: String, sid: String?, url: String?)
 }

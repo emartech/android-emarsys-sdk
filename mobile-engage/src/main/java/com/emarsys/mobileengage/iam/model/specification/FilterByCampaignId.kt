@@ -1,50 +1,23 @@
-package com.emarsys.mobileengage.iam.model.specification;
+package com.emarsys.mobileengage.iam.model.specification
 
-import com.emarsys.core.database.repository.AbstractSqlSpecification;
+import com.emarsys.core.database.repository.AbstractSqlSpecification
 
-import java.util.Arrays;
+class FilterByCampaignId(private vararg val campaignIds: String) : AbstractSqlSpecification() {
 
-public class FilterByCampaignId extends AbstractSqlSpecification {
-
-    private final String[] campaignIds;
-    private final String sql;
-
-    public FilterByCampaignId(String... campaignIds) {
-        this.campaignIds = campaignIds;
-        this.sql = createSql(campaignIds);
+    private val sql: String = buildString {
+        append("campaign_id IN (?")
+        repeat(campaignIds.size - 1) { append(", ?") }
+        append(")")
     }
 
-    @Override
-    public String getSelection() {
-        return sql;
+    override val selection: String get() = sql
+    override val selectionArgs: Array<String> get() = campaignIds as Array<String>
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        return campaignIds.contentEquals((other as FilterByCampaignId).campaignIds)
     }
 
-    @Override
-    public String[] getSelectionArgs() {
-        return campaignIds;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        FilterByCampaignId that = (FilterByCampaignId) o;
-
-        return Arrays.equals(campaignIds, that.campaignIds);
-    }
-
-    @Override
-    public int hashCode() {
-        return Arrays.hashCode(campaignIds);
-    }
-
-    private String createSql(String[] args) {
-        StringBuilder sb = new StringBuilder("campaign_id IN (?");
-        for (int i = 1; i < args.length; i++) {
-            sb.append(", ?");
-        }
-        sb.append(")");
-        return sb.toString();
-    }
+    override fun hashCode(): Int = campaignIds.contentHashCode()
 }

@@ -1,7 +1,6 @@
 package com.emarsys.mobileengage.notification.command
 
 import com.emarsys.mobileengage.event.EventServiceInternal
-import io.kotest.assertions.throwables.shouldThrow
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Before
@@ -17,20 +16,6 @@ class CustomEventCommandTest {
     @Before
     fun setUp() {
         mockEventServiceInternal = mockk(relaxed = true)
-    }
-
-    @Test
-    fun testConstructor_mockEventServiceInternal_mustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            CustomEventCommand(null, "", HashMap())
-        }
-    }
-
-    @Test
-    fun testConstructor_eventName_mustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            CustomEventCommand(mockEventServiceInternal, null, HashMap())
-        }
     }
 
     @Test

@@ -2,7 +2,10 @@ package com.emarsys.core.resource
 
 import android.content.Context
 import android.content.pm.PackageManager
+import com.emarsys.core.Mockable
 
+
+@Mockable
 class MetaDataReader {
 
     fun getInt(context: Context, key: String): Int {

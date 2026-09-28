@@ -1,67 +1,49 @@
-package com.emarsys.mobileengage.iam;
+package com.emarsys.mobileengage.iam
 
-import com.emarsys.core.api.result.CompletionListener;
-import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.api.event.EventHandler;
-import com.emarsys.mobileengage.event.EventServiceInternal;
+import com.emarsys.core.api.result.CompletionListener
+import com.emarsys.mobileengage.api.event.EventHandler
+import com.emarsys.mobileengage.event.EventServiceInternal
 
-import java.util.Map;
+class DefaultInAppInternal(
+    private val inAppEventHandlerInternal: InAppEventHandlerInternal,
+    private val eventServiceInternal: EventServiceInternal
+) : InAppInternal {
 
-public class DefaultInAppInternal implements InAppInternal {
-    private final InAppEventHandlerInternal inAppEventHandlerInternal;
-    private final EventServiceInternal eventServiceInternal;
+    override fun pause() = inAppEventHandlerInternal.pause()
 
-    public DefaultInAppInternal(InAppEventHandlerInternal inAppEventHandlerInternal, EventServiceInternal eventServiceInternal) {
-        this.inAppEventHandlerInternal = inAppEventHandlerInternal;
-        this.eventServiceInternal = eventServiceInternal;
+    override fun resume() = inAppEventHandlerInternal.resume()
+
+    override val isPaused: Boolean get() = inAppEventHandlerInternal.isPaused
+
+    override var eventHandler: EventHandler?
+        get() = inAppEventHandlerInternal.eventHandler
+        set(value) { inAppEventHandlerInternal.eventHandler = value }
+
+    override fun trackCustomEvent(
+        eventName: String,
+        eventAttributes: Map<String, String>?,
+        completionListener: CompletionListener?
+    ): String? = eventServiceInternal.trackCustomEvent(eventName, eventAttributes, completionListener)
+
+    override fun trackCustomEventAsync(
+        eventName: String,
+        eventAttributes: Map<String, String>?,
+        completionListener: CompletionListener?
+    ) {
+        trackCustomEvent(eventName, eventAttributes, completionListener)
     }
 
-    @Override
-    public void pause() {
-        inAppEventHandlerInternal.pause();
-    }
+    override fun trackInternalCustomEvent(
+        eventName: String,
+        eventAttributes: Map<String, String>?,
+        completionListener: CompletionListener?
+    ): String? = eventServiceInternal.trackInternalCustomEvent(eventName, eventAttributes, completionListener)
 
-    @Override
-    public void resume() {
-        inAppEventHandlerInternal.resume();
-    }
-
-    @Override
-    public boolean isPaused() {
-        return inAppEventHandlerInternal.isPaused();
-    }
-
-    @Override
-    public void setEventHandler(EventHandler eventHandler) {
-        inAppEventHandlerInternal.setEventHandler(eventHandler);
-    }
-
-    @Override
-    public EventHandler getEventHandler() {
-        return inAppEventHandlerInternal.getEventHandler();
-    }
-
-    @Override
-    public String trackCustomEvent(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
-        Assert.notNull(eventName, "EventName must not be null!");
-
-        return eventServiceInternal.trackCustomEvent(eventName, eventAttributes, completionListener);
-    }
-
-    @Override
-    public void trackCustomEventAsync(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
-        trackCustomEvent(eventName, eventAttributes, completionListener);
-    }
-
-    @Override
-    public String trackInternalCustomEvent(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
-        Assert.notNull(eventName, "EventName must not be null!");
-
-        return eventServiceInternal.trackInternalCustomEvent(eventName, eventAttributes, completionListener);
-    }
-
-    @Override
-    public void trackInternalCustomEventAsync(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
-        trackInternalCustomEvent(eventName, eventAttributes, completionListener);
+    override fun trackInternalCustomEventAsync(
+        eventName: String,
+        eventAttributes: Map<String, String>?,
+        completionListener: CompletionListener?
+    ) {
+        trackInternalCustomEvent(eventName, eventAttributes, completionListener)
     }
 }
