@@ -100,7 +100,7 @@ data class EmarsysConfig(
                 application,
                 applicationCode?.takeIf { it.isNotBlank() },
                 merchantId,
-                experimentalFeatures!!,
+                experimentalFeatures ?: emptyList(),
                 automaticPushTokenSending,
                 sharedPackageNames,
                 sharedSecret,

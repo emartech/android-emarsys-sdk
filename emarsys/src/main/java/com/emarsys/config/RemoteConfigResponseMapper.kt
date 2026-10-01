@@ -27,8 +27,9 @@ class RemoteConfigResponseMapper(private val randomProvider: RandomProvider,
     override fun map(responseModel: ResponseModel): RemoteConfig {
         var remoteConfig = RemoteConfig()
         try {
-            require(responseModel.body != null) { "Remote Config response body should not be null!" }
-            var remoteConfigJson = JSONObject(responseModel.body!!)
+            val responseBody = responseModel.body
+            requireNotNull(responseBody) { "Remote Config response body should not be null!" }
+            var remoteConfigJson = JSONObject(responseBody)
 
             extractOverrideJson(remoteConfigJson)?.let {
                 val remoteConfigServiceUrlJson = JsonUtils.merge(remoteConfigJson.optJSONObject("serviceUrls"), it.optJSONObject("serviceUrls"))

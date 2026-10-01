@@ -9,23 +9,20 @@ class InAppMessageResponseHandler(
     private val overlayInAppPresenter: OverlayInAppPresenter): AbstractResponseHandler() {
 
     override fun shouldHandleResponse(responseModel: ResponseModel): Boolean {
-        val responseBody = responseModel.parsedBody
-        val responseBodyNotNull = responseBody != null
-        var shouldHandle = false
-        if (responseBodyNotNull) {
+        return responseModel.parsedBody?.let {
             try {
-                val message = responseBody!!.getJSONObject("message")
-                shouldHandle = message.has("html")
+                val message = it.getJSONObject("message")
+                message.has("html")
             } catch (ignored: JSONException) {
+                false
             }
-        }
-        return shouldHandle
+        } ?: false
     }
 
     override fun handleResponse(responseModel: ResponseModel) {
-        val responseBody = responseModel.parsedBody
+        val responseBody = responseModel.parsedBody ?: return
         try {
-            val message = responseBody!!.getJSONObject("message")
+            val message = responseBody.getJSONObject("message")
             val html = message.getString("html")
             val campaignId = message.getString("campaignId")
             val requestId = responseModel.requestModel.id

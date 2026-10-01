@@ -22,8 +22,9 @@ class DeviceEventStateResponseHandler(
 
     override fun handleResponse(responseModel: ResponseModel) {
         try {
-            val deviceEventState = responseModel.parsedBody!!.getJSONObject("deviceEventState").toString()
-            deviceEventStateStorage.set(deviceEventState)
+            responseModel.parsedBody?.getJSONObject("deviceEventState")?.let {
+                deviceEventStateStorage.set(it.toString())
+            }
         } catch (ignored: Exception) {
         }
     }

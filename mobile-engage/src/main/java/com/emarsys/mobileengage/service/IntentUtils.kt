@@ -17,7 +17,7 @@ object IntentUtils {
         val launchIntent = context.packageManager.getLaunchIntentForPackage(packageName)
         val remoteExtras = remoteIntent.extras
         if (remoteExtras != null && launchIntent != null) {
-            launchIntent.putExtras(remoteIntent.extras!!)
+            launchIntent.putExtras(remoteExtras)
         }
 
         val activityOptions = if (isUpsideDownCakeOrHigher) {

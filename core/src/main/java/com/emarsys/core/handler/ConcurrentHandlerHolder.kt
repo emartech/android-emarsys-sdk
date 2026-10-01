@@ -28,7 +28,7 @@ class ConcurrentHandlerHolder(
         }
     }
 
-    fun <T> run(callable: Callable<T>): T {
+    fun <T> run(callable: Callable<T>): T? {
         var result: T? = null
         if (Thread.currentThread().name != coreHandler.handler.looper.thread.name) {
             val latch = CountDownLatch(1)
@@ -40,7 +40,7 @@ class ConcurrentHandlerHolder(
         } else {
             result = callable.call()
         }
-        return result!!
+        return result
     }
 
     fun postOnMain(runnable: Runnable) {

@@ -19,8 +19,8 @@ class SharedHardwareIdentificationContentProvider : ContentProvider() {
     }
 
     override fun query(uri: Uri, projection: Array<out String>?, selection: String?, selectionArgs: Array<out String>?, sortOrder: String?): Cursor? {
-        return if (context != null) {
-            if (uri == DatabaseContract.getClientIdProviderUri(context!!.packageName)) {
+        return context?.let {
+            if (uri == DatabaseContract.getClientIdProviderUri(it.packageName)) {
                 coreDbHelper.readableCoreDatabase.query(
                     false, DatabaseContract.CLIENT_IDENTIFICATION_TABLE_NAME,
                     arrayOf(
@@ -32,8 +32,6 @@ class SharedHardwareIdentificationContentProvider : ContentProvider() {
             } else {
                 null
             }
-        } else {
-            null
         }
     }
 

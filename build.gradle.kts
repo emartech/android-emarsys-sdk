@@ -1,4 +1,5 @@
 import org.ajoberstar.grgit.Grgit
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     alias(libs.plugins.android.library) apply false
@@ -21,6 +22,17 @@ allprojects {
     val sdkVersion: GitVersion by rootProject.extra
     group = "com.emarsys"
     version = sdkVersion.versionName
+
+    tasks.withType<KotlinCompile>().configureEach {
+        compilerOptions.languageVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2
+        compilerOptions.apiVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2
+    }
+
+    plugins.withId("com.android.library") {
+        val kotlinExtension = extensions.findByType(org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension::class.java)
+            ?: error("Kotlin extension not found on $path; cannot pin coreLibrariesVersion")
+        kotlinExtension.coreLibrariesVersion = libs.versions.kotlinCoreLibraries.get()
+    }
 }
 
 fun versionData() {

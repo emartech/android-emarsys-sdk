@@ -92,13 +92,13 @@ class RecommendationLogic internal constructor(override val logicName: String, o
         @JvmStatic
         @JvmOverloads
         fun personal(variants: List<String>? = listOf()): Logic {
-            return RecommendationLogic(PERSONAL, mapOf(), variants!!)
+            return RecommendationLogic(PERSONAL, mapOf(), variants ?: listOf())
         }
 
         @JvmStatic
         @JvmOverloads
         fun home(variants: List<String>? = listOf()): Logic {
-            return RecommendationLogic(HOME, mapOf(), variants!!)
+            return RecommendationLogic(HOME, mapOf(), variants ?: listOf())
         }
 
         private fun cartItemsToQueryParam(items: List<CartItem>): String {
@@ -112,8 +112,8 @@ class RecommendationLogic internal constructor(override val logicName: String, o
             return sb.toString()
         }
 
-        private fun cartItemToQueryParam(cartItem: CartItem?): String {
-            return "i:" + URLEncoder.encode(cartItem!!.itemId, Charsets.UTF_8) + ",p:" + cartItem.price + ",q:" + cartItem.quantity
+        private fun cartItemToQueryParam(cartItem: CartItem): String {
+            return "i:" + URLEncoder.encode(cartItem.itemId, Charsets.UTF_8) + ",p:" + cartItem.price + ",q:" + cartItem.quantity
         }
     }
 }

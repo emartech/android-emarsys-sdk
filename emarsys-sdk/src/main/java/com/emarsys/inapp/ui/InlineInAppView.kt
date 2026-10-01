@@ -79,8 +79,8 @@ class InlineInAppView : LinearLayout {
             iamWebView.onAppEventTriggered = onAppEventListener
             iamWebView.onCloseTriggered = onCloseListener
             setupViewHierarchy(iamWebView)
-            if (viewId != null) {
-                loadInApp(viewId!!)
+            viewId?.let {
+                loadInApp(it)
             }
         }
         attributes.recycle()
@@ -109,10 +109,12 @@ class InlineInAppView : LinearLayout {
                 onCompletionListener?.onCompleted(IllegalArgumentException("WebView can not be created, please try again later!"))
             } else {
                 fetchInlineInAppMessage(viewId) { html, campaignId ->
-                    concurrentHandlerHolder.postOnMain {
-                        iamWebView!!.load(html, InAppMetaData(campaignId, null, null)) {
-                            visibility = View.VISIBLE
-                            onCompletionListener?.onCompleted(null)
+                    iamWebView?.let {
+                        concurrentHandlerHolder.postOnMain {
+                            it.load(html, InAppMetaData(campaignId, null, null)) {
+                                visibility = View.VISIBLE
+                                onCompletionListener?.onCompleted(null)
+                            }
                         }
                     }
                 }

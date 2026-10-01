@@ -39,7 +39,8 @@ object MessageStyle : NotificationStyle() {
     ): NotificationCompat.Builder {
         val user = Person.Builder()
             .setName(notificationData.title)
-            .setIcon(IconCompat.createWithAdaptiveBitmap(image!!)).build()
+            .setIcon(image?.let { IconCompat.createWithAdaptiveBitmap(it) })
+            .build()
         return builder.setStyle(NotificationCompat.MessagingStyle(user)
                 .addMessage(notificationData.body, System.currentTimeMillis(), user)
                 .setGroupConversation(false))

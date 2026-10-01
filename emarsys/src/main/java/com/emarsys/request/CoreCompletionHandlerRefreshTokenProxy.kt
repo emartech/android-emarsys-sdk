@@ -29,14 +29,14 @@ class CoreCompletionHandlerRefreshTokenProxy(
         if (retryCount >= 3) {
             val response = originalResponseModel
             reset()
-            coreCompletionHandler.onError(id, response!!.copy(statusCode = 418))
+            coreCompletionHandler.onError(id, checkNotNull(response) { "Response must not be null" }.copy(statusCode = 418))
         } else if (requestModelHelper.isMobileEngageRefreshContactTokenRequest(responseModel.requestModel)
             || requestModelHelper.isPredictMultiIdRefreshContactTokenRequest(responseModel.requestModel)
         ) {
             tokenResponseHandler.processResponse(responseModel)
             Thread.sleep(500)
             retryCount += 1
-            restClient.execute(originalResponseModel!!.requestModel, this)
+            restClient.execute(checkNotNull(originalResponseModel) { "Response must not be null" }.requestModel, this)
         } else {
             reset()
             coreCompletionHandler.onSuccess(id, responseModel)
@@ -51,7 +51,7 @@ class CoreCompletionHandlerRefreshTokenProxy(
         ) {
             val response = originalResponseModel
             reset()
-            coreCompletionHandler.onError(id, response!!.copy(statusCode = 418))
+            coreCompletionHandler.onError(id, checkNotNull(response) { "Response must not be null" }.copy(statusCode = 418))
         } else if (isPredictOrMobileEngageRequestUnauthorized(responseModel)) {
             refreshMobileEngageContactToken(responseModel)
         } else if (isPredictOnlyPredictRequestUnauthorized(responseModel)) {

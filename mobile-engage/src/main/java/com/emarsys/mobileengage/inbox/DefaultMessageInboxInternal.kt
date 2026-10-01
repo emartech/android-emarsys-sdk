@@ -78,15 +78,13 @@ class DefaultMessageInboxInternal(
     }
 
     private fun shouldAdd(message: Message, messageId: String, tag: String): Boolean {
-        return (message.id.lowercase() == messageId.lowercase()
-                && message.tags != null
-                && !message.tags!!.contains(tag.lowercase()))
+        return (message.id.equals(messageId, ignoreCase = true)
+                && message.tags?.contains(tag.lowercase()) == false)
     }
 
     private fun shouldRemove(message: Message, messageId: String, tag: String): Boolean {
-        return (message.id.lowercase() == messageId.lowercase()
-                && message.tags != null
-                && message.tags!!.contains(tag.lowercase()))
+        return (message.id.equals(messageId, ignoreCase = true)
+                && message.tags?.contains(tag.lowercase()) == true)
     }
 
     private fun handleFetchRequest(resultListener: ResultListener<Try<InboxResult>>) {

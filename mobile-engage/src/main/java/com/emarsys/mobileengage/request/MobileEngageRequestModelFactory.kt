@@ -42,13 +42,10 @@ class MobileEngageRequestModelFactory(
     }
 
     private fun validateApplicationCode(): String {
-        return if (requestContext.applicationCode.isNullOrBlank()) {
-            throw IllegalArgumentException(
+        return requestContext.applicationCode?.takeIf { it.isNotBlank() }
+            ?: throw IllegalArgumentException(
                 "Application Code must not be null!"
             )
-        } else {
-            requestContext.applicationCode!!
-        }
     }
 
     fun createRemovePushTokenRequest(): RequestModel {

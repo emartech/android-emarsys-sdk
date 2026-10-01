@@ -19,7 +19,8 @@ class XPResponseHandler(private val keyValueStore: KeyValueStore, private val pr
     }
 
     override fun handleResponse(responseModel: ResponseModel) {
-        val xp = responseModel.cookies[XP]!!.value
-        keyValueStore.putString(DefaultPredictInternal.XP_KEY, xp)
+        responseModel.cookies[XP]?.value?.let {
+            keyValueStore.putString(DefaultPredictInternal.XP_KEY, it)
+        }
     }
 }
