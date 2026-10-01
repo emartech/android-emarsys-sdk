@@ -1,7 +1,9 @@
 [versions]
 agp = "9.1.1"
 androidx-test-core = "1.7.0"
-kotlin = "2.4.10"
+kotlin = "2.4.20"
+# used for backwards compatibility of SDK consumers
+kotlinCoreLibraries = "2.2.21"
 kotlinxCoroutines = "1.11.0"
 compose = "1.11.4"
 compose-material = "1.7.8"
@@ -60,7 +62,7 @@ nexus-publish = "0.37.0"
 [libraries]
 androidx-test-core = { module = "androidx.test:core", version.ref = "androidx-test-core" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
-kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
