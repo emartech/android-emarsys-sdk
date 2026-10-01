@@ -1,12 +1,13 @@
 package com.emarsys.core.storage
 
 import android.content.SharedPreferences
+import androidx.core.content.edit
 
 class BooleanStorage(key: StorageKey, store: SharedPreferences) : AbstractStorage<Boolean, SharedPreferences>(store) {
     val key: String = key.key
 
     override fun persistValue(store: SharedPreferences, value: Boolean) {
-        store.edit().putBoolean(key, value).apply()
+        store.edit { putBoolean(key, value) }
     }
 
     override fun readPersistedValue(store: SharedPreferences): Boolean {
@@ -14,6 +15,6 @@ class BooleanStorage(key: StorageKey, store: SharedPreferences) : AbstractStorag
     }
 
     override fun removePersistedValue(store: SharedPreferences) {
-        store.edit().remove(key).apply()
+        store.edit { remove(key) }
     }
 }

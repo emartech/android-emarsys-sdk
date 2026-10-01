@@ -72,7 +72,7 @@ class AssertTest  {
     @Test
     fun testElementsNotNull_array_shouldNotThrowException_whenArray_isEmpty() {
         try {
-            Assert.elementsNotNull(arrayOf(), null)
+            Assert.elementsNotNull(arrayOf<Any>(), null)
         } catch (e: Exception) {
             fail("testElementsNotNull should not throw exception when object is not null: " + e.message)
         }
@@ -131,7 +131,7 @@ class AssertTest  {
     @Test
     fun testNotEmpty_array_shouldThrowException_whenArrayIsEmpty() {
         shouldThrow<IllegalArgumentException> {
-            Assert.notEmpty(arrayOf(), "")
+            Assert.notEmpty(arrayOf<Any>(), "")
         }
     }
 
@@ -139,7 +139,7 @@ class AssertTest  {
     fun testNotEmpty_array_shouldThrowException_whenArrayIsEmpty_withSpecifiedMessage() {
         val message = "message"
         try {
-            Assert.notEmpty(arrayOf(), message)
+            Assert.notEmpty(arrayOf<Any>(), message)
             fail("Should throw exception")
         } catch (iae: IllegalArgumentException) {
             iae.message shouldBe message
@@ -149,7 +149,7 @@ class AssertTest  {
     @Test
     fun testNotEmpty_array_shouldThrowException_whenArrayIsEmpty_withDefaultMessage() {
         try {
-            Assert.notEmpty(arrayOf(), null)
+            Assert.notEmpty(arrayOf<Any>(), null)
             fail("Should throw exception")
         } catch (iae: IllegalArgumentException) {
             iae.message shouldBe "Argument must not be empty!"

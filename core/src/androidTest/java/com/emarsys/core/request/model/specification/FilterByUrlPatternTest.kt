@@ -10,7 +10,6 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.request.model.RequestModelRepository
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
@@ -52,13 +51,6 @@ class FilterByUrlPatternTest  {
             having shouldBe null
             orderBy shouldBe null
             limit shouldBe null
-        }
-    }
-
-    @Test
-    fun testConstructor_patternMustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            FilterByUrlPattern(null)
         }
     }
 

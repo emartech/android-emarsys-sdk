@@ -3,8 +3,6 @@ package com.emarsys.core.resource
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.os.Bundle
-import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -31,20 +29,6 @@ class MetaDataReaderTest {
     }
 
     @Test
-    fun testGetIntOrNull_context_mustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            reader!!.getInt(null, "key")
-        }
-    }
-
-    @Test
-    fun testGetIntOrNull_key_mustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            reader!!.getInt(getTargetContext(), null)
-        }
-    }
-
-    @Test
     fun testGetIntOrNull_returnsValue_ifExists() {
         val bundle = Bundle()
         bundle.putInt("something", 42)
@@ -58,20 +42,6 @@ class MetaDataReaderTest {
         applicationInfo.metaData = Bundle()
 
         reader!!.getInt(mockContext, "something").toLong() shouldBe 0
-    }
-
-    @Test
-    fun testGetInt_context_mustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            reader!!.getInt(null, "key", 0)
-        }
-    }
-
-    @Test
-    fun testGetInt_key_mustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            reader!!.getInt(getTargetContext(), null, 0)
-        }
     }
 
     @Test

@@ -145,7 +145,7 @@ class FakeFirebaseDependencyContainer(
     override val requestModelRepository: Repository<RequestModel, SqlSpecification> = mockk(relaxed = true),
     override val connectionWatchdog: ConnectionWatchDog = mockk(relaxed = true),
     override val coreCompletionHandler: CoreCompletionHandler = mockk(relaxed = true),
-    override val geofenceInitialEnterTriggerEnabledStorage: Storage<Boolean?> = mockk(relaxed = true),
+    override val geofenceInitialEnterTriggerEnabledStorage: Storage<Boolean> = mockk(relaxed = true),
     override val fusedLocationProviderClient: FusedLocationProviderClient = mockk(relaxed = true),
     override val activityLifecycleActionRegistry: ActivityLifecycleActionRegistry = mockk(relaxed = true),
     override val notificationOpenedActivityClass: Class<*> = Activity::class.java,

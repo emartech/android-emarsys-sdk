@@ -8,7 +8,6 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.KeyValueStore
 import com.emarsys.testUtil.mockito.whenever
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import org.junit.Before
 import org.junit.Test
@@ -29,20 +28,6 @@ class VisitorIdResponseHandlerTest  {
             whenever(provideEndpointHost()).thenReturn("https://recommender.scarabresearch.com")
         }
         responseHandler = VisitorIdResponseHandler(keyValueStore, mockServiceEndpointProvider)
-    }
-
-    @Test
-    fun testConstructor_keyValueStore_mustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            VisitorIdResponseHandler(null, mockServiceEndpointProvider)
-        }
-    }
-
-    @Test
-    fun testConstructor_mockServiceEndpointProvider_mustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            VisitorIdResponseHandler(keyValueStore, null)
-        }
     }
 
     @Test

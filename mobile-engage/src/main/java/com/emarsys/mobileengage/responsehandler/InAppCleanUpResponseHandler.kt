@@ -43,10 +43,7 @@ class InAppCleanUpResponseHandler(
         val json = responseModel.parsedBody ?: return
         val oldMessages = json.optJSONArray(OLD_MESSAGES)
         if (oldMessages != null) {
-            val ids = arrayOfNulls<String>(oldMessages.length())
-            for (i in 0 until oldMessages.length()) {
-                ids[i] = oldMessages.optString(i)
-            }
+            val ids = Array(oldMessages.length()) { i -> oldMessages.optString(i) }
             displayedIamRepository.remove(FilterByCampaignId(*ids))
             buttonClickedRepository.remove(FilterByCampaignId(*ids))
         }

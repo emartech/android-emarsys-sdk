@@ -25,29 +25,9 @@ class ListChunkerTest  {
     }
 
     @Test
-    fun testMap_shards_mustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            chunker.map(null)
-        }
-    }
-
-    @Test
     fun testMap_shards_mustNotBeEmpty() {
         shouldThrow<IllegalArgumentException> {
             chunker.map(listOf<Any>())
-        }
-    }
-
-    @Test
-    fun testMap_shards_mustNotContainNullElements() {
-        shouldThrow<IllegalArgumentException> {
-            chunker.map(
-                listOf(
-                    mock(ShardModel::class.java),
-                    null,
-                    mock(ShardModel::class.java)
-                )
-            )
         }
     }
 
