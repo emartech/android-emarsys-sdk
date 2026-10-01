@@ -1,63 +1,43 @@
-package com.emarsys.predict.shard;
+package com.emarsys.predict.shard
 
-import com.emarsys.core.Mapper;
-import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.shard.ShardModel;
-import com.emarsys.core.storage.KeyValueStore;
-import com.emarsys.core.util.Assert;
-import com.emarsys.predict.DefaultPredictInternal;
-import com.emarsys.predict.provider.PredictRequestModelBuilderProvider;
-import com.emarsys.predict.request.PredictRequestContext;
-import com.emarsys.predict.request.PredictRequestModelBuilder;
+import com.emarsys.core.Mapper
+import com.emarsys.core.request.model.RequestModel
+import com.emarsys.core.shard.ShardModel
+import com.emarsys.predict.DefaultPredictInternal
+import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
+import com.emarsys.predict.request.PredictRequestContext
+import com.emarsys.predict.request.PredictRequestModelBuilder
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+class PredictShardListMerger(
+    private val predictRequestContext: PredictRequestContext,
+    predictRequestModelBuilderProvider: PredictRequestModelBuilderProvider
+) : Mapper<List<ShardModel>, RequestModel> {
 
-public class PredictShardListMerger implements Mapper<List<ShardModel>, RequestModel> {
+    private val predictRequestModelBuilder: PredictRequestModelBuilder =
+        predictRequestModelBuilderProvider.providePredictRequestModelBuilder()
 
-    private final PredictRequestContext predictRequestContext;
-    private final PredictRequestModelBuilder predictRequestModelBuilder;
+    override fun map(shards: List<ShardModel>): RequestModel {
+        require(shards.isNotEmpty()) { "Shards must not be empty!" }
 
-    public PredictShardListMerger(PredictRequestContext predictRequestContext, PredictRequestModelBuilderProvider predictRequestModelBuilderProvider) {
-        Assert.notNull(predictRequestContext, "PredictRequestContext must not be null!");
-        Assert.notNull(predictRequestModelBuilderProvider, "PredictRequestModelBuilderProvider must not be null!");
-
-        this.predictRequestContext = predictRequestContext;
-        this.predictRequestModelBuilder = predictRequestModelBuilderProvider.providePredictRequestModelBuilder();
+        val shardData = mergeShardData(shards)
+        return predictRequestModelBuilder.withShardData(shardData).build()
     }
 
-    @Override
-    public RequestModel map(List<ShardModel> shards) {
-        Assert.notNull(shards, "Shards must not be null!");
-        Assert.notEmpty(shards, "Shards must not be empty!");
-        Assert.elementsNotNull(shards, "Shard elements must not be null!");
-        Map<String, Object> shardData = mergeShardData(shards);
-
-        return predictRequestModelBuilder.withShardData(shardData).build();
-    }
-
-    private Map<String, Object> mergeShardData(List<ShardModel> shards) {
-        Map<String, Object> result = new LinkedHashMap<>();
-
-        insertBaseParameters(result);
-
-        for (ShardModel shard : shards) {
-            result.putAll(shard.getData());
+    private fun mergeShardData(shards: List<ShardModel>): Map<String, Any> {
+        return linkedMapOf<String, Any>().also { result ->
+            insertBaseParameters(result)
+            shards.forEach { shard ->
+                @Suppress("UNCHECKED_CAST")
+                result.putAll(shard.data as Map<String, Any>)
+            }
         }
-
-        return result;
     }
 
-    private void insertBaseParameters(Map<String, Object> result) {
-        result.put("cp", 1);
-
-        KeyValueStore keyValueStore = predictRequestContext.getKeyValueStore();
-
-        String visitorId = keyValueStore.getString(DefaultPredictInternal.VISITOR_ID_KEY);
+    private fun insertBaseParameters(result: LinkedHashMap<String, Any>) {
+        result["cp"] = 1
+        val visitorId = predictRequestContext.keyValueStore.getString(DefaultPredictInternal.VISITOR_ID_KEY)
         if (visitorId != null) {
-            result.put("vi", visitorId);
+            result["vi"] = visitorId
         }
     }
-
 }

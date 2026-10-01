@@ -6,7 +6,6 @@ import com.emarsys.predict.request.PredictHeaderFactory
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.request.PredictRequestModelBuilder
 import com.emarsys.testUtil.mockito.whenever
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.junit.Before
@@ -26,27 +25,6 @@ class PredictRequestModelBuilderProviderTest  {
         mockHeaderFactory = mock(PredictHeaderFactory::class.java)
         mockServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
             whenever(provideEndpointHost()).thenReturn("https://emarsys.com")
-        }
-    }
-
-    @Test
-    fun testConstructor_predictRequestContext_shouldNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            PredictRequestModelBuilderProvider(null, mockHeaderFactory, mockServiceProvider)
-        }
-    }
-
-    @Test
-    fun testConstructor_headerFactory_shouldNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            PredictRequestModelBuilderProvider(mockRequestContext, null, mockServiceProvider)
-        }
-    }
-
-    @Test
-    fun testConstructor_predictServiceProvider_shouldNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            PredictRequestModelBuilderProvider(mockRequestContext, mockHeaderFactory, null)
         }
     }
 

@@ -1,36 +1,26 @@
-package com.emarsys.predict.request;
+package com.emarsys.predict.request
 
-import com.emarsys.core.util.Assert;
-import com.emarsys.predict.DefaultPredictInternal;
+import com.emarsys.core.Mockable
+import com.emarsys.predict.DefaultPredictInternal
 
-import java.util.HashMap;
-import java.util.Map;
+@Mockable
+class PredictHeaderFactory(private val requestContext: PredictRequestContext) {
 
-public class PredictHeaderFactory {
-    private final PredictRequestContext requestContext;
+    fun createBaseHeader(): Map<String, String> {
+        val result = mutableMapOf<String, String>()
+        result["User-Agent"] = "EmarsysSDK|osversion:${requestContext.deviceInfo.osVersion}|platform:${requestContext.deviceInfo.platform}"
 
-    public PredictHeaderFactory(PredictRequestContext requestContext) {
-        Assert.notNull(requestContext, "RequestContext must not be null!");
+        val xp = requestContext.keyValueStore.getString(DefaultPredictInternal.XP_KEY)
+        val visitorId = requestContext.keyValueStore.getString(DefaultPredictInternal.VISITOR_ID_KEY)
 
-        this.requestContext = requestContext;
-    }
-
-    public Map<String, String> createBaseHeader() {
-        Map<String, String> result = new HashMap<>();
-        result.put("User-Agent", "EmarsysSDK|osversion:" + requestContext.getDeviceInfo().getOsVersion() + "|platform:" + requestContext.getDeviceInfo().getPlatform());
-        String xp = requestContext.getKeyValueStore().getString(DefaultPredictInternal.XP_KEY);
-        String visitorId = requestContext.getKeyValueStore().getString(DefaultPredictInternal.VISITOR_ID_KEY);
-        StringBuilder cookies = new StringBuilder();
-
-        if (xp != null) {
-            cookies.append("xp=").append(xp).append(";");
-        }
-        if (visitorId != null) {
-            cookies.append("cdv=").append(visitorId);
-        }
         if (xp != null || visitorId != null) {
-            result.put("Cookie", cookies.toString());
+            val cookies = buildString {
+                if (xp != null) append("xp=$xp;")
+                if (visitorId != null) append("cdv=$visitorId")
+            }
+            result["Cookie"] = cookies
         }
-        return result;
+
+        return result
     }
 }
