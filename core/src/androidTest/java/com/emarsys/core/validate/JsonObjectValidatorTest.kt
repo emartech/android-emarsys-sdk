@@ -1,6 +1,5 @@
 package com.emarsys.core.validate
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
@@ -22,23 +21,9 @@ class JsonObjectValidatorTest  {
     }
 
     @Test
-    fun testFrom_mustNotAcceptNull() {
-        shouldThrow<IllegalArgumentException> {
-            JsonObjectValidator.from(null)
-        }
-    }
-
-    @Test
     fun testFrom_shouldReturnValidator() {
         val validator = JsonObjectValidator.from(mock(JSONObject::class.java))
         validator shouldNotBe null
-    }
-
-    @Test
-    fun testHasField_mustNotAcceptNull() {
-        shouldThrow<IllegalArgumentException> {
-            JsonObjectValidator.from(mock(JSONObject::class.java)).hasField(null)
-        }
     }
 
     @Test
@@ -69,21 +54,6 @@ class JsonObjectValidatorTest  {
             "Missing field: 'timestamp'",
             "Missing field: 'title'"
         )
-    }
-
-    @Test
-    fun testHasFieldAndType_mustNotAcceptNullFieldName() {
-        shouldThrow<IllegalArgumentException> {
-            JsonObjectValidator.from(mock(JSONObject::class.java))
-                .hasFieldWithType(null, Any::class.java)
-        }
-    }
-
-    @Test
-    fun testHasFieldAndType_mustNotAcceptNullFieldType() {
-        shouldThrow<IllegalArgumentException> {
-            JsonObjectValidator.from(mock(JSONObject::class.java)).hasFieldWithType("field", null)
-        }
     }
 
     @Test

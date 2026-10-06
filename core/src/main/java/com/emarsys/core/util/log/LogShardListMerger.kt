@@ -29,10 +29,10 @@ class LogShardListMerger(
 
     private fun createPayload(shards: List<ShardModel>): Map<String, Any?> {
         val result: MutableMap<String, Any?> = mutableMapOf()
-        val dataList: MutableList<Map<String, Any>> = mutableListOf()
+        val dataList: MutableList<Map<String, Any?>> = mutableListOf()
         val deviceInfo = createDeviceInfo()
         shards.forEach { shard ->
-            val data: MutableMap<String, Any> = mutableMapOf()
+            val data: MutableMap<String, Any?> = mutableMapOf()
             data["type"] = shard.type
             data["deviceInfo"] = deviceInfo
             data.putAll(shard.data)

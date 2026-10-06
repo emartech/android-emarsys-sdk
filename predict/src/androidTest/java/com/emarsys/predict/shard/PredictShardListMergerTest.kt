@@ -85,40 +85,6 @@ class PredictShardListMergerTest {
     }
 
     @Test
-    fun testConstructor_predictRequestContext_mustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            PredictShardListMerger(null, mockPredictRequestModelBuilderProvider)
-        }
-    }
-
-    @Test
-    fun testConstructor_predictRequestModelBuilderProvider_mustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            PredictShardListMerger(mockPredictRequestContext, null)
-        }
-    }
-
-    @Test
-    fun testMap_shards_mustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            merger.map(null)
-        }
-    }
-
-    @Test
-    fun testMap_shards_mustNotContainNullElements() {
-        shouldThrow<IllegalArgumentException> {
-            merger.map(
-                listOf(
-                    mockk(relaxed = true),
-                    null,
-                    mockk(relaxed = true)
-                )
-            )
-        }
-    }
-
-    @Test
     fun testMap_shards_mustContainAtLeastOneElement() {
         shouldThrow<IllegalArgumentException> {
             merger.map(listOf())

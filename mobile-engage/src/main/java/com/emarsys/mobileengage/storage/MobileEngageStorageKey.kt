@@ -19,7 +19,6 @@ enum class MobileEngageStorageKey : StorageKey {
     DEVICE_INFO_HASH,
     GEOFENCE_INITIAL_ENTER_TRIGGER;
 
-    override fun getKey(): String {
-        return "mobile_engage_" + name.lowercase(Locale.getDefault())
-    }
+    override val key: String
+        get() = "mobile_engage_" + name.lowercase(Locale.getDefault())
 }

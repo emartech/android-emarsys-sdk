@@ -9,12 +9,12 @@ import org.junit.Test
 import java.util.Arrays
 
 class IamConversionUtilsTest  {
-    private var buttonClicked1: ButtonClicked? = null
-    private var buttonClicked2: ButtonClicked? = null
-    private var buttonClicked3: ButtonClicked? = null
-    private var displayedIam1: DisplayedIam? = null
-    private var displayedIam2: DisplayedIam? = null
-    private var displayedIam3: DisplayedIam? = null
+    private lateinit var buttonClicked1: ButtonClicked
+    private lateinit var buttonClicked2: ButtonClicked
+    private lateinit var buttonClicked3: ButtonClicked
+    private lateinit var displayedIam1: DisplayedIam
+    private lateinit var displayedIam2: DisplayedIam
+    private lateinit var displayedIam3: DisplayedIam
 
     @Before
     fun init() {

@@ -156,7 +156,7 @@ class IamDialog(
             val notShown = !args.getBoolean(IS_SHOWN, false)
             if (notShown) {
                 actions?.forEach { action ->
-                    val campaignId = args.getString(CAMPAIGN_ID)
+                    val campaignId = args.getString(CAMPAIGN_ID) ?: return@forEach
                     val sid = args.getString(SID)
                     val url = args.getString(URL)
                     action.execute(campaignId, sid, url)

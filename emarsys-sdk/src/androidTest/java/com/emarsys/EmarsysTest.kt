@@ -384,45 +384,45 @@ class EmarsysTest {
             val responseHandlersProcessor = emarsys().responseHandlersProcessor
 
             responseHandlersProcessor shouldNotBe null
-            responseHandlersProcessor.responseHandlers.size shouldBe 11
+            responseHandlersProcessor.getResponseHandlers().size shouldBe 11
             numberOfElementsIn(
-                responseHandlersProcessor.responseHandlers,
+                responseHandlersProcessor.getResponseHandlers(),
                 VisitorIdResponseHandler::class.java
             ).toLong() shouldBe 1
             numberOfElementsIn(
-                responseHandlersProcessor.responseHandlers,
+                responseHandlersProcessor.getResponseHandlers(),
                 XPResponseHandler::class.java
             ).toLong() shouldBe 1
             numberOfElementsIn(
-                responseHandlersProcessor.responseHandlers,
+                responseHandlersProcessor.getResponseHandlers(),
                 InAppMessageResponseHandler::class.java
             ).toLong() shouldBe 1
             numberOfElementsIn(
-                responseHandlersProcessor.responseHandlers,
+                responseHandlersProcessor.getResponseHandlers(),
                 InAppCleanUpResponseHandler::class.java
             ).toLong() shouldBe 1
             numberOfElementsIn(
-                responseHandlersProcessor.responseHandlers,
+                responseHandlersProcessor.getResponseHandlers(),
                 InAppCleanUpResponseHandlerV4::class.java
             ).toLong() shouldBe 1
             numberOfElementsIn(
-                responseHandlersProcessor.responseHandlers,
+                responseHandlersProcessor.getResponseHandlers(),
                 MobileEngageTokenResponseHandler::class.java
             ).toLong() shouldBe 2
             numberOfElementsIn(
-                responseHandlersProcessor.responseHandlers,
+                responseHandlersProcessor.getResponseHandlers(),
                 MobileEngageClientStateResponseHandler::class.java
             ).toLong() shouldBe 1
             numberOfElementsIn(
-                responseHandlersProcessor.responseHandlers,
+                responseHandlersProcessor.getResponseHandlers(),
                 ClientInfoResponseHandler::class.java
             ).toLong() shouldBe 1
             numberOfElementsIn(
-                responseHandlersProcessor.responseHandlers,
+                responseHandlersProcessor.getResponseHandlers(),
                 OnEventActionResponseHandler::class.java
             ).toLong() shouldBe 1
             numberOfElementsIn(
-                responseHandlersProcessor.responseHandlers,
+                responseHandlersProcessor.getResponseHandlers(),
                 DeviceEventStateResponseHandler::class.java
             ).toLong() shouldBe 1
 

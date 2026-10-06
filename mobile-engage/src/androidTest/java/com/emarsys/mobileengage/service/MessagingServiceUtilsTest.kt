@@ -38,7 +38,6 @@ import org.json.JSONObject
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.mockito.ArgumentMatchers
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doReturn
@@ -46,7 +45,6 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import java.io.File
-import java.util.Locale
 
 class MessagingServiceUtilsTest  {
     private companion object {
@@ -129,12 +127,7 @@ class MessagingServiceUtilsTest  {
         whenever(mockNotificationSettings.channelSettings).thenReturn(listOf(channelSettings))
         whenever(mockClientIdProvider.provideClientId()).thenReturn(CLIENT_ID)
         whenever(
-            mockLanguageProvider.provideLanguage(
-                ArgumentMatchers.any(
-                    Locale::
-                    class.java
-                )
-            )
+            mockLanguageProvider.provideLanguage(any())
         ).thenReturn(LANGUAGE)
         whenever(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION)
         deviceInfo = DeviceInfo(

@@ -1,6 +1,5 @@
 package com.emarsys.core.response
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainAll
 import org.junit.Before
 import org.junit.Test
@@ -15,13 +14,6 @@ class ResponseHandlersProcessorTest  {
     @Before
     fun setUp() {
         responseHandlersProcessor = ResponseHandlersProcessor()
-    }
-
-    @Test
-    fun testConstructor_responseHandlers_mustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            ResponseHandlersProcessor(null)
-        }
     }
 
     @Test
@@ -42,13 +34,6 @@ class ResponseHandlersProcessorTest  {
     }
 
     @Test
-    fun testAddReponseHandler_responseHandlers_mustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            responseHandlersProcessor.addResponseHandlers(null)
-        }
-    }
-
-    @Test
     fun testAddReponseHandler() {
         val mockResponseHandler1 = mock(AbstractResponseHandler::class.java)
         val mockResponseHandler2 = mock(AbstractResponseHandler::class.java)
@@ -58,7 +43,7 @@ class ResponseHandlersProcessorTest  {
 
         responseHandlersProcessor.addResponseHandlers(listOf(mockResponseHandler2))
 
-        responseHandlersProcessor.responseHandlers shouldContainAll responseHandlers + mockResponseHandler2
+        responseHandlersProcessor.getResponseHandlers() shouldContainAll responseHandlers + mockResponseHandler2
     }
 
 }

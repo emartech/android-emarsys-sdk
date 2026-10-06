@@ -2,7 +2,6 @@ package com.emarsys.core.device
 
 import android.os.Build.VERSION_CODES.P
 import androidx.test.filters.SdkSuppress
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import org.junit.Before
 import org.junit.Test
@@ -19,22 +18,15 @@ class LanguageProviderTest  {
     }
 
     @Test
-    fun testProvideLanguage_localeMustNotBeNull() {
-        shouldThrow<IllegalArgumentException> {
-            languageProvider.provideLanguage(null)
-        }
-    }
-
-    @Test
     fun testProvideLanguage_shouldReturnCorrectLanguageCode_whenOnlyLanguageUsed() {
-        val result = languageProvider.provideLanguage(Locale("en"))
+        val result = languageProvider.provideLanguage(Locale.ENGLISH)
 
         result shouldBe "en"
     }
 
     @Test
     fun testProvideLanguage_shouldReturnCorrectLanguageCode_whenLanguageAndCountryUsed() {
-        val result = languageProvider.provideLanguage(Locale("en", "US"))
+        val result = languageProvider.provideLanguage(Locale.US)
 
         result shouldBe "en-US"
     }
