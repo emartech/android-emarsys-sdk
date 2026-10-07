@@ -1,78 +1,48 @@
-package com.emarsys.predict.fake;
+package com.emarsys.predict.fake
 
-import android.os.Looper;
+import android.os.Looper
+import com.emarsys.core.api.result.ResultListener
+import com.emarsys.core.api.result.Try
+import java.util.concurrent.CountDownLatch
 
-import com.emarsys.core.api.result.ResultListener;
-import com.emarsys.core.api.result.Try;
+class FakeResultListener<T>(
+    var latch: CountDownLatch,
+    var mode: Mode = Mode.ALL_THREAD
+) : ResultListener<Try<T>> {
 
-import java.util.concurrent.CountDownLatch;
+    enum class Mode { MAIN_THREAD, ALL_THREAD }
 
+    var successCount = 0
+    var resultStatus: T? = null
+    var errorCause: Throwable? = null
+    var errorCount = 0
 
-public class FakeResultListener<T> implements ResultListener<Try<T>> {
-
-    public enum Mode {
-        MAIN_THREAD, ALL_THREAD
+    override fun onResult(result: Try<T>) {
+        result.result?.let { onSuccess(it) }
+        result.errorCause?.let { onError(it) }
     }
 
-    public int successCount;
-    public T resultStatus;
-    public Throwable errorCause;
-    public int errorCount;
-    public CountDownLatch latch;
-    public Mode mode;
-
-    public FakeResultListener(CountDownLatch latch) {
-        this(latch, Mode.ALL_THREAD);
+    private fun onSuccess(result: T) {
+        if (mode == Mode.MAIN_THREAD && onMainThread()) handleSuccess(result)
+        else if (mode == Mode.ALL_THREAD) handleSuccess(result)
     }
 
-    public FakeResultListener(CountDownLatch latch, Mode mode) {
-        this.mode = mode;
-        this.latch = latch;
+    private fun onError(cause: Throwable) {
+        if (mode == Mode.MAIN_THREAD && onMainThread()) handleError(cause)
+        else if (mode == Mode.ALL_THREAD) handleError(cause)
     }
 
-    @Override
-    public void onResult(Try<T> result) {
-        if (result.getResult() != null) {
-            onSuccess(result.getResult());
-        }
-        if (result.getErrorCause() != null) {
-            onError(result.getErrorCause());
-        }
+    private fun handleSuccess(result: T) {
+        resultStatus = result
+        successCount++
+        latch.countDown()
     }
 
-    private void onSuccess(T result) {
-        if (mode == Mode.MAIN_THREAD && onMainThread()) {
-            handleSuccess(result);
-        } else if (mode == Mode.ALL_THREAD) {
-            handleSuccess(result);
-        }
+    private fun handleError(cause: Throwable) {
+        errorCount++
+        errorCause = cause
+        latch.countDown()
     }
 
-    private void onError(Throwable cause) {
-        if (mode == Mode.MAIN_THREAD && onMainThread()) {
-            handleError(cause);
-        } else if (mode == Mode.ALL_THREAD) {
-            handleError(cause);
-        }
-    }
-
-    private void handleSuccess(T result) {
-        resultStatus = result;
-        successCount++;
-        if (latch != null) {
-            latch.countDown();
-        }
-    }
-
-    private void handleError(Throwable cause) {
-        errorCount++;
-        errorCause = cause;
-        if (latch != null) {
-            latch.countDown();
-        }
-    }
-
-    private boolean onMainThread() {
-        return Looper.myLooper() == Looper.getMainLooper();
-    }
+    private fun onMainThread(): Boolean = Looper.myLooper() == Looper.getMainLooper()
 }

@@ -317,7 +317,7 @@ class RequestManagerTest  {
         fakeCompletionHandler.errorId shouldBe requestModel.id
         fakeCompletionHandler.onSuccessCount.toLong() shouldBe 0
         fakeCompletionHandler.onErrorCount shouldBe 1
-        fakeCompletionHandler.failureResponseModel.statusCode.toLong() shouldBe 405
+        fakeCompletionHandler.failureResponseModel!!.statusCode.toLong() shouldBe 405
     }
 
     @Test
@@ -334,7 +334,7 @@ class RequestManagerTest  {
         fakeCompletionHandler.errorId shouldBe requestModel.id
         fakeCompletionHandler.onSuccessCount.toLong() shouldBe 0
         fakeCompletionHandler.onErrorCount shouldBe 1
-        fakeCompletionHandler.exception.javaClass shouldBe UnknownHostException().javaClass
+        fakeCompletionHandler.exception!!.javaClass shouldBe UnknownHostException().javaClass
 
     }
 

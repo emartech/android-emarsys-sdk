@@ -127,8 +127,8 @@ class RequestManagerDennaTest  {
         fakeCompletionHandler.exception shouldBe null
         fakeCompletionHandler.onErrorCount.toLong() shouldBe 0
         fakeCompletionHandler.onSuccessCount.toLong() shouldBe 1
-        fakeCompletionHandler.successResponseModel.statusCode.toLong() shouldBe 200
-        val responseJson = JSONObject(fakeCompletionHandler.successResponseModel.body!!)
+        fakeCompletionHandler.successResponseModel!!.statusCode.toLong() shouldBe 200
+        val responseJson = JSONObject(fakeCompletionHandler.successResponseModel!!.body!!)
         val headers = responseJson["headers"] as JSONObject
         headers["Header1".lowercase()] shouldBe "value1"
         headers["Header2".lowercase()] shouldBe "value2"
@@ -161,8 +161,8 @@ class RequestManagerDennaTest  {
         fakeCompletionHandler.exception shouldBe null
         fakeCompletionHandler.onErrorCount.toLong() shouldBe 0
         fakeCompletionHandler.onSuccessCount.toLong() shouldBe 1
-        fakeCompletionHandler.successResponseModel.statusCode.toLong() shouldBe 200
-        val responseJson = JSONObject(fakeCompletionHandler.successResponseModel.body!!)
+        fakeCompletionHandler.successResponseModel!!.statusCode.toLong() shouldBe 200
+        val responseJson = JSONObject(fakeCompletionHandler.successResponseModel!!.body!!)
         val headers = responseJson.getJSONObject("headers")
         val body = responseJson.getJSONObject("body")
         headers["Header1".lowercase()] shouldBe "value1"
@@ -190,7 +190,7 @@ class RequestManagerDennaTest  {
         fakeCompletionHandler.exception shouldBe null
         fakeCompletionHandler.onErrorCount.toLong() shouldBe 0
         fakeCompletionHandler.onSuccessCount.toLong() shouldBe 1
-        fakeCompletionHandler.successResponseModel.statusCode.toLong() shouldBe 200
+        fakeCompletionHandler.successResponseModel!!.statusCode.toLong() shouldBe 200
         val responseJson = JSONObject(fakeCompletionHandler.successResponseModel!!.body!!)
         val headers = responseJson.getJSONObject("headers")
         headers["Header1".lowercase()] shouldBe "value1"
@@ -212,7 +212,7 @@ class RequestManagerDennaTest  {
         fakeCompletionHandler.exception shouldBe null
         fakeCompletionHandler.onErrorCount.toLong() shouldBe 0
         fakeCompletionHandler.onSuccessCount.toLong() shouldBe 1
-        fakeCompletionHandler.successResponseModel.statusCode.toLong() shouldBe 200
+        fakeCompletionHandler.successResponseModel!!.statusCode.toLong() shouldBe 200
         val responseJson = JSONObject(fakeCompletionHandler.successResponseModel!!.body!!)
         val headers = responseJson.getJSONObject("headers")
         headers["Header1".lowercase()] shouldBe "value1"

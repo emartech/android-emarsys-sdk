@@ -1,18 +1,11 @@
-package com.emarsys.mobileengage.testUtil;
+package com.emarsys.mobileengage.testUtil
 
-import static com.emarsys.testUtil.RandomTestUtils.randomLong;
-import static com.emarsys.testUtil.RandomTestUtils.randomNumberString;
+import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
+import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
+import com.emarsys.testUtil.RandomTestUtils.randomLong
+import com.emarsys.testUtil.RandomTestUtils.randomNumberString
 
-import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
-import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
-
-public class RandomMETestUtils {
-
-    public static DisplayedIam randomDisplayedIam() {
-        return new DisplayedIam(randomNumberString(), randomLong());
-    }
-
-    public static ButtonClicked randomButtonClick() {
-        return new ButtonClicked(randomNumberString(), randomNumberString(), randomLong());
-    }
+object RandomMETestUtils {
+    fun randomDisplayedIam(): DisplayedIam = DisplayedIam(randomNumberString(), randomLong())
+    fun randomButtonClick(): ButtonClicked = ButtonClicked(randomNumberString(), randomNumberString(), randomLong())
 }

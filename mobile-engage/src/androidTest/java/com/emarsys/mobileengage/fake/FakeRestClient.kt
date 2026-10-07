@@ -1,86 +1,64 @@
-package com.emarsys.mobileengage.fake;
+package com.emarsys.mobileengage.fake
 
-import static org.mockito.Mockito.mock;
+import android.os.Handler
+import android.os.Looper
+import com.emarsys.core.CoreCompletionHandler
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
+import com.emarsys.core.connection.ConnectionProvider
+import com.emarsys.core.handler.SdkHandler
+import com.emarsys.core.provider.timestamp.TimestampProvider
+import com.emarsys.core.request.RestClient
+import com.emarsys.core.request.model.RequestModel
+import com.emarsys.core.response.ResponseHandlersProcessor
+import com.emarsys.core.response.ResponseModel
+import org.mockito.kotlin.mock
 
-import android.os.Handler;
-import android.os.Looper;
+class FakeRestClient private constructor(
+    private val mode: Mode,
+    private val responses: MutableList<ResponseModel>,
+    private val exceptions: MutableList<Exception>,
+    private var handler: SdkHandler?
+) : RestClient(
+    mock<ConnectionProvider>(),
+    mock<TimestampProvider>(),
+    mock<ResponseHandlersProcessor>(),
+    emptyList(),
+    ConcurrentHandlerHolderFactory.create()
+) {
+    enum class Mode { SUCCESS, ERROR_RESPONSE_MODEL, ERROR_EXCEPTION }
 
-import com.emarsys.core.CoreCompletionHandler;
-import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory;
-import com.emarsys.core.connection.ConnectionProvider;
-import com.emarsys.core.handler.SdkHandler;
-import com.emarsys.core.provider.timestamp.TimestampProvider;
-import com.emarsys.core.request.RestClient;
-import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.response.ResponseHandlersProcessor;
-import com.emarsys.core.response.ResponseModel;
+    constructor(returnValue: ResponseModel, mode: Mode) :
+        this(mode, mutableListOf(returnValue), mutableListOf(), null)
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+    constructor(responses: List<ResponseModel>, mode: Mode) :
+        this(mode, responses.toMutableList(), mutableListOf(), null)
 
-public class FakeRestClient extends RestClient {
+    constructor(exception: Exception) :
+        this(Mode.ERROR_EXCEPTION, mutableListOf(), mutableListOf(exception), null)
 
-    private final Mode mode;
-    private List<ResponseModel> responses;
-    private List<Exception> exceptions;
-    private SdkHandler handler;
+    constructor(exception: Exception, handler: SdkHandler) :
+        this(Mode.ERROR_EXCEPTION, mutableListOf(), mutableListOf(exception), handler)
 
-    public enum Mode {SUCCESS, ERROR_RESPONSE_MODEL, ERROR_EXCEPTION}
+    constructor(exceptions: List<Exception>) :
+        this(Mode.ERROR_EXCEPTION, mutableListOf(), exceptions.toMutableList(), null)
 
-    public FakeRestClient(ResponseModel returnValue, Mode mode) {
-        this(Collections.singletonList(returnValue), mode);
-    }
+    constructor(returnValue: ResponseModel, mode: Mode, handler: SdkHandler) :
+        this(mode, mutableListOf(returnValue), mutableListOf(), handler)
 
-    @SuppressWarnings("unchecked")
-    public FakeRestClient(List<ResponseModel> responses, Mode mode) {
-        super(mock(ConnectionProvider.class), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class), mock(List.class),
-                ConcurrentHandlerHolderFactory.INSTANCE.create());
-        this.responses = new ArrayList<>(responses);
-        this.mode = mode;
-    }
-
-    public FakeRestClient(Exception exception) {
-        this(Collections.singletonList(exception));
-    }
-
-    public FakeRestClient(Exception exception, SdkHandler handler) {
-        this(Collections.singletonList(exception));
-        this.handler = handler;
-    }
-
-    @SuppressWarnings("unchecked")
-    public FakeRestClient(List<Exception> exceptions) {
-        super(mock(ConnectionProvider.class), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class), mock(List.class),
-                ConcurrentHandlerHolderFactory.INSTANCE.create());
-        this.exceptions = new ArrayList<>(exceptions);
-        this.mode = Mode.ERROR_EXCEPTION;
-    }
-
-    public FakeRestClient(ResponseModel returnValue, Mode mode, SdkHandler handler) {
-        this(returnValue, mode);
-        this.handler = handler;
-    }
-
-    @Override
-    public void execute(final RequestModel model, final CoreCompletionHandler completionHandler) {
-        handler = handler == null ? new SdkHandler(new Handler(Looper.getMainLooper())) : handler;
-        handler.postDelayed(() -> {
-            if (mode == Mode.SUCCESS) {
-                completionHandler.onSuccess(model.getId(), getCurrentItem(responses));
-            } else if (mode == Mode.ERROR_RESPONSE_MODEL) {
-                completionHandler.onError(model.getId(), getCurrentItem(responses));
-            } else if (mode == Mode.ERROR_EXCEPTION) {
-                completionHandler.onError(model.getId(), getCurrentItem(exceptions));
+    override fun execute(model: RequestModel, completionHandler: CoreCompletionHandler) {
+        val h = handler ?: SdkHandler(Handler(Looper.getMainLooper()))
+        h.postDelayed({
+            when (mode) {
+                Mode.SUCCESS -> completionHandler.onSuccess(model.id, getCurrentItem(responses))
+                Mode.ERROR_RESPONSE_MODEL -> completionHandler.onError(model.id, getCurrentItem(responses))
+                Mode.ERROR_EXCEPTION -> completionHandler.onError(model.id, getCurrentItem(exceptions))
             }
-        }, 100);
+        }, 100)
     }
 
-    private <T> T getCurrentItem(List<T> list) {
-        T result = list.get(0);
-        if (list.size() > 1) {
-            list.remove(0);
-        }
-        return result;
+    private fun <T> getCurrentItem(list: MutableList<T>): T {
+        val result = list[0]
+        if (list.size > 1) list.removeAt(0)
+        return result
     }
 }

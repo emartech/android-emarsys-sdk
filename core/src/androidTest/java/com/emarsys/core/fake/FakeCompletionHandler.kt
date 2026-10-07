@@ -1,80 +1,39 @@
-package com.emarsys.core.fake;
+package com.emarsys.core.fake
 
-import com.emarsys.core.CoreCompletionHandler;
-import com.emarsys.core.response.ResponseModel;
+import com.emarsys.core.CoreCompletionHandler
+import com.emarsys.core.response.ResponseModel
+import java.util.concurrent.CountDownLatch
 
-import java.util.concurrent.CountDownLatch;
+open class FakeCompletionHandler(var latch: CountDownLatch = CountDownLatch(1)) : CoreCompletionHandler {
 
-public class FakeCompletionHandler implements CoreCompletionHandler {
-    public CountDownLatch latch;
+    var onSuccessCount = 0
+    var onErrorCount = 0
+    var successId: String? = null
+    var errorId: String? = null
+    var exception: Exception? = null
+    var successResponseModel: ResponseModel? = null
+    var failureResponseModel: ResponseModel? = null
 
-    private int onSuccessCount;
-    private int onErrorCount;
-    private String successId;
-    private String errorId;
-    private Exception exception;
-    private ResponseModel successResponseModel;
-    private ResponseModel failureResponseModel;
-
-    public FakeCompletionHandler() {
-        this.latch = new CountDownLatch(1);
+    override fun onSuccess(id: String, responseModel: ResponseModel) {
+        successResponseModel = responseModel
+        onSuccessCount++
+        successId = id
+        latch.countDown()
     }
 
-    public FakeCompletionHandler(CountDownLatch latch) {
-        this.latch = latch;
+    override fun onError(id: String, cause: Exception) {
+        exception = cause
+        handleError(id)
     }
 
-    public int getOnSuccessCount() {
-        return onSuccessCount;
+    override fun onError(id: String, responseModel: ResponseModel) {
+        failureResponseModel = responseModel
+        handleError(id)
     }
 
-    public int getOnErrorCount() {
-        return onErrorCount;
-    }
-
-    public Exception getException() {
-        return exception;
-    }
-
-    public String getSuccessId() {
-        return successId;
-    }
-
-    public String getErrorId() {
-        return errorId;
-    }
-
-    public ResponseModel getSuccessResponseModel() {
-        return successResponseModel;
-    }
-
-    public ResponseModel getFailureResponseModel() {
-        return failureResponseModel;
-    }
-
-    @Override
-    public void onSuccess(String id, ResponseModel responseModel) {
-        this.successResponseModel = responseModel;
-        onSuccessCount++;
-        successId = id;
-        latch.countDown();
-    }
-
-    @Override
-    public void onError(String id, Exception cause) {
-        exception = cause;
-        handleError(id);
-    }
-
-    @Override
-    public void onError(String id, ResponseModel responseModel) {
-        failureResponseModel = responseModel;
-        handleError(id);
-    }
-
-    private void handleError(String id) {
-        onErrorCount++;
-        errorId = id;
-        latch.countDown();
+    private fun handleError(id: String) {
+        onErrorCount++
+        errorId = id
+        latch.countDown()
     }
 }

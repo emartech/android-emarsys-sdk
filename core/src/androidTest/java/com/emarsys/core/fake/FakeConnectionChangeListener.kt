@@ -1,28 +1,21 @@
-package com.emarsys.core.fake;
+package com.emarsys.core.fake
 
-import com.emarsys.core.connection.ConnectionChangeListener;
-import com.emarsys.core.connection.ConnectionState;
+import com.emarsys.core.connection.ConnectionChangeListener
+import com.emarsys.core.connection.ConnectionState
+import java.util.concurrent.CountDownLatch
 
-import java.util.concurrent.CountDownLatch;
+class FakeConnectionChangeListener(var latch: CountDownLatch) : ConnectionChangeListener {
 
-public class FakeConnectionChangeListener implements ConnectionChangeListener {
+    var onConnectionChangedCount = 0
+    var threadName: String? = null
+    var connectionState: ConnectionState? = null
+    var isConnected = false
 
-    public int onConnectionChangedCount;
-    public String threadName;
-    public CountDownLatch latch;
-    public ConnectionState connectionState;
-    public boolean isConnected;
-
-    public FakeConnectionChangeListener(CountDownLatch latch) {
-        this.latch = latch;
-    }
-
-    @Override
-    public void onConnectionChanged(ConnectionState connectionState, boolean isConnected) {
-        this.connectionState = connectionState;
-        this.isConnected = isConnected;
-        onConnectionChangedCount++;
-        threadName = Thread.currentThread().getName();
-        latch.countDown();
+    override fun onConnectionChanged(connectionState: ConnectionState?, isConnected: Boolean) {
+        this.connectionState = connectionState
+        this.isConnected = isConnected
+        onConnectionChangedCount++
+        threadName = Thread.currentThread().name
+        latch.countDown()
     }
 }

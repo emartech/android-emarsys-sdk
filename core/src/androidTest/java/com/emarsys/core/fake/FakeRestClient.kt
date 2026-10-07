@@ -1,55 +1,37 @@
-package com.emarsys.core.fake;
+package com.emarsys.core.fake
 
-import static org.mockito.Mockito.mock;
+import com.emarsys.core.CoreCompletionHandler
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
+import com.emarsys.core.connection.ConnectionProvider
+import com.emarsys.core.provider.timestamp.TimestampProvider
+import com.emarsys.core.request.RestClient
+import com.emarsys.core.request.model.RequestModel
+import com.emarsys.core.response.ResponseHandlersProcessor
+import org.mockito.kotlin.mock
 
-import com.emarsys.core.CoreCompletionHandler;
-import com.emarsys.core.api.result.Try;
-import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory;
-import com.emarsys.core.connection.ConnectionProvider;
-import com.emarsys.core.provider.timestamp.TimestampProvider;
-import com.emarsys.core.request.RequestTask;
-import com.emarsys.core.request.RestClient;
-import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.response.ResponseHandlersProcessor;
-import com.emarsys.core.response.ResponseModel;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-public class FakeRestClient extends RestClient {
-
-    private final List<Object> fakeResults;
-
-    @SuppressWarnings("unchecked")
-    public FakeRestClient(Object... fakeResults) {
-        super(mock(ConnectionProvider.class), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class), mock(List.class),
-                ConcurrentHandlerHolderFactory.INSTANCE.create());
-        for (Object o : fakeResults) {
-            if (!(o instanceof Integer || o instanceof Exception)) {
-                throw new IllegalArgumentException("FakeResults list can only contain Integers and Exceptions!");
-            }
+class FakeRestClient(vararg fakeResults: Any) : RestClient(
+    mock<ConnectionProvider>(),
+    mock<TimestampProvider>(),
+    mock<ResponseHandlersProcessor>(),
+    mock<List<*>>() as List<com.emarsys.core.Mapper<RequestModel, RequestModel>>,
+    ConcurrentHandlerHolderFactory.create()
+) {
+    private val fakeResults: MutableList<Any> = fakeResults.onEach {
+        require(it is Int || it is Exception) {
+            "FakeResults list can only contain Integers and Exceptions!"
         }
-        this.fakeResults = new ArrayList<>(Arrays.asList(fakeResults));
-    }
+    }.toMutableList()
 
-    @Override
-    public void execute(RequestModel model, CoreCompletionHandler completionHandler) {
-        Try<ResponseModel> result = create(model).execute();
-        if (result.getErrorCause() != null && result.getResult() != null) {
-            completionHandler.onError(model.getId(), result.getResult());
-        } else if (result.getErrorCause() != null) {
-            completionHandler.onError(model.getId(), (Exception) result.getErrorCause());
-        } else {
-            completionHandler.onSuccess(model.getId(), result.getResult());
-        }
-    }
-
-    private RequestTask create(RequestModel model) {
-        if (fakeResults.isEmpty()) {
-            throw new IllegalStateException("No more predefined fake responses!");
-        } else {
-            return new FakeRequestTask(model, fakeResults.remove(0));
+    override fun execute(model: RequestModel, completionHandler: CoreCompletionHandler) {
+        val result = FakeRequestTask(model, fakeResults.removeAt(0)).execute()
+            ?: throw IllegalStateException("No more predefined fake responses!")
+        when {
+            result.errorCause != null && result.result != null ->
+                completionHandler.onError(model.id, result.result!!)
+            result.errorCause != null ->
+                completionHandler.onError(model.id, result.errorCause as Exception)
+            else ->
+                completionHandler.onSuccess(model.id, result.result!!)
         }
     }
 }
