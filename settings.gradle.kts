@@ -43,6 +43,9 @@ include(
     ":mobile-engage-api",
     ":predict",
     ":predict-api",
-    ":sample",
     ":testUtils"
 )
+
+if (file("sample").exists()) {
+    include(":sample")
+}
