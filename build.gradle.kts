@@ -1,6 +1,23 @@
 import org.ajoberstar.grgit.Grgit
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+// Required workaround: use security-fixed Bouncy Castle, Guava, and Commons Lang on the AGP plugin classpath.
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        constraints {
+            add("classpath", "com.google.guava:guava:33.7.2-jre")
+            add("classpath", "org.bouncycastle:bcprov-jdk18on:1.86")
+            add("classpath", "org.bouncycastle:bcpkix-jdk18on:1.86")
+            add("classpath", "org.bouncycastle:bcutil-jdk18on:1.86")
+            add("classpath", "org.apache.commons:commons-lang3:3.21.0")
+        }
+    }
+}
+
 plugins {
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.android.application) apply false

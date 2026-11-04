@@ -13,6 +13,7 @@ dependencies {
     implementation(project(":core-api"))
     implementation(libs.google.tink)
     implementation(libs.kotlinx.coroutines.core)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
     implementation(libs.androidx.activity)
     implementation(libs.startup.runtime)
     androidTestImplementation(project(":testUtils"))

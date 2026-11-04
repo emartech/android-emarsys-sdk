@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.kotlin.reflect)
     api(libs.junit)
     api(libs.kotest.assertions.core)
+    api(libs.kotest.assertions.table)
     api(libs.kotest.runner.junit4)
     api(libs.mockito.android)
     api(libs.mockito.kotlin)
