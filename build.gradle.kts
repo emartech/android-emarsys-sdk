@@ -1,7 +1,7 @@
 import org.ajoberstar.grgit.Grgit
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-// Required workaround: use security-fixed Bouncy Castle, Guava, and Commons Lang on the AGP plugin classpath.
+// Required workaround: use patched transitive dependencies in AGP plugin, Lint, and Kotlin tool classpaths.
 buildscript {
     repositories {
         google()
@@ -36,6 +36,26 @@ plugins {
 versionData()
 
 allprojects {
+    configurations.matching { it.name == "androidLintTool" }.configureEach {
+        project.dependencies.constraints {
+            add("androidLintTool", "com.google.guava:guava:33.7.2-jre")
+            add("androidLintTool", "org.bouncycastle:bcprov-jdk18on:1.86")
+            add("androidLintTool", "org.bouncycastle:bcpkix-jdk18on:1.86")
+            add("androidLintTool", "org.bouncycastle:bcutil-jdk18on:1.86")
+            add("androidLintTool", "org.apache.commons:commons-lang3:3.21.0")
+            add("androidLintTool", "org.apache.httpcomponents:httpclient:4.5.14")
+        }
+    }
+
+    configurations.matching {
+        it.name == "androidLintTool" || it.name == "kotlinAbiValidationCompatClasspath"
+    }.configureEach {
+        project.dependencies.constraints {
+            add(name, "org.jetbrains.kotlin:kotlin-stdlib:${libs.versions.kotlinCoreLibraries.get()}")
+            add(name, "org.jetbrains.kotlin:kotlin-reflect:${libs.versions.kotlinCoreLibraries.get()}")
+        }
+    }
+
     val sdkVersion: GitVersion by rootProject.extra
     group = "com.emarsys"
     version = sdkVersion.versionName
