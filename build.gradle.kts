@@ -48,7 +48,9 @@ allprojects {
     }
 
     configurations.matching {
-        it.name == "androidLintTool" || it.name == "kotlinAbiValidationCompatClasspath"
+        it.name == "androidLintTool" ||
+            it.name == "kotlinAbiValidationCompatClasspath" ||
+            it.name == "unified-test-platform-gradle-work-action"
     }.configureEach {
         project.dependencies.constraints {
             add(name, "org.jetbrains.kotlin:kotlin-stdlib:${libs.versions.kotlinCoreLibraries.get()}")
