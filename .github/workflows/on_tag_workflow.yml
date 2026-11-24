@@ -189,8 +189,8 @@ jobs:
       - name: Login to Jira
         uses: atlassian/gajira-login@master
         env:
-          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
-          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_BASE_URL: ${{ vars.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ vars.JIRA_USER_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
       - name: setup RELEASE_VERSION
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
@@ -198,9 +198,9 @@ jobs:
         id: create
         uses: atlassian/gajira-create@master
         with:
-          project: ${{ secrets.JIRA_PROJECT }}
+          project: ${{ vars.JIRA_PROJECT }}
           issuetype: Product docs
-          fields: ${{ secrets.JIRA_TICKET_JSON }}
+          fields: ${{ vars.JIRA_TICKET_JSON }}
           summary: |
             New Emarsys SDK release on Android
           description: |
