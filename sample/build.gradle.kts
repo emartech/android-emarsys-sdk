@@ -30,16 +30,6 @@ android {
         resValue("string", "sdk_version", sdkVersion.versionName)
         buildConfigField(
             "String",
-            "GOOGLE_OAUTH_SERVER_CLIENT_ID",
-            "\"${
-                env.fetch(
-                    "GOOGLE_OAUTH_SERVER_CLIENT_ID",
-                    System.getenv("GOOGLE_OAUTH_SERVER_CLIENT_ID") ?: ""
-                )
-            }\""
-        )
-        buildConfigField(
-            "String",
             "FIREBASE_WEB_SERVER_CLIENT_ID",
             "\"${
                 env.fetch(

@@ -24,11 +24,8 @@ env:
   ANDROID_RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_RELEASE_STORE_PASSWORD }}
   ANDROID_RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_RELEASE_KEY_ALIAS }}
   ANDROID_RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEY_PASSWORD }}
-  FIREBASE_PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID }}
-  FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
-  GOOGLE_OAUTH_SERVER_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH_SERVER_CLIENT_ID }}
-  GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
-  GOOGLE_PLAY_STORE_SERVICE_ACCOUNT_JSON_BASE64: ${{ secrets.GOOGLE_PLAY_STORE_SEVICE_ACCOUNT_JSON_BASE64 }}
+  GOOGLE_SERVICES_JSON_BASE64: ${{ vars.GOOGLE_SERVICES_JSON_BASE64 }}
+  GOOGLE_PLAY_STORE_SERVICE_ACCOUNT_JSON_BASE64: ${{ secrets.GOOGLE_PLAY_STORE_SERVICE_ACCOUNT_JSON_BASE64 }}
   ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ vars.OSSRH_USERNAME }}
   ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.OSSRH_PASSWORD }}
   SONATYPE_STAGING_PROFILE_ID: ${{ secrets.SONATYPE_STAGING_PROFILE_ID }}
@@ -174,11 +171,3 @@ jobs:
           job_status: 'success'
           user_icon: '${{env.SLACK_ICON}}'
           actions: '[{ "type": "button", "text": "View actions", "url": "https://github.com/emartech/android-emarsys-sdk/actions" },{ "type": "button", "text": "View Firebase", "url": "https://console.firebase.google.com/project/ems-mobile-sdk/testlab/histories/" },{ "type": "button", "text": "Install page", "url": "http://ems-mobileteam-artifacts.s3-website-eu-west-1.amazonaws.com/index-ems.html" }]'
-
-      - name: Trigger automerge
-        if: ${{ !contains(needs.*.result, 'cancelled') && !contains(needs.*.result, 'failure') && github.event.pull_request != null && github.actor == 'dependabot[bot]' && github.event.pull_request.merged == false}}
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.AUTO_MERGE_TOKEN }}
-          event-type: checks-complete
-          client-payload: '{ "prNumber": "${{ github.event.pull_request.number }}"}'
