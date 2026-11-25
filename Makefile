@@ -54,7 +54,7 @@ test-android-firebase-emulator-api29: check-env ## run Android Instrumented test
        --type instrumentation \
        --app ./sample/build/outputs/apk/androidTest/debug/sample-debug-androidTest.apk \
        --test ./$(MODULE_NAME)/build/outputs/apk/androidTest/debug/$(MODULE_NAME)-debug-androidTest.apk \
-       --device model=Pixel2.arm,version=29,locale=en,orientation=portrait \
+       --device model=SmallPhone,version=29,locale=en,orientation=portrait \
        --client-details matrixLabel="Android Emarsys SDK - virtual devices"
 
 test-android-firebase-emulator-api35: check-env ## run Android Instrumented tests on API 35 emulator on Firebase Test Lab
